@@ -1,0 +1,45 @@
+/*-----------------------------------------------------------------------*/
+/* Recurring events admin style */
+/*-----------------------------------------------------------------------*/
+
+.ev-advanced-repeat,
+.ev-advanced-monthly-repeat,
+.ev-advanced-yearly-repeat {
+    display:                 none;
+}
+.ev-show-advanced label {
+    display:                 block;
+    text-align:              right;
+    width:                   100%;
+    float:                   none;
+    font-weight:             normal;
+    color:                   #43b1b0;
+}
+.ev-short-input input {
+    width:                   10em;
+}
+.ev-short-input .interval-units {
+    padding:                 0 0 0 12px;
+}
+.ev-days-input label {
+    width:                   14%;
+}
+.ev-double-input {
+}
+.ev-half-field {
+    display:                 inline-block;
+    width:                   40%;
+}
+.ev-half-field .field-content {
+    width:                   100%;
+}
+.ev-half-field:last-child {
+    margin-left:             2.5%;
+}
+.ev-ical-value {
+    font-size:               10px;
+    color:                   #aaa;
+}
+#id_overrides-chooser ul.actions {
+    display:                 none;
+}

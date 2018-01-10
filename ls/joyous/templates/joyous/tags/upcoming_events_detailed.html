@@ -1,0 +1,8 @@
+{% load wagtailcore_tags %}
+{% if events %}
+    <div class="upcoming-events upcoming-events-detailed">
+      {% for title, event in events %}
+        {% include "joyous/includes/event_item.html" with event=event %}
+      {% endfor %}
+    </div>
+{% endif %}

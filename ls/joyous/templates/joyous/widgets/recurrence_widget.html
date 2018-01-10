@@ -1,0 +1,141 @@
+{% load wagtailadmin_tags %}
+
+<div id="{{ attrs.id }}" class="ev-recurrence-fields">
+    <ul class="fields ev-simple-repeat">
+        <li>
+            <div class="field date_field admin_date_input">
+                <label>From Date</label>
+                <div class="field-content">
+                    <div class="input ev-start-date">
+                      {{ rendered_widgets.0 }}
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="field typed_choice_field">
+                <label>Frequency</label>
+                <div class="field-content">
+                    <div class="input ev-freq-choice">
+                        {{ rendered_widgets.1 }}
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="date_field admin_date_input">
+                <label>Until Date</label>
+                <div class="field-content">
+                    <div class="input ev-until-date">
+                      {{ rendered_widgets.5 }}
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="ev-show-advanced">
+        <label ><input class="ev-show-advanced-cbx" type="checkbox">Use Advanced Options</label>
+    </div>
+    <ul class="fields ev-advanced-repeat">
+        <li>
+            <div class="number_input">
+                <label>Every</label>
+                <div class="field-content">
+                    <div class="ev-short-input input ev-interval-num">
+                        {{ rendered_widgets.2 }}
+                        <span class="ev-interval-units"> Day(s)</span>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="ev-advanced-weekly-repeat">
+            <div class="">
+                <label>On Days</label>
+                <div class="field-content">
+                    <div class="ev-days-input input ev-weekdays">
+                        {{ rendered_widgets.3 }}
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="ev-advanced-monthly-repeat">
+            <div class="ev-double-field ev-primary">
+                <label>On </label>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-ord-choice">
+                            {{ rendered_widgets.6 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-day-choice">
+                            {{ rendered_widgets.7 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ev-double-field ev-secondary">
+                <label>And </label>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-ord-choice">
+                            {{ rendered_widgets.8 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-day-choice">
+                            {{ rendered_widgets.9 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ev-double-field ev-secondary">
+                <label>And </label>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-ord-choice">
+                            {{ rendered_widgets.10 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ev-half-field typed_choice_field">
+                    <div class="field-content">
+                        <div class="input ev-day-choice">
+                            {{ rendered_widgets.11 }}
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="ev-advanced-yearly-repeat">
+            <div class="typed_choice_field">
+                <label>Of</label>
+                <div class="field-content">
+                    <div class="input ev-month-choice">
+                      {{ rendered_widgets.12 }}
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="ev-ical-value">
+        {{ value_r }}
+        <br/>
+        {{ value_s }}
+    </div>
+</div>
+<div class="object-help help">
+    What are the rules for when this event recurrs?
+</div>

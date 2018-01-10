@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load joyous_tags wagtailcore_tags wagtailimages_tags static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+{% endblock %}
+
+{% block body_class %}template-{{ self.get_verbose_name|slugify }}{% endblock %}
+
+{% block background %}
+  <div id="overlay"></div>
+  <div class="popup-outer">
+    <div id="read-more-events" class="calendar popup">
+      <a class="close" href="#">×</a>  
+      <div class="day-title"></div>
+      <div class="days-events"></div>
+    </div>
+  </div>
+{% endblock background %}
+
+{% block content %}
+  <div class="content">
+    <div class="page-heading">
+      <h2>{{ page.title }}</h2>
+    </div>
+    <div class="content-inner">
+      {{ page.intro|richtext }}
+
+      {% block cal_options %}
+      <div class="calendar-options clearfix">
+        {% block events_view %}
+        <div class="events-view">
+        </div>
+        {% endblock events_view %}
+      </div>
+      {% endblock cal_options %}
+      <table class="calendar">
+        <thead>
+          {% block cal_heading %}
+          <tr class="heading">
+          </tr>
+          {% endblock cal_heading %}
+          {% block day_heading %}
+          <tr>
+            {% for dow in weekdayAbbr %}
+            <th class="{{dow|lower}}">{{dow}}</th>
+            {% endfor %}
+          </tr>
+          {% endblock day_heading %}
+        </thead>
+        {% block cal_body %}
+        <tbody>
+          {% for week in events %}
+          <tr>
+            {% for evod in week %}
+              <td class="noday">&nbsp;</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+        {% endblock cal_body %}
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript" src="{% static 'joyous/js/calendar.js' %}"></script>
+{% endblock %}

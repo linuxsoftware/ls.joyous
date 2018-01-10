@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load joyous_tags wagtailcore_tags wagtailimages_tags static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+{% endblock %}
+
+{% block body_class %}template-{{ self.get_verbose_name|slugify }}{% endblock %}
+
+{% block content %}
+  <div class="content">
+    <div class="page-heading">
+      <h2>{{ page.title }}</h2>
+    </div>
+    <div class="content-inner">
+      {{ page.intro|richtext }}
+
+      {% block cal_options %}
+      <div class="calendar-options clearfix">
+        {% block events_view %}
+        <div class="events-view">
+          <a class="together list" href="{{ listUrl }}">Upcoming Events</a> |
+          <a class="together weekly" href="{{ weeklyUrl }}">Weekly View</a> |
+          <a class="together monthly" href="{{ monthlyUrl }}">Monthly View</a>
+        </div>
+        {% endblock events_view %}
+        <h3>Past Events</h3>
+      </div>
+      {% endblock cal_options %}
+
+      <div class="upcoming-events upcoming-events-detailed">
+        {% for title, event in events %}
+          {% include "joyous/includes/event_item.html" with event=event %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

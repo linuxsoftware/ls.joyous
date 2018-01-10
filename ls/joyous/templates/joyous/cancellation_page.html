@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load joyous_tags wagtailcore_tags wagtailimages_tags static %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+{% endblock %}
+
+{% block content %}
+{% with event=page.overrides %}
+  <div class="content">
+    <div class="event clearfix">
+      {% if page.status %}
+      <div class="event-status">
+        {{ page.status_text }}
+      </div>
+      {% endif %}
+      {% if page.exception_title %}
+        <h1 class="event-heading">{{ page.exception_title }}</h1>
+      {% else %}
+        <h1 class="event-heading">{{ page.title }}</h1>
+      {% endif %}
+      <div class="event-image">
+        {% image event.image width-350 %}
+      </div>
+      {% if event.group %}
+      <div class="event-group-page">
+        <a href="{% pageurl event.group %}"><h4>{{ event.group.title }}</h4></a>
+      </div>
+      {% endif %}
+      <div class="event-when">
+        {{ page.when }}
+      </div>
+      {% if event.location %}
+      <div class="event-location">
+        {{ event.location }}
+      </div>
+      {% endif %}
+      {% if event.website %}
+      <div class="event-website">
+        <a href="{{ event.website }}" target="_blank">{{ event.website }}</a>
+      </div>
+      {% endif %}
+      <div class="event-cancellation-details">
+        {{ page.cancellation_details|richtext }}
+      </div> 
+    </div>
+    <div class="event-overrides page-index">
+      <a class="item" href="{% pageurl event %}">See also <div class="item-heading">other occurences</div> of this event.</a>
+    </div>
+  </div>
+{% endwith %}
+{% endblock %}

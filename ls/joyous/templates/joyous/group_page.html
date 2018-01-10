@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags joyous_tags %}
+
+{% block extra_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+{% endblock %}
+
+{% block body_class %}template-{{ page.get_verbose_name|slugify }}{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="page-heading">
+    <h2>{{ page.title }}</h2>
+  </div>
+  <div class="content-inner">
+    {{ page.content|richtext }}
+    {% group_upcoming_events %}
+  </div>
+</div>
+{% endblock %}

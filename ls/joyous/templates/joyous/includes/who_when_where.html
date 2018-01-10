@@ -1,0 +1,7 @@
+{% load joyous_tags wagtailcore_tags wagtailimages_tags static %}
+{% if event.group %}
+<div class="event-group-page">
+  <a href="{% pageurl event.group %}">{{ event.group.title }}</a>
+</div>
+{% endif %}
+{% include "joyous/includes/when_where.html" with event=event only %}

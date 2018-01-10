@@ -1,0 +1,41 @@
+{% extends "joyous/calendar_base.html" %}
+{% load wagtailcore_tags %}
+
+{% block events_view %}
+<div class="events-view">
+  <a class="together list" href="{{ listUrl }}">List View</a> |
+  <a class="together weekly" href="{{ weeklyUrl }}">Weekly View</a> |
+  <a class="together monthly" href="{{ thisMonthUrl }}">This Month</a>
+</div>
+{% endblock events_view %}
+
+{% block cal_heading %}
+<tr class="heading">
+  <th colspan="7" class="month">
+    <span class="month-heading">
+      <a title="Previous month" href="{{ prevMonthUrl }}">&lt;</a>
+      <div class="month-name">{{ monthName }}</div>
+      <a title="Next month" href="{{ nextMonthUrl }}">&gt;</a>
+    </span>
+    <span class="year-heading">
+      <a title="Previous year" href="{{ prevYearUrl }}">&lt;</a>
+      <div class="year-number">{{ year }}</div>
+      <a title="Next year" href="{{ nextYearUrl }}">&gt;</a>
+    </span>
+  </th>
+</tr>
+{% endblock cal_heading %}
+
+{% block cal_body %}
+<tbody class="monthly-view">
+  {% for week in events %}
+  {% block cal_week %}
+  <tr>
+    {% for evod in week %}
+      {% include "joyous/includes/calendar_month_day.html" %}
+    {% endfor %}
+  </tr>
+  {% endblock cal_week %}
+  {% endfor %}
+</tbody>
+{% endblock cal_body %}

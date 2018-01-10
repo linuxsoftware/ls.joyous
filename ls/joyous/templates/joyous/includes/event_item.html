@@ -1,0 +1,14 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<section class="event-item clearfix">
+  <a class="event-title" href="{% pageurl event %}">{{ title }}</a>
+  {% if event.image %}
+  <div class="event-image">
+    <a class="img-link" href="{% pageurl event %}">{% image event.image width-250 %}</a>
+  </div>
+  {% endif %}
+  {% include "joyous/includes/who_when_where.html" with event=event %}
+  <div class="event-details">
+    {{ event.details|richtext|truncatewords_html:150 }}
+  </div>
+</section>   

@@ -1,0 +1,16 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+{% if event.status %}
+<div class="event-status">
+  {{ event.status_text }}
+</div>
+{% endif %}
+<div class="event-heading">
+  <h2>{{ event.title }}</h2>
+</div>
+<div class="event-image">
+  {% image event.image width-350 %}
+</div>
+{% include "joyous/includes/who_when_where.html" with event=event only %}
+<div class="event-details">
+  {{ event.details|richtext }}
+</div> 

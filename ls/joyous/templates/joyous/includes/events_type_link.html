@@ -1,0 +1,9 @@
+{% load wagtailcore_tags %}
+{% if link %}
+{% if link == page %}
+  <span class="cal-link current together">{{ link.eventsType }}</span>
+{% else %}
+  <a class="cal-link together" href="{% pageurl link %}">{{ link.eventsType }}</a>
+{% endif %}
+{% if link1 or link2 %} | {% endif %}
+{% endif %}
