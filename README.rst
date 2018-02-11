@@ -48,3 +48,7 @@ Settings
 * ``JOYOUS_GROUP_SELECTABLE``: Enable group selection? ``False`` or ``True``
 * ``JOYOUS_GROUP_MODEL``: To swap out the group model
 * ``JOYOUS_TIME_INPUT``: Prompt for ``12`` or ``24`` hour times
+
+Demo
+-----
+Yet another demonstration Wagtail website `code <http://github.com/linuxsoftware/orange-wagtail-site>`_ | `live <http://demo.linuxsoftware.nz>`_
