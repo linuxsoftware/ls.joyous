@@ -20,7 +20,7 @@ from ..holidays.parser import parseHolidays
 from ..utils.telltime import getDatetime, datetimeFrom, datetimeTo
 from ..utils.telltime import timeFormat, dateFormat
 # from ..utils.ical import export_event
-from ..recurrence import RecurrenceField, RecurrencePanel
+from ..recurrence import RecurrenceField
 from ..recurrence import ExceptionDatePanel
 from ..widgets import TimeInput
 from .groups import get_group_model_string, get_group_model
@@ -377,7 +377,7 @@ class RecurringEventPage(Page, EventBase):
     content_panels = Page.content_panels + [
         FieldPanel('category'),
         ImageChooserPanel('image'),
-        RecurrencePanel('repeat'),
+        FieldPanel('repeat'),
         FieldPanel('time_from', widget=TimeInput),
         FieldPanel('time_to', widget=TimeInput),
         FieldPanel('details', classname="full"),

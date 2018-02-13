@@ -18,6 +18,7 @@ from django.db.models import Field
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
+from django.forms.fields import Field as FormField
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -421,37 +422,8 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
         return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
                      js=[static("joyous/js/recurrence_admin.js")])
 
-# ------------------------------------------------------------------------------
-class RecurrenceFormField(CharField):
+class RecurrenceFormField(FormField):
     widget = RecurrenceWidget
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def to_python(self, value):
-        return value
-
-    def validate(self, value):
-        return super().validate(value)
-
-# ------------------------------------------------------------------------------
-class BaseRecurrencePanel(BaseFieldPanel):
-    object_template = "joyous/edit_handlers/recurrence_object.html"
-
-# ------------------------------------------------------------------------------
-class RecurrencePanel(object):
-    def __init__(self, field_name, classname=""):
-        self.field_name = field_name
-        self.classname = classname
-
-    def bind_to_model(self, model):
-        members = {
-            'model':      model,
-            'field_name': self.field_name,
-            'classname':  self.classname,
-            'widget':     RecurrenceWidget,
-        }
-        return type(str('_RecurrencePanel'), (BaseRecurrencePanel,), members)
 
 # ------------------------------------------------------------------------------
 class ExceptionDateInput(AdminDateInput):

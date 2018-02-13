@@ -51,4 +51,5 @@ class _WagtailImporter(object):
         module = sys.modules[fullname] = sys.modules[wt_fullname]
         return module
 
-sys.meta_path.insert(0, _WagtailImporter())
+if not any(type(m) is _WagtailImporter for m in sys.meta_path):
+    sys.meta_path.insert(0, _WagtailImporter())
