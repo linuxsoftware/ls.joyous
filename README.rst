@@ -8,6 +8,10 @@ Events
 -------
 Simple, multiday, and recurring events can be added to the calendar.
 
+Demo
+-----
+Yet another demonstration Wagtail website `code <http://github.com/linuxsoftware/orange-wagtail-site>`_ | `live <http://demo.linuxsoftware.nz>`_
+
 Installation
 -------------
 
@@ -49,6 +53,15 @@ Settings
 * ``JOYOUS_GROUP_MODEL``: To swap out the group model
 * ``JOYOUS_TIME_INPUT``: Prompt for ``12`` or ``24`` hour times
 
-Demo
------
-Yet another demonstration Wagtail website `code <http://github.com/linuxsoftware/orange-wagtail-site>`_ | `live <http://demo.linuxsoftware.nz>`_
+Compatibility
+--------------
+ls.joyous is known to work with the following versions of Python/Django/Wagtail.
+
+======   ======   =======
+Python   Django   Wagtail
+======   ======   =======
+3.5.4    2.0.2    2.0b1
+3.5.4    1.11.9   1.13.1
+======   ======   =======
+
+I am aiming to support the latest version of each.  Older versions may be dropped without much notice.  Let me know if that is a problem for you.  Other versions may work - YMMV.

@@ -1,10 +1,12 @@
 # ------------------------------------------------------------------------------
 # Joyous initialization
 # ------------------------------------------------------------------------------
+from .utils import wagtailcompat
+
 default_app_config = 'ls.joyous.apps.JoyousAppConfig'
 
 # ------------------------------------------------------------------------------
-# Default settings
+# Note: Default settings
 # ------------------------------------------------------------------------------
 # settings.JOYOUS_DAY_OF_WEEK_START = "Sunday"
 # settings.JOYOUS_DEFAULT_EVENTS_VIEW = "Monthly"
