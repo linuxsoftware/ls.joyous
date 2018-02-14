@@ -58,7 +58,7 @@ class _WagtailImporter(object):
     def _get_wt_fullname(self, fullname):
         names = fullname.split('.')
         wt_name = None
-        if (len(names) > 2):
+        if len(names) > 2:
             wt_name = self.wt_map.get(".".join(names[1:3]))
             if wt_name is not None:
                 names[1:3] = wt_name.split(".")

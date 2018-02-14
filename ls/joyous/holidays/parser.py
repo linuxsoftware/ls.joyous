@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-"""
+# ------------------------------------------------------------------------------
+# Holidays settings parser
+# ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import re
-from .. import holidays
+import __init__ as holidays
 
 __all__ = ["parseHolidays"]
 
