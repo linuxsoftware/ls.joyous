@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import re
-import __init__ as holidays
+from .. import holidays
 
 __all__ = ["parseHolidays"]
 
