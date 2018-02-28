@@ -79,7 +79,6 @@ class EventBase(models.Model):
 
     content_panels1 = [
         FieldPanel('details', classname="full"),
-        #FieldPanel('location'),
         MapFieldPanel('location'),
         FieldPanel('website'),
     ]
@@ -133,13 +132,13 @@ class EventBase(models.Model):
     def _getFromDt(self):
         raise NotImplementedError()
 
-ThisEvent = namedtuple("ThisEvent", "title page")
-
 def removeContentPanels(remove):
     SimpleEventPage._removeContentPanels(remove)
     MultidayEventPage._removeContentPanels(remove)
     RecurringEventPage._removeContentPanels(remove)
     PostponementPage._removeContentPanels(remove)
+
+ThisEvent = namedtuple("ThisEvent", "title page")
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
@@ -203,7 +202,7 @@ def _getUpcomingEvents(simpleEventsQry=None,
                 events.append(ThisEvent(event.title, event))
     if postponedEventsQry is not None:
         for event in postponedEventsQry.live().filter(date__gte=today):
-            if event._upcoming_datetime_from >= now:
+            if event._upcoming_datetime_from:
                 events.append(ThisEvent(event.postponement_title, event))
     return events
 
@@ -250,14 +249,15 @@ def _getPastEvents(simpleEventsQry=None,
         for event in postponedEventsQry.live().filter(date__lte=today):
             if event._past_datetime_from:
                 events.append(ThisEvent(event.postponement_title, event))
-    events.sort(key=attrgetter('page._past_datetime_from'), reverse=True)
     return events
 
 def getAllPastEvents():
-    return _getPastEvents(SimpleEventPage.objects,
-                          MultidayEventPage.objects,
-                          RecurringEventPage.objects,
-                          PostponementPage.objects)
+    events = _getPastEvents(SimpleEventPage.objects,
+                            MultidayEventPage.objects,
+                            RecurringEventPage.objects,
+                            PostponementPage.objects)
+    events.sort(key=attrgetter('page._past_datetime_from'), reverse=True)
+    return events
 
 # ------------------------------------------------------------------------------
 class SimpleEventPage(Page, EventBase):
@@ -465,10 +465,10 @@ class RecurringEventPage(Page, EventBase):
                 return "finished"
         if self.time_from:
             todayStart = dt.datetime.combine(dt.date.today(), dt.time.min)
-            eventStart = self.__afterOrPostponedTo(todayStart)[0]
+            eventStart, event = self.__afterOrPostponedTo(todayStart)
             if eventStart is None:
                 return "finished"
-            eventFinish = datetimeTo(eventStart.date(), self.time_to)
+            eventFinish = datetimeTo(eventStart.date(), event.time_to)
             if eventStart < now < eventFinish:
                 # If there are two occurences on the same day then we may miss
                 # that one of them has started
@@ -523,21 +523,24 @@ class RecurringEventPage(Page, EventBase):
         if after:
             # is there a postponed event before that?
             # nb: range is inclusive
-            postponement = PostponementPage.objects.live().child_of(self)                       \
-                                           .filter(date__range=(fromDt.date(), after.date()))   \
-                                           .order_by('date', 'time_from').first()
-            if postponement:
+            postponements = PostponementPage.objects.live().child_of(self)                       \
+                                            .filter(date__range=(fromDt.date(), after.date()))   \
+                                            .order_by('date', 'time_from')
+            for postponement in postponements:
                 postDt = datetimeFrom(postponement.date, postponement.time_from)
-                if postDt < after:
+                postDtMax = getDatetime(postponement.date, postponement.time_from, dt.time.max)
+                if postDt < after and postDtMax >= fromDt:
                     return (postDt, postponement)
         else:
             # is there a postponed event then?
-            postponement = PostponementPage.objects.live().child_of(self)                       \
-                                           .filter(date__gte=fromDt.date())                     \
-                                           .order_by('date', 'time_from').first()
-            if postponement:
+            postponements = PostponementPage.objects.live().child_of(self)                       \
+                                            .filter(date__gte=fromDt.date())                     \
+                                            .order_by('date', 'time_from')
+            for postponement in postponements:
                 postDt = datetimeFrom(postponement.date, postponement.time_from)
-                return (postDt, postponement)
+                postDtMax = getDatetime(postponement.date, postponement.time_from, dt.time.max)
+                if postDtMax >= fromDt:
+                    return (postDt, postponement)
         return (after, self)
 
     def __after(self, fromDt):
@@ -648,8 +651,8 @@ class EventExceptionBase(models.Model):
         return None
 
     @property
-    def status_text(self):
-        return EventBase.status_text(self)
+    def time_from(self):
+       return self.overrides.time_from
 
     @property
     def when(self):
@@ -699,10 +702,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
     promote_panels = []
 
     @property
-    def time_from(self):
-        return self.overrides.time_from
-
-    @property
     def status(self):
         now = dt.datetime.now()
         if datetimeTo(self.except_date, self.overrides.time_to) < now:
@@ -713,7 +712,12 @@ class ExtraInfoPage(Page, EventExceptionBase):
         return None
 
     @property
+    def status_text(self):
+        return EventBase.status_text(self)
+
+    @property
     def exception_title(self):
+        # TODO allow an extra_title
         return self.overrides.title
 
     def _getFromDt(self):
@@ -765,10 +769,6 @@ class CancellationPage(Page, EventExceptionBase):
     promote_panels = []
 
     @property
-    def time_from(self):
-        return self.overrides.time_from
-
-    @property
     def status(self):
         return "cancelled"
 
@@ -803,7 +803,7 @@ class PostponementPageForm(EventExceptionPageForm):
             page.save()
         return page
 
-class PostponementPage(CancellationPage, EventBase):
+class PostponementPage(EventBase, CancellationPage):
     class Meta:
         verbose_name = "Postponement"
 
@@ -829,7 +829,6 @@ class PostponementPage(CancellationPage, EventBase):
             FieldPanel('time_from', widget=TimeInput),
             FieldPanel('time_to', widget=TimeInput),
             FieldPanel('details', classname="full"),
-            #FieldPanel('location'),
             MapFieldPanel('location'),
             FieldPanel('website')],
             heading="Postponed to"),
