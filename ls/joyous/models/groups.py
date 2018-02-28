@@ -40,6 +40,7 @@ def get_group_model():
         raise ImproperlyConfigured(
             "JOYOUS_GROUP_MODEL refers to model '%s' that has not been installed" % model_string
         )
+
 # ------------------------------------------------------------------------------
 # GroupPage
 # ------------------------------------------------------------------------------
@@ -49,6 +50,7 @@ class GroupPage(Page):
                      'joyous.RecurringEventPage']
 
     content = RichTextField(default='', blank=True)
+    content.help_text = "An area of text for whatever you like"
 
     content_panels = Page.content_panels + [
         FieldPanel('content', classname="full"),

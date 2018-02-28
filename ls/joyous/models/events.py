@@ -7,6 +7,7 @@ from collections import namedtuple
 from operator import attrgetter
 from django.conf import settings
 from django.db import models
+from django.utils.html import format_html
 from wagtail.wagtailcore.models import Page
 from wagtail.wagtailcore.fields import RichTextField
 from wagtail.wagtailadmin.edit_handlers import FieldPanel, MultiFieldPanel, \
@@ -15,7 +16,6 @@ from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
 from wagtail.wagtailimages import get_image_model_string
 from wagtail.wagtailsearch import index
 from wagtail.wagtailadmin.forms import WagtailAdminPageForm
-from django.utils.html import format_html
 from ..holidays.parser import parseHolidays
 from ..utils.telltime import getDatetime, datetimeFrom, datetimeTo
 from ..utils.telltime import timeFormat, dateFormat
@@ -24,6 +24,14 @@ from ..recurrence import RecurrenceField
 from ..recurrence import ExceptionDatePanel
 from ..widgets import TimeInput
 from .groups import get_group_model_string, get_group_model
+
+try:
+    # Use wagtailgmaps for location if it is installed
+    # but don't depend upon it
+    settings.INSTALLED_APPS.index('wagtailgmaps')
+    from wagtailgmaps.edit_handlers import MapFieldPanel
+except (ValueError, ImportError):
+    MapFieldPanel = FieldPanel
 
 # ------------------------------------------------------------------------------
 # Event Pages
@@ -49,25 +57,34 @@ class EventBase(models.Model):
                                  verbose_name="Category",
                                  on_delete=models.SET_NULL,
                                  blank=True, null=True)
-    time_from = models.TimeField("Start time", null=True, blank=True)
-    time_to = models.TimeField("End time", null=True, blank=True)
     image = models.ForeignKey(get_image_model_string(),
                               null=True, blank=True,
                               on_delete=models.SET_NULL,
                               related_name='+')
+    time_from = models.TimeField("Start time", null=True, blank=True)
+    time_to = models.TimeField("End time", null=True, blank=True)
     group_page  = models.ForeignKey(get_group_model_string(),
                                     null=True, blank=True,
                                     on_delete=models.SET_NULL,
                                     related_name="%(class)s_events",
                                     related_query_name="%(class)s_event")
-    location = models.CharField(max_length=255, blank=True)
     details  = RichTextField(blank=True)
+    location = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('location'),
         index.SearchField('details'),
     ]
+
+    content_panels1 = [
+        FieldPanel('details', classname="full"),
+        #FieldPanel('location'),
+        MapFieldPanel('location'),
+        FieldPanel('website'),
+    ]
+    if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
+        content_panels1.append(PageChooserPanel('group_page'))
 
     # adding the event as a child of a group automatically assigns the event to
     # that group.
@@ -106,10 +123,23 @@ class EventBase(models.Model):
         else:
             return ""
 
+    @classmethod
+    def _removeContentPanels(cls, remove):
+        if type(remove) is str:
+            remove = [remove]
+        cls.content_panels = [panel for panel in cls.content_panels
+                              if getattr(panel, "field_name", None) not in remove]
+
     def _getFromDt(self):
         raise NotImplementedError()
 
 ThisEvent = namedtuple("ThisEvent", "title page")
+
+def removeContentPanels(remove):
+    SimpleEventPage._removeContentPanels(remove)
+    MultidayEventPage._removeContentPanels(remove)
+    RecurringEventPage._removeContentPanels(remove)
+    PostponementPage._removeContentPanels(remove)
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
@@ -232,7 +262,7 @@ def getAllPastEvents():
 # ------------------------------------------------------------------------------
 class SimpleEventPage(Page, EventBase):
     class Meta:
-        verbose_name = "One-Off Event Page"
+        verbose_name = "Event Page"
 
     parent_page_types = ["joyous.CalendarPage",
                          get_group_model_string()]
@@ -246,12 +276,7 @@ class SimpleEventPage(Page, EventBase):
         FieldPanel('date'),
         FieldPanel('time_from', widget=TimeInput),
         FieldPanel('time_to', widget=TimeInput),
-        FieldPanel('details', classname="full"),
-        FieldPanel('location'),
-        FieldPanel('website'),
-    ]
-    if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
-        content_panels.append(PageChooserPanel('group_page'))
+        ] + EventBase.content_panels1
 
     @classmethod
     def getEventsByDay(cls, date_from, date_to):
@@ -307,12 +332,7 @@ class MultidayEventPage(Page, EventBase):
         FieldPanel('time_from', widget=TimeInput),
         FieldPanel('date_to'),
         FieldPanel('time_to', widget=TimeInput),
-        FieldPanel('details', classname="full"),
-        FieldPanel('location'),
-        FieldPanel('website'),
-    ]
-    if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
-        content_panels.append(PageChooserPanel('group_page'))
+        ] + EventBase.content_panels1
 
     @classmethod
     def getEventsByDay(cls, date_from, date_to):
@@ -380,12 +400,7 @@ class RecurringEventPage(Page, EventBase):
         FieldPanel('repeat'),
         FieldPanel('time_from', widget=TimeInput),
         FieldPanel('time_to', widget=TimeInput),
-        FieldPanel('details', classname="full"),
-        FieldPanel('location'),
-        FieldPanel('website'),
-        ]
-    if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
-        content_panels.append(PageChooserPanel('group_page'))
+        ] + EventBase.content_panels1
 
     @property
     def next_date(self):
@@ -613,6 +628,7 @@ class EventExceptionBase(models.Model):
     # child is saved and added.  (NB: is published version of parent)
     overrides = models.ForeignKey('joyous.RecurringEventPage',
                                   null=True, blank=False,
+                                  # can't set to CASCADE, so go with SET_NULL
                                   on_delete=models.SET_NULL,
                                   related_name='+')
     overrides.help_text = "The recurring event that we are updating."
@@ -813,7 +829,8 @@ class PostponementPage(CancellationPage, EventBase):
             FieldPanel('time_from', widget=TimeInput),
             FieldPanel('time_to', widget=TimeInput),
             FieldPanel('details', classname="full"),
-            FieldPanel('location'),
+            #FieldPanel('location'),
+            MapFieldPanel('location'),
             FieldPanel('website')],
             heading="Postponed to"),
     ]

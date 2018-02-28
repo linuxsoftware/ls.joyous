@@ -10,6 +10,7 @@
 {% if event.location %}
 <div class="event-location">
   {{ event.location }}
+  <a class="gmap" href="http://maps.google.com/?q={{ event.location }}">[map]</a>
 </div>
 {% endif %}
 {% if event.website %}
