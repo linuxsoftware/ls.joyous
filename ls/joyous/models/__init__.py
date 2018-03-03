@@ -8,6 +8,7 @@ from .events import CancellationPage
 from .events import PostponementPage
 
 from .events import getAllEventsByDay
+from .events import getAllEventsByWeek
 from .events import getAllUpcomingEvents
 from .events import getAllPastEvents
 from .events import getGroupUpcomingEvents

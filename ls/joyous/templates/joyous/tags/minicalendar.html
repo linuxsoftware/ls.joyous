@@ -1,0 +1,33 @@
+{% load wagtailcore_tags joyous_tags %}
+<table class="minicalendar">
+  <thead>
+    <tr class="heading">
+      <th colspan="7" class="month">
+        <span class="month-heading">
+          <div class="month-name">{{ monthName }}</div>
+        </span>
+        <span class="year-heading">
+          <div class="year-number">{{ year }}</div>
+        </span>
+      </th>
+    </tr>
+    {% block day_heading %}
+    <tr>
+      {% for dow, dowName in weekdayInfo %}
+      <th title="{{dowName}}" class="{{dow|lower}}">{{dowName|slice:":1"}}</th>
+      {% endfor %}
+    </tr>
+    {% endblock day_heading %}
+  </thead>
+  {% block minical_body %}
+  <tbody>
+    {% for week in events %}
+    <tr>
+      {% for evod in week %}
+        {% include "joyous/includes/minicalendar_day.html" %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% endblock minical_body %}
+</table>

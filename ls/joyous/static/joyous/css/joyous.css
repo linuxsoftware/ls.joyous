@@ -81,19 +81,9 @@ table.calendar {
     width:                 100%
 
 }
-table.calendar thead tr th {
+.calendar thead tr th {
     background:            white;
     padding:               5px 0;
-}
-table.calendar tbody tr td {
-    background:            white;
-    width:                 14.285%;
-    vertical-align:        top;
-    padding:               2px 1px 2px 2px;
-    position:              relative;
-    overflow:              hidden;
-}
-table.calendar thead tr th {
     border-right:          1px dotted #aaa;
     border-bottom:         2px solid #36454f;
 
@@ -102,29 +92,37 @@ table.calendar thead tr th {
     font-size:             24px;
     font-weight:           400;
 }
-table.calendar tr td {
+.calendar tbody tr td {
+    background:            white;
+    width:                 14.285%;
+    vertical-align:        top;
+    padding:               2px 1px 2px 2px;
+    position:              relative;
+    overflow:              hidden;
+}
+.calendar tr td {
     border-right:          1px dotted #aaa;
     border-bottom:         1px dotted #aaa;
 }
-table.calendar tbody tr td.yesterday {
+.calendar tbody tr td.yesterday {
     border-right:          1px solid #ffb442;
 }
-table.calendar tbody tr td.lastweek {
+.calendar tbody tr td.lastweek {
     border-bottom:          1px solid #ffb442;
 }
-table.calendar tbody tr td.today {
+.calendar tbody tr td.today {
     background:            #ffb442;
     border-right:          1px solid #ffb442;
     border-bottom:         1px solid #ffb442;
 }
-table.calendar thead tr th:last-child,
-table.calendar tbody tr td:last-child {
+.calendar thead tr th:last-child,
+.calendar tbody tr td:last-child {
     border-right:          none;
 }
-table.calendar tbody tr:last-child td {
+.calendar tbody tr:last-child td {
     border-bottom:         none;
 }
-table.calendar thead tr.heading th {
+.calendar thead tr.heading th {
     border-radius:         5px 5px 0 0;
     background:            #36454f;
     color:                 white;
@@ -133,18 +131,18 @@ table.calendar thead tr.heading th {
     border:                none;
 
 }
-table.calendar thead tr.heading a {
+.calendar thead tr.heading a {
     color:                 white;
 }
-table.calendar thead tr.heading a:hover,
-table.calendar thead tr.heading a:active {
+.calendar thead tr.heading a:hover,
+.calendar thead tr.heading a:active {
     color:                 white;
     text-decoration:       none;
 }
-table.calendar tbody tr:last-child td:first-child {
+.calendar tbody tr:last-child td:first-child {
     border-radius:         0 0 0 5px;
 }
-table.calendar tbody tr:last-child td:last-child {
+.calendar tbody tr:last-child td:last-child {
     border-radius:         0 0 5px 0;
 }
 .calendar .month-heading {
@@ -251,7 +249,6 @@ table.calendar tbody tr:last-child td:last-child {
 .calendar .days-events .event-title {
     font-size:             12px;
 }
-
 .calendar td.day a.read-more {
     position:              absolute;
     bottom:                0;
@@ -305,4 +302,70 @@ table.calendar tbody tr:last-child td:last-child {
     outline:               0;
 }
 
+/*-----------------------------------------------------------------------*/
+/* Joyous MiniCalendar */
+/*-----------------------------------------------------------------------*/
 
+table.minicalendar {
+    color:                 #36454f;
+    font-size:             12px;
+    line-height:           12px;
+    border-collapse:       collapse;
+}
+.minicalendar thead tr th {
+    padding:               5px;
+    font-weight:           bold;
+}
+.minicalendar thead tr.heading th {
+    text-align:            center;
+}
+.minicalendar thead .month-heading {
+    display:               inline-block;
+    padding:               0 4ex;
+}
+.minicalendar thead .month-heading .month-name {
+    display:               inline-block;
+    width:                 10ex;
+}
+.minicalendar thead .year-heading {
+    display:               inline-block;
+    padding:               0 4ex;
+}
+.minicalendar thead .year-heading .year-number {
+    display:               inline-block;
+    width:                 6ex;
+}
+.minicalendar tbody tr td {
+    padding:               0px;
+}
+.minicalendar tbody tr td .day-title {
+    margin:                0;
+    padding:               8px 8px 9px 8px;
+    float:                 right;
+}
+.minicalendar tbody tr td a,
+.minicalendar tbody tr td span {
+    padding:               0px;
+}
+.minicalendar tbody tr td.today .day-title {
+    background:            #ffb442;
+    background:            radial-gradient(circle at center, #ffb442 0%,#ffb442 50%,transparent 60%);
+}
+.minicalendar .holiday ,
+.minicalendar .sun  {
+    color:                 #950011;
+}
+.minicalendar tbody tr td a {
+    color:                 #36454f;
+    font-weight:           bold;
+    text-decoration:       none; 
+    border-bottom:         1px dotted #36454f;
+}
+.minicalendar tbody tr td a,
+.minicalendar tbody tr td a {
+    border-bottom:         1px dotted #950011;
+}
+.minicalendar tbody tr td a:hover {
+    border-bottom:         none;
+    text-decoration:       underline; 
+}

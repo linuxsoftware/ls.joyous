@@ -7,7 +7,7 @@
     <a class="img-link" href="{% pageurl event %}">{% image event.image width-250 %}</a>
   </div>
   {% endif %}
-  {% include "joyous/includes/who_when_where.html" with event=event %}
+  {% include "joyous/includes/who_when_where.html" %}
   <div class="event-details">
     {{ event.details|richtext|truncatewords_html:150 }}
   </div>

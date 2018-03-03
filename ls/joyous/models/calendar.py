@@ -3,18 +3,17 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar
-from itertools import groupby
 from django.conf import settings
-from django.shortcuts import render
-from django.http.response import Http404
+from django.shortcuts import render, redirect
 from wagtail.wagtailcore.models import Page
 from wagtail.wagtailcore.fields import RichTextField
 from wagtail.wagtailadmin.edit_handlers import FieldPanel
 from wagtail.contrib.wagtailroutablepage.models import RoutablePageMixin, route
 from wagtail.wagtailsearch import index
 from ..utils.weeks import week_info, gregorian_to_week_date
-from ..utils.weeks import week_of_month, weekday_abbr
+from ..utils.weeks import weekday_abbr
 from . import getAllEventsByDay
+from . import getAllEventsByWeek
 from . import getAllUpcomingEvents
 from . import getAllPastEvents
 
@@ -76,7 +75,6 @@ class CalendarPage(RoutablePageMixin, Page):
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
                                                  args=[year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
-        eventsByWeek = self._getAllEventsByWeek(year, month)
 
         prevMonth = month - 1
         prevMonthYear = year
@@ -107,7 +105,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'thisMonthUrl': myUrl(today.year, today.month),
                        'monthName':    calendar.month_name[month],
                        'weekdayAbbr':  weekday_abbr,
-                       'events':       eventsByWeek})
+                       'events':       self._getEventsByWeek(year, month)})
 
     @route(r"^week/$")
     @route(r"^{YYYY}/W{WW}/$".format(**DatePictures))
@@ -125,7 +123,7 @@ class CalendarPage(RoutablePageMixin, Page):
         week = int(week)
 
         firstDay, lastDay, prevYearNumWeeks, yearNumWeeks = week_info(year, week)
-        eventsInWeek = self._getEvents(firstDay, lastDay)
+        eventsInWeek = self._getEventsByDay(firstDay, lastDay)
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[firstDay.year, firstDay.month])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
@@ -162,6 +160,45 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weekName':     "Week {}".format(week),
                        'weekdayAbbr':  weekday_abbr,
                        'events':       [eventsInWeek]})
+
+    @route(r"^day/$")
+    @route(r"^{YYYY}/{MM}/{DD}/$".format(**DatePictures))
+    def serveDay(self, request, year=None, month=None, dom=None):
+        myurl = self.get_url(request)
+        today = dt.date.today()
+        if year is None: year = today.year
+        if month is None: month = today.month
+        if dom is None: dom = today.day
+        year = int(year)
+        month = int(month)
+        dom = int(dom)
+        day = dt.date(year, month, dom)
+
+        eventsOnDay = self._getEventsOnDay(day)
+        if len(eventsOnDay.all_events) == 1:
+            event = eventsOnDay.all_events[0].page
+            return redirect(event.get_url(request))
+
+        monthlyUrl = myurl + self.reverse_subpage('serveMonth',
+                                                  args=[year, month])
+        weekNum = gregorian_to_week_date(today)[1]
+        weeklyUrl = myurl + self.reverse_subpage('serveWeek',
+                                                 args=[year, weekNum])
+        listUrl = myurl + self.reverse_subpage('serveUpcoming')
+
+        return render(request, "joyous/calendar_list_day.html",
+                      {'self':         self,
+                       'page':         self,
+                       'year':         year,
+                       'month':        month,
+                       'dom':          dom,
+                       'day':          day,
+                       'monthlyUrl':   monthlyUrl,
+                       'weeklyUrl':    weeklyUrl,
+                       'listUrl':      listUrl,
+                       'monthName':    calendar.month_name[month],
+                       'weekdayName':  calendar.day_name[month],
+                       'events':       eventsOnDay})
 
     @route(r"^upcoming/$")
     def serveUpcoming(self, request):
@@ -205,26 +242,14 @@ class CalendarPage(RoutablePageMixin, Page):
                        'listUrl':      listUrl,
                        'events':       events})
 
-    def _getEvents(self, firstDay, lastDay):
+    def _getEventsOnDay(self, day):
+        return getAllEventsByDay(day, day)[0]
+
+    def _getEventsByDay(self, firstDay, lastDay):
         return getAllEventsByDay(firstDay, lastDay)
 
-    def _getAllEventsByWeek(self, year, month):
-        weeks = []
-        firstDay = dt.date(year, month, 1)
-        lastDay  = dt.date(year, month, calendar.monthrange(year, month)[1])
-        def calcWeekOfMonth(evod):
-            return week_of_month(evod.date)
-        events = self._getEvents(firstDay, lastDay)
-        for weekOfMonth, group in groupby(events, calcWeekOfMonth):
-            week = list(group)
-            if len(week) < 7:
-                padding = [None] * (7 - len(week))
-                if weekOfMonth == 0:
-                    week = padding + week
-                else:
-                    week += padding
-            weeks.append(week)
-        return weeks
+    def _getEventsByWeek(self, year, month):
+        return getAllEventsByWeek(year, month)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

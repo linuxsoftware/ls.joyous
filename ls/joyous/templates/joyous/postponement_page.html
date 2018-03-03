@@ -21,27 +21,7 @@
       <div class="event-image">
         {% image page.image width-350 %}
       </div>
-      {% if page.group %}
-      <div class="event-group-page">
-        <a href="{% pageurl page.group %}"><h4>{{ page.group.title }}</h4></a>
-      </div>
-      {% endif %}
-      <div class="event-when">
-        {{ page.when }}
-      </div>
-      <div class="event-postponed-from">
-        Postponed from {{ page.cancellationpage.when }}
-      </div>
-      {% if page.location %}
-      <div class="event-location">
-        {{ page.location }}
-      </div>
-      {% endif %}
-      {% if event.website %}
-      <div class="event-website">
-        <a href="{{ event.website }}" target="_blank">{{ event.website }}</a>
-      </div>
-      {% endif %}
+      {% include "joyous/includes/who_when_where.html" with event=page %}
       <div class="event-cancellation-details">
         {{ page.details|richtext }}
       </div> 

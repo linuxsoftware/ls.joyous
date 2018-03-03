@@ -2,6 +2,11 @@
 <div class="event-when">
   {{ event.when }}
 </div>
+{% if event.postponed_from %}
+<div class="event-postponed-from">
+  Postponed from {{ event.postponed_from }}
+</div>
+{% endif %}
 {% if event.next_on %}
 <div class="event-next-on">
   Next on {{ event.next_on }}
@@ -10,7 +15,7 @@
 {% if event.location %}
 <div class="event-location">
   {{ event.location }}
-  <a class="gmap" href="http://maps.google.com/?q={{ event.location }}">[map]</a>
+  <a class="gmap" target="_blank" href="http://maps.google.com/?q={{ event.location }}">[map]</a>
 </div>
 {% endif %}
 {% if event.website %}

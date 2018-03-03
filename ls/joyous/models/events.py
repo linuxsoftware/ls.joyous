@@ -4,6 +4,7 @@
 import datetime as dt
 import calendar
 from collections import namedtuple
+from itertools import groupby
 from operator import attrgetter
 from django.conf import settings
 from django.db import models
@@ -19,6 +20,7 @@ from wagtail.wagtailadmin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
 from ..utils.telltime import getDatetime, datetimeFrom, datetimeTo
 from ..utils.telltime import timeFormat, dateFormat
+from ..utils.weeks import week_of_month
 # from ..utils.ical import export_event
 from ..recurrence import RecurrenceField
 from ..recurrence import ExceptionDatePanel
@@ -144,6 +146,14 @@ class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
 
     @property
+    def all_events(self):
+        return self.days_events + self.continuing_events
+
+    @property
+    def preview(self):
+        return ", ".join(event.title for event in self.all_events)[:100]
+
+    @property
     def weekday(self):
         return calendar.day_abbr[self.date.weekday()].lower()
 
@@ -151,7 +161,7 @@ class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     def holiday(self):
         return self.holidays.get(self.date)
 
-def _getEventsByDay(date_from, date_to, eventsByDaySrcs):
+def _getEventsByDay(date_from, eventsByDaySrcs):
     eventsByDay = []
     day = date_from
     for srcs in zip(*eventsByDaySrcs):
@@ -175,11 +185,32 @@ def getAllEventsByDay(date_from, date_to):
     multidayEvents  = MultidayEventPage.getEventsByDay(date_from, date_to)
     recurringEvents = RecurringEventPage.getEventsByDay(date_from, date_to)
     postponedEvents = PostponementPage.getEventsByDay(date_from, date_to)
-    allEvents = _getEventsByDay(date_from, date_to, (simpleEvents,
-                                                     multidayEvents,
-                                                     recurringEvents,
-                                                     postponedEvents))
+    allEvents = _getEventsByDay(date_from, (simpleEvents,
+                                            multidayEvents,
+                                            recurringEvents,
+                                            postponedEvents))
     return allEvents
+
+def _getEventsByWeek(year, month, eventsByDaySrc):
+    weeks = []
+    firstDay = dt.date(year, month, 1)
+    lastDay  = dt.date(year, month, calendar.monthrange(year, month)[1])
+    def calcWeekOfMonth(evod):
+        return week_of_month(evod.date)
+    events = eventsByDaySrc(firstDay, lastDay)
+    for weekOfMonth, group in groupby(events, calcWeekOfMonth):
+        week = list(group)
+        if len(week) < 7:
+            padding = [None] * (7 - len(week))
+            if weekOfMonth == 0:
+                week = padding + week
+            else:
+                week += padding
+        weeks.append(week)
+    return weeks
+
+def getAllEventsByWeek(year, month):
+    return _getEventsByWeek(year, month, getAllEventsByDay)
 
 def _getUpcomingEvents(simpleEventsQry=None,
                        multidayEventsQry=None,
@@ -206,11 +237,17 @@ def _getUpcomingEvents(simpleEventsQry=None,
                 events.append(ThisEvent(event.postponement_title, event))
     return events
 
-def getAllUpcomingEvents():
-    events =  _getUpcomingEvents(SimpleEventPage.objects,
-                                 MultidayEventPage.objects,
-                                 RecurringEventPage.objects,
-                                 PostponementPage.objects)
+def getAllUpcomingEvents(home=None):
+    if home is None:
+        events =  _getUpcomingEvents(SimpleEventPage.objects,
+                                     MultidayEventPage.objects,
+                                     RecurringEventPage.objects,
+                                     PostponementPage.objects)
+    else:
+        events = _getUpcomingEvents(SimpleEventPage.objects.descendant_of(home),
+                                    MultidayEventPage.objects.descendant_of(home),
+                                    RecurringEventPage.objects.descendant_of(home),
+                                    PostponementPage.objects.descendant_of(home))
     events.sort(key=attrgetter('page._upcoming_datetime_from'))
     return events
 
@@ -865,11 +902,16 @@ class PostponementPage(EventBase, CancellationPage):
                               timeFormat(self.time_from, self.time_to, "at "))
 
     @property
+    def postponed_from(self):
+        return self.cancellationpage.when
+
+    @property
     def at(self):
         return timeFormat(self.time_from)
 
     def _getFromDt(self):
         return getDatetime(self.date, self.time_from, dt.time.max)
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

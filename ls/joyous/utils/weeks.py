@@ -103,6 +103,7 @@ if getattr(settings, "JOYOUS_DAY_OF_WEEK_START", "Sunday") == "Monday":
     gregorian_to_week_date = _gregorian_to_iso
     week_of_month = _iso_week_of_month
     weekday_abbr = calendar.day_abbr[:]
+    weekday_name = calendar.day_name[:]
 else:
     calendar.setfirstweekday(calendar.SUNDAY)
     week_info = _ssweek_info
@@ -110,6 +111,7 @@ else:
     gregorian_to_week_date = _gregorian_to_ssweek
     week_of_month = _ssweek_of_month
     weekday_abbr = calendar.day_abbr[-1:] + calendar.day_abbr[:-1]
+    weekday_name = calendar.day_name[-1:] + calendar.day_name[:-1]
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
