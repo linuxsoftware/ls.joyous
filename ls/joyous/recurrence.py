@@ -12,7 +12,6 @@
 import sys
 from operator import attrgetter
 import calendar
-import json
 import datetime as dt
 from django.db.models import Field
 from django.core.exceptions import ValidationError
@@ -45,7 +44,7 @@ class Recurrence(rrulebase):
         super().__init__()
         arg0 = args[0] if len(args) else None
         if isinstance(arg0, str):
-            self.rule = rrulestr(arg0)
+            self.rule = rrulestr(arg0, **kwargs)
             if not isinstance(self.rule, rrule):
                 raise ValueError("Only support simple RRules for now")
         elif isinstance(arg0, Recurrence):

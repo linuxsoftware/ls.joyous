@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-{{ page.get_verbose_name|slugify }}{% endblock %}
+
+{% block global_css %}
+  {# put joyous.css first to make it easy to override #}
+  <link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+  {{ block.super }}
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block background %}
+{% endblock background %}
+
+{% block content %}
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

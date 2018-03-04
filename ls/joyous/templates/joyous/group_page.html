@@ -1,11 +1,5 @@
-{% extends "base.html" %}
-{% load static wagtailcore_tags joyous_tags %}
-
-{% block extra_css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
-{% endblock %}
-
-{% block body_class %}template-{{ page.get_verbose_name|slugify }}{% endblock %}
+{% extends "joyous/joyous_base.html" %}
+{% load wagtailcore_tags joyous_tags %}
 
 {% block content %}
 <div class="content">

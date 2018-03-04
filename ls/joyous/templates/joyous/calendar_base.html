@@ -1,11 +1,5 @@
-{% extends "base.html" %}
-{% load joyous_tags wagtailcore_tags wagtailimages_tags static %}
-
-{% block extra_css %}
-<link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
-{% endblock %}
-
-{% block body_class %}template-{{ self.get_verbose_name|slugify }}{% endblock %}
+{% extends "joyous/joyous_base.html" %}
+{% load static wagtailcore_tags %}
 
 {% block background %}
   <div id="overlay"></div>
