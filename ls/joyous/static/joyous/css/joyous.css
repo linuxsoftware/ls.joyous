@@ -318,21 +318,24 @@ table.minicalendar {
 .minicalendar thead tr.heading th {
     text-align:            center;
 }
+
 .minicalendar thead .month-heading {
     display:               inline-block;
-    padding:               0 4ex;
+    padding:               0 0 0 4ex;
+    text-align:            left;
 }
-.minicalendar thead .month-heading .month-name {
+.minicalendar thead .month-name {
     display:               inline-block;
     width:                 10ex;
 }
-.minicalendar thead .year-heading {
-    display:               inline-block;
-    padding:               0 4ex;
-}
-.minicalendar thead .year-heading .year-number {
+.minicalendar thead .year-number {
     display:               inline-block;
     width:                 6ex;
+}
+.minicalendar thead .month-nav {
+    display:               inline-block;
+    padding:               0 4ex 0 0;
+    float:                 right;
 }
 .minicalendar tbody tr td {
     padding:               0px;

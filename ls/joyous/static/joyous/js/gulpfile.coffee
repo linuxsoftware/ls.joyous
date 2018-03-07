@@ -3,13 +3,12 @@ gulp       = require "gulp"
 util       = require "gulp-util"
 plumber    = require "gulp-plumber"
 notify     = require "gulp-notify"
-crashsound = require "gulp-crash-sound"
 coffee     = require "gulp-coffee"
 sourcemaps = require "gulp-sourcemaps"
 
 gulp.task "src.coffee", ->
   gulp.src  "*.coffee"
-      .pipe plumber crashsound.plumb notify.onError (err) ->
+      .pipe plumber notify.onError (err) ->
           util.log(err)
           title:   "Burnt the coffee"
           message: "#{err}"
@@ -18,7 +17,7 @@ gulp.task "src.coffee", ->
 
 gulp.task "src.coffee.with.maps", ->
   gulp.src  "*.coffee"
-      .pipe plumber crashsound.plumb notify.onError (err) ->
+      .pipe plumber notify.onError (err) ->
           util.log(err)
           title:   "Burnt the coffee"
           message: "#{err}"

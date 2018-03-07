@@ -11,7 +11,7 @@ from wagtail.wagtailadmin.edit_handlers import FieldPanel
 from wagtail.contrib.wagtailroutablepage.models import RoutablePageMixin, route
 from wagtail.wagtailsearch import index
 from ..utils.weeks import week_info, gregorian_to_week_date
-from ..utils.weeks import weekday_abbr
+from ..utils.weeks import weekday_abbr, weekday_name
 from . import getAllEventsByDay
 from . import getAllEventsByWeek
 from . import getAllUpcomingEvents
@@ -22,7 +22,7 @@ from . import getAllPastEvents
 # ------------------------------------------------------------------------------
 DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "MM":    r"(1[012]|0?[1-9])",
-                "Mmm":   r"|".join(calendar.month_abbr[1:]),
+                "Mmm":   r"({})".format("|".join(calendar.month_abbr[1:])),
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
@@ -49,9 +49,9 @@ class CalendarPage(RoutablePageMixin, Page):
         else:
             return self.serveMonth(request, year)
 
-    @route(r"(?i)^{YYYY}/{Mmm}$".format(**DatePictures))
+    @route(r"(?i)^{YYYY}/{Mmm}/$".format(**DatePictures))
     def routeByMonthAbbr(self, request, year, monthAbbr):
-        month = calendar.month_abbr[:].index(monthAbbr)
+        month = calendar.month_abbr[:].index(monthAbbr.title())
         return self.serveMonth(request, year, month)
 
     @route(r"^month/$")
@@ -80,13 +80,13 @@ class CalendarPage(RoutablePageMixin, Page):
         prevMonthYear = year
         if prevMonth == 0:
             prevMonth = 12
-            prevMonthYear = year - 1
+            prevMonthYear -= 1
 
         nextMonth = month + 1
         nextMonthYear = year
         if nextMonth == 13:
             nextMonth = 1
-            nextMonthYear = year + 1
+            nextMonthYear += 1
 
         return render(request, "joyous/calendar_month.html",
                       {'self':         self,
@@ -135,13 +135,13 @@ class CalendarPage(RoutablePageMixin, Page):
         prevWeekYear = year
         if prevWeek == 0:
             prevWeek = prevYearNumWeeks
-            prevWeekYear = year - 1
+            prevWeekYear -= 1
 
         nextWeek = week + 1
         nextWeekYear = year
         if nextWeek > yearNumWeeks:
             nextWeek = 1
-            nextWeekYear = year + 1
+            nextWeekYear += 1
 
         return render(request, "joyous/calendar_week.html",
                       {'self':         self,
@@ -250,6 +250,46 @@ class CalendarPage(RoutablePageMixin, Page):
 
     def _getEventsByWeek(self, year, month):
         return getAllEventsByWeek(year, month)
+
+    @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
+    def serveMiniMonth(self, request, year=None, month=None):
+        myurl = self.get_url(request)
+        def myUrl(urlYear, urlMonth):
+            return myurl + self.reverse_subpage('serveMiniMonth',
+                                                args=[urlYear, urlMonth])
+
+        today = dt.date.today()
+        if year is None: year = today.year
+        if month is None: month = today.month
+        year = int(year)
+        month = int(month)
+
+        prevMonth = month - 1
+        prevMonthYear = year
+        if prevMonth == 0:
+            prevMonth = 12
+            prevMonthYear -= 1
+
+        nextMonth = month + 1
+        nextMonthYear = year
+        if nextMonth == 13:
+            nextMonth = 1
+            nextMonthYear += 1
+
+        return render(request, "joyous/includes/minicalendar.html",
+                      {'self':         self,
+                       'page':         self,
+                       'today':        today,
+                       'yesterday':    today - dt.timedelta(1),
+                       'lastweek':     today - dt.timedelta(7),
+                       'year':         year,
+                       'month':        month,
+                       'calendarUrl':  myurl,
+                       'monthName':    calendar.month_name[month],
+                       'weekdayInfo':  zip(weekday_abbr, weekday_name),
+                       'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
+                       'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
+                       'events':       self._getEventsByWeek(year, month)})
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 (function() {
-  var coffee, crashsound, gulp, notify, plumber, sourcemaps, util;
+  var coffee, gulp, notify, plumber, sourcemaps, util;
 
   process.env.NODE_DISABLE_COLORS = 1;
 
@@ -11,30 +11,28 @@
 
   notify = require("gulp-notify");
 
-  crashsound = require("gulp-crash-sound");
-
   coffee = require("gulp-coffee");
 
   sourcemaps = require("gulp-sourcemaps");
 
   gulp.task("src.coffee", function() {
-    return gulp.src("*.coffee").pipe(plumber(crashsound.plumb(notify.onError(function(err) {
+    return gulp.src("*.coffee").pipe(plumber(notify.onError(function(err) {
       util.log(err);
       return {
         title: "Burnt the coffee",
         message: "" + err
       };
-    })))).pipe(coffee()).pipe(gulp.dest("."));
+    }))).pipe(coffee()).pipe(gulp.dest("."));
   });
 
   gulp.task("src.coffee.with.maps", function() {
-    return gulp.src("*.coffee").pipe(plumber(crashsound.plumb(notify.onError(function(err) {
+    return gulp.src("*.coffee").pipe(plumber(notify.onError(function(err) {
       util.log(err);
       return {
         title: "Burnt the coffee",
         message: "" + err
       };
-    })))).pipe(sourcemaps.init()).pipe(sourcemaps.write("maps/")).pipe(coffee()).pipe(gulp.dest("."));
+    }))).pipe(sourcemaps.init()).pipe(sourcemaps.write("maps/")).pipe(coffee()).pipe(gulp.dest("."));
   });
 
   gulp.task('build', ['src.coffee.with.maps']);

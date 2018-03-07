@@ -1,0 +1,11 @@
+(function() {
+  ({
+    "version": 3,
+    "names": [],
+    "mappings": "",
+    "sources": ["calendar.coffee"],
+    "sourcesContent": ["#---------------------------------------------------------------------------\n# Calendar scripts\n#---------------------------------------------------------------------------\n\nclass EventsCalendar\n    constructor: () ->\n        return\n\n    enable: () ->\n        @_enablePopup()\n        $(window).resize () =>\n            @_handleResize()\n        @_handleResize()\n        return\n\n    _enablePopup: () ->\n        $(\"#overlay, .popup-outer, .popup .close\").click () ->\n            $(\"#overlay, .popup-outer\").hide()\n            return false\n        $(\".popup\").click (event) ->\n            event.stopPropagation()\n\n    _handleResize: () ->\n        if $(\"tbody\").hasClass(\"monthly-view\")\n            @_squareDays()\n        @_linkReadMore()\n\n    _squareDays: () ->\n        height = $(\"tbody.monthly-view td.day\").first().innerWidth() - 25\n        $(\"tbody.monthly-view .days-events\").innerHeight(height)\n        return\n\n    _linkReadMore: () ->\n        $(\".days-events\").each (index, element) =>\n            day = $(element).closest(\"td.day\")\n            day.find(\"a.read-more\").remove()\n            if (element.offsetHeight < element.scrollHeight or\n                 element.offsetWidth < element.scrollWidth)\n                @_addReadMoreLink(day)\n            return\n        return\n\n    _addReadMoreLink: (day) ->\n        link = $(\"<a>\").attr('href', 'javascript:void 0')\n                       .attr('title', \"Show all of this day's events\")\n                       .addClass(\"read-more\").text(\"+\")\n        link.click (ev) ->\n            title = day.find(\".day-title\").clone()\n            $(\"#read-more-events .day-title\").replaceWith(title)\n            events = day.find(\".days-events\").clone().height('auto')\n            $(\"#read-more-events .days-events\").replaceWith(events)\n            y = Math.max(ev.pageY - 100, $(window).scrollTop())\n            $(\".popup-outer\").css('top', y)\n            $(\"#overlay, .popup-outer\").show()\n            return false\n        day.append(link)\n        return\n\n\n$ ->\n    calendar = new EventsCalendar()\n    calendar.enable()\n    return\n\n\n"],
+    "file": "../calendar.coffee"
+  });
+
+}).call(this);
