@@ -1,7 +1,5 @@
 {% load static %}
-<div class="minicalendar-outer">
-  {% include "joyous/includes/minicalendar.html" %}
-</div>
+{% include "joyous/includes/minicalendar.html" %}
 {% if calendarUrl %}
 <script src="{% static 'joyous/js/minicalendar.js' %}"></script>
 <script>

@@ -1,10 +1,8 @@
-
 #  ls.joyous
 #  -----------
 
 import codecs
 from setuptools import setup, find_packages
-
 
 
 setup(name="ls.joyous",

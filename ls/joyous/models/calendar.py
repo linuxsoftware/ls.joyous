@@ -253,11 +253,6 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
-        myurl = self.get_url(request)
-        def myUrl(urlYear, urlMonth):
-            return myurl + self.reverse_subpage('serveMiniMonth',
-                                                args=[urlYear, urlMonth])
-
         today = dt.date.today()
         if year is None: year = today.year
         if month is None: month = today.month
@@ -280,15 +275,11 @@ class CalendarPage(RoutablePageMixin, Page):
                       {'self':         self,
                        'page':         self,
                        'today':        today,
-                       'yesterday':    today - dt.timedelta(1),
-                       'lastweek':     today - dt.timedelta(7),
                        'year':         year,
                        'month':        month,
-                       'calendarUrl':  myurl,
+                       'calendarUrl':  self.get_url(request),
                        'monthName':    calendar.month_name[month],
                        'weekdayInfo':  zip(weekday_abbr, weekday_name),
-                       'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
-                       'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
                        'events':       self._getEventsByWeek(year, month)})
 
 # ------------------------------------------------------------------------------
