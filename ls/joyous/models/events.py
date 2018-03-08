@@ -794,7 +794,7 @@ class ExtraInfoPage(Page, EventExceptionBase):
 
     @property
     def status_text(self):
-        return EventBase.status_text(self)
+        return EventBase.status_text.fget(self)
 
     @property
     def exception_title(self):
