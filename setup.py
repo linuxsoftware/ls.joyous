@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 
 setup(name="ls.joyous",
-      version="0.1.1",
+      version="0.1.2",
       description="A calendar application for Wagtail.",
       long_description=codecs.open('README.rst', encoding='utf-8').read(),
       keywords=["calendar", "events"],

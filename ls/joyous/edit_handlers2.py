@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Wagtail 2.x style EditHandlers
 # ------------------------------------------------------------------------------
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 from .widgets import ExceptionDateInput
 
 # ------------------------------------------------------------------------------

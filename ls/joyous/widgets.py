@@ -13,8 +13,8 @@ from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple
 from django.template.loader import render_to_string
 from wagtail.utils.widgets import WidgetWithScript
-from wagtail.wagtailadmin.widgets import AdminDateInput
-from wagtail.wagtailadmin.widgets import AdminTimeInput
+from wagtail.admin.widgets import AdminDateInput
+from wagtail.admin.widgets import AdminTimeInput
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.parser import parse as dt_parse
 from .recurrence import Weekday, Recurrence

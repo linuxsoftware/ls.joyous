@@ -29,17 +29,17 @@ Add ``ls.joyous`` and ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``
         'ls.joyous',
         'wagtail.contrib.modeladmin',
 
-        'wagtail.wagtailforms',
-        'wagtail.wagtailredirects',
-        'wagtail.wagtailembeds',
-        'wagtail.wagtailsites',
-        'wagtail.wagtailusers',
-        'wagtail.wagtailsnippets',
-        'wagtail.wagtaildocs',
-        'wagtail.wagtailimages',
-        'wagtail.wagtailsearch',
-        'wagtail.wagtailadmin',
-        'wagtail.wagtailcore',
+        'wagtail.contrib.forms',
+        'wagtail.contrib.redirects',
+        'wagtail.embeds',
+        'wagtail.sites',
+        'wagtail.users',
+        'wagtail.snippets',
+        'wagtail.documents',
+        'wagtail.images',
+        'wagtail.search',
+        'wagtail.admin',
+        'wagtail.core',
         # ... etc ...
         ]
 
@@ -60,7 +60,7 @@ ls.joyous is known to work with the following versions of Python/Django/Wagtail.
 ======   ======   =======
 Python   Django   Wagtail
 ======   ======   =======
-3.5.4    2.0.2    2.0b1
+3.5.4    2.0.3    2.0
 3.5.4    1.11.9   1.13.1
 ======   ======   =======
 

@@ -5,11 +5,11 @@ import datetime as dt
 import calendar
 from django.conf import settings
 from django.shortcuts import render, redirect
-from wagtail.wagtailcore.models import Page
-from wagtail.wagtailcore.fields import RichTextField
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
-from wagtail.contrib.wagtailroutablepage.models import RoutablePageMixin, route
-from wagtail.wagtailsearch import index
+from wagtail.core.models import Page
+from wagtail.core.fields import RichTextField
+from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.contrib.routable_page.models import RoutablePageMixin, route
+from wagtail.search import index
 from ..utils.weeks import week_info, gregorian_to_week_date
 from ..utils.weeks import weekday_abbr, weekday_name
 from . import getAllEventsByDay

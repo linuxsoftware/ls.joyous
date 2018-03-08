@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 from django.dispatch import receiver
-from wagtail.wagtailadmin.signals import init_new_page
+from wagtail.admin.signals import init_new_page
 from .models import EventExceptionBase
 from .models import RecurringEventPage, PostponementPage
 

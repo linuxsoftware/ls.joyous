@@ -9,14 +9,14 @@ from operator import attrgetter
 from django.conf import settings
 from django.db import models
 from django.utils.html import format_html
-from wagtail.wagtailcore.models import Page
-from wagtail.wagtailcore.fields import RichTextField
-from wagtail.wagtailadmin.edit_handlers import FieldPanel, MultiFieldPanel, \
+from wagtail.core.models import Page
+from wagtail.core.fields import RichTextField
+from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
     PageChooserPanel
-from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
-from wagtail.wagtailimages import get_image_model_string
-from wagtail.wagtailsearch import index
-from wagtail.wagtailadmin.forms import WagtailAdminPageForm
+from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images import get_image_model_string
+from wagtail.search import index
+from wagtail.admin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
 from ..utils.telltime import getDatetime, datetimeFrom, datetimeTo
 from ..utils.telltime import timeFormat, dateFormat
