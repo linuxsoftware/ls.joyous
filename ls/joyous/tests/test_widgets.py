@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------------
+# Test Widgets
+# ------------------------------------------------------------------------------
 import sys
 from datetime import datetime
 from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
@@ -7,14 +10,14 @@ from django.test import TestCase
 from ls.joyous.recurrence import Recurrence, RecurrenceWidget
 
 class TestRecurrenceWidget(TestCase):
-    def test_decompress_null(self):
+    def testDecompressNull(self):
         widget = RecurrenceWidget()
         self.assertEqual(widget.decompress(None),
                          [None, None, 1, [], None, None,      #5
                           101, 200, None, None, None,         #10
                           None, None])
 
-    def test_decompress_weekdays(self):
+    def testDecompressWeekdays(self):
         rr = Recurrence(dtstart=datetime(2009, 1, 1),
                         freq=WEEKLY,
                         count=9,
@@ -26,7 +29,7 @@ class TestRecurrenceWidget(TestCase):
                           101, 200, None, None, None,         #10
                           None, None])
 
-    def test_decompress_everyday_in_january(self):
+    def testDecompressEverydayInJanuary(self):
         rr = Recurrence(dtstart=datetime(2014, 12, 1),
                         freq=YEARLY,
                         byweekday=[MO,TU,WE,TH,FR,SA,SU],
@@ -38,11 +41,11 @@ class TestRecurrenceWidget(TestCase):
                           100, 200, None, None, None,         #10
                           None, 1])
 
-    def test_null_value(self):
+    def testNullValue(self):
         widget = RecurrenceWidget()
         self.assertEqual(widget.value_from_datadict({}, {}, 'repeat'), None)
 
-    def test_weekdays_value(self):
+    def testWeekdaysValue(self):
         widget = RecurrenceWidget()
         data = {'repeat_0':  '2009-01-01',
                 'repeat_1':  '2',
@@ -63,7 +66,7 @@ class TestRecurrenceWidget(TestCase):
         self.assertEqual(str(widget.value_from_datadict(data, {}, 'repeat')),
                          str(rr))
 
-    def test_everyday_in_january_value(self):
+    def testEverydayInJanuaryValue(self):
         widget = RecurrenceWidget()
         data = {'repeat_0':  '2014-12-1',
                 'repeat_1':  '0',

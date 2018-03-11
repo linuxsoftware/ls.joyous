@@ -4,6 +4,7 @@
 import datetime as dt
 import calendar
 from django.conf import settings
+from django.http import Http404
 from django.shortcuts import render, redirect
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
@@ -253,6 +254,9 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
+        if not request.is_ajax():
+            raise Http404("/mini/ is for ajax requests only")
+
         today = dt.date.today()
         if year is None: year = today.year
         if month is None: month = today.month

@@ -1,3 +1,7 @@
+Django>=2.0,<2.1
+wagtail>=2.0,<2.1
 python-dateutil
 inflect
 holidays
+django-beautifulsoup-test
+coverage

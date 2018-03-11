@@ -2,6 +2,8 @@ password.py
 secret.py
 local.py
 secret.ini
+.coverage
+/htmlcov/
 *.pyc
 *.o
 *.so

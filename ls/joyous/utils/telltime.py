@@ -35,11 +35,13 @@ def timeFormat(time_from, time_to=None, prefix="", infix="to "):
     return retval
 
 def dateFormat(when):
-    # e.g. Friday, 14th of April
+    # e.g. Friday, 14th of April 2011
+    retval = ""
     if when is not None:
-        return dateformat.format(when, "l jS \\o\\f F")
-    else:
-        return ""
+        retval = dateformat.format(when, "l jS \\o\\f F")
+        if when.year != dt.date.today().year:
+            retval += " {}".format(when.year)
+    return retval
 
 def dateFormatDMY(when):
     # e.g. 14 April 2017

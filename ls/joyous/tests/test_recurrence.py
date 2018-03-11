@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------------
+# Test Recurrence
+# ------------------------------------------------------------------------------
 import sys
 from datetime import datetime
 from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
@@ -7,7 +10,7 @@ from django.test import TestCase
 from ls.joyous.recurrence import Recurrence
 
 class TestRecurrence(TestCase):
-    def test_repr(self):
+    def testRepr(self):
         rr = Recurrence(dtstart=datetime(2009, 1, 1),
                         freq=WEEKLY,
                         count=9,
@@ -40,18 +43,18 @@ class TestRecurrence(TestCase):
                         "DTSTART:20151001\n" \
                         "RRULE:FREQ=MONTHLY;WKST=SU;BYDAY=-1SU;BYMONTH=1,2,3,4,5,6,7,8,9,10,11")
 
-    def test_parse(self):
+    def testParse(self):
         rr = Recurrence("DTSTART:20090101\n" \
                         "RRULE:FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR;COUNT=9")
         self.assertEqual(rr.dtstart, datetime(2009, 1, 1))
         self.assertEqual(rr.count, 9)
         self.assertCountEqual(rr.byweekday, [MO,TU,WE,TH,FR])
 
-    def test_parse_no_dtstart(self):
+    def testParseNoDtstart(self):
         rr = Recurrence("RRULE:FREQ=DAILY;WKST=SU")
         self.assertEqual(rr.freq, DAILY)
 
-    def test_roundtrip(self):
+    def testRoundtrip(self):
         rrStr = "DTSTART:20151001\n" \
                 "RRULE:FREQ=MONTHLY;WKST=SU;BYDAY=-1SU;BYMONTH=1,2,3,4,5,6,7,8,9,10,11"
         self.assertEqual(repr(Recurrence(rrStr)), rrStr)

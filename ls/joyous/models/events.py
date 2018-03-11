@@ -422,17 +422,16 @@ class MultidayEventPage(Page, EventBase):
         now = dt.datetime.now()
         if datetimeTo(self.date_to, self.time_to) < now:
             return "finished"
-        if self.time_from is not None:
-            if dt.datetime.combine(self.date_from, self.time_from) < now:
-                return "started"
+        if getDatetime(self.date_from, self.time_from, dt.time.max) < now:
+            return "started"
         return None
 
     @property
     def when(self):
         return "{} {} to {} {}".format(dateFormat(self.date_from),
-                                       timeFormat(self.time_from),
+                                       timeFormat(self.time_from, prefix="at "),
                                        dateFormat(self.date_to),
-                                       timeFormat(self.time_to))
+                                       timeFormat(self.time_to, prefix="at "))
 
     @property
     def at(self):
@@ -456,6 +455,10 @@ class RecurringEventPage(Page, EventBase):
     # owner_subpages_only = True
 
     repeat  = RecurrenceField()
+
+    # TODO 
+    # exclude_holidays = models.BooleanField(default=False)
+    # exclude_holidays.help_text = "Cancel any occurence of this event on a public holiday"
 
     content_panels = Page.content_panels + [
         FieldPanel('category'),
@@ -677,6 +680,9 @@ class RecurringEventPage(Page, EventBase):
     #         # Display event page as usual
     #         return super().serve(request)
 
+# TODO
+# class MultidayReccuringEventPage(RecurringEventPage):
+
 # ------------------------------------------------------------------------------
 class EventExceptionPageForm(WagtailAdminPageForm):
     def clean(self):
@@ -727,6 +733,7 @@ class EventExceptionBase(models.Model):
     def exception_title(self):
         return None
 
+    @property
     def when(self):
         return "{} {}".format(dateFormat(self.except_date),
                               timeFormat(self.overrides.time_from,

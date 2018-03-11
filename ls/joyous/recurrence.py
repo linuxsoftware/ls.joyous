@@ -38,6 +38,11 @@ class Weekday(rrweekday):
         else:
             return "{} {}".format(toOrdinal(self.n), s)
 
+MO, TU, WE, TH, FR, SA, SU = map(Weekday, range(7))
+WEEKDAYS = [MO, TU, WE, TH, FR]
+WEEKEND = [SA, SU]
+EVERYDAY = WEEKDAYS + WEEKEND
+
 # ------------------------------------------------------------------------------
 class Recurrence(rrulebase):
     def __init__(self, *args, **kwargs):
