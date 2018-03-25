@@ -14,11 +14,11 @@ Yet another demonstration Wagtail website `code <http://github.com/linuxsoftware
 Installation
 -------------
 
-Install the package. Currently it is only available from GitHub, coming to PyPI soon!
+Install the package.
 
 .. code-block:: bash
 
-    $ pip install -e git://github.com/linuxsoftware/ls.joyous.git#egg=ls.joyous
+    $ pip install ls.joyous
 
 Add ``ls.joyous`` and ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``
 
@@ -27,21 +27,8 @@ Add ``ls.joyous`` and ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``
     INSTALLED_APPS = [
         'ls.joyous',
         'wagtail.contrib.modeladmin',
-
-        'wagtail.contrib.forms',
-        'wagtail.contrib.redirects',
-        'wagtail.embeds',
-        'wagtail.sites',
-        'wagtail.users',
-        'wagtail.snippets',
-        'wagtail.documents',
-        'wagtail.images',
-        'wagtail.search',
-        'wagtail.admin',
-        'wagtail.core',
         # ... etc ...
         ]
-
 
 Settings
 --------
@@ -64,3 +51,7 @@ Python   Django   Wagtail
 ======   ======   =======
 
 I am aiming to support the latest version of each.  Older versions may be dropped without much notice.  Let me know if that is a problem for you.  Other versions may work - YMMV.
+
+Getting Help
+-------------
+Please report bugs or ask questions using the `Issue Tracker <http://github.com/linuxsoftware/ls.joyous/issues>`_.

@@ -1,6 +1,12 @@
 # ------------------------------------------------------------------------------
 # Joyous initialization
 # ------------------------------------------------------------------------------
+name = "joyous"
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = 'unknown'
+
 from .utils import wagtailcompat
 
 default_app_config = 'ls.joyous.apps.JoyousAppConfig'

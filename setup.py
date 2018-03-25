@@ -1,15 +1,18 @@
+# ----------------------
 #  ls.joyous
-#  -----------
+# ----------------------
 
 import codecs
 from setuptools import setup, find_packages
 
 
 setup(name="ls.joyous",
-      version="0.1.2",
+      use_scm_version={
+          'write_to':  "ls/joyous/_version.py",
+      },
       description="A calendar application for Wagtail.",
       long_description=codecs.open("README.rst", encoding="utf-8").read(),
-      keywords=["calendar", "events"],
+      keywords=["calendar", "events", "wagtail", "groupware"],
       classifiers=["Development Status :: 4 - Beta",
                    "Framework :: Django",
                    "Framework :: Django :: 1.11",
@@ -25,13 +28,14 @@ setup(name="ls.joyous",
                   ],
       platforms="any",
       author="David Moore",
-      author_email="david@linuxsoftware.nz",
+      author_email="david@linuxsoftware.co.nz",
       url="https://github.com/linuxsoftware/ls.joyous",
       license="BSD",
+      packages=find_packages(where=".", exclude=["ls.joyous.tests"]),
+      setup_requires=["setuptools_scm"],
       install_requires=["python-dateutil", "inflect", "holidays"],
-      test_requires=["coverage", "django-beautifulsoup-test"],
-      packages=find_packages(),
-      include_package_data=True,
+      tests_require=["coverage", "django-beautifulsoup-test"],
+      #include_package_data=True,
       test_suite="ls.joyous.tests",
-      zip_save=False,
+      zip_safe=False,
      )
