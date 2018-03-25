@@ -13,7 +13,7 @@ from ls.joyous.models.events import SimpleEventPage
 
 class TestCalendar(TestCase, WagtailPageTests):
     def setUp(self):
-        self.user = User.objects.create_user('i', 'i@j.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         calendar = CalendarPage(owner  = self.user,
                                  slug  = "events",
                                  title = "Events")

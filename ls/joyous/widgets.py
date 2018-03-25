@@ -15,8 +15,8 @@ from django.template.loader import render_to_string
 from wagtail.utils.widgets import WidgetWithScript
 from wagtail.admin.widgets import AdminDateInput
 from wagtail.admin.widgets import AdminTimeInput
-from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.parser import parse as dt_parse
+from .recurrence import WEEKLY, MONTHLY, YEARLY
 from .recurrence import Weekday, Recurrence
 from .utils.telltime import timeFormat
 
@@ -118,7 +118,6 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                         ordChoices[0] = _EveryDay
                         dayChoices[0] = _DayOfMonth
                     else:
-                        # if len(value.byweekday) >= 1:
                         for (i, day) in enumerate(value.byweekday[:3]):
                             dayChoices[i] = day.weekday
                             ordChoices[i] = day.n or _EveryDay

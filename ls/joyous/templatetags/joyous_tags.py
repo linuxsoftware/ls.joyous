@@ -36,8 +36,6 @@ def minicalendar(context):
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
     return {'today':           today,
-            'yesterday':       today - dt.timedelta(1),
-            'lastweek':        today - dt.timedelta(7),
             'year':            today.year,
             'month':           today.month,
             'calendarUrl':     calUrl,
