@@ -1,8 +1,6 @@
 ls.joyous
 ===============
 
-A calendar application for Wagtail.
-
 Events
 -------
 Simple, multiday, and recurring events can be added to the calendar.

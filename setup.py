@@ -2,9 +2,16 @@
 #  ls.joyous
 # ----------------------
 
+import sys
+import subprocess
 import codecs
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
+class RunTests(TestCommand):
+    def run(self):
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
 
 setup(name="ls.joyous",
       use_scm_version={
@@ -35,7 +42,7 @@ setup(name="ls.joyous",
       setup_requires=["setuptools_scm"],
       install_requires=["python-dateutil", "inflect", "holidays"],
       tests_require=["coverage", "django-beautifulsoup-test"],
-      #include_package_data=True,
       test_suite="ls.joyous.tests",
+      cmdclass={'test': RunTests},
       zip_safe=False,
      )
