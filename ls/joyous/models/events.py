@@ -472,9 +472,9 @@ class RecurringEventPage(Page, EventBase):
     def next_date(self):
         """
         Date when this event is next scheduled to occur
-        (Does not include postponements, but does exclude cancellations)
+        (Does not include postponements, but does exclude cancellations and extra info)
         """
-        nextDt = self.__after(dt.datetime.now())
+        nextDt = self.__after(dt.datetime.now(), excludeExtraInfo=True)
         if nextDt:
             return nextDt.date()
         else:
@@ -492,9 +492,9 @@ class RecurringEventPage(Page, EventBase):
     def prev_date(self):
         """
         Date when this event last occurred
-        (Does not include postponements, but does exclude cancellations)
+        (Does not include postponements, but does exclude cancellations and extra info)
         """
-        prevDt = self.__before(dt.datetime.now())
+        prevDt = self.__before(dt.datetime.now(), excludeExtraInfo=True)
         if prevDt:
             return prevDt.date()
         else:
@@ -622,32 +622,46 @@ class RecurringEventPage(Page, EventBase):
                     return (postDt, postponement)
         return (after, self)
 
-    def __after(self, fromDt):
+    def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
         if self.time_from and self.time_from < fromDt.time():
             fromDate += dt.timedelta(days=1)
         fromStart = dt.datetime.combine(fromDate, dt.time.min)
-        cancellations = {cancelled.except_date for cancelled in
-                         CancellationPage.objects.live().child_of(self)
-                                         .filter(except_date__gte=fromDate) }
+        exceptions = set()
+        if excludeCancellations:
+            for cancelled in CancellationPage.objects.live().child_of(self)                      \
+                                             .filter(except_date__gte=fromDate):
+                exceptions.add(cancelled.except_date)
+        if excludeExtraInfo:
+            for info in ExtraInfoPage.objects.live().child_of(self)                              \
+                                             .filter(except_date__gte=fromDate)                  \
+                                             .exclude(extra_title=""):
+                exceptions.add(info.except_date)
         for occurence in self.repeat.xafter(fromStart, inc=True):
-            if occurence.date() not in cancellations:
+            if occurence.date() not in exceptions:
                 return datetimeFrom(occurence.date(), self.time_from)
         return None
 
-    def __before(self, fromDt):
+    def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
         if self.time_from and self.time_from > fromDt.time():
             fromDate -= dt.timedelta(days=1)
         fromStart = dt.datetime.combine(fromDate, dt.time.min)
-        cancellations = {cancelled.except_date for cancelled in
-                         CancellationPage.objects.live().child_of(self)
-                                         .filter(except_date__lte=fromDate) }
+        exceptions = set()
+        if excludeCancellations:
+            for cancelled in CancellationPage.objects.live().child_of(self)                     \
+                                             .filter(except_date__lte=fromDate):
+                exceptions.add(cancelled.except_date)
+        if excludeExtraInfo:
+            for info in ExtraInfoPage.objects.live().child_of(self)                              \
+                                             .filter(except_date__lte=fromDate)                  \
+                                             .exclude(extra_title=""):
+                exceptions.add(info.except_date)
         last = None
         for occurence in self.repeat:
             if occurence >= fromStart:
                 break
-            if occurence.date() not in cancellations:
+            if occurence.date() not in exceptions:
                 last = occurence
         return last
 
