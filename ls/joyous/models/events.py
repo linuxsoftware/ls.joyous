@@ -472,9 +472,9 @@ class RecurringEventPage(Page, EventBase):
     def next_date(self):
         """
         Date when this event is next scheduled to occur
-        (Does not include postponements, but does exclude cancellations and extra info)
+        (Does not include postponements, but does exclude cancellations)
         """
-        nextDt = self.__after(dt.datetime.now(), excludeExtraInfo=True)
+        nextDt = self.__after(dt.datetime.now())
         if nextDt:
             return nextDt.date()
         else:
@@ -482,9 +482,11 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def _upcoming_datetime_from(self):
-        nextDate = self.next_date
-        if nextDate:
-            return getDatetime(nextDate, self.time_from, dt.time.max)
+        nextDt = self.__after(dt.datetime.now(),
+                              excludeCancellations=True,
+                              excludeExtraInfo=True)
+        if nextDt:
+            return getDatetime(nextDt.date(), self.time_from, dt.time.max)
         else:
             return None
 
@@ -492,9 +494,9 @@ class RecurringEventPage(Page, EventBase):
     def prev_date(self):
         """
         Date when this event last occurred
-        (Does not include postponements, but does exclude cancellations and extra info)
+        (Does not include postponements, but does exclude cancellations)
         """
-        prevDt = self.__before(dt.datetime.now(), excludeExtraInfo=True)
+        prevDt = self.__before(dt.datetime.now())
         if prevDt:
             return prevDt.date()
         else:
@@ -502,9 +504,11 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def _past_datetime_from(self):
-        prevDate = self.prev_date
-        if prevDate:
-            return getDatetime(prevDate, self.time_from, dt.time.max)
+        prevDt = self.__before(dt.datetime.now(),
+                               excludeCancellations=True,
+                               excludeExtraInfo=True)
+        if prevDt:
+            return getDatetime(prevDt.date(), self.time_from, dt.time.max)
         else:
             return None
 
