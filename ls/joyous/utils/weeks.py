@@ -11,6 +11,7 @@
 import datetime as dt
 import calendar
 from django.conf import settings
+from django.utils.formats import get_format
 
 # ------------------------------------------------------------------------------
 # Start weeks on Monday
@@ -96,7 +97,7 @@ def _ssweek_of_month(date_value):
 
 # ------------------------------------------------------------------------------
 
-if getattr(settings, "JOYOUS_DAY_OF_WEEK_START", "Sunday") == "Monday":
+if get_format("FIRST_DAY_OF_WEEK") == 1:
     calendar.setfirstweekday(calendar.MONDAY)
     week_info = _iso_info
     num_weeks_in_year = _iso_num_weeks

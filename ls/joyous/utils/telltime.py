@@ -32,7 +32,7 @@ def timeFormat(time_from, time_to=None, prefix="", infix="to "):
     if time_to != "" and time_to is not None:
         retval += infix
         retval += format(dateformat.time_format(time_to, "fA").lower())
-    return retval
+    return retval.strip()
 
 def dateFormat(when):
     # e.g. Friday, 14th of April 2011

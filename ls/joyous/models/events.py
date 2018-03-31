@@ -565,6 +565,29 @@ class RecurringEventPage(Page, EventBase):
     def at(self):
         return timeFormat(self.time_from)
 
+    @property
+    def future_exceptions(self):
+        """
+        Returns all future extra info, cancellations and postponements created
+        for this recurring event
+        """
+        retval = []
+        today = dt.date.today()
+        for extraInfo in ExtraInfoPage.objects.live().child_of(self)        \
+                         .filter(except_date__gte=today):
+            retval.append(ThisEvent(extraInfo.extra_title, extraInfo))
+        for cancellation in CancellationPage.objects.live().child_of(self)  \
+                         .filter(except_date__gte=today):
+            postponement = getattr(cancellation, "postponementpage", None)
+            if postponement:
+                retval.append(ThisEvent(postponement.postponement_title,
+                                        postponement))
+            else:
+                retval.append(ThisEvent(cancellation.cancellation_title,
+                                        cancellation))
+        retval.sort(key=attrgetter('page.except_date'))
+        return retval
+
     def occursOn(self, thisDate):
         """
         Returns true iff this event occurs on this date
@@ -573,7 +596,7 @@ class RecurringEventPage(Page, EventBase):
         # TODO analyse which is faster (rrule or db) and test that first
         if dt.datetime.combine(thisDate, dt.time.min) not in self.repeat:
             return False
-        if CancellationPage.objects.live().child_of(self)           \
+        if CancellationPage.objects.live().child_of(self)                   \
                            .filter(except_date=thisDate).exists():
             return False
         return True
@@ -594,12 +617,23 @@ class RecurringEventPage(Page, EventBase):
                 day_num = occurence.toordinal() - ord_from
                 exception = exceptions.get(occurence.date())
                 if exception:
-                    if exception.exception_title:
-                        events[day_num].days_events.append(ThisEvent(exception.exception_title,
-                                                                     exception))
+                    if exception.title:
+                        events[day_num].days_events.append(exception)
                 else:
                     events[day_num].days_events.append(ThisEvent(page.title, page))
         return events
+
+    def __getExceptions(self, date_from, date_to):
+        exceptions = {}
+        for extraInfo in ExtraInfoPage.objects.live().child_of(self)                             \
+                         .filter(except_date__range=(date_from, date_to)):
+            exceptions[extraInfo.except_date] = ThisEvent(extraInfo.extra_title or self.title,
+                                                          extraInfo)
+        for cancellation in CancellationPage.objects.live().child_of(self)                       \
+                         .filter(except_date__range=(date_from, date_to)):
+            exceptions[cancellation.except_date] = ThisEvent(cancellation.cancellation_title,
+                                                             cancellation)
+        return exceptions
 
     def __afterOrPostponedTo(self, fromDt):
         after = self.__after(fromDt)
@@ -669,16 +703,6 @@ class RecurringEventPage(Page, EventBase):
                 last = occurence
         return last
 
-    def __getExceptions(self, date_from, date_to):
-        exceptions = {}
-        for exception in ExtraInfoPage.objects.live().child_of(self)  \
-                         .filter(except_date__range=(date_from, date_to)):
-            exceptions[exception.except_date] = exception
-        for exception in CancellationPage.objects.live().child_of(self)  \
-                         .filter(except_date__range=(date_from, date_to)):
-            exceptions[exception.except_date] = exception
-        return exceptions
-
     # def serve(self, request):
     #     if "format" in request.GET:
     #         if request.GET['format'] == 'ical':
@@ -747,9 +771,9 @@ class EventExceptionBase(models.Model):
     def overrides_repeat(self):
         return getattr(self.overrides, 'repeat', None)
 
-    @property
-    def exception_title(self):
-        return None
+    # @property
+    # def exception_title(self):
+    #     return None
 
     @property
     def when(self):
@@ -821,9 +845,9 @@ class ExtraInfoPage(Page, EventExceptionBase):
     def status_text(self):
         return EventBase.status_text.fget(self)
 
-    @property
-    def exception_title(self):
-        return self.extra_title or self.overrides.title
+    # @property
+    # def exception_title(self):
+    #     return self.extra_title or self.overrides.title
 
     @property
     def _upcoming_datetime_from(self):
@@ -892,9 +916,9 @@ class CancellationPage(Page, EventExceptionBase):
     def status_text(self):
         return "This event has been cancelled."
 
-    @property
-    def exception_title(self):
-        return self.cancellation_title
+    # @property
+    # def exception_title(self):
+    #     return self.cancellation_title
 
 # ------------------------------------------------------------------------------
 class PostponementPageForm(EventExceptionPageForm):

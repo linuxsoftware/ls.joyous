@@ -8,7 +8,7 @@ import calendar
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
 from django.conf import settings
-from django.utils import formats
+from django.utils.formats import get_format
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple
 from django.template.loader import render_to_string
@@ -25,11 +25,16 @@ class Time12hrInput(AdminTimeInput):
     """
     Display and Edit time fields in a 12hr format
     """
+    formats = ['%I:%M%P', # 2:30pm
+              '%I%P']    # 7am
     def __init__(self, attrs=None):
-        super().__init__(attrs=attrs)
+        super().__init__(attrs=attrs, format=None)
 
     def format_value(self, value):
-        return timeFormat(value)
+        if isinstance(value, (dt.datetime, dt.time)):
+            return value.strftime(self.formats[0])
+        else:
+            return value
 
     def render_js_init(self, id_, name, value):
         return "initTime12hrChooser({});".format(json.dumps(id_))
@@ -45,11 +50,9 @@ if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
     # Time12hrInput will not work unless django.forms.fields.TimeField
     # can process 12hr times, so sneak them into TIME_INPUT_FORMATS if
     # it isn't already there.  sneaky!
-    _12hrFormats = ['%I:%M%p', # 2:30pm
-                    '%I%p']    # 7am
-    _inputFormats = formats.get_format("TIME_INPUT_FORMATS")
-    if _12hrFormats[0] not in _inputFormats:
-        _inputFormats += _12hrFormats
+    _inputFormats = get_format("TIME_INPUT_FORMATS")
+    if Time12hrInput.formats[0] not in _inputFormats:
+        _inputFormats += Time12hrInput.formats
 else:
     TimeInput = AdminTimeInput
 
@@ -258,10 +261,7 @@ class ExceptionDateInput(AdminDateInput):
         self.overrides_repeat = None
 
     def render_js_init(self, id_, name, value):
-        if getattr(settings, "JOYOUS_DAY_OF_WEEK_START", "Sunday") == "Monday":
-            dowStart = 1
-        else:
-            dowStart = 0
+        dowStart = get_format("FIRST_DAY_OF_WEEK")
         return "initExceptionDateChooser({0}, {1}, {2});"\
                .format(json.dumps(id_), json.dumps(self.valid_dates()), json.dumps(dowStart))
 

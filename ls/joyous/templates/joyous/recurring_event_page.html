@@ -7,6 +7,6 @@
       {% include "joyous/includes/event_details.html" with event=page %}
     </div>
 
-    {% standard_index_listing calling_page=page %}
+    {% include "joyous/includes/future_exceptions_list.html" with future_exceptions=page.future_exceptions %}
   </div>
 {% endblock %}

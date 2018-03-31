@@ -73,8 +73,8 @@ class TestMultidayEvent(TestCase):
 
     def testWhen(self):
         # the odd spacing is expected / not a problem for HTML output
-        self.assertEqual(self.event.when, "Monday 31st of December 2012 at 11pm  to "
-                                          "Tuesday 1st of January 2013 at 3am ")
+        self.assertEqual(self.event.when, "Monday 31st of December 2012 at 11pm to "
+                                          "Tuesday 1st of January 2013 at 3am")
 
     def testAt(self):
         self.assertEqual(self.event.at.strip(), "11pm")

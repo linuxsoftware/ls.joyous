@@ -9,11 +9,8 @@
         {{ page.status_text }}
       </div>
       {% endif %}
-      {% if page.postponement_title %}
-        <h1 class="event-heading">{{ page.postponement_title }}</h1>
-      {% else %}
-        <h1 class="event-heading">{{ page.title }}</h1>
-      {% endif %}
+      {# postponement_title is required #}
+      <h1 class="event-heading">{{ page.postponement_title }}</h1>
       <div class="event-image">
         {% image page.image width-350 %}
       </div>

@@ -30,7 +30,6 @@ Add ``ls.joyous`` and ``wagtail.contrib.modeladmin`` to your ``INSTALLED_APPS``
 
 Settings
 --------
-* ``JOYOUS_DAY_OF_WEEK_START``: ``Sunday`` or ``Monday``
 * ``JOYOUS_DEFAULT_EVENTS_VIEW``: ``Monthly``, ``List`` or ``Weekly`` view
 * ``JOYOUS_HOLIDAYS``: Observed holidays - e.g. ``NZ[WGN]``
 * ``JOYOUS_GROUP_SELECTABLE``: Enable group selection? ``False`` or ``True``

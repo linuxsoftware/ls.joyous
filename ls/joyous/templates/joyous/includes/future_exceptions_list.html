@@ -1,0 +1,13 @@
+{% load wagtailcore_tags %}
+{% if future_exceptions %}
+<div class="page-index">
+  {% for subtitle, exception in future_exceptions %}
+  <a class="item" href="{% pageurl exception %}">
+    <div class="item-heading">{{ exception.title }}</div>
+      {% if subtitle %}
+      <p class="item-text">{{ subtitle }}</p>
+      {% endif %}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
