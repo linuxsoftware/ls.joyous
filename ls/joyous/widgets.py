@@ -84,7 +84,7 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
         dayOptions2  = [(None, "")] + list(enumerate(calendar.day_name))
         dayOptions3  = list(enumerate(calendar.day_name)) +\
                        [(_DayOfMonth, "Day of the month")]
-        monthOptions = enumerate(calendar.month_name[1:], 1)
+        monthOptions = enumerate(calendar.month_abbr[1:], 1)
 
         numAttrs = {'min': 1, 'max': 366}
         disableAttrs = {'disabled': True}
@@ -103,14 +103,14 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                    Select(attrs=disableAttrs, choices=dayOptions2),
                    Select(attrs=disableAttrs, choices=ordOptions2),  #10
                    Select(attrs=disableAttrs, choices=dayOptions2),
-                   Select(attrs=attrs, choices=monthOptions) ]
+                   CheckboxSelectMultiple(attrs=attrs, choices=monthOptions) ]
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
         wdayChoices = []
         ordChoices  = [_SameDay,    None, None]
         dayChoices  = [_DayOfMonth, None, None]
-        monChoice   = None
+        monChoices  = []
         if isinstance(value, Recurrence):
             if value.freq == WEEKLY:
                 if value.byweekday:
@@ -130,7 +130,8 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                         ordChoices[0] = _SameDay
                     dayChoices[0] = _DayOfMonth
                 if value.bymonth:
-                    monChoice = value.bymonth[0]
+                    #monChoice = value.bymonth[0]
+                    monChoices = value.bymonth
                 else:
                     value.dtstart.month
             return [value.dtstart,
@@ -145,7 +146,7 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                     dayChoices[1],
                     ordChoices[2],   #10
                     dayChoices[2],
-                    monChoice]
+                    monChoices]
         else:
             return [None,
                     None,            #1
@@ -159,7 +160,7 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                     dayChoices[1],
                     ordChoices[2],   #10
                     dayChoices[2],
-                    monChoice]
+                    monChoices]
 
     def render_html(self, name, value, attrs=None):
         if isinstance(value, list):
@@ -210,7 +211,7 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                            toIntOrNone(values[11])]
             wdayChoices = []
             mdayChoices = None
-            monChoices  = None
+            monChoices  = []
             if frequency == WEEKLY:
                 if values[3]:
                     wdayChoices = [int(day) for day in values[3]]
@@ -235,7 +236,8 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                 if dayChoices[2] != None and ordChoices[2] != None:
                     wdayChoices.append(Weekday(dayChoices[2], ordChoices[2]))
                 if frequency == YEARLY:
-                    monChoices = [int(values[12])]
+                    if values[12]:
+                        monChoices = [int(month) for month in values[12]]
 
             retval = Recurrence(dtstart    = dtstart,
                                 freq       = frequency,

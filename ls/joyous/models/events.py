@@ -714,7 +714,7 @@ class RecurringEventPage(Page, EventBase):
         fromStart = dt.datetime.combine(fromDate, dt.time.min)
         exceptions = set()
         if excludeCancellations:
-            for cancelled in CancellationPage.objects.live().child_of(self)                     \
+            for cancelled in CancellationPage.objects.live().child_of(self)                      \
                                              .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
         if excludeExtraInfo:

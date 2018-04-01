@@ -15,7 +15,7 @@ class TestRecurrenceWidget(TestCase):
         self.assertEqual(widget.decompress(None),
                          [None, None, 1, [], None, None,      #5
                           101, 200, None, None, None,         #10
-                          None, None])
+                          None, []])
 
     def testDecompressWeekdays(self):
         rr = Recurrence(dtstart=datetime(2009, 1, 1),
@@ -27,7 +27,7 @@ class TestRecurrenceWidget(TestCase):
                          [datetime(2009, 1, 1), WEEKLY, 1,
                           [0,1,2,3,4], 9, None,               #5
                           101, 200, None, None, None,         #10
-                          None, None])
+                          None, []])
 
     def testDecompressEverydayInJanuary(self):
         rr = Recurrence(dtstart=datetime(2014, 12, 1),
@@ -39,7 +39,7 @@ class TestRecurrenceWidget(TestCase):
                          [datetime(2014, 12, 1), YEARLY, 1,
                           [], None, None,                     #5
                           100, 200, None, None, None,         #10
-                          None, 1])
+                          None, [1]])
 
     def testNullValue(self):
         widget = RecurrenceWidget()
@@ -58,7 +58,7 @@ class TestRecurrenceWidget(TestCase):
                 'repeat_9':  None,
                 'repeat_10': None,
                 'repeat_11': None,
-                'repeat_12': '1'}
+                'repeat_12': ['1']}
         rr = Recurrence(dtstart=datetime(2009, 1, 1),
                         freq=WEEKLY,
                         byweekday=[MO,TU,WE,TH,FR],
@@ -78,7 +78,7 @@ class TestRecurrenceWidget(TestCase):
                 'repeat_9':  None,
                 'repeat_10': None,
                 'repeat_11': None,
-                'repeat_12': '1'}
+                'repeat_12': ['1']}
         rr = Recurrence(dtstart=datetime(2014, 12, 1),
                         freq=YEARLY,
                         byweekday=[MO,TU,WE,TH,FR,SA,SU],

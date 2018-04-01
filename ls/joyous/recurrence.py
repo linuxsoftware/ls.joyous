@@ -66,7 +66,6 @@ class Recurrence(rrulebase):
     wkst        = property(attrgetter("rule._wkst"))
     until       = property(attrgetter("rule._until"))
     count       = property(attrgetter("rule._count"))
-    bymonth     = property(attrgetter("rule._bymonth"))
     byweekno    = property(attrgetter("rule._byweekno"))
     byyearday   = property(attrgetter("rule._byyearday"))
     byeaster    = property(attrgetter("rule._byeaster"))
@@ -89,6 +88,13 @@ class Recurrence(rrulebase):
         if self.rule._bynmonthday:
             retval += self.rule._bynmonthday
         return retval
+
+    @property
+    def bymonth(self):
+        if self.rule._bymonth:
+            return list(self.rule._bymonth)
+        else:
+            return []
 
     def _iter(self):
         return self.rule._iter()
