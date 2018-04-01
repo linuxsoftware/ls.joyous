@@ -2,9 +2,9 @@
 <div class="event-when">
   {{ event.when }}
 </div>
-{% if event.postponed_from %}
+{% if event.postponed_from_when %}
 <div class="event-postponed-from">
-  Postponed from {{ event.postponed_from }}
+  Postponed from {{ event.postponed_from_when }}
 </div>
 {% endif %}
 {% if event.next_on %}

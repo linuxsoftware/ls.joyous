@@ -18,21 +18,18 @@ from wagtail.admin.widgets import AdminTimeInput
 from dateutil.parser import parse as dt_parse
 from .recurrence import WEEKLY, MONTHLY, YEARLY
 from .recurrence import Weekday, Recurrence
-from .utils.telltime import timeFormat
 
 # ------------------------------------------------------------------------------
 class Time12hrInput(AdminTimeInput):
     """
     Display and Edit time fields in a 12hr format
     """
-    formats = ['%I:%M%P', # 2:30pm
-              '%I%P']    # 7am
     def __init__(self, attrs=None):
         super().__init__(attrs=attrs, format=None)
 
     def format_value(self, value):
         if isinstance(value, (dt.datetime, dt.time)):
-            return value.strftime(self.formats[0])
+            return value.strftime("%I:%M%P") # %P for lower case am/pm
         else:
             return value
 
@@ -50,9 +47,12 @@ if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
     # Time12hrInput will not work unless django.forms.fields.TimeField
     # can process 12hr times, so sneak them into TIME_INPUT_FORMATS if
     # it isn't already there.  sneaky!
+    # Note: strptime does not accept %P %p is for both cases here
+    _12hrFormats = ['%I:%M%p', # 2:30pm
+                    '%I%p']    # 7am
     _inputFormats = get_format("TIME_INPUT_FORMATS")
-    if Time12hrInput.formats[0] not in _inputFormats:
-        _inputFormats += Time12hrInput.formats
+    if _12hrFormats[0] not in _inputFormats:
+        _inputFormats += _12hrFormats
 else:
     TimeInput = AdminTimeInput
 

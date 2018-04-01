@@ -19,6 +19,7 @@ from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
 from ..utils.telltime import getDatetime, datetimeFrom, datetimeTo
+from ..utils.telltime import timeFrom, timeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 # from ..utils.ical import export_event
@@ -51,6 +52,18 @@ class EventCategory(models.Model):
         return self.name
 
 # ------------------------------------------------------------------------------
+class EventPageForm(WagtailAdminPageForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        self._checkStartBeforeEnd(cleaned_data)
+        return cleaned_data
+
+    def _checkStartBeforeEnd(self, cleaned_data):
+        startTime = timeFrom(cleaned_data.get('time_from'))
+        endTime   = timeTo(cleaned_data.get('time_to'))
+        if startTime > endTime:
+            self.add_error('time_to', "Event cannot end before it starts")
+
 class EventBase(models.Model):
     class Meta:
         abstract = True
@@ -134,6 +147,7 @@ class EventBase(models.Model):
 
     def _getFromDt(self):
         raise NotImplementedError()
+
 
 def removeContentPanels(remove):
     SimpleEventPage._removeContentPanels(remove)
@@ -330,6 +344,7 @@ class SimpleEventPage(Page, EventBase):
     parent_page_types = ["joyous.CalendarPage",
                          get_group_model_string()]
     subpage_types = []
+    base_form_class = EventPageForm
 
     date    = models.DateField("Date", default=dt.date.today)
 
@@ -377,6 +392,16 @@ class SimpleEventPage(Page, EventBase):
         return getDatetime(self.date, self.time_from, dt.time.max)
 
 # ------------------------------------------------------------------------------
+class MultidayEventPageForm(EventPageForm):
+    def _checkStartBeforeEnd(self, cleaned_data):
+        startDate = cleaned_data.get('date_from', dt.date.min)
+        endDate   = cleaned_data.get('date_to', dt.date.max)
+        if startDate > endDate:
+            self.add_error('date_to', "Event cannot end before it starts")
+        elif startDate == endDate:
+            # weird - why not just create a SimpleEventPage? but I will allow it
+            super()._checkStartBeforeEnd(cleaned_data)
+
 class MultidayEventPage(Page, EventBase):
     class Meta:
         verbose_name = "Multiday Event Page"
@@ -384,6 +409,7 @@ class MultidayEventPage(Page, EventBase):
     parent_page_types = ["joyous.CalendarPage",
                          get_group_model_string()]
     subpage_types = []
+    base_form_class = MultidayEventPageForm
 
     date_from = models.DateField("Start date", default=dt.date.today)
     date_to = models.DateField("End date", default=dt.date.today)
@@ -450,6 +476,7 @@ class RecurringEventPage(Page, EventBase):
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
                      'joyous.PostponementPage']
+    base_form_class = EventPageForm
 
     # FIXME So that Fred can't cancel Barney's event
     # owner_subpages_only = True
@@ -727,22 +754,21 @@ class RecurringEventPage(Page, EventBase):
 
 # ------------------------------------------------------------------------------
 class EventExceptionPageForm(WagtailAdminPageForm):
-    def clean(self):
-        cleaned_data = super().clean()
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 "exception", "an event exception")
-        return cleaned_data
-
-    def _checkSlugAvailable(self, exceptDate, slugName, description):
+    def _checkSlugAvailable(self, cleaned_data, slugName=None):
+        if slugName is None:
+            slugName = self.slugName
+        description = getattr(self, 'description', "a {}".format(slugName))
+        exceptDate = cleaned_data.get('except_date', "invalid")
         slug = "{}-{}".format(exceptDate, slugName)
         if not Page._slug_is_available(slug, self.parent_page, self.instance):
             self.add_error('except_date',
                            'That date already has {}'.format(description))
 
     def save(self, commit=True):
+        name = getattr(self, 'name', self.slugName.title())
         page = super().save(commit=False)
-        page.title = "Exception for {}".format(dateFormat(page.except_date))
-        page.slug = "{}-exception".format(page.except_date)
+        page.title = "{} for {}".format(name, dateFormat(page.except_date))
+        page.slug = "{}-{}".format(page.except_date, self.slugName)
         if commit:
             page.save()
         return page
@@ -783,21 +809,14 @@ class EventExceptionBase(models.Model):
 
 # ------------------------------------------------------------------------------
 class ExtraInfoPageForm(EventExceptionPageForm):
-    slugName = "extra-info"
+    name        = "Extra Information"
+    description = name.lower()
+    slugName    = "extra-info"
 
     def clean(self):
         cleaned_data = super().clean()
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 self.slugName, "extra information")
+        self._checkSlugAvailable(cleaned_data)
         return cleaned_data
-
-    def save(self, commit=True):
-        page = super().save(commit=False)
-        page.title = "Extra Information for {}".format(dateFormat(page.except_date))
-        page.slug = "{}-{}".format(page.except_date, self.slugName)
-        if commit:
-            page.save()
-        return page
 
 class ExtraInfoPage(Page, EventExceptionBase):
     class Meta:
@@ -861,19 +880,9 @@ class CancellationPageForm(EventExceptionPageForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 self.slugName, "a cancellation")
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 "postponement", "a postponement")
+        self._checkSlugAvailable(cleaned_data)
+        self._checkSlugAvailable(cleaned_data, "postponement")
         return cleaned_data
-
-    def save(self, commit=True):
-        page = super().save(commit=False)
-        page.title = "Cancellation for {}".format(dateFormat(page.except_date))
-        page.slug = "{}-{}".format(page.except_date, self.slugName)
-        if commit:
-            page.save()
-        return page
 
 class CancellationPage(Page, EventExceptionBase):
     class Meta:
@@ -914,19 +923,10 @@ class PostponementPageForm(EventExceptionPageForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 self.slugName, "a postponement")
-        self._checkSlugAvailable(cleaned_data['except_date'],
-                                 "cancellation", "a cancellation")
+        self._checkSlugAvailable(cleaned_data)
+        self._checkSlugAvailable(cleaned_data, "cancellation")
+        EventPageForm._checkStartBeforeEnd(self, cleaned_data)
         return cleaned_data
-
-    def save(self, commit=True):
-        page = super().save(commit=False)
-        page.title = "Postponement for {}".format(dateFormat(page.except_date))
-        page.slug = "{}-{}".format(page.except_date, self.slugName)
-        if commit:
-            page.save()
-        return page
 
 class PostponementPage(EventBase, CancellationPage):
     class Meta:
@@ -995,7 +995,7 @@ class PostponementPage(EventBase, CancellationPage):
                               timeFormat(self.time_from, self.time_to, "at "))
 
     @property
-    def postponed_from(self):
+    def postponed_from_when(self):
         return self.cancellationpage.when
 
     @property
