@@ -61,6 +61,43 @@
     padding-top:           16px;
 }
 
+
+.event-index {
+    border-top:            1px solid #36454f;
+    padding:               30px 20px 20px 20px;
+}
+
+.event-index a,
+.event-index a:link,
+.event-index a:hover,
+.event-index a:active,
+.event-index a:visited  {
+    color: #36454f;
+    background-color:      transparent;
+    text-decoration: none;
+}
+.event-index a:hover .item-heading  {
+    color: #36454f;
+    text-decoration: underline;
+}
+.event-index a:active .item-heading  {
+    color:                 white;
+    background-color:      #36454f;
+    text-decoration:       underline;
+}
+
+.event-index .item {
+    padding:               2px 10px 1px 44px;
+    margin:                0 0 10px 0;
+    display:               block;
+    min-height:            28px;
+}
+.event-index .item-heading {
+    display:               inline;
+    font-weight:           bold;
+    font-size:             18px;
+}
+
 /*-----------------------------------------------------------------------*/
 /* Joyous Calendar */
 /*-----------------------------------------------------------------------*/

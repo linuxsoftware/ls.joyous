@@ -771,10 +771,6 @@ class EventExceptionBase(models.Model):
     def overrides_repeat(self):
         return getattr(self.overrides, 'repeat', None)
 
-    # @property
-    # def exception_title(self):
-    #     return None
-
     @property
     def when(self):
         return "{} {}".format(dateFormat(self.except_date),
@@ -845,10 +841,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
     def status_text(self):
         return EventBase.status_text.fget(self)
 
-    # @property
-    # def exception_title(self):
-    #     return self.extra_title or self.overrides.title
-
     @property
     def _upcoming_datetime_from(self):
         return self._checkFromDt(lambda fromDt:fromDt >= dt.datetime.now())
@@ -915,10 +907,6 @@ class CancellationPage(Page, EventExceptionBase):
     @property
     def status_text(self):
         return "This event has been cancelled."
-
-    # @property
-    # def exception_title(self):
-    #     return self.cancellation_title
 
 # ------------------------------------------------------------------------------
 class PostponementPageForm(EventExceptionPageForm):
