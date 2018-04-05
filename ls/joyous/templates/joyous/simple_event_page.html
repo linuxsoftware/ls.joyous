@@ -5,5 +5,8 @@
     <div class="event clearfix">
       {% include "joyous/includes/event_details.html" with event=page %}
     </div>
-  </div>
+    <div class="event-export">
+      <a href="{{ request.path }}?format=ical">Export ICAL</a>
+    </div>
+  </div> 
 {% endblock %}

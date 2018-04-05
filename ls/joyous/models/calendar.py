@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..utils.weeks import week_info, gregorian_to_week_date
@@ -38,6 +38,12 @@ class CalendarPage(RoutablePageMixin, Page):
     search_fields = Page.search_fields
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname="full"),
+        ]
+    settings_panels = Page.settings_panels + [
+        MultiFieldPanel([
+            ], "Warning! this feature is experimental : Import"),
+        MultiFieldPanel([
+            ], "Export"),
         ]
 
     @route(r"^$")

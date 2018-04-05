@@ -8,5 +8,8 @@
     </div>
 
     {% include "joyous/includes/future_exceptions_list.html" with future_exceptions=page.future_exceptions %}
+    <div class="event-export">
+      <a href="{{ request.path }}?format=ical">Export ICAL</a>
+     </div> 
   </div>
 {% endblock %}

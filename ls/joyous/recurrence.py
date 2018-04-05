@@ -75,7 +75,6 @@ class Recurrence(rrulebase):
     # expose all
     freq        = property(attrgetter("rule._freq"))
     interval    = property(attrgetter("rule._interval"))
-    wkst        = property(attrgetter("rule._wkst"))
     count       = property(attrgetter("rule._count"))
     byweekno    = property(attrgetter("rule._byweekno"))
     byyearday   = property(attrgetter("rule._byyearday"))
@@ -87,11 +86,23 @@ class Recurrence(rrulebase):
         return self.rule._dtstart.date()
 
     @property
+    def frequency(self):
+        freqOptions = ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
+        if self.freq < len(freqOptions):
+            return freqOptions[self.freq]
+        else:
+            return "unsupported_frequency_{}".format(self.freq)
+
+    @property
     def until(self):
         if self.rule._until is not None:
             return self.rule._until.date()
         else:
             return None
+
+    @property
+    def wkst(self):
+        return Weekday(self.rule._wkst)
 
     @property
     def byweekday(self):
@@ -126,13 +137,19 @@ class Recurrence(rrulebase):
         return self.rule.count()
 
     def __repr__(self):
-        freqOptions = ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
-        if self.freq >= len(freqOptions): return ""
-        parts = ["FREQ={}".format(freqOptions[self.freq])]
+        dtstart = ""
+        if self.dtstart:
+            dtstart = "DTSTART:{:%Y%m%d}\n".format(self.dtstart)
+        rrule = "RRULE:{}".format(self._getRrule())
+        retval = dtstart + rrule
+        return retval
+
+    def _getRrule(self):
+        parts = ["FREQ={}".format(self.frequency)]
         if self.interval and self.interval != 1:
             parts.append("INTERVAL={}".format(self.interval))
         if self.wkst:
-            parts.append("WKST={!r}".format(Weekday(self.wkst)))
+            parts.append("WKST={!r}".format(self.wkst))
         if self.count:
             parts.append("COUNT={}".format(self.count))
         if self.until:
@@ -146,12 +163,7 @@ class Recurrence(rrulebase):
             if value:
                 parts.append("{}={}".format(name,
                                             ",".join(repr(v) for v in value)))
-        rrule = "RRULE:{}".format(";".join(parts))
-        dtstart = ""
-        if self.dtstart:
-            dtstart = "DTSTART:{:%Y%m%d}\n".format(self.dtstart)
-        retval = dtstart + rrule
-        return retval
+        return ";".join(parts)
 
     def __str__(self):
         return self._getWhen(0)

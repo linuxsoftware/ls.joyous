@@ -201,9 +201,9 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
             def toIntOrNone(value):
                 return int(value) if value else None
             dtstart     = dt_parse(values[0]) if values[0] else None
-            frequency   = toIntOrNone(values[1])
+            freq        = toIntOrNone(values[1])
             interval    = toIntOrNone(values[2]) or None
-            #count     = toIntOrNone(values[4]) or None
+            #count      = toIntOrNone(values[4]) or None
             dtuntil     = dt_parse(values[5]) if values[5] else None
             ordChoices  = [toIntOrNone(values[6]),
                            toIntOrNone(values[8]),
@@ -214,10 +214,10 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
             wdayChoices = []
             mdayChoices = None
             monChoices  = []
-            if frequency == WEEKLY:
+            if freq == WEEKLY:
                 if values[3]:
                     wdayChoices = [int(day) for day in values[3]]
-            elif frequency in (MONTHLY, YEARLY):
+            elif freq in (MONTHLY, YEARLY):
                 if dayChoices[0] == _DayOfMonth:    # day of the month
                     if ordChoices[0] == _EveryDay:      # every day, == daily
                         wdayChoices = range(7)
@@ -237,12 +237,12 @@ class RecurrenceWidget(WidgetWithScript, MultiWidget):
                     wdayChoices.append(Weekday(dayChoices[1], ordChoices[1]))
                 if dayChoices[2] != None and ordChoices[2] != None:
                     wdayChoices.append(Weekday(dayChoices[2], ordChoices[2]))
-                if frequency == YEARLY:
+                if freq == YEARLY:
                     if values[12]:
                         monChoices = [int(month) for month in values[12]]
 
             retval = Recurrence(dtstart    = dtstart,
-                                freq       = frequency,
+                                freq       = freq,
                                 interval   = interval,
                                 byweekday  = wdayChoices,
                                 #count      = count,

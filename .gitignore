@@ -9,6 +9,7 @@
 *.pid
 *.py[cod]
 *.so
+*.sqlite3
 *.sw[a-q]
 *.wpu
 *~

@@ -34,3 +34,37 @@ class ExceptionDatePanel(object):
         return type(str('_ExceptionDatePanel'), (BaseExceptionDatePanel,), members)
 
 # ------------------------------------------------------------------------------
+class BaseImportCalendarPanel(BaseFieldPanel):
+    def __init__(self, instance=None, form=None):
+        super().__init__(instance=instance, form=form)
+
+class ImportCalendarPanel(object):
+    def __init__(self, field_name, classname=""):
+        pass
+
+    def bind_to_model(self, model):
+        members = {
+            'model':      model,
+            'field_name': self.field_name,
+            'classname':  self.classname
+        }
+        return type(str('_ImportCalendarPanel'), (BaseImportCalendarPanel,), members)
+
+# ------------------------------------------------------------------------------
+class BaseExportCalendarPanel(BaseFieldPanel):
+    def __init__(self, instance=None, form=None):
+        super().__init__(instance=instance, form=form)
+
+class ExportCalendarPanel(object):
+    def __init__(self, field_name, classname=""):
+        pass
+
+    def bind_to_model(self, model):
+        members = {
+            'model':      model,
+            'field_name': self.field_name,
+            'classname':  self.classname,
+        }
+        return type(str('_ExportCalendarPanel'), (BaseExportCalendarPanel,), members)
+
+# ------------------------------------------------------------------------------

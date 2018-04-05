@@ -8,6 +8,7 @@ from itertools import groupby
 from operator import attrgetter
 from django.conf import settings
 from django.db import models
+from django.http import HttpResponse
 from django.utils.html import format_html
 from django.utils import timezone
 from wagtail.core.models import Page
@@ -43,8 +44,6 @@ try:
 except (ValueError, ImportError):
     MapFieldPanel = FieldPanel
 
-# ------------------------------------------------------------------------------
-# Event Pages
 # ------------------------------------------------------------------------------
 ThisEvent = namedtuple("ThisEvent", "title page")
 
@@ -386,7 +385,7 @@ class SimpleEventPage(Page, EventBase):
     subpage_types = []
     base_form_class = EventPageForm
 
-    date = models.DateField("Date", default=dt.date.today)
+    date    = models.DateField("Date", default=dt.date.today)
 
     content_panels = Page.content_panels + [
         FieldPanel('category'),
@@ -710,6 +709,19 @@ class RecurringEventPage(Page, EventBase):
             return False
         return True
 
+    def _getMyFirstDatetimeFrom(self):
+        myStartDt = getAwareDatetime(self.repeat.dtstart, None,
+                                     self.tz, dt.time.min)
+        return self.__after(myStartDt)
+
+    def _getMyFirstDatetimeTo(self):
+        myFirstDt = self._getMyFirstDatetimeFrom()
+        if myFirstDt is not None:
+            return getAwareDatetime(myFirstDt.date(), self.time_to,
+                                    self.tz, dt.time.max)
+        else:
+            return None
+
     @classmethod
     def getEventsByDay(cls, date_from, date_to):
         ordFrom =  date_from.toordinal()
@@ -972,7 +984,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
     image       = property(attrgetter("overrides.image"))
     location    = property(attrgetter("overrides.location"))
     website     = property(attrgetter("overrides.website"))
-
 
     @property
     def status(self):

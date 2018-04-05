@@ -19,9 +19,11 @@ elif __name__ == "builtins":
     import pprint
     import ls.joyous
     from ls.joyous.models import *
-    from ls.joyous.recurrence import Recurrence
-    from ls.joyous.utils import manythings, telltime, ical
+    from ls.joyous.recurrence import *
+    from ls.joyous.utils import manythings, telltime
+    from ls.joyous.formats import ical
     L=list
     sys.displayhook = pprint.pprint
+    sys.__interactivehook__()
     timezone.activate("Pacific/Auckland")
 

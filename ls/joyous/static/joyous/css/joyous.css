@@ -61,6 +61,12 @@
     padding-top:           16px;
 }
 
+.event-export {
+    padding-top:           22px;
+    color:                 #aaa;
+    font-size:             11px;
+}
+
 
 .event-index {
     border-top:            1px solid #36454f;
