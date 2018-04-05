@@ -724,7 +724,7 @@ class RecurringEventPage(Page, EventBase):
                 exceptions.add(info.except_date)
         last = None
         for occurence in self.repeat:
-            if occurence >= fromStart:
+            if occurence > fromStart:
                 break
             if occurence.date() not in exceptions:
                 last = occurence
