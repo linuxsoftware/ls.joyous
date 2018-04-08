@@ -34,7 +34,9 @@ class Time12hrInput(AdminTimeInput):
             return value
 
     def render_js_init(self, id_, name, value):
-        return "initTime12hrChooser({});".format(json.dumps(id_))
+        return "$(function() {{"                               \
+               "  initTime12hrChooser({})"                     \
+               "  }});".format(json.dumps(id_))
 
     @property
     def media(self):

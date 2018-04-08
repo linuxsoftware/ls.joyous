@@ -41,9 +41,11 @@ setup(name="ls.joyous",
       package_data={'ls.joyous': ["templates/joyous/*.html",
                                   "templates/joyous/*/*.html",
                                   "static/joyous/css/*.css",
+                                  "static/joyous/css/vendor/*.css",
                                   "static/joyous/img/*.png",
                                   "static/joyous/img/*.jpg",
-                                  "static/joyous/js/*.js"
+                                  "static/joyous/js/*.js",
+                                  "static/joyous/js/vendor/*.js"
                                  ],
                    },
       setup_requires=["setuptools_scm"],
