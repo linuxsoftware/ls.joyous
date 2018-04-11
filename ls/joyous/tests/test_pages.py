@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
+import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from wagtail.tests.utils import WagtailPageTests
@@ -126,6 +127,7 @@ class PageInstanceTests(WagtailPageTests):
         self.assertCanCreate(self.group, SimpleEventPage,
                              nested_form_data({'title':      "Mouse Hunt",
                                                'date':       dt.date(1987,6,5),
+                                               'tz':         pytz.timezone("Pacific/Auckland"),
                                                'details':    rich_text("<p>Hello Micee</p>")}))
 
     @skipUnlessSetup("group")
@@ -136,6 +138,7 @@ class PageInstanceTests(WagtailPageTests):
                                                'date_to':    dt.date(1987,7,12),
                                                'time_from':  dt.time(17),
                                                'time_to':    dt.time(14,30),
+                                               'tz':         pytz.timezone("Pacific/Auckland"),
                                                'details':    rich_text("<p>Hello World</p>")}))
 
     @skipUnlessSetup("group")
@@ -148,6 +151,7 @@ class PageInstanceTests(WagtailPageTests):
                                                'repeat_3':   {0:0, 1:1, 2:2, 4:4}, # Mon,Tue,Wed,Fri
                                                'time_from':  dt.time(9),
                                                'time_to':    dt.time(10),
+                                               'tz':         pytz.timezone("Pacific/Auckland"),
                                                'details':
                                                    rich_text("<p>Stand up straight!</p>")}))
 

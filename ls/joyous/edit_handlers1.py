@@ -1,15 +1,23 @@
 # ------------------------------------------------------------------------------
 # Wagtail 1.x style EditHandlers
 # ------------------------------------------------------------------------------
+from django.utils import timezone
 from wagtail.wagtailadmin.edit_handlers import BaseFieldPanel
 from .widgets import ExceptionDateInput
 
 # ------------------------------------------------------------------------------
 class BaseExceptionDatePanel(BaseFieldPanel):
+    object_template = "joyous/edit_handlers/exception_date_object.html"
+
     def __init__(self, instance=None, form=None):
         super().__init__(instance=instance, form=form)
         widget = self.bound_field.field.widget
         widget.overrides_repeat = self.instance.overrides_repeat
+        tz = timezone._get_timezone_name(self.instance.tz)
+        if tz != timezone.get_current_timezone_name():
+            self.exceptionTZ = tz
+        else:
+            self.exceptionTZ = None
 
 class ExceptionDatePanel(object):
     def __init__(self, field_name, classname=""):

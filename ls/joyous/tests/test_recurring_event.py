@@ -3,14 +3,17 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
+import pytz
+import calendar
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.recurrence import Recurrence
 from ls.joyous.recurrence import DAILY, WEEKLY, MONTHLY, TU, TH, WEEKEND, EVERYDAY
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
-
+from .testutils import datetimetz
 
 class TestRecurringEvent(TestCase):
     def setUp(self):
@@ -47,14 +50,14 @@ class TestRecurringEvent(TestCase):
         pastEvent = RecurringEventPage(owner = self.user,
                                        slug  = "past",
                                        title = "Past Event",
-                                       repeat    = Recurrence(dtstart=dt.date(2008,2,1),
-                                                              until=dt.date(2008,5,4),
-                                                              freq=WEEKLY,
-                                                              byweekday=WEEKEND))
+                                       repeat = Recurrence(dtstart=dt.date(2008,2,1),
+                                                           until=dt.date(2008,5,4),
+                                                           freq=WEEKLY,
+                                                           byweekday=WEEKEND))
         self.calendar.add_child(instance=pastEvent)
         self.assertEqual(pastEvent.status, "finished")
         self.assertEqual(pastEvent.status_text, "These events have finished.")
-        now = dt.datetime.now()
+        now = timezone.localtime()
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
             earlier = dt.datetime.combine(now.date(), dt.time.min)
@@ -100,14 +103,14 @@ class TestRecurringEvent(TestCase):
                                         time_from = dt.time(20,15),
                                         time_to   = dt.time(21,30))
         self.calendar.add_child(instance=movieNight)
-        now = dt.datetime.now()
+        now = timezone.localtime()
         myday = now.date()
         startTime = dt.time(20,15)
         if now.time() > startTime:
             myday += dt.timedelta(days=1)
         thursday = myday + dt.timedelta(days=(3-myday.weekday())%7)
         self.assertEqual(movieNight._upcoming_datetime_from,
-                         dt.datetime.combine(thursday, startTime))
+                         datetimetz(thursday, startTime))
 
     def testPastDt(self):
         lugDt = self.event._past_datetime_from
@@ -123,18 +126,72 @@ class TestRecurringEvent(TestCase):
                                         time_from = dt.time(20,15),
                                         time_to   = dt.time(21,30))
         self.calendar.add_child(instance=movieNight)
-        now = dt.datetime.now()
+        now = timezone.localtime()
         myday = now.date()
         startTime = dt.time(20,15)
         if now.time() < startTime:
             myday -= dt.timedelta(days=1)
         thursday = myday - dt.timedelta(days=(myday.weekday()-3)%7)
         self.assertEqual(movieNight._past_datetime_from,
-                         dt.datetime.combine(thursday, startTime))
+                         datetimetz(thursday, startTime))
 
     def testGroup(self):
         self.assertIsNone(self.event.group)
 
     def testOccursOn(self):
-        self.assertIs(self.event.occursOn(dt.date(2018,3,6)), True)
-        self.assertIs(self.event.occursOn(dt.date(2018,3,13)), False)
+        self.assertIs(self.event._occursOn(dt.date(2018,3,6)), True)
+        self.assertIs(self.event._occursOn(dt.date(2018,3,13)), False)
+
+
+class RecurringEventPageTZ(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(owner = self.user,
+                                        slug  = "code-for-boston",
+                                        title = "Code for Boston",
+                                        repeat    = Recurrence(dtstart=dt.date(2017,1,1),
+                                                               freq=WEEKLY,
+                                                               byweekday=[TU]),
+                                        time_from = dt.time(19),
+                                        time_to   = dt.time(21,30),
+                                        location  = "4th Floor, 1 Broadway, Cambridge, MA",
+                                        tz = pytz.timezone("US/Eastern"))
+        self.calendar.add_child(instance=self.event)
+        self.event.save_revision().publish()
+
+    def testGetEventsByLocalDay(self):
+        events = RecurringEventPage.getEventsByDay(dt.date(2018,4,1),
+                                                   dt.date(2018,4,30))
+        self.assertEqual(len(events), 30)
+        evod1 = events[3]
+        self.assertEqual(evod1.date, dt.date(2018,4,4))
+        self.assertEqual(len(evod1.days_events), 1)
+        self.assertEqual(len(evod1.continuing_events), 0)
+
+    @timezone.override("America/Los_Angeles")
+    def testLocalWhen(self):
+        # WARNING depending upon DST
+        self.assertEqual(self.event.when,
+                         "Tuesdays at 4pm to 6:30pm")
+
+    @timezone.override("America/Los_Angeles")
+    def testLocalAt(self):
+        self.assertEqual(self.event.at, "4pm")
+
+    @timezone.override("America/Los_Angeles")
+    def testUpcomingLocalDt(self):
+        when = self.event._upcoming_datetime_from
+        self.assertEqual(when.tzinfo.zone, "America/Los_Angeles")
+        self.assertEqual(when.weekday(), calendar.TUESDAY)
+
+    @timezone.override("Pacific/Auckland")
+    def testPastLocalDt(self):
+        when = self.event._past_datetime_from
+        self.assertEqual(when.tzinfo.zone, "Pacific/Auckland")
+        self.assertEqual(when.weekday(), calendar.WEDNESDAY)

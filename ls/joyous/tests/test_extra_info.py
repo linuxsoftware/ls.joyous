@@ -5,11 +5,13 @@ import sys
 import datetime as dt
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import ExtraInfoPage
 from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
+from .testutils import datetimetz
 
 
 class TestExtraInfo(TestCase):
@@ -23,7 +25,7 @@ class TestExtraInfo(TestCase):
         self.calendar.save_revision().publish()
         self.event = RecurringEventPage(slug      = "test-meeting",
                                         title     = "Test Meeting",
-                                        repeat    = Recurrence(dtstart=dt.datetime(1988,1,1),
+                                        repeat    = Recurrence(dtstart=dt.date(1988,1,1),
                                                                freq=WEEKLY,
                                                                byweekday=[MO,WE,FR]),
                                         time_from = dt.time(13),
@@ -55,7 +57,7 @@ class TestExtraInfo(TestCase):
     def testStatus(self):
         self.assertEqual(self.info.status, "finished")
         self.assertEqual(self.info.status_text, "This event has finished.")
-        now = dt.datetime.now()
+        now = timezone.localtime()
         myday = now.date() + dt.timedelta(days=1)
         friday = myday + dt.timedelta(days=(4-myday.weekday())%7)
         futureInfo = ExtraInfoPage(owner = self.user,
@@ -81,7 +83,7 @@ class TestExtraInfo(TestCase):
 
     def testPastDt(self):
         self.assertEqual(self.info._past_datetime_from,
-                         dt.datetime(1988,11,11,13,0))
+                         datetimetz(1988,11,11,13,0))
 
     def testGroup(self):
         self.assertIsNone(self.info.group)

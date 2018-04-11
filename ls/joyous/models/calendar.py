@@ -6,6 +6,7 @@ import calendar
 from django.conf import settings
 from django.http import Http404
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel
@@ -63,7 +64,7 @@ class CalendarPage(RoutablePageMixin, Page):
             return myurl + self.reverse_subpage('serveMonth',
                                                 args=[urlYear, urlMonth])
 
-        today = dt.date.today()
+        today = timezone.localdate()
         if year is None: year = today.year
         if month is None: month = today.month
         year = int(year)
@@ -116,7 +117,7 @@ class CalendarPage(RoutablePageMixin, Page):
             return myurl + self.reverse_subpage('serveWeek',
                                                 args=[urlYear, urlWeek])
 
-        today = dt.date.today()
+        today = timezone.localdate()
         thisYear, thisWeekNum, _ = gregorian_to_week_date(today)
         if year is None: year = thisYear
         if week is None: week = thisWeekNum
@@ -166,7 +167,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^{YYYY}/{MM}/{DD}/$".format(**DatePictures))
     def serveDay(self, request, year=None, month=None, dom=None):
         myurl = self.get_url(request)
-        today = dt.date.today()
+        today = timezone.localdate()
         if year is None: year = today.year
         if month is None: month = today.month
         if dom is None: dom = today.day
@@ -204,7 +205,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^upcoming/$")
     def serveUpcoming(self, request):
         myurl = self.get_url(request)
-        today = dt.date.today()
+        today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[today.year, today.month])
         weekNum = gregorian_to_week_date(today)[1]
@@ -225,7 +226,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^past/$")
     def servePast(self, request):
         myurl = self.get_url(request)
-        today = dt.date.today()
+        today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[today.year, today.month])
         weekNum = gregorian_to_week_date(today)[1]
@@ -257,7 +258,7 @@ class CalendarPage(RoutablePageMixin, Page):
         if not request.is_ajax():
             raise Http404("/mini/ is for ajax requests only")
 
-        today = dt.date.today()
+        today = timezone.localdate()
         if year is None: year = today.year
         if month is None: month = today.month
         year = int(year)

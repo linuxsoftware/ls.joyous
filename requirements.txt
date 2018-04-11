@@ -1,7 +1,10 @@
-Django>=2.0,<2.1
-wagtail>=2.0,<2.1
-python-dateutil
+Django
+wagtail
+
+django-timezone-field
 inflect
 holidays
+python-dateutil
+
 django-beautifulsoup-test
 coverage

@@ -60,16 +60,25 @@ class Recurrence(rrulebase):
             self.rule = rrule(*args, **kwargs)
 
     # expose all
-    dtstart     = property(attrgetter("rule._dtstart"))
     freq        = property(attrgetter("rule._freq"))
     interval    = property(attrgetter("rule._interval"))
     wkst        = property(attrgetter("rule._wkst"))
-    until       = property(attrgetter("rule._until"))
     count       = property(attrgetter("rule._count"))
     byweekno    = property(attrgetter("rule._byweekno"))
     byyearday   = property(attrgetter("rule._byyearday"))
     byeaster    = property(attrgetter("rule._byeaster"))
     bysetpos    = property(attrgetter("rule._bysetpos"))
+
+    @property
+    def dtstart(self):
+        return self.rule._dtstart.date()
+
+    @property
+    def until(self):
+        if self.rule._until is not None:
+            return self.rule._until.date()
+        else:
+            return None
 
     @property
     def byweekday(self):
@@ -97,7 +106,8 @@ class Recurrence(rrulebase):
             return []
 
     def _iter(self):
-        return self.rule._iter()
+        for occurence in self.rule._iter():
+            yield occurence.date()
 
     def getCount(self):
         return self.rule.count()
@@ -190,7 +200,7 @@ class RecurrenceField(Field):
         del kwargs["max_length"]
         return name, path, args, kwargs
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, *args):
         return self.to_python(value)
 
     def to_python(self, value):

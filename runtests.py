@@ -16,7 +16,11 @@ def run():
     test_runner = TestRunner(top_level="ls/joyous",
                              verbosity=verbosity,
                              keepdb=True)
-    failures = test_runner.run_tests(["ls.joyous.tests"])
+    labels = ["ls.joyous.tests."+arg for arg in sys.argv[1:]
+              if not arg.startswith("-")]
+    if not labels:
+        labels = ["ls.joyous.tests"]
+    failures = test_runner.run_tests(labels)
     return failures
 
 def coverage():

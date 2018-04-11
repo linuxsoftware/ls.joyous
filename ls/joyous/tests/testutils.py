@@ -2,7 +2,9 @@
 # Testing infrastructure
 #---------------------------------------------------------------------------
 import unittest
+import datetime as dt
 from functools import wraps
+from django.utils import timezone
 
 
 def skipUnlessSetup(attrs):
@@ -19,3 +21,11 @@ def skipUnlessSetup(attrs):
     return decorator
 
 
+def datetimetz(*args):
+    if len(args) < 2:
+        return timezone.localtime()
+    if type(args[0]) == int:
+        datetime = dt.datetime(*args)
+    elif type(args[0]) == dt.date:
+        datetime = dt.datetime.combine(*args)
+    return timezone.make_aware(datetime)

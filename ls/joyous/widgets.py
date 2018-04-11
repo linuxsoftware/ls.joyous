@@ -9,12 +9,12 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
 from django.conf import settings
 from django.utils.formats import get_format
+from django.utils import timezone
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple
 from django.template.loader import render_to_string
 from wagtail.utils.widgets import WidgetWithScript
-from wagtail.admin.widgets import AdminDateInput
-from wagtail.admin.widgets import AdminTimeInput
+from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from dateutil.parser import parse as dt_parse
 from .recurrence import WEEKLY, MONTHLY, YEARLY
 from .recurrence import Weekday, Recurrence
@@ -263,6 +263,7 @@ class ExceptionDateInput(AdminDateInput):
     def __init__(self, attrs=None, format='%Y-%m-%d'):
         super().__init__(attrs=attrs, format=format)
         self.overrides_repeat = None
+        self.tz = None
 
     def render_js_init(self, id_, name, value):
         dowStart = get_format("FIRST_DAY_OF_WEEK")
@@ -272,9 +273,9 @@ class ExceptionDateInput(AdminDateInput):
     def valid_dates(self):
         valid_dates = -1
         if self.overrides_repeat:
-            todayStart = dt.datetime.combine(dt.date.today(), dt.time.min)
-            past = (todayStart - dt.timedelta(days=90)).replace(day=1)
-            future = (todayStart + dt.timedelta(days=217)).replace(day=1)
+            today = timezone.localdate()
+            past = (today - dt.timedelta(days=90)).replace(day=1)
+            future = (today + dt.timedelta(days=217)).replace(day=1)
             valid_dates = ["{:%Y%m%d}".format(occurence) for occurence in
                            self.overrides_repeat.between(past, future, inc=True)]
         return valid_dates
@@ -286,7 +287,7 @@ class ExceptionDateInput(AdminDateInput):
 
 # TODO Should probably also do validation on the returned date?
 # that would require ExceptionDateField and ExceptionDateFormField :(
-# or else wait for custom form for page validation?
+# or else use custom form for page validation?
 # https://github.com/torchbox/wagtail/pull/1867
 
 # ------------------------------------------------------------------------------

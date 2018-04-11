@@ -1,6 +1,7 @@
 import os
 
-DEBUG = False
+DEBUG = True
+JOYOUS_DEBUG = True
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.dirname(PROJECT_DIR))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'tests', 'test-static')

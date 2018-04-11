@@ -3,7 +3,7 @@
 <div class="event-index">
   {% for subtitle, exception in future_exceptions %}
   <a class="item" href="{% pageurl exception %}">
-    <div class="item-heading">{{ exception.title }}</div>
+    <div class="item-heading">{{ exception.localTitle }}</div>
       {% if subtitle %}
       <p class="item-text">{{ subtitle }}</p>
       {% endif %}

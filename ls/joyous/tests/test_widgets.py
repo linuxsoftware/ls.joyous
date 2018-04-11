@@ -2,7 +2,7 @@
 # Test Widgets
 # ------------------------------------------------------------------------------
 import sys
-from datetime import datetime
+import datetime as dt
 from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
 from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
 
@@ -18,25 +18,25 @@ class TestRecurrenceWidget(TestCase):
                           None, []])
 
     def testDecompressWeekdays(self):
-        rr = Recurrence(dtstart=datetime(2009, 1, 1),
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=WEEKLY,
                         count=9,
                         byweekday=[MO,TU,WE,TH,FR])
         widget = RecurrenceWidget()
         self.assertEqual(widget.decompress(rr),
-                         [datetime(2009, 1, 1), WEEKLY, 1,
+                         [dt.date(2009, 1, 1), WEEKLY, 1,
                           [0,1,2,3,4], 9, None,               #5
                           101, 200, None, None, None,         #10
                           None, []])
 
     def testDecompressEverydayInJanuary(self):
-        rr = Recurrence(dtstart=datetime(2014, 12, 1),
+        rr = Recurrence(dtstart=dt.date(2014, 12, 1),
                         freq=YEARLY,
                         byweekday=[MO,TU,WE,TH,FR,SA,SU],
                         bymonth=[1])
         widget = RecurrenceWidget()
         self.assertEqual(widget.decompress(rr),
-                         [datetime(2014, 12, 1), YEARLY, 1,
+                         [dt.date(2014, 12, 1), YEARLY, 1,
                           [], None, None,                     #5
                           100, 200, None, None, None,         #10
                           None, [1]])
@@ -59,10 +59,10 @@ class TestRecurrenceWidget(TestCase):
                 'repeat_10': None,
                 'repeat_11': None,
                 'repeat_12': ['1']}
-        rr = Recurrence(dtstart=datetime(2009, 1, 1),
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=WEEKLY,
                         byweekday=[MO,TU,WE,TH,FR],
-                        until=datetime(2012,1,31))
+                        until=dt.date(2012,1,31))
         self.assertEqual(str(widget.value_from_datadict(data, {}, 'repeat')),
                          str(rr))
 
@@ -79,7 +79,7 @@ class TestRecurrenceWidget(TestCase):
                 'repeat_10': None,
                 'repeat_11': None,
                 'repeat_12': ['1']}
-        rr = Recurrence(dtstart=datetime(2014, 12, 1),
+        rr = Recurrence(dtstart=dt.date(2014, 12, 1),
                         freq=YEARLY,
                         byweekday=[MO,TU,WE,TH,FR,SA,SU],
                         bymonth=[1])
