@@ -706,21 +706,18 @@ class RecurringEventPage(Page, EventBase):
         retval.sort(key=attrgetter('page.except_date'))
         return retval
 
-    def _occursOn(self, thisDate):
+    # TODO add def _localOccursOn(self, localDate)?
+
+    def _occursOn(self, myDate):
         """
-        Returns true iff this event occurs on this date
+        Returns true iff this event occurs on this date (in event's own timezone)
         (Does not include postponements, but does exclude cancellations)
         """
-        # FIXME - needs TZ conversions
-        #if tz is not None and tz != self.tz:
-        #    otherDt = getAwareDatetime(thisDate, dt.time.max, tz)
-        #    thisDate = otherDt.astimezone(self.tz).date()
-
         # TODO analyse which is faster (rrule or db) and test that first
-        if thisDate not in self.repeat:
+        if myDate not in self.repeat:
             return False
         if CancellationPage.objects.live().child_of(self)                    \
-                           .filter(except_date=thisDate).exists():
+                           .filter(except_date=myDate).exists():
             return False
         return True
 
@@ -738,24 +735,23 @@ class RecurringEventPage(Page, EventBase):
 
             for occurence in page.repeat.between(date_from-_1day,
                                                  date_to+_1day, True):
-                fromDate = getLocalDate(occurence, page.time_from, page.tz)
-                todDate  = getLocalDate(occurence, page.time_to, page.tz)
-
+                thisEvent = None
                 exception = exceptions.get(occurence)
                 if exception:
                     if exception.title:
                         thisEvent = exception
-                    else:
-                        thisEvent = None
                 else:
                     thisEvent = ThisEvent(page.title, page)
 
-                dayNum = fromDate.toordinal() - ordFrom
-                if 0 <= dayNum <= ordTo - ordFrom:
-                    events[dayNum].days_events.append(thisEvent)
-                if fromDate != todDate:
-                    if 0 <= dayNum+1 <= ordTo - ordFrom:
-                        events[dayNum+1].continuing_events.append(thisEvent)
+                if thisEvent:
+                    fromDate = getLocalDate(occurence, page.time_from, page.tz)
+                    todDate  = getLocalDate(occurence, page.time_to, page.tz)
+                    dayNum = fromDate.toordinal() - ordFrom
+                    if 0 <= dayNum <= ordTo - ordFrom:
+                        events[dayNum].days_events.append(thisEvent)
+                    if fromDate != todDate:
+                        if 0 <= dayNum+1 <= ordTo - ordFrom:
+                            events[dayNum+1].continuing_events.append(thisEvent)
         return events
 
     def __getExceptions(self, date_from, date_to):

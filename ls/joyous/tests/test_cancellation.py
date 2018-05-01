@@ -41,16 +41,26 @@ class TestCancellation(TestCase):
         self.cancellation.save_revision().publish()
 
     def testGetEventsByDay(self):
+        hiddenCancellation = CancellationPage(owner = self.user,
+                                              slug  = "1989-02-13-cancellation",
+                                              title = "Cancellation for Monday 13th of February",
+                                              overrides = self.event,
+                                              except_date = dt.date(1989,2,13))
+        self.event.add_child(instance=hiddenCancellation)
         events = RecurringEventPage.getEventsByDay(dt.date(1989,2,1),
                                                    dt.date(1989,2,28))
         self.assertEqual(len(events), 28)
-        evod = events[0]
-        self.assertEqual(evod.date, dt.date(1989,2,1))
-        self.assertEqual(len(evod.days_events), 1)
-        self.assertEqual(len(evod.continuing_events), 0)
-        title, page = evod.days_events[0]
+        evod1 = events[0]
+        self.assertEqual(evod1.date, dt.date(1989,2,1))
+        self.assertEqual(len(evod1.days_events), 1)
+        self.assertEqual(len(evod1.continuing_events), 0)
+        title, page = evod1.days_events[0]
         self.assertEqual(title, "Meeting Cancelled")
         self.assertIs(type(page), CancellationPage)
+        evod2 = events[12]
+        self.assertEqual(evod2.date, dt.date(1989,2,13))
+        self.assertEqual(len(evod2.days_events), 0)
+        self.assertEqual(len(evod2.continuing_events), 0)
 
     def testStatus(self):
         self.assertEqual(self.cancellation.status, "cancelled")
