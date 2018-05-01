@@ -50,7 +50,7 @@ setup(name="ls.joyous",
                    },
       setup_requires=["setuptools_scm"],
       install_requires=["django-timezone-field",
-                        "holidays"
+                        "holidays",
                         "inflect",
                         "python-dateutil",
                        ],
