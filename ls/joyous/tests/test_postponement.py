@@ -2,9 +2,11 @@
 # Test Postponement Page
 # ------------------------------------------------------------------------------
 import sys
+import pytz
 import datetime as dt
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
@@ -24,7 +26,7 @@ class TestPostponement(TestCase):
         self.calendar.save_revision().publish()
         self.event = RecurringEventPage(slug   = "test-meeting",
                                         title  = "Test Meeting",
-                                        repeat = Recurrence(dtstart=dt.datetime(1990,1,1),
+                                        repeat = Recurrence(dtstart=dt.date(1990,1,1),
                                                             freq=WEEKLY,
                                                             byweekday=[MO,WE,FR]),
                                         time_from = dt.time(13,30),
@@ -97,3 +99,42 @@ class TestPostponement(TestCase):
 
     def testAt(self):
         self.assertEqual(self.postponement.at.strip(), "1pm")
+
+
+class TestPostponementTZ(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('j', 'j@ok.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug   = "test-meeting",
+                                        title  = "Test Meeting",
+                                        repeat = Recurrence(dtstart=dt.date(1990,1,1),
+                                                            freq=WEEKLY,
+                                                            byweekday=[MO,WE,FR]),
+                                        time_from = dt.time(13,30),
+                                        time_to   = dt.time(16),
+                                        tz = pytz.timezone("US/Eastern"))
+        self.calendar.add_child(instance=self.event)
+        self.postponement = PostponementPage(owner = self.user,
+                                             slug  = "1990-10-10-postponement",
+                                             title = "Postponement for Wednesday 10th of October 1990",
+                                             overrides = self.event,
+                                             postponement_title = "Tuesday Meeting",
+                                             except_date = dt.date(1990,10,10),
+                                             date      = dt.date(1990,10,11),
+                                             time_from = dt.time(13),
+                                             time_to   = dt.time(16,30))
+        self.event.add_child(instance=self.postponement)
+        self.postponement.save_revision().publish()
+
+    @timezone.override("Pacific/Auckland")
+    def testLocalTitle(self):
+        self.assertEqual(self.postponement.title,
+                         "Postponement for Wednesday 10th of October 1990")
+        self.assertEqual(self.postponement.localTitle,
+                         "Postponement for Thursday 11th of October 1990")
+

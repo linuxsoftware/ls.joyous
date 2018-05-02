@@ -57,7 +57,7 @@ class TestSimpleEvent(TestCase):
                                    time_to   = dt.time.max)
         self.assertEqual(nowEvent.status, "started")
         self.assertEqual(nowEvent.status_text, "This event has started.")
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = SimpleEventPage(owner = self.user,
                                       slug  = "tomorrow",
                                       title = "Tomorrow's Event",
@@ -87,7 +87,7 @@ class TestSimpleEvent(TestCase):
                                    time_to   = dt.time.max)
         self.calendar.add_child(instance=nowEvent)
         self.assertIsNone(nowEvent._upcoming_datetime_from)
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = SimpleEventPage(owner = self.user,
                                       slug  = "tomorrow",
                                       title = "Tomorrow's Event",
@@ -110,7 +110,7 @@ class TestSimpleEvent(TestCase):
                                    time_to   = dt.time.max)
         self.calendar.add_child(instance=nowEvent)
         self.assertEqual(nowEvent._past_datetime_from, earlier)
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = SimpleEventPage(owner = self.user,
                                       slug  = "tomorrow",
                                       title = "Tomorrow's Event",

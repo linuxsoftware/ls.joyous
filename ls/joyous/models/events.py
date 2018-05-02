@@ -182,8 +182,10 @@ def getGroupUpcomingEvents(group):
     rrEvents = _getUpcomingEvents(recurringEventsQry=group.recurringeventpage_events)
     events += rrEvents
     for rrEvent in rrEvents:
-        events += _getUpcomingEvents(postponedEventsQry=PostponementPage.objects.child_of(rrEvent),
-                                     extraInfoQry=ExtraInfoPage.objects.child_of(rrEvents))
+        postponedEventsQry = PostponementPage.objects.child_of(rrEvent.page)
+        extraInfoQry       = ExtraInfoPage.objects.child_of(rrEvent.page)
+        events += _getUpcomingEvents(postponedEventsQry=postponedEventsQry,
+                                     extraInfoQry=extraInfoQry)
     events.sort(key=attrgetter('page._upcoming_datetime_from'))
     return events
 
@@ -772,9 +774,12 @@ class RecurringEventPage(Page, EventBase):
     @assertLocalTime
     def __localAfterOrPostponedTo(self, fromDt):
         myFromDt, event = self.__afterOrPostponedTo(fromDt.astimezone(self.tz))
-        localFromDt = getLocalDatetime(myFromDt.date(), self.time_from,
-                                       self.tz, dt.time.min)
-        return (localFromDt, event)
+        if myFromDt is not None:
+            localFromDt = getLocalDatetime(myFromDt.date(), self.time_from,
+                                           self.tz, dt.time.min)
+            return (localFromDt, event)
+        else:
+            return (None, event)
 
     def __afterOrPostponedTo(self, fromDt):
         assert timezone.is_aware(fromDt)
@@ -809,14 +814,20 @@ class RecurringEventPage(Page, EventBase):
                                              self.tz, dt.time.max)
                 if postDtMax >= fromDt:
                     return (postDt, postponement)
-        return (after, self)
+
+        if after is not None:
+            return (after, self)
+        else:
+            return (None, None)
 
     @assertLocalTime
     def __localAfter(self, fromDt, **kwargs):
         myFromDt = self.__after(fromDt.astimezone(self.tz), **kwargs)
-        localFromDt = getLocalDatetime(myFromDt.date(), self.time_from,
-                                       self.tz, dt.time.max)
-        return localFromDt
+        if myFromDt is not None:
+            return getLocalDatetime(myFromDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+        else:
+            return None
 
     def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         assert timezone.is_aware(fromDt)
@@ -843,9 +854,11 @@ class RecurringEventPage(Page, EventBase):
     @assertLocalTime
     def __localBefore(self, fromDt, **kwargs):
         myFromDt = self.__before(fromDt.astimezone(self.tz), **kwargs)
-        localFromDt = getLocalDatetime(myFromDt.date(), self.time_from,
-                                       self.tz, dt.time.max)
-        return localFromDt
+        if myFromDt is not None:
+            return getLocalDatetime(myFromDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+        else:
+            return None
 
     def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         assert timezone.is_aware(fromDt)

@@ -23,7 +23,7 @@ class TestCancellation(TestCase):
         self.calendar.save_revision().publish()
         self.event = RecurringEventPage(slug      = "test-meeting",
                                         title     = "Test Meeting",
-                                        repeat    = Recurrence(dtstart=dt.datetime(1989,1,1),
+                                        repeat    = Recurrence(dtstart=dt.date(1989,1,1),
                                                                freq=WEEKLY,
                                                                byweekday=[MO,WE,FR]),
                                         time_from = dt.time(13),

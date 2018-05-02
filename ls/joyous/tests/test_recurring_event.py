@@ -71,7 +71,7 @@ class TestRecurringEvent(TestCase):
         self.calendar.add_child(instance=nowEvent)
         self.assertEqual(nowEvent.status, "started")
         self.assertEqual(nowEvent.status_text, "This event has started.")
-        today = dt.date.today()
+        today = timezone.localdate()
         notToday = [weekday for weekday in EVERYDAY if weekday.weekday != today.weekday()]
         pastAndFutureEvent = RecurringEventPage(owner = self.user,
                                                 slug  = "not-today",

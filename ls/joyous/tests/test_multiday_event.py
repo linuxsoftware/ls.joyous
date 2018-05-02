@@ -52,7 +52,7 @@ class TestMultidayEvent(TestCase):
     def testStatus(self):
         self.assertEqual(self.event.status, "finished")
         self.assertEqual(self.event.status_text, "This event has finished.")
-        today = dt.date.today()
+        today = timezone.localdate()
         yesterday = today - dt.timedelta(1)
         nextWeek = today + dt.timedelta(6 - today.weekday())
         nowEvent = MultidayEventPage(owner = self.user,
@@ -97,7 +97,7 @@ class TestMultidayEvent(TestCase):
                                      time_to   = dt.time(1))
         self.calendar.add_child(instance=nowEvent)
         self.assertIsNone(nowEvent._upcoming_datetime_from)
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = MultidayEventPage(owner = self.user,
                                         slug  = "tomorrow",
                                         title = "Tomorrow's Event",
@@ -125,7 +125,7 @@ class TestMultidayEvent(TestCase):
                                      time_to   = dt.time(1))
         self.calendar.add_child(instance=nowEvent)
         self.assertEqual(nowEvent._past_datetime_from, earlier)
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = MultidayEventPage(owner = self.user,
                                         slug  = "tomorrow",
                                         title = "Tomorrow's Event",

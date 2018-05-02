@@ -104,7 +104,7 @@ class PageInstanceTests(WagtailPageTests):
             self.home.add_child(instance=self.group)
             self.event = RecurringEventPage(slug      = "test-meeting",
                                             title     = "Test Meeting",
-                                            repeat    = Recurrence(dtstart=dt.datetime(2009,8,7),
+                                            repeat    = Recurrence(dtstart=dt.date(2009,8,7),
                                                                    freq=WEEKLY,
                                                                    byweekday=[MO,WE,FR]),
                                             time_from = dt.time(13))
