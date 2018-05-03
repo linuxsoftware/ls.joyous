@@ -16,7 +16,6 @@ from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage)
 from ls.joyous.models.events import (getAllEventsByDay, getAllEventsByWeek,
         getAllUpcomingEvents, getAllPastEvents, getGroupUpcomingEvents)
-
 from ls.joyous.models.groups import get_group_model
 from .testutils import datetimetz
 

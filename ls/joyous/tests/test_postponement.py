@@ -99,6 +99,21 @@ class TestPostponement(TestCase):
 
     def testAt(self):
         self.assertEqual(self.postponement.at.strip(), "1pm")
+        nextDate = self.event.next_date
+        reschedule = PostponementPage(owner = self.user,
+                                      slug  = "meeting-postponement",
+                                      title = "Postponement for Meeting",
+                                      overrides = self.event,
+                                      except_date = nextDate,
+                                      cancellation_title   = "",
+                                      cancellation_details = "",
+                                      postponement_title   = "Early Meeting",
+                                      date      = nextDate,
+                                      time_from = dt.time(8,30),
+                                      time_to   = dt.time(11),
+                                      details   = "The meeting will be held early")
+        self.event.add_child(instance=reschedule)
+        self.assertEqual(self.event.at, "1:30pm")
 
 
 class TestPostponementTZ(TestCase):

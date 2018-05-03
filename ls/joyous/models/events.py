@@ -792,10 +792,10 @@ class RecurringEventPage(Page, EventBase):
                                      .filter(date__range=(fromDt.date(), after.date()))   \
                                      .order_by('date', 'time_from')
             for postponement in postponements:
-                postDt = getAwareDatetime(postponement.date(),
+                postDt = getAwareDatetime(postponement.date,
                                           postponement.time_from,
                                           self.tz, dt.time.min)
-                postDtMax = getAwareDatetime(postponement.date(),
+                postDtMax = getAwareDatetime(postponement.date,
                                              postponement.time_from,
                                              self.tz, dt.time.max)
                 if postDt < after and postDtMax >= fromDt:
@@ -806,10 +806,10 @@ class RecurringEventPage(Page, EventBase):
                                      .filter(date__gte=fromDt.date())        \
                                      .order_by('date', 'time_from')
             for postponement in postponements:
-                postDt = getAwareDatetime(postponement.date(),
+                postDt = getAwareDatetime(postponement.date,
                                           postponement.time_from,
                                           self.tz, dt.time.min)
-                postDtMax = getAwareDatetime(postponement.date(),
+                postDtMax = getAwareDatetime(postponement.date,
                                              postponement.time_from,
                                              self.tz, dt.time.max)
                 if postDtMax >= fromDt:
