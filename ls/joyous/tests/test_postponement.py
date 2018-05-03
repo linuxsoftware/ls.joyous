@@ -113,7 +113,8 @@ class TestPostponement(TestCase):
                                       time_to   = dt.time(11),
                                       details   = "The meeting will be held early")
         self.event.add_child(instance=reschedule)
-        self.assertEqual(self.event.at, "1:30pm")
+        self.assertEqual(self.event.next_on, '<a class="inline-link" '
+                'href="/events/test-meeting/meeting-postponement/">Friday 4th of May at 8:30am</a>')
 
 
 class TestPostponementTZ(TestCase):

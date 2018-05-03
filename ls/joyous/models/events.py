@@ -562,8 +562,9 @@ class RecurringEventPage(Page, EventBase):
         Date when this event is next scheduled to occur
         (Does not include postponements, but does exclude cancellations)
         """
-        nextDt = self.__localAfter(timezone.localtime())
-        if nextDt:
+        # TODO default to max or min ?!?!?!!!
+        nextDt = self.__localAfter(timezone.localtime(), dt.time.min)
+        if nextDt is not None:
             return nextDt.date()
         else:
             return None
@@ -571,16 +572,10 @@ class RecurringEventPage(Page, EventBase):
     @property
     @assertLocalTime
     def _upcoming_datetime_from(self):
-        nextDt = self.__localAfter(timezone.localtime(),
+        nextDt = self.__localAfter(timezone.localtime(), dt.time.max,
                                    excludeCancellations=True,
                                    excludeExtraInfo=True)
-        if nextDt:
-            # FIXME
-            assert self.time_from is not None or nextDt.time() == dt.time.max
-
-            return nextDt
-        else:
-            return None
+        return nextDt
 
     @property
     def prev_date(self):
@@ -588,8 +583,9 @@ class RecurringEventPage(Page, EventBase):
         Date when this event last occurred
         (Does not include postponements, but does exclude cancellations)
         """
-        prevDt = self.__localBefore(timezone.localtime())
-        if prevDt:
+        # TODO default to max or min ?!?!?!!!
+        prevDt = self.__localBefore(timezone.localtime(), dt.time.min)
+        if prevDt is not None:
             return prevDt.date()
         else:
             return None
@@ -597,16 +593,10 @@ class RecurringEventPage(Page, EventBase):
     @property
     @assertLocalTime
     def _past_datetime_from(self):
-        prevDt = self.__localBefore(timezone.localtime(),
+        prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
                                     excludeCancellations=True,
                                     excludeExtraInfo=True)
-        if prevDt:
-            # FIXME
-            assert self.time_from is not None or prevDt.time() == dt.time.max
-
-            return prevDt
-        else:
-            return None
+        return prevDt
 
     @property
     def next_on(self):
@@ -615,9 +605,11 @@ class RecurringEventPage(Page, EventBase):
         will next be on
         """
         retval = None
-        nextDt, event = self.__localAfterOrPostponedTo(timezone.localtime())
-        timeFrom = nextDt.time() if event.time_from is not None else None
-        if nextDt:
+        # TODO default to max or min ?!?!?!!!
+        nextDt, event = self.__localAfterOrPostponedTo(timezone.localtime(),
+                                                       dt.time.min)
+        if nextDt is not None:
+            timeFrom = nextDt.time() if event.time_from is not None else None
             retval = "{} {}".format(dateFormat(nextDt.date()),
                                     timeFormat(timeFrom, prefix="at "))
             if event is not self:
@@ -638,7 +630,7 @@ class RecurringEventPage(Page, EventBase):
             # the last occurences must have been cancelled
             return "finished"
         eventFinish = getAwareDatetime(eventStart.date(), event.time_to, self.tz)
-        if (self.time_from is not None and
+        if (event.time_from is not None and
             eventStart < myNow < eventFinish):
             # if there are two occurences on the same day then we may miss
             # that one of them has started
@@ -665,7 +657,7 @@ class RecurringEventPage(Page, EventBase):
         # toTime = getLocalTime(timezone.localdate(), self.time_to)
         timeFrom = None
         timeTo   = None
-        fromDt, _ = self.__afterOrPostponedTo(timezone.localtime(timezone=self.tz))
+        fromDt   = self.__after(timezone.localtime(timezone=self.tz))
         if fromDt is not None:
             if self.time_from is not None:
                 timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
@@ -679,10 +671,9 @@ class RecurringEventPage(Page, EventBase):
     def at(self):
         # TODO as above
         timeFrom = None
-        fromDt, _ = self.__afterOrPostponedTo(timezone.localtime(timezone=self.tz))
+        fromDt   = self.__after(timezone.localtime(timezone=self.tz))
         if fromDt is not None:
-            if self.time_from is not None:
-                timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
+            timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
         return timeFormat(timeFrom)
 
     @property
@@ -771,12 +762,11 @@ class RecurringEventPage(Page, EventBase):
 
         return exceptions
 
-    @assertLocalTime
-    def __localAfterOrPostponedTo(self, fromDt):
+    def __localAfterOrPostponedTo(self, fromDt, timeDefault=dt.time.min):
         myFromDt, event = self.__afterOrPostponedTo(fromDt.astimezone(self.tz))
         if myFromDt is not None:
-            localFromDt = getLocalDatetime(myFromDt.date(), self.time_from,
-                                           self.tz, dt.time.min)
+            localFromDt = getLocalDatetime(myFromDt.date(), event.time_from,
+                                           self.tz, timeDefault)
             return (localFromDt, event)
         else:
             return (None, event)
@@ -820,12 +810,11 @@ class RecurringEventPage(Page, EventBase):
         else:
             return (None, None)
 
-    @assertLocalTime
-    def __localAfter(self, fromDt, **kwargs):
+    def __localAfter(self, fromDt, timeDefault=dt.time.min, **kwargs):
         myFromDt = self.__after(fromDt.astimezone(self.tz), **kwargs)
         if myFromDt is not None:
             return getLocalDatetime(myFromDt.date(), self.time_from,
-                                    self.tz, dt.time.max)
+                                    self.tz, timeDefault)
         else:
             return None
 
@@ -851,12 +840,11 @@ class RecurringEventPage(Page, EventBase):
                                         self.tz, dt.time.min)
         return None
 
-    @assertLocalTime
-    def __localBefore(self, fromDt, **kwargs):
+    def __localBefore(self, fromDt, timeDefault=dt.time.min, **kwargs):
         myFromDt = self.__before(fromDt.astimezone(self.tz), **kwargs)
         if myFromDt is not None:
             return getLocalDatetime(myFromDt.date(), self.time_from,
-                                    self.tz, dt.time.max)
+                                    self.tz, timeDefault)
         else:
             return None
 
@@ -883,7 +871,6 @@ class RecurringEventPage(Page, EventBase):
                 last = occurence
 
         if last is not None:
-            # TODO or return a plain date?
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
         else:
             return None
@@ -951,8 +938,8 @@ class EventExceptionBase(models.Model):
 
     @property
     def at(self):
-        time_from = getLocalTime(self.except_date, self.time_from, self.tz)
-        return timeFormat(time_from)
+        timeFrom = getLocalTime(self.except_date, self.time_from, self.tz)
+        return timeFormat(timeFrom)
 
 # ------------------------------------------------------------------------------
 class ExtraInfoPageForm(EventExceptionPageForm):
@@ -1151,8 +1138,8 @@ class PostponementPage(EventBase, CancellationPage):
 
     @property
     def at(self):
-        time_from = getLocalTime(self.date, self.time_from, self.tz)
-        return timeFormat(time_from)
+        timeFrom = getLocalTime(self.date, self.time_from, self.tz)
+        return timeFormat(timeFrom)
 
     @assertLocalTime
     def _getFromDt(self):
