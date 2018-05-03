@@ -16,11 +16,12 @@ elif __name__ == "builtins":
     from django.utils import timezone
     from django.conf import settings
     import pytz
-    from pprint import pprint
+    import pprint
     import ls.joyous
     from ls.joyous.models import *
     from ls.joyous.recurrence import Recurrence
     from ls.joyous.utils import manythings, telltime, ical
     L=list
+    sys.displayhook = pprint.pprint
     timezone.activate("Pacific/Auckland")
 

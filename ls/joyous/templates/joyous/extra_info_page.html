@@ -13,7 +13,7 @@
       {% if page.extra_title %}
         <h1 class="event-heading">{{ page.extra_title }}</h1>
       {% else %}
-        <h1 class="event-heading">{{ page.localTitle }}</h1>
+        <h1 class="event-heading">{{ event.title }}</h1>
       {% endif %}
       <div class="event-image">
         {% image event.image width-350 %}

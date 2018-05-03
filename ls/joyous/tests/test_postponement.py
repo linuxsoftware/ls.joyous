@@ -139,7 +139,7 @@ class TestPostponementTZ(TestCase):
                                              slug  = "1990-10-10-postponement",
                                              title = "Postponement for Wednesday 10th of October 1990",
                                              overrides = self.event,
-                                             postponement_title = "Tuesday Meeting",
+                                             postponement_title = "Delayed Meeting",
                                              except_date = dt.date(1990,10,10),
                                              date      = dt.date(1990,10,11),
                                              time_from = dt.time(13),
@@ -154,3 +154,22 @@ class TestPostponementTZ(TestCase):
         self.assertEqual(self.postponement.localTitle,
                          "Postponement for Thursday 11th of October 1990")
 
+    @timezone.override("Asia/Colombo")
+    def testGetEventsByDay(self):
+        events = PostponementPage.getEventsByDay(dt.date(1990,10,1),
+                                                 dt.date(1990,10,31))
+        self.assertEqual(len(events), 31)
+        evod0 = events[10]
+        self.assertEqual(evod0.date, dt.date(1990,10,11))
+        self.assertEqual(len(evod0.days_events), 1)
+        self.assertEqual(len(evod0.continuing_events), 0)
+        title, page = evod0.days_events[0]
+        self.assertEqual(title, "Delayed Meeting")
+        self.assertIs(type(page), PostponementPage)
+        evod1 = events[11]
+        self.assertEqual(evod1.date, dt.date(1990,10,12))
+        self.assertEqual(len(evod1.days_events), 0)
+        self.assertEqual(len(evod1.continuing_events), 1)
+        title, page = evod1.continuing_events[0]
+        self.assertEqual(title, "Delayed Meeting")
+        self.assertIs(type(page), PostponementPage)

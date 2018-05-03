@@ -1099,14 +1099,24 @@ class PostponementPage(EventBase, CancellationPage):
     def getEventsByDay(cls, date_from, date_to):
         ordFrom =  date_from.toordinal()
         ordTo   =  date_to.toordinal()
+        # TODO As with simple event, think about changing to the same algorithm
+        # as used for multiday event
+        # better yet how about refactoring it out
         events = [EventsOnDay(dt.date.fromordinal(ord), [], [])
                   for ord in range(ordFrom, ordTo+1)]
-        dateRange = (date_from, date_to)
+
+        dateRange = (date_from-_1day, date_to+_1day)
         pages = PostponementPage.objects.live().filter(date__range=dateRange)
         for page in pages:
-            dayNum = page.date.toordinal() - ordFrom
-            events[dayNum].days_events.append(ThisEvent(page.postponement_title,
-                                                         page))
+            fromDate = getLocalDate(page.date, page.time_from, page.tz)
+            toDate   = getLocalDate(page.date, page.time_to, page.tz)
+            dayNum = fromDate.toordinal() - ordFrom
+            thisEvent = ThisEvent(page.postponement_title, page)
+            if 0 <= dayNum <= ordTo - ordFrom:
+                events[dayNum].days_events.append(thisEvent)
+            if fromDate != toDate:
+                if 0 <= dayNum+1 <= ordTo - ordFrom:
+                    events[dayNum+1].continuing_events.append(thisEvent)
         return events
 
     @property

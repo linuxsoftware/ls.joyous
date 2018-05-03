@@ -15,14 +15,14 @@
               {{ evod.holiday }}
             </div>
           {% endif %}
+          {% for title, event in evod.continuing_events %}
+            <a href="{{event.url}}" class="event event-continues">
+              {{title}} cont.
+            </a>
+          {% endfor %}
           {% for title, event in evod.days_events %}
             <a href="{{event.url}}" class="event">
               {{event.at}}
-              {{title}}
-            </a>
-          {% endfor %}
-          {% for title, event in evod.continuing_events %}
-            <a href="{{event.url}}" class="event event-continues">
               {{title}}
             </a>
           {% endfor %}

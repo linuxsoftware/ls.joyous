@@ -7,14 +7,16 @@ from inspect import signature
 from django.conf import settings
 from django.utils import dateformat
 from django.utils import timezone
-# import pytz
 
 # ------------------------------------------------------------------------------
 def getLocalDate(*args, **kwargs):
     return getLocalDateAndTime(*args, **kwargs)[0]
 
-def getLocalTime(*args, **kwargs):
-    return getLocalDateAndTime(*args, **kwargs)[1]
+def getLocalTime(date, time, *args, **kwargs):
+    if time is not None:
+        return getLocalDateAndTime(date, time, *args, **kwargs)[1]
+    else:
+        return None
 
 def getLocalDateAndTime(date, time, *args, **kwargs):
     localDt = getLocalDatetime(date, time, *args, **kwargs)
