@@ -22,6 +22,7 @@ class RecurrenceWidget
         interval = @our(".ev-interval-num > input").val()
         if interval and parseInt(interval, 10) > 1
             return true
+
         weekdaysTicked = @our(".ev-weekdays :checkbox:checked").map ->
             return this.value
         .get()
@@ -31,6 +32,16 @@ class RecurrenceWidget
         weekday = (dtstart.getDay() + 6) % 7  # convert from Sun=0 to Mon=0
         if weekdaysTicked.length == 1 and parseInt(weekdaysTicked[0], 10) != weekday
             return true
+
+        month = dtstart.getMonth() + 1
+        monthsTicked = @our(".ev-months :checkbox:checked").map ->
+            return this.value
+        .get()
+        if monthsTicked.length > 1
+            return true
+        if monthsTicked.length == 1 and parseInt(monthsTicked[0], 10) != month
+            return true
+
         ordChoice = @our(".ev-primary .ev-ord-choice > select").val()
         if parseInt(ordChoice, 10) != 101
             return true
@@ -46,13 +57,13 @@ class RecurrenceWidget
     _clearAdvanced: () ->
         @our(".ev-interval-num > input").val(1)
         @our(".ev-weekdays :checkbox").prop("checked", false)
+        @our(".ev-months :checkbox").prop("checked", false)
         dtstart = new Date(@our(".ev-start-date > input").val())
         weekday = (dtstart.getDay() + 6) % 7  # convert from Sun=0 to Mon=0
         @our(".ev-weekdays :checkbox[value=#{weekday}]").prop("checked", true)
         @our(".ev-primary .ev-ord-choice > select").val(101)
         @our(".ev-primary .ev-day-choice > select").val(200)
         @our(".ev-secondary select").val("").prop('disabled', true)
-        @our(".ev-month-choice > select").val(dtstart.getMonth() + 1)
         return
 
     enable: () ->

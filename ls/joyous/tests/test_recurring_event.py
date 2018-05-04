@@ -174,11 +174,14 @@ class RecurringEventPageTZ(TestCase):
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(len(evod1.continuing_events), 0)
 
-    @timezone.override("America/Los_Angeles")
     def testLocalWhen(self):
         # WARNING depending upon DST
-        self.assertEqual(self.event.when,
-                         "Tuesdays at 4pm to 6:30pm")
+        with timezone.override("America/Los_Angeles"):
+            self.assertEqual(self.event.when,
+                             "Tuesdays at 4pm to 6:30pm")
+        with timezone.override("Australia/Perth"):
+            self.assertEqual(self.event.when,
+                             "Wednesdays at 7am to 9:30am")
 
     @timezone.override("America/Los_Angeles")
     def testLocalAt(self):

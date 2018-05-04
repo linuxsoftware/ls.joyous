@@ -75,7 +75,7 @@ class TestPostponement(TestCase):
     def testStatus(self):
         self.assertEqual(self.postponement.status, "finished")
         self.assertEqual(self.postponement.status_text, "This event has finished.")
-        now = dt.datetime.now()
+        now = timezone.localtime()
         myday = now.date() + dt.timedelta(1)
         friday = myday + dt.timedelta(days=(4-myday.weekday())%7)
         futureEvent = PostponementPage(owner = self.user,
@@ -100,6 +100,7 @@ class TestPostponement(TestCase):
     def testAt(self):
         self.assertEqual(self.postponement.at.strip(), "1pm")
         nextDate = self.event.next_date
+        newDate  = nextDate + dt.timedelta(1)
         reschedule = PostponementPage(owner = self.user,
                                       slug  = "meeting-postponement",
                                       title = "Postponement for Meeting",
@@ -108,13 +109,24 @@ class TestPostponement(TestCase):
                                       cancellation_title   = "",
                                       cancellation_details = "",
                                       postponement_title   = "Early Meeting",
-                                      date      = nextDate,
+                                      date      = newDate,
                                       time_from = dt.time(8,30),
                                       time_to   = dt.time(11),
-                                      details   = "The meeting will be held early")
+                                      details   = "The meeting will be held early tomorrow")
         self.event.add_child(instance=reschedule)
-        self.assertEqual(self.event.next_on, '<a class="inline-link" '
-                'href="/events/test-meeting/meeting-postponement/">Friday 4th of May at 8:30am</a>')
+        nextOn = self.event.next_on
+        self.assertEqual(nextOn[:73],
+                         '<a class="inline-link" href="/events/test-meeting/meeting-postponement/">')
+        self.assertEqual(nextOn[-4:], '</a>')
+        parts = nextOn[73:-4].split()
+        self.assertEqual(len(parts), 6)
+        self.assertEqual(parts[0], "{:%A}".format(newDate))
+        self.assertEqual(int(parts[1][:-2]), newDate.day)
+        self.assertIn(parts[1][-2:], ["st", "nd", "rd", "th"])
+        self.assertEqual(parts[2], "of")
+        self.assertEqual(parts[3], "{:%B}".format(newDate))
+        self.assertEqual(parts[4], "at")
+        self.assertEqual(parts[5], "8:30am")
 
 
 class TestPostponementTZ(TestCase):

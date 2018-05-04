@@ -655,15 +655,17 @@ class RecurringEventPage(Page, EventBase):
         # if so change it to just be based on today's date
         # fromTime = getLocalTime(timezone.localdate(), self.time_from)
         # toTime = getLocalTime(timezone.localdate(), self.time_to)
+        offset   = 0
         timeFrom = None
         timeTo   = None
         fromDt   = self.__after(timezone.localtime(timezone=self.tz))
         if fromDt is not None:
+            offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
             if self.time_from is not None:
                 timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
             if self.time_to is not None:
                 timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
-        retval = "{} {}".format(self.repeat,
+        retval = "{} {}".format(self.repeat._getWhen(offset),
                                 timeFormat(timeFrom, timeTo, "at "))
         return retval.strip()
 

@@ -38,6 +38,23 @@ class Weekday(rrweekday):
         else:
             return "{} {}".format(toOrdinal(self.n), s)
 
+    def _getWhen(self, offset):
+        assert -1 <= offset <= 1
+        if offset == 0:
+            # don't sweat the simple case
+            return self.__str__()
+
+        when = calendar.day_name[self.weekday]
+        localWhen = calendar.day_name[(self.weekday + offset) % 7]
+        if not self.n:
+            return localWhen
+        else:
+            ordinal = toOrdinal(self.n)
+            if offset < 0:
+                return "{} before the {} {}".format(localWhen, ordinal, when)
+            else:
+                return "{} after the {} {}".format(localWhen, ordinal, when)
+
 MO, TU, WE, TH, FR, SA, SU = map(Weekday, range(7))
 WEEKDAYS = [MO, TU, WE, TH, FR]
 WEEKEND = [SA, SU]
@@ -185,6 +202,80 @@ class Recurrence(rrulebase):
         if self.until:
             # TODO make format configurable
             retval += " (until {})".format(dateFormatDMY(self.until))
+        return retval
+
+    def _getWhen(self, offset):
+        assert -1 <= offset <= 1
+        if offset == 0 or self.freq == DAILY:
+            # don't sweat the simple cases
+            return self.__str__()
+
+        retval = ""
+        if self.freq == WEEKLY:
+            days = ["{}s".format(d._getWhen(offset)) for d in self.byweekday]
+            retval = hrJoin(days)
+            if self.interval == 2:
+                retval = "Fortnightly on {}".format(retval)
+            elif self.interval > 2:
+                retval = "Every {} weeks on {}".format(self.interval, retval)
+
+        elif self.freq in (MONTHLY, YEARLY):
+            if self.freq == MONTHLY:
+                of = " of the month"
+            else:
+                months = [calendar.month_name[m] for m in self.bymonth]
+                of = " of {}".format(hrJoin(months))
+            days = []
+            if self.byweekday:
+                if len(self.byweekday) == 7 and all(not day.n for day in self.byweekday):
+                    retval = "Everyday"
+                    of = ""
+                else:
+                    days = ["{}".format(d._getWhen(offset)) for d in self.byweekday]
+                    retval = hrJoin(days)
+                    if not self.byweekday[0].n:
+                        retval = "Every "+retval
+                        of = ""
+                    else:
+                        retval = "The {}".format(retval)
+
+            elif len(self.bymonthday) > 1:
+                # too hard!
+                days = ["the {}".format(toOrdinal(d)) for d in self.bymonthday]
+                if offset == -1:
+                    retval = "The day before {} day".format(hrJoin(days))
+                else:
+                    retval = "The day after {} day".format(hrJoin(days))
+
+            elif len(self.bymonthday) == 1:
+                wrappedMonthNames = calendar.month_name[:]
+                wrappedMonthNames[0] = calendar.month_name[-1]
+                wrappedMonthNames.append(calendar.month_name[1])
+
+                d = self.bymonthday[0]
+                if d == 1 and offset == -1:
+                    d = -1
+                    if self.freq != MONTHLY:
+                        months = [wrappedMonthNames[m-1] for m in self.bymonth]
+                        of = " of {}".format(hrJoin(months))
+                elif d == -1 and offset == 1:
+                    d = 1
+                    if self.freq != MONTHLY:
+                        months = [wrappedMonthNames[m+1] for m in self.bymonth]
+                        of = " of {}".format(hrJoin(months))
+                else:
+                    d += offset
+                retval = "The {} day".format(toOrdinal(d))
+            retval += of
+            if self.interval >= 2:
+                if self.freq == MONTHLY:
+                    retval = "{}, every {} months".format(retval, self.interval)
+                else:
+                    retval = "{}, every {} years".format(retval, self.interval)
+        if self.until:
+            until = self.until + dt.timedelta(days=offset)
+            # TODO make format configurable
+            retval += " (until {})".format(dateFormatDMY(until))
         return retval
 
 # ------------------------------------------------------------------------------

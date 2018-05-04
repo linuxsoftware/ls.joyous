@@ -18,7 +18,6 @@ class TestCalendar(TestCase, WagtailPageTests):
                                  slug  = "events",
                                  title = "Events")
         Page.objects.get(slug='home').add_child(instance=calendar)
-        calendar.save()
         calendar.save_revision().publish()
         event = SimpleEventPage(owner = self.user,
                                 slug  = "tree-planting",
@@ -27,7 +26,6 @@ class TestCalendar(TestCase, WagtailPageTests):
                                 time_from = dt.time(9,30),
                                 time_to   = dt.time(11,0))
         calendar.add_child(instance=event)
-        event.save()
         event.save_revision().publish()
 
     def testMonthView(self):
