@@ -62,32 +62,6 @@ def getAwareDatetime(date, time, tz, timeDefault=dt.time.max):
 
 
 # ------------------------------------------------------------------------------
-# Funky decorator
-def assertLocalTime(func):
-    def get_timezone_name(tzinfo):
-        if tzinfo is None:
-            return "None"
-        else:
-            return timezone._get_timezone_name(tzinfo)
-    if not getattr(settings, 'JOYOUS_DEBUG', False):
-        return func
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        localTimeZone = timezone.get_current_timezone_name()
-        errMsg = "TZ of {{}} is {{}} not {}".format(localTimeZone)
-        bound = signature(func).bind(*args, **kwargs)
-        for param, arg in bound.arguments.items():
-            if type(arg) in (dt.datetime, dt.time):
-                argTimeZone = get_timezone_name(arg.tzinfo)
-                assert argTimeZone == localTimeZone, errMsg.format(param, argTimeZone)
-        retval = func(*args, **kwargs)
-        if type(retval) in (dt.datetime, dt.time):
-            retvalTimeZone = get_timezone_name(retval.tzinfo)
-            assert retvalTimeZone is localTimeZone, errMsg.format("return value", retvalTimeZone)
-        return retval
-    return wrapper
-
-# ------------------------------------------------------------------------------
 def timeFrom(time_from):
     return time_from if time_from is not None else dt.time.min
 

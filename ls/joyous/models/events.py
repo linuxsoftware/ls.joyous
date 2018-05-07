@@ -20,7 +20,7 @@ from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
 from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
-        getLocalDateAndTime, getLocalDate, getLocalTime, assertLocalTime)
+        getLocalDateAndTime, getLocalDate, getLocalTime)
 from ..utils.telltime import timeFrom, timeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
@@ -313,13 +313,11 @@ class EventBase(models.Model):
         return retval
 
     @property
-    @assertLocalTime
     def _upcoming_datetime_from(self):
         fromDt = self._getFromDt()
         return fromDt if fromDt >= timezone.localtime() else None
 
     @property
-    @assertLocalTime
     def _past_datetime_from(self):
         fromDt = self._getFromDt()
         return fromDt if fromDt < timezone.localtime() else None
@@ -442,7 +440,6 @@ class SimpleEventPage(Page, EventBase):
         timeFrom = getLocalTime(self.date, self.time_from, self.tz)
         return timeFormat(timeFrom)
 
-    @assertLocalTime
     def _getFromDt(self):
         return getLocalDatetime(self.date, self.time_from, self.tz)
 
@@ -522,7 +519,6 @@ class MultidayEventPage(Page, EventBase):
         timeFrom = getLocalTime(self.date_from, self.time_from, self.tz)
         return timeFormat(timeFrom)
 
-    @assertLocalTime
     def _getFromDt(self):
         return getLocalDatetime(self.date_from, self.time_from, self.tz)
 
@@ -570,7 +566,6 @@ class RecurringEventPage(Page, EventBase):
             return None
 
     @property
-    @assertLocalTime
     def _upcoming_datetime_from(self):
         nextDt = self.__localAfter(timezone.localtime(), dt.time.max,
                                    excludeCancellations=True,
@@ -591,7 +586,6 @@ class RecurringEventPage(Page, EventBase):
             return None
 
     @property
-    @assertLocalTime
     def _past_datetime_from(self):
         prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
                                     excludeCancellations=True,
@@ -774,7 +768,6 @@ class RecurringEventPage(Page, EventBase):
             return (None, event)
 
     def __afterOrPostponedTo(self, fromDt):
-        assert timezone.is_aware(fromDt)
         after = self.__after(fromDt)
         # We know all postponement exception dates are in the parent time zone
         if after:
@@ -821,7 +814,6 @@ class RecurringEventPage(Page, EventBase):
             return None
 
     def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
-        assert timezone.is_aware(fromDt)
         fromDate = fromDt.date()
         if self.time_from and self.time_from < fromDt.time():
             fromDate += dt.timedelta(days=1)
@@ -851,7 +843,6 @@ class RecurringEventPage(Page, EventBase):
             return None
 
     def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
-        assert timezone.is_aware(fromDt)
         fromDate = fromDt.date()
         if self.time_from and self.time_from > fromDt.time():
             fromDate -= dt.timedelta(days=1)
@@ -997,7 +988,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
         return EventBase.status_text.fget(self)
 
     @property
-    #@assertLocalTime
     def _upcoming_datetime_from(self):
         return self._checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
 
@@ -1153,7 +1143,6 @@ class PostponementPage(EventBase, CancellationPage):
         timeFrom = getLocalTime(self.date, self.time_from, self.tz)
         return timeFormat(timeFrom)
 
-    @assertLocalTime
     def _getFromDt(self):
         return getLocalDatetime(self.date, self.time_from, self.tz)
 

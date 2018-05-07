@@ -27,9 +27,9 @@ class TestRecurringEvent(TestCase):
         self.event = RecurringEventPage(owner = self.user,
                                         slug  = "lug-meetup",
                                         title = "Linux Users Group Meetup",
-                                        repeat    = Recurrence(dtstart=dt.date(2017,8,5),
-                                                               freq=MONTHLY,
-                                                               byweekday=[TU(1)]),
+                                        repeat = Recurrence(dtstart=dt.date(2017,8,5),
+                                                            freq=MONTHLY,
+                                                            byweekday=[TU(1)]),
                                         time_from = dt.time(18,30),
                                         time_to   = dt.time(20),
                                         location  = "6 Mackay St, Greymouth (upstairs)")
@@ -64,8 +64,8 @@ class TestRecurringEvent(TestCase):
         nowEvent = RecurringEventPage(owner = self.user,
                                       slug  = "now",
                                       title = "Now Event",
-                                      repeat    = Recurrence(dtstart=dt.date(2010,1,1),
-                                                             freq=DAILY),
+                                      repeat = Recurrence(dtstart=dt.date(2010,1,1),
+                                                          freq=DAILY),
                                       time_from = earlier.time(),
                                       time_to   = dt.time.max)
         self.calendar.add_child(instance=nowEvent)
@@ -76,9 +76,9 @@ class TestRecurringEvent(TestCase):
         pastAndFutureEvent = RecurringEventPage(owner = self.user,
                                                 slug  = "not-today",
                                                 title = "Any day but today",
-                                                repeat   = Recurrence(dtstart=dt.date(2009,8,7),
-                                                                      freq=WEEKLY,
-                                                                      byweekday=notToday))
+                                                repeat = Recurrence(dtstart=dt.date(2009,8,7),
+                                                                    freq=WEEKLY,
+                                                                    byweekday=notToday))
         self.calendar.add_child(instance=pastAndFutureEvent)
         self.assertIsNone(pastAndFutureEvent.status)
         self.assertEqual(pastAndFutureEvent.status_text, "")
@@ -97,9 +97,9 @@ class TestRecurringEvent(TestCase):
         movieNight = RecurringEventPage(owner = self.user,
                                         slug  = "movies",
                                         title = "Movies",
-                                        repeat    = Recurrence(dtstart=dt.date(2005,2,1),
-                                                               freq=WEEKLY,
-                                                               byweekday=[TH,]),
+                                        repeat = Recurrence(dtstart=dt.date(2005,2,1),
+                                                            freq=WEEKLY,
+                                                            byweekday=[TH,]),
                                         time_from = dt.time(20,15),
                                         time_to   = dt.time(21,30))
         self.calendar.add_child(instance=movieNight)
@@ -120,9 +120,9 @@ class TestRecurringEvent(TestCase):
         movieNight = RecurringEventPage(owner = self.user,
                                         slug  = "movies",
                                         title = "Movies",
-                                        repeat    = Recurrence(dtstart=dt.date(2005,2,1),
-                                                               freq=WEEKLY,
-                                                               byweekday=[TH,]),
+                                        repeat = Recurrence(dtstart=dt.date(2005,2,1),
+                                                            freq=WEEKLY,
+                                                            byweekday=[TH,]),
                                         time_from = dt.time(20,15),
                                         time_to   = dt.time(21,30))
         self.calendar.add_child(instance=movieNight)
@@ -160,8 +160,8 @@ class RecurringEventPageTZ(TestCase):
                                                                byweekday=[TU]),
                                         time_from = dt.time(19),
                                         time_to   = dt.time(21,30),
-                                        location  = "4th Floor, 1 Broadway, Cambridge, MA",
-                                        tz = pytz.timezone("US/Eastern"))
+                                        tz = pytz.timezone("US/Eastern"),
+                                        location  = "4th Floor, 1 Broadway, Cambridge, MA")
         self.calendar.add_child(instance=self.event)
         self.event.save_revision().publish()
 
@@ -198,3 +198,20 @@ class RecurringEventPageTZ(TestCase):
         when = self.event._past_datetime_from
         self.assertEqual(when.tzinfo.zone, "Pacific/Auckland")
         self.assertEqual(when.weekday(), calendar.WEDNESDAY)
+
+    def testExtremeTimeZones(self):
+        lions = RecurringEventPage(owner = self.user,
+                                   slug  = "pago-pago-lions",
+                                   title = "Pago Pago Lions Club",
+                                   repeat = Recurrence(dtstart=dt.date(2015,2,1),
+                                                       freq=MONTHLY,
+                                                       byweekday=[TH(1),TH(3)]),
+                                   time_from = dt.time(23,0),
+                                   tz = pytz.timezone("Pacific/Pago_Pago"),
+                                   location = "Lions Den, Tafuna, PagoPago",
+                                   website = "http://www.lionsclubs.org.nz")
+        self.calendar.add_child(instance=lions)
+        with timezone.override("Pacific/Kiritimati"):
+            self.assertEqual(lions.when,
+                             "The Saturday after the first Thursday and "
+                             "Saturday after the third Thursday of the month at 12am")

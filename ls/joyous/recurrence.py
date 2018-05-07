@@ -32,19 +32,15 @@ class Weekday(rrweekday):
             return "{:+d}{}".format(self.n, s)
 
     def __str__(self):
-        s = calendar.day_name[self.weekday]
-        if not self.n:
-            return s
-        else:
-            return "{} {}".format(toOrdinal(self.n), s)
+        return self._getWhen(0)
 
     def _getWhen(self, offset):
-        assert -1 <= offset <= 1
-        if offset == 0:
-            # don't sweat the simple case
-            return self.__str__()
-
         when = calendar.day_name[self.weekday]
+        if offset == 0:
+            if not self.n:
+                return when
+            else:
+                return "{} {}".format(toOrdinal(self.n), when)
         localWhen = calendar.day_name[(self.weekday + offset) % 7]
         if not self.n:
             return localWhen
@@ -158,6 +154,9 @@ class Recurrence(rrulebase):
         return retval
 
     def __str__(self):
+        return self._getWhen(0)
+
+    def _getWhen(self, offset):
         retval = ""
         if self.freq == DAILY:
             if self.interval > 1:
@@ -165,53 +164,6 @@ class Recurrence(rrulebase):
             else:
                 retval = "Daily"
         elif self.freq == WEEKLY:
-            days = ["{}s".format(d) for d in self.byweekday]
-            retval = hrJoin(days)
-            if self.interval == 2:
-                retval = "Fortnightly on {}".format(retval)
-            elif self.interval > 2:
-                retval = "Every {} weeks on {}".format(self.interval, retval)
-        elif self.freq in (MONTHLY, YEARLY):
-            if self.freq == MONTHLY:
-                of = " of the month"
-            else:
-                months = [calendar.month_name[m] for m in self.bymonth]
-                of = " of {}".format(hrJoin(months))
-            days = []
-            if self.byweekday:
-                if len(self.byweekday) == 7 and all(not day.n for day in self.byweekday):
-                    retval = "Everyday"
-                    of = ""
-                else:
-                    days = ["{}".format(d) for d in self.byweekday]
-                    retval = hrJoin(days)
-                    if not self.byweekday[0].n:
-                        retval = "Every "+retval
-                        of = ""
-                    else:
-                        retval = "The {}".format(retval)
-            elif self.bymonthday:
-                days = [toOrdinal(d) for d in self.bymonthday]
-                retval = "The {} day".format(hrJoin(days))
-            retval += of
-            if self.interval >= 2:
-                if self.freq == MONTHLY:
-                    retval = "{}, every {} months".format(retval, self.interval)
-                else:
-                    retval = "{}, every {} years".format(retval, self.interval)
-        if self.until:
-            # TODO make format configurable
-            retval += " (until {})".format(dateFormatDMY(self.until))
-        return retval
-
-    def _getWhen(self, offset):
-        assert -1 <= offset <= 1
-        if offset == 0 or self.freq == DAILY:
-            # don't sweat the simple cases
-            return self.__str__()
-
-        retval = ""
-        if self.freq == WEEKLY:
             days = ["{}s".format(d._getWhen(offset)) for d in self.byweekday]
             retval = hrJoin(days)
             if self.interval == 2:
@@ -240,12 +192,17 @@ class Recurrence(rrulebase):
                         retval = "The {}".format(retval)
 
             elif len(self.bymonthday) > 1:
-                # too hard!
                 days = ["the {}".format(toOrdinal(d)) for d in self.bymonthday]
-                if offset == -1:
+                if offset == -2:
+                    retval = "Two days before {} day".format(hrJoin(days))
+                elif offset == -1:
                     retval = "The day before {} day".format(hrJoin(days))
-                else:
+                elif offset == 1:
                     retval = "The day after {} day".format(hrJoin(days))
+                elif offset == 2:
+                    retval = "Two days after {} day".format(hrJoin(days))
+                elif offset != 0:
+                    retval = hrJoin(["{}{:+d}".format(day, offset) for day in days])
 
             elif len(self.bymonthday) == 1:
                 wrappedMonthNames = calendar.month_name[:]
@@ -253,13 +210,13 @@ class Recurrence(rrulebase):
                 wrappedMonthNames.append(calendar.month_name[1])
 
                 d = self.bymonthday[0]
-                if d == 1 and offset == -1:
-                    d = -1
+                if d == 1 and offset < 0:
+                    d = offset
                     if self.freq != MONTHLY:
                         months = [wrappedMonthNames[m-1] for m in self.bymonth]
                         of = " of {}".format(hrJoin(months))
-                elif d == -1 and offset == 1:
-                    d = 1
+                elif d == -1 and offset > 0:
+                    d = offset
                     if self.freq != MONTHLY:
                         months = [wrappedMonthNames[m+1] for m in self.bymonth]
                         of = " of {}".format(hrJoin(months))

@@ -3,12 +3,36 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
-from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
-
 from django.test import TestCase
-from ls.joyous.recurrence import Recurrence
+from ls.joyous.recurrence import Recurrence, Weekday
+from ls.joyous.recurrence import MO, TU, WE, TH, FR, SA, SU
+from ls.joyous.recurrence import YEARLY, MONTHLY, WEEKLY, DAILY
 
+# ------------------------------------------------------------------------------
+class TestWeekday(TestCase):
+    def testStr(self):
+        self.assertEqual(str(Weekday(0)), "Monday")
+        self.assertEqual(str(Weekday(4,1)), "first Friday")
+        self.assertEqual(str(Weekday(4,-1)), "last Friday")
+        self.assertEqual(str(SA), "Saturday")
+        self.assertEqual(str(FR(3)), "third Friday")
+
+    def testGetWhen(self):
+        self.assertEqual(Weekday(0)._getWhen(0), "Monday")
+        self.assertEqual(FR(1)._getWhen(0), "first Friday")
+        self.assertEqual(SU._getWhen(1), "Monday")
+        self.assertEqual(WE._getWhen(-2), "Monday")
+        self.assertEqual(FR(1)._getWhen(-1), "Thursday before the first Friday")
+        self.assertEqual(SU(1)._getWhen(2), "Tuesday after the first Sunday")
+
+    def testRepr(self):
+        self.assertEqual(repr(Weekday(0)), "MO")
+        self.assertEqual(repr(Weekday(4,2)), "+2FR")
+        self.assertEqual(repr(SA), "SA")
+        self.assertEqual(repr(FR(3)), "+3FR")
+        self.assertEqual(repr(WE(-2)), "-2WE")
+
+# ------------------------------------------------------------------------------
 class TestRecurrence(TestCase):
     def testRepr(self):
         rr = Recurrence(dtstart=dt.date(2009, 1, 1),
@@ -62,3 +86,12 @@ class TestRecurrence(TestCase):
                 "RRULE:FREQ=MONTHLY;WKST=SU;UNTIL=20141001;BYMONTHDAY=1,-1"   # first&last
         self.assertEqual(repr(Recurrence(rrStr)), rrStr)
 
+    def testGetWhen(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=WEEKLY,
+                        count=9,
+                        byweekday=[MO,WE,FR])
+        self.assertEqual(rr._getWhen(1), "Tuesdays, Thursdays and Saturdays")
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
