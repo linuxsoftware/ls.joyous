@@ -257,7 +257,6 @@ class CancelledVEvent(ExceptionVEvent):
 class PostponedVEvent(ExceptionVEvent):
     def __init__(self, page, vparent):
         super().__init__(page, vparent)
-        self.add('LOCATION', page.location)
 
     @property
     def summary(self):
