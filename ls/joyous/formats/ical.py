@@ -89,7 +89,10 @@ class VEvent(Event):
     def uid(self):
         pg = self.page
         site = pg.get_site()
-        hostname = site.hostname if site else gethostname()
+        if site and site.hostname and site.hostname != "localhost":
+            hostname = site.hostname
+        else:
+            hostname = gethostname()
         return "{}-{}@{}".format(pg.id, pg.slug, hostname)
 
     @property
