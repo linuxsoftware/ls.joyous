@@ -17,7 +17,7 @@ from .testutils import datetimetz
 
 class TestRecurringEvent(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user('i', 'i@foo.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")

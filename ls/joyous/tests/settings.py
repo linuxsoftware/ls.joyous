@@ -91,6 +91,8 @@ INSTALLED_APPS = [
 WSGI_APPLICATION = 'demo.wsgi.application'
 
 WAGTAIL_SITE_NAME = "Testing"
+BASE_URL = 'http://joy.test'
+ALLOWED_HOSTS = ['joy.test', '.joy.test', '.localhost', '127.0.0.1', '[::1]']
 
 JOYOUS_HOLIDAYS = "NZ[*]"
 JOYOUS_GROUP_SELECTABLE = True

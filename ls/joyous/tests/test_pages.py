@@ -4,7 +4,7 @@
 import sys
 import datetime as dt
 import pytz
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
@@ -94,7 +94,7 @@ class PageInstanceTests(WagtailPageTests):
     """
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = get_user_model().objects.create_user('i', 'i@ok.test', 's3(r3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3(r3t')
         self.user.groups.add(Group.objects.get(name="Moderators"))
         self.client.force_login(self.user)
         try:

@@ -17,7 +17,7 @@ GroupPage = get_group_model()
 class TestSimpleEvent(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -134,7 +134,7 @@ class TestSimpleEvent(TestCase):
 class TestSimpleEventTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")

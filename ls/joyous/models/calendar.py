@@ -18,6 +18,7 @@ from . import getAllEventsByDay
 from . import getAllEventsByWeek
 from . import getAllUpcomingEvents
 from . import getAllPastEvents
+from . import getAllEvents
 
 # ------------------------------------------------------------------------------
 # Calendar
@@ -258,6 +259,9 @@ class CalendarPage(RoutablePageMixin, Page):
 
     def _getEventsByWeek(self, year, month):
         return getAllEventsByWeek(year, month)
+
+    def _getAllEvents(self):
+        return getAllEvents()
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):

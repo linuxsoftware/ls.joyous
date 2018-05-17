@@ -6,7 +6,7 @@ import datetime as dt
 import pytz
 from django.contrib.auth.models import User
 from django.test import TestCase
-from wagtail.core.models import Page
+from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, CancellationPage)
@@ -20,8 +20,9 @@ from .testutils import datetimetz
 
 class TestVCalendar(TestCase):
     def setUp(self):
+        Site.objects.update(hostname="joy.test")
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
 
     @freeze_time("2018-05-12")
     def testMakeVCalendar(self):
@@ -59,13 +60,13 @@ class TestVCalendar(TestCase):
                  b"DTSTART;TZID=Australia/Sydney:19870605T110000",
                  b"DTEND;TZID=Australia/Sydney:19870605T173000",
                  b"DTSTAMP:20180512T000000Z",
-                 b"UID:4-pet-show@localhost",
+                 b"UID:4-pet-show@joy.test",
                  b"SEQUENCE:1",
                  b"CREATED:20180512T000000Z",
                  b"DESCRIPTION:",
                  b"LAST-MODIFIED:20180512T000000Z",
                  b"LOCATION:",
-                 b"URL:http://localhost/events/pet-show/",
+                 b"URL:http://joy.test/events/pet-show/",
                  aest,
                  aedt]
         for prop in props:
@@ -78,15 +79,18 @@ class TestVCalendar(TestCase):
         self.assertEqual(len(idParts), 4)
         self.assertEqual(idParts[0], "-")
         self.assertEqual(idParts[1], "linuxsoftware.nz")
-        self.assertEqual(idParts[2], "NONSGML Joyous v0.2")
+        self.assertEqual(idParts[2], "NONSGML Joyous v0.3")
         self.assertEqual(idParts[3], "EN")
         self.assertEqual(vcal['version'], "2.0")
 
 
 class TestSimpleVEvent(TestCase):
     def setUp(self):
+        site = Site.objects.get(is_default_site=True)
+        site.hostname = "joy.test"
+        site.save()
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -111,8 +115,11 @@ class TestSimpleVEvent(TestCase):
 
 class TestMultidayVEvent(TestCase):
     def setUp(self):
+        site = Site.objects.get(is_default_site=True)
+        site.hostname = "joy.test"
+        site.save()
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -138,8 +145,11 @@ class TestMultidayVEvent(TestCase):
 
 class TestRecurringVEvent(TestCase):
     def setUp(self):
+        site = Site.objects.get(is_default_site=True)
+        site.hostname = "joy.test"
+        site.save()
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -167,16 +177,17 @@ class TestRecurringVEvent(TestCase):
                 b"DTSTART;TZID=US/Eastern:20170103T190000",
                 b"DTEND;TZID=US/Eastern:20170103T213000",
                 b"DTSTAMP:20170815T000000Z",
-                b"UID:4-code-for-boston@localhost",
+                b"UID:4-code-for-boston@joy.test",
                 b"SEQUENCE:1",
                 b"RRULE:FREQ=WEEKLY;BYDAY=TU;WKST=SU",
                 b"CREATED:20170815T000000Z",
                 b"DESCRIPTION:",
                 b"LAST-MODIFIED:20170815T000000Z",
                 b"LOCATION:4th Floor\\, 1 Broadway\\, Cambridge\\, MA",
-                b"URL:http://localhost/events/code-for-boston/",
+                b"URL:http://joy.test/events/code-for-boston/",
                 b"END:VEVENT",
                 b""])
+        print(vev.to_ical())
         self.assertEqual(vev.to_ical(), codeForBoston)
 
     @freeze_time("2018-05-10")
@@ -217,7 +228,7 @@ class TestRecurringVEvent(TestCase):
                                 b"DTSTART;TZID=Pacific/Auckland:20180512T070000",
                                 b"DTEND;TZID=Pacific/Auckland:20180512T103000",
                                 b"DTSTAMP:20180510T000000Z",
-                                b"UID:4-sleep@localhost",
+                                b"UID:4-sleep@joy.test",
                                 b"SEQUENCE:1",
                                 b"RRULE:FREQ=MONTHLY;BYDAY=+2SA;WKST=SU",
                                 b"EXDATE;TZID=Pacific/Auckland:20180609T070000,20180714T070000",
@@ -225,9 +236,10 @@ class TestRecurringVEvent(TestCase):
                                 b"DESCRIPTION:<p>zzzZZZZZZZZZ</p>",
                                 b"LAST-MODIFIED:20180510T000000Z",
                                 b"LOCATION:Bed",
-                                b"URL:http://localhost/events/sleep/",
+                                b"URL:http://joy.test/events/sleep/",
                                 b"END:VEVENT",
                                 b""])
+        print(vev.to_ical())
         self.assertEqual(vev.to_ical(), sleepIn)
 
 # ------------------------------------------------------------------------------

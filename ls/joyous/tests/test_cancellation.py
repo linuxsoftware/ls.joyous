@@ -15,7 +15,7 @@ from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
 class TestCancellation(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('i', 'i@ok.test', 's3(r3t')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3(r3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")

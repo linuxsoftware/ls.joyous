@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
-        EventExceptionBase, ExtraInfoPage, CancellationPage)
+        EventExceptionBase, ExtraInfoPage, CancellationPage, CalendarPage)
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 
@@ -28,6 +28,16 @@ class ICalendarHander:
         return None
 
     def makeVCalendar(self, page):
+        # TODO move the making into VCalendar.__init__
+        if not isinstance(page, CalendarPage):
+            return self.make1EventVCalendar(page)
+        #vcal = VCalendar()
+        #for event in vcal._getAllEvents()
+        #timezones
+        # return vcal
+        return None
+
+    def make1EventVCalendar(self, page):
         vcal = None
         vevent = self.makeVEvent(page)
         if vevent is not None:
@@ -110,9 +120,6 @@ class VEvent(Event):
 
 
 class SimpleVEvent(VEvent):
-    def __init__(self, page):
-        super().__init__(page)
-
     @property
     def dtstart(self):
         pg = self.page
@@ -125,9 +132,6 @@ class SimpleVEvent(VEvent):
 
 
 class MultidayVEvent(VEvent):
-    def __init__(self, page):
-        super().__init__(page)
-
     @property
     def dtstart(self):
         pg = self.page
@@ -232,9 +236,6 @@ class ExceptionVEvent(VEvent):
 
 
 class ExtraInfoVEvent(ExceptionVEvent):
-    def __init__(self, page, vparent):
-        super().__init__(page, vparent)
-
     @property
     def summary(self):
         return self.page.extra_title or self.vparent.page.title
@@ -245,9 +246,6 @@ class ExtraInfoVEvent(ExceptionVEvent):
 
 
 class CancelledVEvent(ExceptionVEvent):
-    def __init__(self, page, vparent):
-        super().__init__(page, vparent)
-
     @property
     def summary(self):
         return self.page.cancellation_title
@@ -258,9 +256,6 @@ class CancelledVEvent(ExceptionVEvent):
 
 
 class PostponedVEvent(ExceptionVEvent):
-    def __init__(self, page, vparent):
-        super().__init__(page, vparent)
-
     @property
     def summary(self):
         return self.page.postponement_title

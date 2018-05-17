@@ -4,7 +4,7 @@
 import datetime as dt
 import calendar
 from collections import namedtuple
-from itertools import groupby
+from itertools import chain, groupby
 from operator import attrgetter
 from django.conf import settings
 from django.db import models
@@ -225,6 +225,22 @@ def getAllPastEvents():
                             PostponementPage.objects,
                             ExtraInfoPage.objects)
     events.sort(key=attrgetter('page._past_datetime_from'), reverse=True)
+    return events
+
+def getAllEvents(home=None):
+    if home is None:
+        events =  chain(SimpleEventPage.objects.live().all(),
+                        MultidayEventPage.objects.live().all(),
+                        RecurringEventPage.objects.live().all(),
+                        PostponementPage.objects.live().all(),
+                        ExtraInfoPage.objects.live().all())
+    else:
+        events = chain(SimpleEventPage.objects.live().descendant_of(home).all(),
+                       MultidayEventPage.objects.live().descendant_of(home).all(),
+                       RecurringEventPage.objects.live().descendant_of(home).all(),
+                       PostponementPage.objects.live().descendant_of(home).all(),
+                       ExtraInfoPage.objects.live().descendant_of(home).all())
+    events.sort(key=attrgetter('page._upcoming_datetime_from'))
     return events
 
 # ------------------------------------------------------------------------------

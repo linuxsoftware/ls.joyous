@@ -18,7 +18,7 @@ from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
 class TestPostponement(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('j', 'j@ok.test', 's3(r3t')
+        self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -132,7 +132,7 @@ class TestPostponement(TestCase):
 class TestPostponementTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
-        self.user = User.objects.create_user('j', 'j@ok.test', 's3(r3t')
+        self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
