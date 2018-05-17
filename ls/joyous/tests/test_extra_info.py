@@ -42,8 +42,8 @@ class TestExtraInfo(TestCase):
         self.info.save_revision().publish()
 
     def testGetEventsByDay(self):
-        events = RecurringEventPage.getEventsByDay(dt.date(1988,11,1),
-                                                   dt.date(1988,11,30))
+        events = RecurringEventPage.events.byDay(dt.date(1988,11,1),
+                                                 dt.date(1988,11,30))
         self.assertEqual(len(events), 30)
         evod = events[10]
         self.assertEqual(evod.date, dt.date(1988,11,11))

@@ -3,15 +3,13 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from django.test import Client
-from wagtail.tests.utils import WagtailPageTests
 from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import SimpleEventPage
 
-class TestCalendar(TestCase, WagtailPageTests):
+class TestCalendar(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         calendar = CalendarPage(owner  = self.user,

@@ -187,7 +187,6 @@ class TestRecurringVEvent(TestCase):
                 b"URL:http://joy.test/events/code-for-boston/",
                 b"END:VEVENT",
                 b""])
-        print(vev.to_ical())
         self.assertEqual(vev.to_ical(), codeForBoston)
 
     @freeze_time("2018-05-10")
@@ -239,7 +238,6 @@ class TestRecurringVEvent(TestCase):
                                 b"URL:http://joy.test/events/sleep/",
                                 b"END:VEVENT",
                                 b""])
-        print(vev.to_ical())
         self.assertEqual(vev.to_ical(), sleepIn)
 
 # ------------------------------------------------------------------------------

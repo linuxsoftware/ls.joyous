@@ -4,12 +4,13 @@
 import sys
 import datetime as dt
 import pytz
-from django.test import TestCase
-from django.contrib.auth.models import User
+from freezegun import freeze_time
+from django.test import TestCase, RequestFactory
+from django.contrib.auth.models import User, AnonymousUser, Group
 from django.utils import timezone
-from wagtail.core.models import Page
+from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import SimpleEventPage
+from ls.joyous.models.events import SimpleEventPage, ThisEvent, EventsOnDay
 from ls.joyous.models.groups import get_group_model
 from .testutils import datetimetz
 GroupPage = get_group_model()
@@ -33,8 +34,8 @@ class TestSimpleEvent(TestCase):
         self.event.save_revision().publish()
 
     def testGetEventsByDay(self):
-        events = SimpleEventPage.getEventsByDay(dt.date(1987,6,1),
-                                                dt.date(1987,6,30))
+        events = SimpleEventPage.events.byDay(dt.date(1987,6,1),
+                                              dt.date(1987,6,30))
         self.assertEqual(len(events), 30)
         evod = events[4]
         self.assertEqual(evod.date, dt.date(1987,6,5))
@@ -130,7 +131,6 @@ class TestSimpleEvent(TestCase):
         group.add_child(instance=race)
         self.assertEqual(race.group, group)
 
-
 class TestSimpleEventTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -152,14 +152,14 @@ class TestSimpleEventTZ(TestCase):
 
     @timezone.override("America/Los_Angeles")
     def testGetEventsByLocalDay(self):
-        events = SimpleEventPage.getEventsByDay(dt.date(1987,6,1),
-                                                dt.date(1987,6,30))
-        self.assertEqual(len(events), 30)
-        evod1 = events[3]
+        evods = SimpleEventPage.events.byDay(dt.date(1987,6,1),
+                                             dt.date(1987,6,30))
+        self.assertEqual(len(evods), 30)
+        evod1 = evods[3]
         self.assertEqual(evod1.date, dt.date(1987,6,4))
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(len(evod1.continuing_events), 0)
-        evod2 = events[4]
+        evod2 = evods[4]
         self.assertEqual(evod2.date, dt.date(1987,6,5))
         self.assertEqual(len(evod2.days_events), 0)
         self.assertEqual(len(evod2.continuing_events), 1)
@@ -194,10 +194,136 @@ class TestSimpleEventTZ(TestCase):
                                   date      = dt.date(2016,7,30),
                                   tz = pytz.timezone("Pacific/Niue"))
         self.calendar.add_child(instance=showDay)
-        events = SimpleEventPage.getEventsByDay(dt.date(2016,7,31),
-                                                dt.date(2016,7,31))
-        self.assertEqual(len(events[0].days_events), 1)
-        self.assertEqual(len(events[0].continuing_events), 0)
-        event = events[0].days_events[0].page
+        evods = SimpleEventPage.events.byDay(dt.date(2016,7,31),
+                                             dt.date(2016,7,31))
+        self.assertEqual(len(evods[0].days_events), 1)
+        self.assertEqual(len(evods[0].continuing_events), 0)
+        event = evods[0].days_events[0].page
         self.assertEqual(event.at, "")
         self.assertEqual(event.when, "Sunday 31st of July 2016")
+
+class TestSimpleEventQuerySet(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = SimpleEventPage(owner = self.user,
+                                     slug   = "agfest",
+                                     title  = "AgFest",
+                                     date   = dt.date(2015,6,5),
+                                     time_from = dt.time(11),
+                                     time_to   = dt.time(17,30))
+        self.calendar.add_child(instance=self.event)
+        self.event.save_revision().publish()
+
+    @freeze_time("2017-05-31")
+    def testPast(self):
+        self.assertEqual(list(SimpleEventPage.events.past()), [self.event])
+        self.assertEqual(SimpleEventPage.events.past().count(), 1)
+        self.assertEqual(SimpleEventPage.events.upcoming().count(), 0)
+
+    @freeze_time("2012-03-04")
+    def testUpcoming(self):
+        self.assertEqual(list(SimpleEventPage.events.upcoming()), [self.event])
+        self.assertEqual(SimpleEventPage.events.past().count(), 0)
+        self.assertEqual(SimpleEventPage.events.upcoming().count(), 1)
+
+    def testThis(self):
+        events = list(SimpleEventPage.events.this())
+        self.assertEqual(len(events), 1)
+        this = events[0]
+        self.assertTrue(isinstance(this, ThisEvent))
+        self.assertEqual(this.title, "AgFest")
+        self.assertEqual(this.page, self.event)
+
+    def testByDay(self):
+        evods = SimpleEventPage.events.byDay(dt.date(2015,6,5),
+                                             dt.date(2015,6,5))
+        self.assertEqual(len(evods), 1)
+        evod = evods[0]
+        self.assertTrue(isinstance(evod, EventsOnDay))
+        self.assertEqual(evod.date, dt.date(2015,6,5))
+        self.assertEqual(len(evod.days_events), 1)
+        self.assertEqual(len(evod.continuing_events), 0)
+        self.assertEqual(evod.days_events[0].title, "AgFest")
+        self.assertEqual(evod.days_events[0].page, self.event)
+
+    def testPasswordAuth(self):
+        PASSWORD = PageViewRestriction.PASSWORD
+        KEY      = PageViewRestriction.passed_view_restrictions_session_key
+        meeting = SimpleEventPage(owner = self.user,
+                                  slug   = "club-meet",
+                                  title  = "Club Meeting",
+                                  date   = dt.date(2009,10,21))
+        self.calendar.add_child(instance=meeting)
+        meeting.save_revision().publish()
+        restriction = PageViewRestriction.objects.create(restriction_type = PASSWORD,
+                                                         password = "s3cr3t",
+                                                         page = meeting)
+        self.assertEqual(list(SimpleEventPage.events.all()),
+                         [self.event, meeting])
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event])
+        request.session[KEY] = [restriction.id]
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event, meeting])
+
+    def testLoginAuth(self):
+        LOGIN = PageViewRestriction.LOGIN
+        bee = SimpleEventPage(owner = self.user,
+                              slug   = "bee",
+                              title  = "Working Bee",
+                              date   = dt.date(2013,3,30),
+                              time_from = dt.time(10))
+        self.calendar.add_child(instance=bee)
+        bee.save_revision().publish()
+        PageViewRestriction.objects.create(restriction_type = LOGIN,
+                                           page = bee)
+        self.assertEqual(list(SimpleEventPage.events.all()),
+                         [self.event, bee])
+        request = RequestFactory().get("/test")
+        request.user = AnonymousUser()
+        request.session = {}
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event])
+        request.user = self.user
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event, bee])
+
+    def testGroupsAuth(self):
+        GROUPS = PageViewRestriction.GROUPS
+        presidium = Group.objects.create(name = "Presidium")
+        secretariat = Group.objects.create(name = "Secretariat")
+        assembly = Group.objects.create(name = "Assembly")
+        meeting = SimpleEventPage(owner = self.user,
+                                  slug   = "admin-cmte",
+                                  title  = "Administration Committee Meeting",
+                                  date   = dt.date(2015,6,20),
+                                  time_from = dt.time(16,30))
+        self.calendar.add_child(instance=meeting)
+        meeting.save_revision().publish()
+        restriction = PageViewRestriction.objects.create(restriction_type = GROUPS,
+                                                         page = meeting)
+        restriction.groups.set([presidium, secretariat])
+        restriction.save()
+        self.assertEqual(list(SimpleEventPage.events.all()),
+                         [self.event, meeting])
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event])
+        request.user = User.objects.create_superuser('joe', 'joe@joy.test', 's3cr3t')
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event, meeting])
+        request.user = User.objects.create_user('jill', 'jill@joy.test', 's3cr3t')
+        request.user.groups.set([secretariat, assembly])
+        self.assertEqual(list(SimpleEventPage.events.auth(request)),
+                         [self.event, meeting])

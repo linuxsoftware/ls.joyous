@@ -1,4 +1,4 @@
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags joyous_tags %}
 <div class="event-when">
   {{ event.when }}
 </div>
@@ -7,9 +7,10 @@
   Postponed from {{ event.postponed_from_when }}
 </div>
 {% endif %}
-{% if event.next_on %}
+{% next_on event as event_next_on %}
+{% if event_next_on %}
 <div class="event-next-on">
-  Next on {{ event.next_on }}
+  Next on {{ event_next_on }}
 </div>
 {% endif %}
 {% if event.location %}

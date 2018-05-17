@@ -10,7 +10,7 @@
 <div class="event-image">
   {% image event.image width-350 %}
 </div>
-{% include "joyous/includes/who_when_where.html" with event=event only %}
+{% include "joyous/includes/who_when_where.html" with event=event %}
 <div class="event-details">
   {{ event.details|richtext }}
 </div> 

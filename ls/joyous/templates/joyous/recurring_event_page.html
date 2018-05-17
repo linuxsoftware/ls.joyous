@@ -1,5 +1,5 @@
 {% extends "joyous/joyous_base.html" %}
-{% load website_tags %}
+{% load joyous_tags %}
 
 {% block content %}
   <div class="content">
@@ -7,7 +7,7 @@
       {% include "joyous/includes/event_details.html" with event=page %}
     </div>
 
-    {% include "joyous/includes/future_exceptions_list.html" with future_exceptions=page.future_exceptions %}
+    {% future_exceptions page %}
     <div class="event-export">
       <a href="{{ request.path }}?format=ical">Export ICAL</a>
      </div> 

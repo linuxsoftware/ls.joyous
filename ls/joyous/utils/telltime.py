@@ -60,6 +60,8 @@ def getAwareDatetime(date, time, tz, timeDefault=dt.time.max):
     datetime = timezone.make_aware(datetime, tz, is_dst=False)
     return datetime
 
+def todayUtc():
+    return dt.datetime.utcnow().date()
 
 # ------------------------------------------------------------------------------
 def timeFrom(time_from):

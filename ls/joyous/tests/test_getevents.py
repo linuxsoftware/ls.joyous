@@ -5,7 +5,7 @@ import sys
 import datetime as dt
 import pytz
 import calendar
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
@@ -25,6 +25,9 @@ class TestGetEvents(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@foo.test', 's3cr3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -75,7 +78,7 @@ class TestGetEvents(TestCase):
         self.standup.add_child(instance=self.postponement)
 
     def testGetAllEventsByDay(self):
-        events = getAllEventsByDay(dt.date(2013,1,1), dt.date(2013,1,31))
+        events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
         self.assertEqual(len(events), 31)
         evod = events[0]
         self.assertEqual(evod.date, dt.date(2013,1,1))
@@ -83,9 +86,8 @@ class TestGetEvents(TestCase):
         self.assertEqual(len(evod.days_events), 0)
         self.assertEqual(len(evod.continuing_events), 1)
 
-
     def testGetAllEventsByWeek(self):
-        weeks = getAllEventsByWeek(2013, 1)
+        weeks = getAllEventsByWeek(self.request, 2013, 1)
         self.assertEqual(len(weeks), 5)
         self.assertIsNone(weeks[0][0])
         self.assertIsNone(weeks[0][1])
@@ -101,21 +103,21 @@ class TestGetEvents(TestCase):
         futureEvent = MultidayEventPage(owner = self.user,
                                         slug  = "tomorrow",
                                         title = "Tomorrow's Event",
-                                        date_from  = today + dt.timedelta(days=1),
-                                        date_to    = today + dt.timedelta(days=3),
-                                        time_from  = dt.time(17),
-                                        time_to    = dt.time(10,30))
+                                        date_from = today + dt.timedelta(days=1),
+                                        date_to   = today + dt.timedelta(days=3),
+                                        time_from = dt.time(17),
+                                        time_to   = dt.time(10,30))
         self.calendar.add_child(instance=futureEvent)
-        events = getAllUpcomingEvents(self.home)
+        events = getAllUpcomingEvents(self.request, self.home)
         self.assertEqual(len(events), 1)
         title, event = events[0]
         self.assertEqual(title, "Tomorrow's Event")
         self.assertEqual(event.slug, "tomorrow")
-        events0 = getAllUpcomingEvents()
+        events0 = getAllUpcomingEvents(self.request)
         self.assertEqual(len(events0), 1)
 
     def testGetAllPastEvents(self):
-        events = getAllPastEvents()
+        events = getAllPastEvents(self.request)
         self.assertEqual(len(events), 4)
         self.assertEqual(events[0].title, "Test Meeting")
         self.assertEqual(events[1].title, "A Meeting")
@@ -141,7 +143,7 @@ class TestGetEvents(TestCase):
                              extra_title = "Gap Analysis",
                              extra_information = "Analyse your gaps")
         meeting.add_child(instance=memo)
-        events = getGroupUpcomingEvents(self.group)
+        events = getGroupUpcomingEvents(self.request, self.group)
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].title, "Gap Analysis")
         self.assertEqual(events[1].title, "Planning to Plan")

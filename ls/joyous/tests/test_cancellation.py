@@ -47,8 +47,8 @@ class TestCancellation(TestCase):
                                               overrides = self.event,
                                               except_date = dt.date(1989,2,13))
         self.event.add_child(instance=hiddenCancellation)
-        events = RecurringEventPage.getEventsByDay(dt.date(1989,2,1),
-                                                   dt.date(1989,2,28))
+        events = RecurringEventPage.events.byDay(dt.date(1989,2,1),
+                                                 dt.date(1989,2,28))
         self.assertEqual(len(events), 28)
         evod1 = events[0]
         self.assertEqual(evod1.date, dt.date(1989,2,1))

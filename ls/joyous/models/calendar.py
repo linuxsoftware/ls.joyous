@@ -18,7 +18,6 @@ from . import getAllEventsByDay
 from . import getAllEventsByWeek
 from . import getAllUpcomingEvents
 from . import getAllPastEvents
-from . import getAllEvents
 
 # ------------------------------------------------------------------------------
 # Calendar
@@ -114,7 +113,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'thisMonthUrl': myUrl(today.year, today.month),
                        'monthName':    calendar.month_name[month],
                        'weekdayAbbr':  weekday_abbr,
-                       'events':       self._getEventsByWeek(year, month)})
+                       'events':       self._getEventsByWeek(request, year, month)})
 
     @route(r"^week/$")
     @route(r"^{YYYY}/W{WW}/$".format(**DatePictures))
@@ -132,7 +131,7 @@ class CalendarPage(RoutablePageMixin, Page):
         week = int(week)
 
         firstDay, lastDay, prevYearNumWeeks, yearNumWeeks = week_info(year, week)
-        eventsInWeek = self._getEventsByDay(firstDay, lastDay)
+        eventsInWeek = self._getEventsByDay(request, firstDay, lastDay)
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[firstDay.year, firstDay.month])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
@@ -183,7 +182,7 @@ class CalendarPage(RoutablePageMixin, Page):
         dom = int(dom)
         day = dt.date(year, month, dom)
 
-        eventsOnDay = self._getEventsOnDay(day)
+        eventsOnDay = self._getEventsOnDay(request, day)
         if len(eventsOnDay.all_events) == 1:
             event = eventsOnDay.all_events[0].page
             return redirect(event.get_url(request))
@@ -219,7 +218,7 @@ class CalendarPage(RoutablePageMixin, Page):
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('servePast')
-        events = getAllUpcomingEvents()
+        events = self._getUpcomingEvents(request)
 
         return render(request, "joyous/calendar_list_upcoming.html",
                       {'self':         self,
@@ -240,7 +239,7 @@ class CalendarPage(RoutablePageMixin, Page):
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
-        events = getAllPastEvents()
+        events = self._getPastEvents(request)
 
         return render(request, "joyous/calendar_list_past.html",
                       {'self':         self,
@@ -250,18 +249,6 @@ class CalendarPage(RoutablePageMixin, Page):
                        'monthlyUrl':   monthlyUrl,
                        'listUrl':      listUrl,
                        'events':       events})
-
-    def _getEventsOnDay(self, day):
-        return getAllEventsByDay(day, day)[0]
-
-    def _getEventsByDay(self, firstDay, lastDay):
-        return getAllEventsByDay(firstDay, lastDay)
-
-    def _getEventsByWeek(self, year, month):
-        return getAllEventsByWeek(year, month)
-
-    def _getAllEvents(self):
-        return getAllEvents()
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
@@ -274,18 +261,6 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
 
-        prevMonth = month - 1
-        prevMonthYear = year
-        if prevMonth == 0:
-            prevMonth = 12
-            prevMonthYear -= 1
-
-        nextMonth = month + 1
-        nextMonthYear = year
-        if nextMonth == 13:
-            nextMonth = 1
-            nextMonthYear += 1
-
         return render(request, "joyous/includes/minicalendar.html",
                       {'self':         self,
                        'page':         self,
@@ -295,7 +270,24 @@ class CalendarPage(RoutablePageMixin, Page):
                        'calendarUrl':  self.get_url(request),
                        'monthName':    calendar.month_name[month],
                        'weekdayInfo':  zip(weekday_abbr, weekday_name),
-                       'events':       self._getEventsByWeek(year, month)})
+                       'events':       self._getEventsByWeek(request, year, month)})
 
+    def _getEventsOnDay(self, request, day):
+        return getAllEventsByDay(request, day, day)[0]
+
+    def _getEventsByDay(self, request, firstDay, lastDay):
+        return getAllEventsByDay(request, firstDay, lastDay)
+
+    def _getEventsByWeek(self, request, year, month):
+        return getAllEventsByWeek(request, year, month)
+
+    def _getUpcomingEvents(self, request):
+        return getAllUpcomingEvents(request)
+
+    def _getPastEvents(self, request):
+        return getAllPastEvents(request)
+
+    #def _getAllEvents(self, request):
+    #    return getAllEvents(request)
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

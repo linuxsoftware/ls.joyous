@@ -4,7 +4,7 @@
 import sys
 import pytz
 import datetime as dt
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
@@ -19,6 +19,9 @@ class TestPostponement(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
                                      title = "Events")
@@ -49,8 +52,8 @@ class TestPostponement(TestCase):
         self.postponement.save_revision().publish()
 
     def testGetEventsByDay(self):
-        events = RecurringEventPage.getEventsByDay(dt.date(1990,10,1),
-                                                   dt.date(1990,10,31))
+        events = RecurringEventPage.events.byDay(dt.date(1990,10,1),
+                                                 dt.date(1990,10,31))
         self.assertEqual(len(events), 31)
         evod = events[9]
         self.assertEqual(evod.date, dt.date(1990,10,10))
@@ -61,8 +64,8 @@ class TestPostponement(TestCase):
         self.assertIs(type(page), CancellationPage)
         self.assertIs(type(page.postponementpage), PostponementPage)
 
-        events = PostponementPage.getEventsByDay(dt.date(1990,10,1),
-                                                 dt.date(1990,10,31))
+        events = PostponementPage.events.byDay(dt.date(1990,10,1),
+                                               dt.date(1990,10,31))
         self.assertEqual(len(events), 31)
         evod = events[10]
         self.assertEqual(evod.date, dt.date(1990,10,11))
@@ -114,7 +117,7 @@ class TestPostponement(TestCase):
                                       time_to   = dt.time(11),
                                       details   = "The meeting will be held early tomorrow")
         self.event.add_child(instance=reschedule)
-        nextOn = self.event.next_on
+        nextOn = self.event._nextOn(self.request)
         self.assertEqual(nextOn[:73],
                          '<a class="inline-link" href="/events/test-meeting/meeting-postponement/">')
         self.assertEqual(nextOn[-4:], '</a>')
@@ -168,8 +171,8 @@ class TestPostponementTZ(TestCase):
 
     @timezone.override("Asia/Colombo")
     def testGetEventsByDay(self):
-        events = PostponementPage.getEventsByDay(dt.date(1990,10,1),
-                                                 dt.date(1990,10,31))
+        events = PostponementPage.events.byDay(dt.date(1990,10,1),
+                                               dt.date(1990,10,31))
         self.assertEqual(len(events), 31)
         evod0 = events[10]
         self.assertEqual(evod0.date, dt.date(1990,10,11))

@@ -37,8 +37,8 @@ class TestRecurringEvent(TestCase):
         self.event.save_revision().publish()
 
     def testGetEventsByDay(self):
-        events = RecurringEventPage.getEventsByDay(dt.date(2017,8,1),
-                                                   dt.date(2017,10,31))
+        events = RecurringEventPage.events.byDay(dt.date(2017,8,1),
+                                                 dt.date(2017,10,31))
         self.assertEqual(len(events), 92)
         evod = events[35]
         self.assertEqual(evod.date, dt.date(2017,9,5))
@@ -166,8 +166,8 @@ class RecurringEventPageTZ(TestCase):
         self.event.save_revision().publish()
 
     def testGetEventsByLocalDay(self):
-        events = RecurringEventPage.getEventsByDay(dt.date(2018,4,1),
-                                                   dt.date(2018,4,30))
+        events = RecurringEventPage.events.byDay(dt.date(2018,4,1),
+                                                 dt.date(2018,4,30))
         self.assertEqual(len(events), 30)
         evod1 = events[3]
         self.assertEqual(evod1.date, dt.date(2018,4,4))

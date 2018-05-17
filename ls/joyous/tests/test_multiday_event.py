@@ -32,16 +32,16 @@ class TestMultidayEvent(TestCase):
         self.event.save_revision().publish()
 
     def testGetEventsByDay(self):
-        events = MultidayEventPage.getEventsByDay(dt.date(2012,12,1),
-                                                  dt.date(2012,12,31))
+        events = MultidayEventPage.events.byDay(dt.date(2012,12,1),
+                                                dt.date(2012,12,31))
         self.assertEqual(len(events), 31)
         evod = events[30]
         self.assertEqual(evod.date, dt.date(2012,12,31))
         self.assertEqual(len(evod.all_events), 1)
         self.assertEqual(len(evod.days_events), 1)
         self.assertEqual(len(evod.continuing_events), 0)
-        events = MultidayEventPage.getEventsByDay(dt.date(2013,1,1),
-                                                  dt.date(2013,1,31))
+        events = MultidayEventPage.events.byDay(dt.date(2013,1,1),
+                                                dt.date(2013,1,31))
         self.assertEqual(len(events), 31)
         evod = events[0]
         self.assertEqual(evod.date, dt.date(2013,1,1))
@@ -157,8 +157,8 @@ class TestMultidayEventTZ(TestCase):
         self.event.save_revision().publish()
 
     def testGetEventsByLocalDay(self):
-        events = MultidayEventPage.getEventsByDay(dt.date(2018,3,1),
-                                                  dt.date(2018,3,31))
+        events = MultidayEventPage.events.byDay(dt.date(2018,3,1),
+                                                dt.date(2018,3,31))
         self.assertEqual(len(events), 31)
         evod1 = events[16]
         self.assertEqual(evod1.date, dt.date(2018,3,17))
@@ -169,7 +169,7 @@ class TestMultidayEventTZ(TestCase):
         self.assertEqual(len(evod5.days_events), 0)
         self.assertEqual(len(evod5.continuing_events), 1)
         self.assertEqual(evod1.all_events[0], evod5.all_events[0])
-        self.assertIs(evod1.all_events[0].page, evod5.all_events[0].page)
+        self.assertEqual(evod1.all_events[0].page, evod5.all_events[0].page)
 
     def testLocalWhen(self):
         self.assertEqual(self.event.when,
