@@ -83,14 +83,18 @@ def getGroupUpcomingEvents(request, group):
 
     # Get events that are linked to a group page, or a postponement or extra
     # info a child of the recurring event linked to a group (the long way)
-    rrEvents = group.recurringeventpage_set(manager='events').auth(request).this()
-    qrys += [group.simpleeventpage_set(manager='events').auth(request).this(),
-             group.multidayeventpage_set(manager='events').auth(request).this(),
+    rrEvents = group.recurringeventpage_set(manager='events').auth(request)  \
+                                                        .upcoming().this()
+    qrys += [group.simpleeventpage_set(manager='events').auth(request)
+                                                        .upcoming().this(),
+             group.multidayeventpage_set(manager='events').auth(request)
+                                                        .upcoming().this(),
              rrEvents]
     for rrEvent in rrEvents:
-        qrys += [PostponementPage.events(request).child_of(rrEvent.page).this(),
+        qrys += [PostponementPage.events(request).child_of(rrEvent.page)
+                                                        .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
-                                              .child_of(rrEvent.page).this()]
+                                 .child_of(rrEvent.page).upcoming().this()]
     events = sorted(chain.from_iterable(qrys),
                     key=attrgetter('page._upcoming_datetime_from'))
     return events
