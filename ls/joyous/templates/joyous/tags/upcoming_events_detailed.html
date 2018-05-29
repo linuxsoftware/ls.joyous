@@ -2,7 +2,7 @@
 {% if events %}
     <div class="upcoming-events upcoming-events-detailed">
       {% for title, event in events %}
-        {% include "joyous/includes/event_item.html" with event=event %}
+        {% include "joyous/includes/event_item.html" %}
       {% endfor %}
     </div>
 {% endif %}

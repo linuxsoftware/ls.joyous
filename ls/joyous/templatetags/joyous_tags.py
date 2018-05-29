@@ -27,7 +27,9 @@ def events_this_week(context):
     date_from = dt.date.fromordinal(begin_ord)
     date_to   = dt.date.fromordinal(end_ord)
     events = getAllEventsByDay(request, date_from, date_to)
-    return {'events': events, 'today':  today }
+    return {'request': request,
+            'events':  events,
+            'today':   today }
 
 @register.inclusion_tag("joyous/tags/minicalendar.html",
                         takes_context=True)
@@ -37,7 +39,8 @@ def minicalendar(context):
     home = request.site.root_page
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
-    return {'today':       today,
+    return {'request':     request,
+            'today':       today,
             'year':        today.year,
             'month':       today.month,
             'calendarUrl': calUrl,
@@ -49,36 +52,42 @@ def minicalendar(context):
                         takes_context=True)
 def all_upcoming_events(context):
     request = context['request']
-    return {'events': getAllUpcomingEvents(request)}
+    return {'request': request,
+            'events':  getAllUpcomingEvents(request)}
 
 @register.inclusion_tag("joyous/tags/upcoming_events_detailed.html",
                         takes_context=True)
 def subsite_upcoming_events(context):
     request = context['request']
     home = request.site.root_page
-    return {'events': getAllUpcomingEvents(request, home)}
+    return {'request': request,
+            'events':  getAllUpcomingEvents(request, home)}
 
 @register.inclusion_tag("joyous/tags/upcoming_events_list.html",
                         takes_context=True)
 def group_upcoming_events(context):
+    request = context.get('request')
     page = context.get('page')
     if page:
-        request = context['request']
         events = getGroupUpcomingEvents(request, page)
     else:
         events = []
-    return {'events': events}
+    return {'request': request,
+            'events':  events}
 
 @register.inclusion_tag("joyous/tags/future_exceptions_list.html",
                         takes_context=True)
 def future_exceptions(context, event):
-    exceptions = event._futureExceptions(context['request'])
-    return {'exceptions': exceptions}
+    request = context['request']
+    exceptions = event._futureExceptions(request)
+    return {'request':    request,
+            'exceptions': exceptions}
 
 @register.simple_tag(takes_context=True)
 def next_on(context, event):
+    request = context['request']
     eventNextOn = getattr(event, '_nextOn', lambda _:None)
-    return eventNextOn(context['request'])
+    return eventNextOn(request)
 
 # Format times and dates e.g. on event page
 @register.filter
