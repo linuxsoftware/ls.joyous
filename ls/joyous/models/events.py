@@ -1088,6 +1088,10 @@ class ExtraInfoPage(Page, EventExceptionBase):
     extra_information = RichTextField(blank=False)
     extra_information.help_text = "Information just for this date"
 
+    search_fields = Page.search_fields + [
+        index.SearchField('extra_title'),
+        index.SearchField('extra_information'),
+    ]
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
@@ -1155,6 +1159,10 @@ class CancellationPage(Page, EventExceptionBase):
     cancellation_details = RichTextField('Details', blank=True)
     cancellation_details.help_text = "Why was the event cancelled?"
 
+    search_fields = Page.search_fields + [
+        index.SearchField('cancellation_title'),
+        index.SearchField('cancellation_details'),
+    ]
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
@@ -1247,6 +1255,9 @@ class PostponementPage(EventBase, CancellationPage):
     postponement_title.help_text = "The title for the postponed event"
     date    = models.DateField("Date")
 
+    search_fields = Page.search_fields + [
+        index.SearchField('postponement_title'),
+    ]
     content_panels = [
         PageChooserPanel('overrides'),
         ExceptionDatePanel('except_date'),
