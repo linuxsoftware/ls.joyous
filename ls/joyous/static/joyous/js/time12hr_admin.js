@@ -5,10 +5,32 @@
   time12hrFormat = "g:ia";
 
   $(function() {
-    var ref;
+    var phpDateFormatter, ref;
     if ((((ref = $.datetimepicker) != null ? ref.setDateFormatter : void 0) != null) && (typeof moment !== "undefined" && moment !== null)) {
-      time12hrFormat = "h:mma";
-      $.datetimepicker.setDateFormatter("moment");
+      time12hrFormat = "moment+12hr";
+      phpDateFormatter = new DateFormatter();
+      $.datetimepicker.setDateFormatter({
+        parseDate: function(date, format) {
+          var mo;
+          if (format === "moment+12hr") {
+            mo = moment(date, ["h:mma", "ha", "h:m:sa", "HH:mm", "HH:mm:s", "h"]);
+            if (mo.isValid()) {
+              return mo.toDate();
+            } else {
+              return false;
+            }
+          } else {
+            return phpDateFormatter.parseDate(date, format);
+          }
+        },
+        formatDate: function(date, format) {
+          if (format === "moment+12hr") {
+            return moment(date).format("h:mma");
+          } else {
+            return phpDateFormatter.formatDate(date, format);
+          }
+        }
+      });
     }
   });
 
