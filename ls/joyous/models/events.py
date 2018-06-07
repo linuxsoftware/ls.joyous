@@ -806,17 +806,15 @@ class RecurringEventPage(Page, EventBase):
 
         for extraInfo in ExtraInfoPage.events(request).child_of(self)         \
                                       .filter(except_date__gte=myToday):
-            retval.append(ThisEvent(extraInfo.extra_title, extraInfo))
+            retval.append(extraInfo)
         for cancellation in CancellationPage.events(request).child_of(self)   \
                                             .filter(except_date__gte=myToday):
             postponement = getattr(cancellation, "postponementpage", None)
             if postponement:
-                retval.append(ThisEvent(postponement.postponement_title,
-                                        postponement))
+                retval.append(postponement)
             else:
-                retval.append(ThisEvent(cancellation.cancellation_title,
-                                        cancellation))
-        retval.sort(key=attrgetter('page.except_date'))
+                retval.append(cancellation)
+        retval.sort(key=attrgetter('except_date'))
         return retval
 
     def _nextOn(self, request):
@@ -1304,6 +1302,16 @@ class PostponementPage(EventBase, CancellationPage):
     @property
     def postponed_from_when(self):
         return self.cancellationpage.when
+
+    @property
+    def postponed_from(self):
+        fromDate = getLocalDate(self.except_date, self.time_from, self.tz)
+        return dateFormat(fromDate)
+
+    @property
+    def postponed_to(self):
+        toDate = getLocalDate(self.date, self.time_from, self.tz)
+        return dateFormat(toDate)
 
     @property
     def at(self):

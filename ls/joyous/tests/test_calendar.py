@@ -79,8 +79,8 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/past/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".upcoming-events")), 1)
-        events = select(".upcoming-events .event-item")
+        self.assertEqual(len(select(".past-events")), 1)
+        events = select(".past-events .event-item")
         self.assertEqual(len(events), 1)
         title = events[0].select("a.event-title")[0]
         self.assertEqual(title.string.strip(), "Tree Planting")
