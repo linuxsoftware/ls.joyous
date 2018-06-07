@@ -22,11 +22,13 @@
       </div>
       {% endblock cal_options %}
 
-      <div class="upcoming-events upcoming-events-detailed">
+      <div class="past-events past-events-detailed">
         {% for title, event in events %}
           {% include "joyous/includes/event_item.html" %}
         {% endfor %}
       </div>
+
+      {% include "joyous/includes/events_pagination.html" %}
     </div>
   </div>
 {% endblock %}

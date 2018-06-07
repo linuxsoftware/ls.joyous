@@ -4,6 +4,7 @@
 import datetime as dt
 import calendar
 from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -29,6 +30,7 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
 class CalendarPage(RoutablePageMixin, Page):
+    EventsPerPage = 40
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']
@@ -218,7 +220,14 @@ class CalendarPage(RoutablePageMixin, Page):
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('servePast')
-        events = self._getUpcomingEvents(request)
+        upcomingEvents = self._getUpcomingEvents(request)
+        paginator = Paginator(upcomingEvents, self.EventsPerPage)
+        try:
+            eventsPage = paginator.page(request.GET.get('page'))
+        except PageNotAnInteger:
+            eventsPage = paginator.page(1)
+        except EmptyPage:
+            eventsPage = paginator.page(paginator.num_pages)
 
         return render(request, "joyous/calendar_list_upcoming.html",
                       {'self':         self,
@@ -227,7 +236,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weeklyUrl':    weeklyUrl,
                        'monthlyUrl':   monthlyUrl,
                        'listUrl':      listUrl,
-                       'events':       events})
+                       'events':       eventsPage})
 
     @route(r"^past/$")
     def servePast(self, request):
@@ -239,7 +248,14 @@ class CalendarPage(RoutablePageMixin, Page):
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
-        events = self._getPastEvents(request)
+        pastEvents = self._getPastEvents(request)
+        paginator = Paginator(pastEvents, self.EventsPerPage)
+        try:
+            eventsPage = paginator.page(request.GET.get('page'))
+        except PageNotAnInteger:
+            eventsPage = paginator.page(1)
+        except EmptyPage:
+            eventsPage = paginator.page(paginator.num_pages)
 
         return render(request, "joyous/calendar_list_past.html",
                       {'self':         self,
@@ -248,7 +264,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weeklyUrl':    weeklyUrl,
                        'monthlyUrl':   monthlyUrl,
                        'listUrl':      listUrl,
-                       'events':       events})
+                       'events':       eventsPage})
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):

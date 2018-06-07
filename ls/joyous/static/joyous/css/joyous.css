@@ -414,3 +414,34 @@ table.minicalendar {
     border-bottom:         none;
     text-decoration:       underline; 
 }
+
+/*-----------------------------------------------------------------------*/
+/* Pagination */
+/*-----------------------------------------------------------------------*/
+
+.events-pagination {
+  display:                 inline-block;
+  padding-left:            0;
+}
+.events-pagination li {
+    display:               inline;
+}
+.events-pagination li > a,
+.events-pagination li > span {
+      position:            relative;
+      float:               left;
+      padding:             10px;
+      text-decoration:     none;
+      border:              1px solid #aaa;
+      margin-left:         -1px;
+}
+.events-pagination li > a:first-child,
+.events-pagination li > span:first-child {
+        margin-left:       0;
+}
+.events-pagination li.active > a,
+.events-pagination li.active > span {
+      background-color:    #ddd;
+      border-top:          1px solid #888;
+      border-left:         1px solid #777;
+}
