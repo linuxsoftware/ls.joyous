@@ -43,18 +43,31 @@ class Time12hrInput(AdminTimeInput):
         return Media(js=[static("joyous/js/time12hr_admin.js")])
 
 # ------------------------------------------------------------------------------
-if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
-    TimeInput = Time12hrInput
-
+def _add12hrFormats():
     # Time12hrInput will not work unless django.forms.fields.TimeField
-    # can process 12hr times, so sneak them into TIME_INPUT_FORMATS if
-    # it isn't already there.  sneaky!
+    # can process 12hr times, so sneak them into the default and all locales
+    # TIME_INPUT_FORMATS.
+    from django.utils.formats import get_format_modules
+    from wagtail.admin.utils import WAGTAILADMIN_PROVIDED_LANGUAGES
+
     # Note: strptime does not accept %P %p is for both cases here
     _12hrFormats = ['%I:%M%p', # 2:30pm
                     '%I%p']    # 7am
-    _inputFormats = get_format("TIME_INPUT_FORMATS")
-    if _12hrFormats[0] not in _inputFormats:
-        _inputFormats += _12hrFormats
+    if (_12hrFormats[0] not in settings.TIME_INPUT_FORMATS or
+        _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
+        settings.TIME_INPUT_FORMATS += _12hrFormats
+
+    for lang, _ in WAGTAILADMIN_PROVIDED_LANGUAGES:
+        for module in get_format_modules(lang):
+            inputFormats = getattr(module, 'TIME_INPUT_FORMATS', [])
+            if (_12hrFormats[0] not in inputFormats or
+                _12hrFormats[1] not in inputFormats):
+                inputFormats += _12hrFormats
+                setattr(module, 'TIME_INPUT_FORMATS', inputFormats)
+
+if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
+    TimeInput = Time12hrInput
+    _add12hrFormats()
 else:
     TimeInput = AdminTimeInput
 
