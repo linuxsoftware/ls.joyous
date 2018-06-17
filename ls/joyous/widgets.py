@@ -8,7 +8,7 @@ import calendar
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
 from django.conf import settings
-from django.utils.formats import get_format
+from django.utils.formats import get_format, get_format_modules
 from django.utils import timezone
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple
@@ -47,8 +47,6 @@ def _add12hrFormats():
     # Time12hrInput will not work unless django.forms.fields.TimeField
     # can process 12hr times, so sneak them into the default and all locales
     # TIME_INPUT_FORMATS.
-    from django.utils.formats import get_format_modules
-    from wagtail.admin.utils import WAGTAILADMIN_PROVIDED_LANGUAGES
 
     # Note: strptime does not accept %P %p is for both cases here
     _12hrFormats = ['%I:%M%p', # 2:30pm
@@ -57,7 +55,7 @@ def _add12hrFormats():
         _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
         settings.TIME_INPUT_FORMATS += _12hrFormats
 
-    for lang, _ in WAGTAILADMIN_PROVIDED_LANGUAGES:
+    for lang, _ in getattr(settings, 'WAGTAILADMIN_PERMITTED_LANGUAGES', []):
         for module in get_format_modules(lang):
             inputFormats = getattr(module, 'TIME_INPUT_FORMATS', [])
             if (_12hrFormats[0] not in inputFormats or
