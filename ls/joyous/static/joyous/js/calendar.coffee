@@ -22,12 +22,14 @@ class EventsCalendar
 
     _handleResize: () ->
         if $("tbody").hasClass("monthly-view")
-            @_squareDays()
+            @_adjustDays()
         @_linkReadMore()
 
-    _squareDays: () ->
-        height = $("tbody.monthly-view td.day").first().innerWidth() - 25
-        $("tbody.monthly-view .days-events").innerHeight(height)
+    _adjustDays: () ->
+        width = $("tbody.monthly-view td.day .day-title").first().outerWidth()
+        height = $("tbody.monthly-view td.day .day-title").first().outerHeight()
+        eventsHeight = (width - height - 1) * 0.71
+        $("tbody.monthly-view .days-events").outerHeight(eventsHeight)
         return
 
     _linkReadMore: () ->
