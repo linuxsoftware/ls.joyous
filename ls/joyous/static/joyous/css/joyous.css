@@ -416,6 +416,84 @@ table.minicalendar {
 }
 
 /*-----------------------------------------------------------------------*/
+/* Events This Week*/
+/*-----------------------------------------------------------------------*/
+
+.events-this-week {
+    float:                 right;
+    font-size:             12px;
+    margin:                30px 50px 10px 20px;
+    background:            white;   
+    border-radius:         5px;
+    overflow:              hidden;
+    box-shadow:            0 4px 10px rgba(150, 150, 150, 0.2);
+}
+.events-this-week h3 {
+    font-weight:           bold;
+    font-size:             18px;
+    text-align:            center;
+    padding:               5px;
+    background:            #950011;
+    color:                 white;
+}
+.events-this-week .day {
+    margin:                0;
+    padding:               4px 10px 4px 20px;
+}
+.events-this-week .events .day:first-child {
+    padding-top:           10px;
+}
+.events-this-week .day.in-past {
+}
+.events-this-week .day.today {
+    background:            #ffb442;
+    padding:               8px 10px 6px 20px;
+}
+.events-this-week .event-day {
+    display:               inline-block;
+    vertical-align:        top;
+    width:                 110px;
+    font-size:             14px;
+    color:                 #444;
+}
+.events-this-week .event-day h4 {
+    font-size:             14px;
+    font-weight:           bold;
+    margin:                0;
+    padding:               0;
+    color:                 #36454f;
+}
+.events-this-week .days-events {
+    display:               inline-block;
+    width:                 200px;
+    padding:               3px 0 0 0;
+}
+.events-this-week .days-events .holiday {
+    display:               block;
+    font-size:             12px;
+    line-height:           16px;
+    color:                 #b30000;
+}
+.events-this-week .days-events .event {
+    display:               block;
+    font-size:             12px;
+    line-height:           16px;
+    padding-left:          40px;
+    text-indent:           -40px;
+}
+.events-this-week .days-events a.event {
+    color:                 #36454f;
+}
+.events-this-week .days-events a.event:active {
+    background:            transparent;
+}
+.events-this-week .calendar-link {
+    display:               block;
+    text-align:            center;
+    padding:               2px 1px 4px 1px;
+}
+
+/*-----------------------------------------------------------------------*/
 /* Pagination */
 /*-----------------------------------------------------------------------*/
 

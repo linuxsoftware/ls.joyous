@@ -30,8 +30,9 @@
       </div>
     {% endfor %}
   </div>
-  <div class="links">
-    <div class="calendar-link"><a href="/calendar">Calendar</a></div>
-    <div class="events-link"><a href="/events">Events</a></div>
+  {% if calendarUrl %}
+  <div class="calendar-link">
+    <a href="{{ calendarUrl }}">{{ calendarName }}</a>
   </div>
+  {% endif %}
 </div>

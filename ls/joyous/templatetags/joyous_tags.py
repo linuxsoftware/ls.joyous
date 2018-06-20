@@ -18,18 +18,24 @@ register = template.Library()
                         takes_context=True)
 def events_this_week(context):
     request = context['request']
+    home = request.site.root_page
+    cal = CalendarPage.objects.live().descendant_of(home).first()
+    calUrl = cal.get_url(request) if cal else None
+    calName = cal.title if cal else None
     today = dt.date.today()
-    begin_ord = today.toordinal()
+    beginOrd = today.toordinal()
     if today.weekday() != 6:
         # Start week with Monday, unless today is Sunday
-        begin_ord -= today.weekday()
-    end_ord = begin_ord + 6
-    date_from = dt.date.fromordinal(begin_ord)
-    date_to   = dt.date.fromordinal(end_ord)
-    events = getAllEventsByDay(request, date_from, date_to)
+        beginOrd -= today.weekday()
+    endOrd = beginOrd + 6
+    dateFrom = dt.date.fromordinal(beginOrd)
+    dateTo   = dt.date.fromordinal(endOrd)
+    events = getAllEventsByDay(request, dateFrom, dateTo)
     return {'request': request,
-            'events':  events,
-            'today':   today }
+            'today':   today,
+            'calendarUrl':  calUrl,
+            'calendarName': calName,
+            'events':  events }
 
 @register.inclusion_tag("joyous/tags/minicalendar.html",
                         takes_context=True)
