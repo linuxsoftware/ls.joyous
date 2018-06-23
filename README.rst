@@ -38,16 +38,7 @@ Settings
 
 Compatibility
 --------------
-ls.joyous is known to work with the following versions of Python/Django/Wagtail.
-
-======   ======   =======
-Python   Django   Wagtail
-======   ======   =======
-3.5.4    2.0.3    2.0
-3.5.4    1.11.9   1.13.1
-======   ======   =======
-
-I am aiming to support the latest version of each.  Older versions may be dropped without much notice.  Let me know if that is a problem for you.  Other versions may work - YMMV.
+I am aiming to support the latest releases of Wagtail and Django.  Older versions may be dropped without much notice.  Let me know if that is a problem for you.  Other versions may work - YMMV.
 
 Getting Help
 -------------
