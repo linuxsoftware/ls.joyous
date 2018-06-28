@@ -30,6 +30,7 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2012/03/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(select('thead a')), 4)
         self.assertEqual(len(select("table.calendar thead tr th.sun")), 1)
         month = select("tr.heading th.month .month-name")[0]
         self.assertEqual(month.string.strip(), "March")
@@ -54,6 +55,7 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2012/W11/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(select('thead a')), 4)
         self.assertEqual(len(select("table.calendar thead tr th.sun")), 1)
         self.assertEqual(len(select("tbody tr")), 1)
         self.assertEqual(len(select("tbody td.day")), 7)
@@ -109,3 +111,34 @@ class TestCalendar(TestCase):
         self.assertEqual(event.string.strip(), "5")
         self.assertEqual(event['href'], "/events/2011/06/05/")
         self.assertEqual(event['title'], "Tree Planting")
+
+    def testInvalidDate(self):
+        response = self.client.get("/events/2012/13/")
+        self.assertEqual(response.status_code, 404)
+
+    def testCalendarStart(self):
+        response = self.client.get("/events/1900/1/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        links = select('thead a')
+        self.assertEqual(len(links), 2)
+        self.assertEqual(links[0].get('title'), "Next month")
+        self.assertEqual(links[0].get('href'), "/events/1900/2/")
+        self.assertEqual(links[1].get('title'), "Next year")
+        self.assertEqual(links[1].get('href'), "/events/1901/1/")
+
+
+    def testCalendarFinish(self):
+        response = self.client.get("/events/2099/12/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        links = select('thead a')
+        self.assertEqual(len(links), 2)
+        self.assertEqual(links[0].get('title'), "Previous month")
+        self.assertEqual(links[0].get('href'), "/events/2099/11/")
+        self.assertEqual(links[1].get('title'), "Previous year")
+        self.assertEqual(links[1].get('href'), "/events/2098/12/")
+
+    def testFutureDate(self):
+        response = self.client.get("/events/2525/1/")
+        self.assertEqual(response.status_code, 404)

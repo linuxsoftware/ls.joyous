@@ -69,8 +69,11 @@ class CalendarPage(RoutablePageMixin, Page):
     def serveMonth(self, request, year=None, month=None):
         myurl = self.get_url(request)
         def myUrl(urlYear, urlMonth):
-            return myurl + self.reverse_subpage('serveMonth',
-                                                args=[urlYear, urlMonth])
+            if 1900 <= urlYear <= 2099:
+                return myurl + self.reverse_subpage('serveMonth',
+                                                    args=[urlYear, urlMonth])
+            else:
+                return None
 
         today = timezone.localdate()
         if year is None: year = today.year
@@ -122,8 +125,11 @@ class CalendarPage(RoutablePageMixin, Page):
     def serveWeek(self, request, year=None, week=None):
         myurl = self.get_url(request)
         def myUrl(urlYear, urlWeek):
-            return myurl + self.reverse_subpage('serveWeek',
-                                                args=[urlYear, urlWeek])
+            if 1900 <= urlYear <= 2099:
+                return myurl + self.reverse_subpage('serveWeek',
+                                                    args=[urlYear, urlWeek])
+            else:
+                return None
 
         today = timezone.localdate()
         thisYear, thisWeekNum, _ = gregorian_to_week_date(today)
@@ -305,5 +311,6 @@ class CalendarPage(RoutablePageMixin, Page):
 
     #def _getAllEvents(self, request):
     #    return getAllEvents(request)
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
