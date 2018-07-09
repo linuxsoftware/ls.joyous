@@ -11,7 +11,7 @@ from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from wagtail.core.models import Page
 from ls.joyous.models.events import SimpleEventPage, MultidayEventPage, RecurringEventPage
 from ls.joyous.models.events import ExtraInfoPage, CancellationPage, PostponementPage
-from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models.calendar import CalendarPage, SpecificCalendarPage, GeneralCalendarPage
 from ls.joyous.models.groups import get_group_model
 GroupPage = get_group_model()
 from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
@@ -24,53 +24,77 @@ class PageClassTests(WagtailPageTests):
     def testCanCreateCalendar(self):
         self.assertCanCreateAt(Page, CalendarPage)
 
+    def testCanCreateSpecificCalendar(self):
+        self.assertCanCreateAt(Page, SpecificCalendarPage)
+
+    def testCanCreateGeneralCalendar(self):
+        self.assertCanCreateAt(Page, GeneralCalendarPage)
+
     def testCanCreateGroup(self):
         self.assertCanCreateAt(Page, GroupPage)
 
     def testCanCreateSimpleEvent(self):
         self.assertCanCreateAt(CalendarPage, SimpleEventPage)
+        self.assertCanCreateAt(SpecificCalendarPage, SimpleEventPage)
+        self.assertCanCreateAt(GeneralCalendarPage, SimpleEventPage)
         self.assertCanCreateAt(GroupPage, SimpleEventPage)
         self.assertCanNotCreateAt(Page, SimpleEventPage)
 
     def testCanCreateMultidayEvent(self):
         self.assertCanCreateAt(CalendarPage, MultidayEventPage)
+        self.assertCanCreateAt(SpecificCalendarPage, MultidayEventPage)
+        self.assertCanCreateAt(GeneralCalendarPage, MultidayEventPage)
         self.assertCanCreateAt(GroupPage, MultidayEventPage)
         self.assertCanNotCreateAt(Page, MultidayEventPage)
         self.assertCanNotCreateAt(SimpleEventPage, MultidayEventPage)
 
     def testCanCreateRecurringEvent(self):
         self.assertCanCreateAt(CalendarPage, RecurringEventPage)
+        self.assertCanCreateAt(SpecificCalendarPage, RecurringEventPage)
+        self.assertCanCreateAt(GeneralCalendarPage, RecurringEventPage)
         self.assertCanCreateAt(GroupPage, RecurringEventPage)
         self.assertCanNotCreateAt(Page, RecurringEventPage)
 
     def testCanCreateExtraInfo(self):
         self.assertCanCreateAt(RecurringEventPage, ExtraInfoPage)
         self.assertCanNotCreateAt(CalendarPage, ExtraInfoPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(Page, ExtraInfoPage)
 
     def testCanCreateCancellation(self):
         self.assertCanCreateAt(RecurringEventPage, CancellationPage)
         self.assertCanNotCreateAt(CalendarPage, CancellationPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(GroupPage, CancellationPage)
 
     def testCanCreatePostponement(self):
         self.assertCanCreateAt(RecurringEventPage, PostponementPage)
         self.assertCanNotCreateAt(CalendarPage, PostponementPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(MultidayEventPage, PostponementPage)
 
     def testSimpleEventAllows(self):
-        self.assertAllowedParentPageTypes(SimpleEventPage,
-                                          {CalendarPage, GroupPage})
+        self.assertAllowedParentPageTypes(SimpleEventPage, {CalendarPage,
+                                                            SpecificCalendarPage,
+                                                            GeneralCalendarPage,
+                                                            GroupPage})
         self.assertAllowedSubpageTypes(SimpleEventPage, {})
 
     def testMultidayEventAllows(self):
-        self.assertAllowedParentPageTypes(MultidayEventPage,
-                                          {CalendarPage, GroupPage})
+        self.assertAllowedParentPageTypes(MultidayEventPage, {CalendarPage,
+                                                              SpecificCalendarPage,
+                                                              GeneralCalendarPage,
+                                                              GroupPage})
         self.assertAllowedSubpageTypes(MultidayEventPage, {})
 
     def testRecurringEventAllows(self):
-        self.assertAllowedParentPageTypes(RecurringEventPage,
-                                          {CalendarPage, GroupPage})
+        self.assertAllowedParentPageTypes(RecurringEventPage, {CalendarPage,
+                                                               SpecificCalendarPage,
+                                                               GeneralCalendarPage,
+                                                               GroupPage})
         self.assertAllowedSubpageTypes(RecurringEventPage,
                                        {ExtraInfoPage, CancellationPage,
                                         PostponementPage})
@@ -114,6 +138,18 @@ class PageInstanceTests(WagtailPageTests):
 
     def testCanCreateCalendar(self):
         self.assertCanCreate(self.home, CalendarPage,
+                             nested_form_data({'title': "Calendar",
+                                               'intro': rich_text("<h4>What's happening</h4>")}))
+
+    def testCanCreateSpecificCalendar(self):
+        SpecificCalendarPage.is_creatable = True
+        self.assertCanCreate(self.home, SpecificCalendarPage,
+                             nested_form_data({'title': "Calendar",
+                                               'intro': rich_text("<h4>What's happening</h4>")}))
+
+    def testCanCreateGeneralCalendar(self):
+        GeneralCalendarPage.is_creatable = True
+        self.assertCanCreate(self.home, GeneralCalendarPage,
                              nested_form_data({'title': "Calendar",
                                                'intro': rich_text("<h4>What's happening</h4>")}))
 

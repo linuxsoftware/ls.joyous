@@ -13,7 +13,7 @@ from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
 from ls.joyous.recurrence import Recurrence
 from ls.joyous.recurrence import WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.ical import (VEvent, SimpleVEvent, MultidayVEvent,
-        RecurringVEvent, VCalendar, ICalendarHander)
+        RecurringVEvent, VCalendar, ICalendarHandler)
 from freezegun import freeze_time
 from .testutils import datetimetz
 
@@ -40,7 +40,7 @@ class TestVCalendar(TestCase):
                                tz = pytz.timezone("Australia/Sydney"))
         calendar.add_child(instance=page)
         page.save_revision().publish()
-        vcal = ICalendarHander().makeVCalendar(page)
+        vcal = ICalendarHandler().makeVCalendar(page)
         export = vcal.export()
         aest = b'\r\n'.join([
                  b"BEGIN:STANDARD",
@@ -79,7 +79,7 @@ class TestVCalendar(TestCase):
         self.assertEqual(len(idParts), 4)
         self.assertEqual(idParts[0], "-")
         self.assertEqual(idParts[1], "linuxsoftware.nz")
-        self.assertEqual(idParts[2], "NONSGML Joyous v0.3")
+        self.assertEqual(idParts[2], "NONSGML Joyous v0.4")
         self.assertEqual(idParts[3], "EN")
         self.assertEqual(vcal['version'], "2.0")
 

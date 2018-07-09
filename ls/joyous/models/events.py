@@ -30,7 +30,7 @@ from ..utils.telltime import timeFrom, timeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 from ..recurrence import RecurrenceField
-from ..recurrence import ExceptionDatePanel
+from ..edit_handlers2 import ExceptionDatePanel
 from ..widgets import TimeInput
 from .groups import get_group_model_string, get_group_model
 
@@ -45,19 +45,21 @@ except (ValueError, ImportError):
 # ------------------------------------------------------------------------------
 # API get functions
 # ------------------------------------------------------------------------------
-def getAllEventsByDay(request, fromDate, toDate):
-    simpleEvents    = SimpleEventPage.events(request).byDay(fromDate, toDate)
-    multidayEvents  = MultidayEventPage.events(request).byDay(fromDate, toDate)
-    recurringEvents = RecurringEventPage.events(request).byDay(fromDate, toDate)
-    postponedEvents = PostponementPage.events(request).byDay(fromDate, toDate)
-    evods = _getEventsByDay(fromDate, (simpleEvents, multidayEvents,
-                                       recurringEvents, postponedEvents))
+def getAllEventsByDay(request, fromDate, toDate, *, home=None):
+    qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
+            MultidayEventPage.events(request).byDay(fromDate, toDate),
+            RecurringEventPage.events(request).byDay(fromDate, toDate),
+            PostponementPage.events(request).byDay(fromDate, toDate)]
+    if home is not None:
+        qrys = [qry.descendant_of(home) for qry in qrys]
+    evods = _getEventsByDay(fromDate, qrys)
     return evods
 
-def getAllEventsByWeek(request, year, month):
-    return _getEventsByWeek(year, month, partial(getAllEventsByDay, request))
+def getAllEventsByWeek(request, year, month, *, home=None):
+    return _getEventsByWeek(year, month,
+                            partial(getAllEventsByDay, request, home=home))
 
-def getAllUpcomingEvents(request, home=None):
+def getAllUpcomingEvents(request, *, home=None):
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
             RecurringEventPage.events(request).upcoming().this(),
@@ -99,7 +101,7 @@ def getGroupUpcomingEvents(request, group):
                     key=attrgetter('page._upcoming_datetime_from'))
     return events
 
-def getAllPastEvents(request, home=None):
+def getAllPastEvents(request, *, home=None):
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),
             RecurringEventPage.events(request).past().this(),
@@ -230,12 +232,12 @@ class EventQuerySet(PageQuerySet):
             self._result_cache[:] = filter(self.postFilter, self._result_cache)
 
     def upcoming(self):
-        qs = self._chain()
+        qs = self._clone()
         qs.postFilter = self.__predicateBasedOn('_upcoming_datetime_from')
         return qs
 
     def past(self):
-        qs = self._chain()
+        qs = self._clone()
         qs.postFilter = self.__predicateBasedOn('_past_datetime_from')
         return qs
 
@@ -253,7 +255,7 @@ class EventQuerySet(PageQuerySet):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.title, page)
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ThisEventIterable
         return qs
 
@@ -462,7 +464,7 @@ class SimpleEventQuerySet(EventQuerySet):
                             evods[dayNum+1].continuing_events.append(thisEvent)
                 for evod in evods:
                     yield evod
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
 
@@ -474,6 +476,8 @@ class SimpleEventPage(Page, EventBase):
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
+                         "joyous.SpecificCalendarPage",
+                         "joyous.GeneralCalendarPage",
                          get_group_model_string()]
     subpage_types = []
     base_form_class = EventPageForm
@@ -545,7 +549,7 @@ class MultidayEventQuerySet(EventQuerySet):
                     evods.append(EventsOnDay(day, days_events, continuing_events))
                 for evod in evods:
                     yield evod
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date_to__gte   = fromDate - _1day)   \
                  .filter(date_from__lte = toDate + _1day)
@@ -568,6 +572,8 @@ class MultidayEventPage(Page, EventBase):
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
+                         "joyous.SpecificCalendarPage",
+                         "joyous.GeneralCalendarPage",
                          get_group_model_string()]
     subpage_types = []
     base_form_class = MultidayEventPageForm
@@ -662,7 +668,7 @@ class RecurringEventQuerySet(EventQuerySet):
                     exceptions[exceptDate] = ThisEvent(title, cancellation)
                 return exceptions
 
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs
 
@@ -674,6 +680,8 @@ class RecurringEventPage(Page, EventBase):
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
+                         "joyous.SpecificCalendarPage",
+                         "joyous.GeneralCalendarPage",
                          get_group_model_string()]
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
@@ -1056,7 +1064,7 @@ class ExtraInfoQuerySet(EventExceptionQuerySet):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.extra_title, page)
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ThisExtraInfoIterable
         return qs
 
@@ -1199,7 +1207,7 @@ class PostponementQuerySet(EventQuerySet):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.postponement_title, page)
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ThisPostponementIterable
         return qs
 
@@ -1224,7 +1232,7 @@ class PostponementQuerySet(EventQuerySet):
                             evods[dayNum+1].continuing_events.append(thisEvent)
                 for evod in evods:
                     yield evod
-        qs = self._chain()
+        qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
 

@@ -9,7 +9,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
-from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models.calendar import SpecificCalendarPage
 from ls.joyous.models.events import SimpleEventPage, ThisEvent, EventsOnDay
 from ls.joyous.models.groups import get_group_model
 from .testutils import datetimetz
@@ -19,9 +19,9 @@ class TestSimpleEvent(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = SpecificCalendarPage(owner = self.user,
+                                             slug  = "events",
+                                             title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.event = SimpleEventPage(owner = self.user,
@@ -135,9 +135,9 @@ class TestSimpleEventTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = SpecificCalendarPage(owner = self.user,
+                                             slug  = "events",
+                                             title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.event = SimpleEventPage(owner = self.user,
@@ -206,9 +206,9 @@ class TestSimpleEventQuerySet(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = SpecificCalendarPage(owner = self.user,
+                                             slug  = "events",
+                                             title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.event = SimpleEventPage(owner = self.user,

@@ -7,8 +7,6 @@ try:
 except ImportError:
     __version__ = 'unknown'
 
-from .utils import wagtailcompat
-
 default_app_config = 'ls.joyous.apps.JoyousAppConfig'
 
 # ------------------------------------------------------------------------------

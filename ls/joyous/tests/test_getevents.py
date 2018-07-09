@@ -11,7 +11,7 @@ from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.recurrence import Recurrence
 from ls.joyous.recurrence import DAILY, WEEKLY, MONTHLY, MO, TU, WE, TH, FR, WEEKEND, EVERYDAY
-from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage)
 from ls.joyous.models.events import (getAllEventsByDay, getAllEventsByWeek,
@@ -28,9 +28,9 @@ class TestGetEvents(TestCase):
         self.request = RequestFactory().get("/test")
         self.request.user = self.user
         self.request.session = {}
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = GeneralCalendarPage(owner = self.user,
+                                            slug  = "events",
+                                            title = "Events")
         self.home.add_child(instance=self.calendar)
         self.group = GroupPage(slug = "initech", title = "Initech Corporation")
         self.home.add_child(instance=self.group)
@@ -108,7 +108,7 @@ class TestGetEvents(TestCase):
                                         time_from = dt.time(17),
                                         time_to   = dt.time(10,30))
         self.calendar.add_child(instance=futureEvent)
-        events = getAllUpcomingEvents(self.request, self.home)
+        events = getAllUpcomingEvents(self.request, home=self.home)
         self.assertEqual(len(events), 1)
         title, event = events[0]
         self.assertEqual(title, "Tomorrow's Event")

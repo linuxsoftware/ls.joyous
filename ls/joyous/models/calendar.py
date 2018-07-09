@@ -8,6 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.db import models
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
@@ -29,8 +30,13 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
+from django.contrib.contenttypes.models import ContentType
+
 class CalendarPage(RoutablePageMixin, Page):
-    EventsPerPage = 40
+    """
+    CalendarPage displays all the events which are in the same site
+    """
+    EventsPerPage = 25
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']
@@ -294,6 +300,90 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weekdayInfo':  zip(weekday_abbr, weekday_name),
                        'events':       self._getEventsByWeek(request, year, month)})
 
+    @classmethod
+    def can_create_at(cls, parent):
+        # You can only create one of these pages per site
+        home = parent.get_site().root_page
+        return (super().can_create_at(parent) and
+                not cls.objects.descendant_of(home).exists())
+
+    def _getEventsOnDay(self, request, day):
+        home = request.site.root_page
+        return getAllEventsByDay(request, day, day, home=home)[0]
+
+    def _getEventsByDay(self, request, firstDay, lastDay):
+        home = request.site.root_page
+        return getAllEventsByDay(request, firstDay, lastDay, home=home)
+
+    def _getEventsByWeek(self, request, year, month):
+        home = request.site.root_page
+        return getAllEventsByWeek(request, year, month, home=home)
+
+    def _getUpcomingEvents(self, request):
+        home = request.site.root_page
+        return getAllUpcomingEvents(request, home=home)
+
+    def _getPastEvents(self, request):
+        home = request.site.root_page
+        return getAllPastEvents(request, home=home)
+
+# ------------------------------------------------------------------------------
+class SpecificCalendarPage(CalendarPage):
+    """
+    SpecificCalendarPage displays only the events which are its children
+    """
+    is_creatable  = False  # creation is disabled by default
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # See https://github.com/wagtail/wagtail/pull/1736
+        if not self.id:
+            self.content_type = \
+                ContentType.objects.get_for_model(self, for_concrete_model=False)
+
+    @classmethod
+    def can_create_at(cls, parent):
+        # Don't limit creation
+        return super().can_create_at(parent)
+
+    def _getEventsOnDay(self, request, day):
+        return getAllEventsByDay(request, day, day, home=self)[0]
+
+    def _getEventsByDay(self, request, firstDay, lastDay):
+        return getAllEventsByDay(request, firstDay, lastDay, home=self)
+
+    def _getEventsByWeek(self, request, year, month):
+        return getAllEventsByWeek(request, year, month, home=self)
+
+    def _getUpcomingEvents(self, request):
+        return getAllUpcomingEvents(request, home=self)
+
+    def _getPastEvents(self, request):
+        return getAllPastEvents(request, home=self)
+
+# ------------------------------------------------------------------------------
+class GeneralCalendarPage(CalendarPage):
+    """
+    GeneralCalendarPage displays all the events no matter where they are
+    """
+    is_creatable  = False  # creation is disabled by default
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # See https://github.com/wagtail/wagtail/pull/1736
+        if not self.id:
+            self.content_type = \
+                ContentType.objects.get_for_model(self, for_concrete_model=False)
+
+    @classmethod
+    def can_create_at(cls, parent):
+        # You can only create one of these pages
+        return super().can_create_at(parent) and not cls.objects.exists()
+
     def _getEventsOnDay(self, request, day):
         return getAllEventsByDay(request, day, day)[0]
 
@@ -312,5 +402,5 @@ class CalendarPage(RoutablePageMixin, Page):
     #def _getAllEvents(self, request):
     #    return getAllEvents(request)
 
-# ------------------------------------------------------------------------------
+
 # ------------------------------------------------------------------------------

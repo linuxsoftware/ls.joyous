@@ -8,7 +8,7 @@ from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
-from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import PostponementPage
 from ls.joyous.models.events import CancellationPage
@@ -22,9 +22,9 @@ class TestPostponement(TestCase):
         self.request = RequestFactory().get("/test")
         self.request.user = self.user
         self.request.session = {}
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = GeneralCalendarPage(owner = self.user,
+                                            slug  = "events",
+                                            title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.event = RecurringEventPage(slug   = "test-meeting",
@@ -136,9 +136,9 @@ class TestPostponementTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
-        self.calendar = CalendarPage(owner = self.user,
-                                     slug  = "events",
-                                     title = "Events")
+        self.calendar = GeneralCalendarPage(owner = self.user,
+                                            slug  = "events",
+                                            title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.event = RecurringEventPage(slug   = "test-meeting",

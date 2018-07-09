@@ -297,11 +297,7 @@ class RecurrenceFormField(FormField):
     widget = RecurrenceWidget
 
 # ------------------------------------------------------------------------------
-from wagtail import VERSION as _wt_version
-if _wt_version[0] < 2:
-    from .edit_handlers1 import ExceptionDatePanel
-else:
-    from .edit_handlers2 import ExceptionDatePanel
+from .edit_handlers2 import ExceptionDatePanel
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

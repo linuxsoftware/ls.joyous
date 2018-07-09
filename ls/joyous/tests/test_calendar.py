@@ -13,8 +13,8 @@ class TestCalendar(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         calendar = CalendarPage(owner  = self.user,
-                                 slug  = "events",
-                                 title = "Events")
+                                slug  = "events",
+                                title = "Events")
         Page.objects.get(slug='home').add_child(instance=calendar)
         calendar.save_revision().publish()
         event = SimpleEventPage(owner = self.user,

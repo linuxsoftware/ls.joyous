@@ -4,6 +4,22 @@
 # Wing IDE project file                                          #
 ##################################################################
 [project attributes]
+debug.launch-configs = (2,
+                        {'launch-I4nAbZtRZM8RJJIG': ({},
+        {'buildcmd': ('project',
+                      None),
+         'env': ('merge',
+                 [u"DJANGO_SETTINGS_MODULE= 'ls.joyous.tests.settings'"]),
+         'name': 'Testing',
+         'pyexec': ('custom',
+                    u'/home/djm/env/software/bin/python'),
+         'pypath': ('project',
+                    []),
+         'pyrunargs': ('project',
+                       '-u'),
+         'runargs': u'',
+         'rundir': ('project',
+                    u'')})})
 proj.directory-list = [{'dirloc': loc('ls/joyous'),
                         'excludes': (),
                         'filter': u'*',
@@ -19,7 +35,7 @@ proj.directory-list = [{'dirloc': loc('ls/joyous'),
 proj.file-list = [loc('runtests.py')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('runtests.py'): ('project',
-        (u'test_calendar',
+        (u'test_getevents',
          ''))}
 proj.main-file = loc('runtests.py')
 testing.test-framework = {None: ':internal djangotest'}

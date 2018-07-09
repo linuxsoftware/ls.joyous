@@ -11,12 +11,12 @@ from django.http import HttpResponse
 from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
-        EventExceptionBase, ExtraInfoPage, CancellationPage, CalendarPage)
+        EventExceptionBase, ExtraInfoPage, CancellationPage)
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 
 # ------------------------------------------------------------------------------
-class ICalendarHander:
+class ICalendarHandler:
     def serve(self, page, request, *args, **kwargs):
         vcal = self.makeVCalendar(page)
         if vcal is not None:
@@ -28,9 +28,9 @@ class ICalendarHander:
         return None
 
     def makeVCalendar(self, page):
-        # TODO move the making into VCalendar.__init__
-        if not isinstance(page, CalendarPage):
-            return self.make1EventVCalendar(page)
+        # TODO move the making into VCalendar.fromEvent
+        #if not isinstance(page, CalendarPage):
+        return self.make1EventVCalendar(page)
         #vcal = VCalendar()
         #for event in vcal._getAllEvents()
         #timezones
@@ -61,6 +61,9 @@ class ICalendarHander:
             return RecurringVEvent(page.overrides)
         else:
             return None
+
+    def loadVCalendar(self, stream):
+        return
 
 # ------------------------------------------------------------------------------
 class VCalendar(Calendar):
@@ -146,10 +149,7 @@ class MultidayVEvent(VEvent):
 class RecurringVEvent(VEvent):
     def __init__(self, page):
         super().__init__(page)
-        self.exDates = []
         self._handleExceptions()
-        if self.exDates:
-            self.add('EXDATE', self.exDates)
         self.add('RRULE', self._getRrule())
 
     @property
@@ -169,6 +169,7 @@ class RecurringVEvent(VEvent):
             return pytz.utc.localize(dt.datetime.min)
 
     def _handleExceptions(self):
+        self.exDates = []
         pg = self.page
         for cancellation in CancellationPage.objects.live().child_of(pg) \
                                             .select_related("postponementpage"):
@@ -183,6 +184,8 @@ class RecurringVEvent(VEvent):
                     self.vchildren.append(CancelledVEvent(cancellation, self))
                 if postponement:
                     self.vchildren.append(PostponedVEvent(postponement, self))
+        if self.exDates:
+            self.add('EXDATE', self.exDates)
 
         for info in ExtraInfoPage.objects.live().child_of(pg):
             self.vchildren.append(ExtraInfoVEvent(info, self))

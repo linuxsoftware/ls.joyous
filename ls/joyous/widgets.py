@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.formats import get_format, get_format_modules
 from django.utils import timezone
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
-        CheckboxSelectMultiple
+        CheckboxSelectMultiple, FileInput
 from django.template.loader import render_to_string
 from wagtail.utils.widgets import WidgetWithScript
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
@@ -300,5 +300,20 @@ class ExceptionDateInput(AdminDateInput):
 # that would require ExceptionDateField and ExceptionDateFormField :(
 # or else use custom form for page validation?
 # https://github.com/torchbox/wagtail/pull/1867
+
+# ------------------------------------------------------------------------------
+class IcalFileInput(WidgetWithScript, FileInput):
+    def __init__(self, attrs=None):
+        super().__init__(attrs=attrs)
+
+    def render_js_init(self, id_, name, value):
+        dowStart = get_format("FIRST_DAY_OF_WEEK")
+        return "initExceptionDateChooser({0}, {1}, {2});"\
+               .format(json.dumps(id_), json.dumps(dowStart))
+
+    @property
+    def media(self):
+        return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
+                     js=[static("joyous/js/recurrence_admin.js")])
 
 # ------------------------------------------------------------------------------
