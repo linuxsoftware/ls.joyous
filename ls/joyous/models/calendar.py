@@ -16,6 +16,7 @@ from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..utils.weeks import week_info, gregorian_to_week_date
 from ..utils.weeks import weekday_abbr, weekday_name
+from ..utils.mixins import ProxyPageMixin
 from . import getAllEventsByDay
 from . import getAllEventsByWeek
 from . import getAllUpcomingEvents
@@ -302,10 +303,19 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @classmethod
     def can_create_at(cls, parent):
+        return super().can_create_at(parent) and cls._allowAnotherAt(parent)
+
+    @classmethod
+    def _allowAnotherAt(cls, parent):
         # You can only create one of these pages per site
         home = parent.get_site().root_page
-        return (super().can_create_at(parent) and
-                not cls.objects.descendant_of(home).exists())
+        return not cls.peers().descendant_of(home).exists()
+
+    @classmethod
+    def peers(cls):
+        """return others of the same concrete type"""
+        contentType = ContentType.objects.get_for_model(cls)
+        return cls.objects.filter(content_type=contentType)
 
     def _getEventsOnDay(self, request, day):
         home = request.site.root_page
@@ -328,25 +338,16 @@ class CalendarPage(RoutablePageMixin, Page):
         return getAllPastEvents(request, home=home)
 
 # ------------------------------------------------------------------------------
-class SpecificCalendarPage(CalendarPage):
+class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
     """
     SpecificCalendarPage displays only the events which are its children
     """
     is_creatable  = False  # creation is disabled by default
-    class Meta:
-        proxy = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # See https://github.com/wagtail/wagtail/pull/1736
-        if not self.id:
-            self.content_type = \
-                ContentType.objects.get_for_model(self, for_concrete_model=False)
 
     @classmethod
-    def can_create_at(cls, parent):
+    def _allowAnotherAt(cls, parent):
         # Don't limit creation
-        return super().can_create_at(parent)
+        return True
 
     def _getEventsOnDay(self, request, day):
         return getAllEventsByDay(request, day, day, home=self)[0]
@@ -364,25 +365,20 @@ class SpecificCalendarPage(CalendarPage):
         return getAllPastEvents(request, home=self)
 
 # ------------------------------------------------------------------------------
-class GeneralCalendarPage(CalendarPage):
+class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
     """
     GeneralCalendarPage displays all the events no matter where they are
     """
     is_creatable  = False  # creation is disabled by default
-    class Meta:
-        proxy = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # See https://github.com/wagtail/wagtail/pull/1736
-        if not self.id:
-            self.content_type = \
-                ContentType.objects.get_for_model(self, for_concrete_model=False)
 
     @classmethod
-    def can_create_at(cls, parent):
+    def _allowAnotherAt(cls, parent):
         # You can only create one of these pages
-        return super().can_create_at(parent) and not cls.objects.exists()
+        return not cls.peers().exists()
+
+    @classmethod
+    def _getContentType(cls):
+        return ContentType.objects.get_for_model(cls, for_concrete_model=False)
 
     def _getEventsOnDay(self, request, day):
         return getAllEventsByDay(request, day, day)[0]
