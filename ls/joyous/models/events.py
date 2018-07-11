@@ -4,10 +4,13 @@
 import datetime as dt
 import calendar
 from collections import namedtuple
+from contextlib import suppress
 from functools import partial
 from itertools import chain, groupby
 from operator import attrgetter
+from uuid import uuid4
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.query import ModelIterable
@@ -113,16 +116,38 @@ def getAllPastEvents(request, *, home=None):
                     key=attrgetter('page._past_datetime_from'), reverse=True)
     return events
 
-# def getAllEvents(request, home=None):
-#     qrys = [SimpleEventPage.events(request).all(),
-#             MultidayEventPage.events(request).all(),
-#             RecurringEventPage.events(request).all(),
-#             PostponementPage.events(request).all(),
-#             ExtraInfoPage.events(request).upcoming().this()]
-#     if home is not None:
-#         qrys = [qry.descendant_of(home) for qry in qrys]
-#     events = sorted(chain.from_iterable(qrys), key=attrgetter('page._upcoming_datetime_from'))
-#     return events
+def getEventFromUid(request, uid):
+    """
+    Get the event by its UID
+    (returns None if we have no auth, raises ObjectDoesNotExist if it is not found)
+    """
+    events = []
+    with suppress(ObjectDoesNotExist):
+        events.append(SimpleEventPage.objects.get(uid=uid))
+    with suppress(ObjectDoesNotExist):
+        events.append(MultidayEventPage.objects.get(uid=uid))
+    with suppress(ObjectDoesNotExist):
+        events.append(RecurringEventPage.objects.get(uid=uid))
+
+    if len(events) == 1:
+        if events[0].isAuthorized(request):
+            return events[0]
+        else:
+            return None
+    elif len(events) == 0:
+        raise ObjectDoesNotExist("No event with uid={}".format(uid))
+    else:
+        raise MultipleObjectsReturned("Multiple events with uid={}".format(uid))
+
+def getAllEvents(request, home=None):
+    qrys = [SimpleEventPage.events(request).all(),
+            MultidayEventPage.events(request).all(),
+            RecurringEventPage.events(request).all()]
+    if home is not None:
+        qrys = [qry.descendant_of(home) for qry in qrys]
+    events = sorted(chain.from_iterable(qrys),
+                    key=attrgetter('_first_datetime_from'))
+    return events
 
 # ------------------------------------------------------------------------------
 # Private
@@ -311,8 +336,11 @@ def _get_default_timezone():
 
 class EventBase(models.Model):
     class Meta:
+        # TODO consider if EventBase was not abstract coversion from one event
+        # type to another might be a lot easier?
         abstract = True
 
+    uid = models.CharField(max_length=255, db_index=True, editable=False, default=uuid4)
     category = models.ForeignKey(EventCategory,
                                  related_name="+",
                                  verbose_name="Category",
@@ -371,6 +399,10 @@ class EventBase(models.Model):
     def _past_datetime_from(self):
         fromDt = self._getFromDt()
         return fromDt if fromDt < timezone.localtime() else None
+
+    @property
+    def _first_datetime_from(self):
+        return self._getFromDt()
 
     @property
     def status(self):
@@ -745,6 +777,12 @@ class RecurringEventPage(Page, EventBase):
         return prevDt
 
     @property
+    def _first_datetime_from(self):
+        myFromDt = self._getMyFirstDatetimeFrom()
+        localTZ = timezone.get_current_timezone()
+        return myFromDt.astimezone(localTZ)
+
+    @property
     def status(self):
         myNow = timezone.localtime(timezone=self.tz)
         if self.repeat.until:
@@ -825,6 +863,28 @@ class RecurringEventPage(Page, EventBase):
         retval.sort(key=attrgetter('except_date'))
         return retval
 
+    def _getException(self, request):
+        """
+        Returns all future extra info, cancellations and postponements created
+        for this recurring event
+        """
+        retval = []
+        # We know all future exception dates are in the parent time zone
+        myToday = timezone.localdate(timezone=self.tz)
+
+        for extraInfo in ExtraInfoPage.events(request).child_of(self)         \
+                                      .filter(except_date__gte=myToday):
+            retval.append(extraInfo)
+        for cancellation in CancellationPage.events(request).child_of(self)   \
+                                            .filter(except_date__gte=myToday):
+            postponement = getattr(cancellation, "postponementpage", None)
+            if postponement:
+                retval.append(postponement)
+            else:
+                retval.append(cancellation)
+        retval.sort(key=attrgetter('except_date'))
+        return retval
+
     def _nextOn(self, request):
         """
         Formatted date/time of when this event (including any postponements)
@@ -858,7 +918,7 @@ class RecurringEventPage(Page, EventBase):
     def _getMyFirstDatetimeFrom(self):
         myStartDt = getAwareDatetime(self.repeat.dtstart, None,
                                      self.tz, dt.time.min)
-        return self.__after(myStartDt)
+        return self.__after(myStartDt, excludeCancellations=False)
 
     def _getMyFirstDatetimeTo(self):
         myFirstDt = self._getMyFirstDatetimeFrom()
@@ -994,7 +1054,7 @@ class EventExceptionQuerySet(EventQuerySet):
 class EventExceptionPageForm(WagtailAdminPageForm):
     def _checkSlugAvailable(self, cleaned_data, slugName=None):
         if slugName is None:
-            slugName = self.slugName
+            slugName = self.instance.slugName
         description = getattr(self, 'description', "a {}".format(slugName))
         exceptDate = cleaned_data.get('except_date', "invalid")
         slug = "{}-{}".format(exceptDate, slugName)
@@ -1002,20 +1062,20 @@ class EventExceptionPageForm(WagtailAdminPageForm):
             self.add_error('except_date',
                            'That date already has {}'.format(description))
 
-    def save(self, commit=True):
-        name = getattr(self, 'name', self.slugName.title())
-        page = super().save(commit=False)
-        page.title = "{} for {}".format(name, dateFormat(page.except_date))
-        page.slug = "{}-{}".format(page.except_date, self.slugName)
-        if commit:
-            page.save()
-        return page
+    # def save(self, commit=True):
+    #     page = super().save(commit=False)
+    #     name = getattr(self, 'name', page.slugName.title())
+    #     page.title = "{} for {}".format(name, dateFormat(page.except_date))
+    #     page.slug = "{}-{}".format(page.except_date, page.slugName)
+    #     if commit:
+    #         page.save()
+    #     return page
 
 class EventExceptionBase(models.Model):
-    events = EventManager.from_queryset(EventExceptionQuerySet)()
-
     class Meta:
         abstract = True
+
+    events = EventManager.from_queryset(EventExceptionQuerySet)()
 
     # overrides is also the parent, but parent is not set until the
     # child is saved and added.  (NB: is published version of parent)
@@ -1057,6 +1117,12 @@ class EventExceptionBase(models.Model):
     def _getFromTime(self):
         return getLocalTime(self.except_date, self.time_from, self.tz)
 
+    def full_clean(self, *args, **kwargs):
+        name = getattr(self, 'name', self.slugName.title())
+        self.title = "{} for {}".format(name, dateFormat(self.except_date))
+        self.slug = "{}-{}".format(self.except_date, self.slugName)
+        super().full_clean(*args, **kwargs)
+
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):
     def this(self):
@@ -1071,7 +1137,6 @@ class ExtraInfoQuerySet(EventExceptionQuerySet):
 class ExtraInfoPageForm(EventExceptionPageForm):
     name        = "Extra Information"
     description = name.lower()
-    slugName    = "extra-info"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1079,15 +1144,15 @@ class ExtraInfoPageForm(EventExceptionPageForm):
         return cleaned_data
 
 class ExtraInfoPage(Page, EventExceptionBase):
-    events = EventManager.from_queryset(ExtraInfoQuerySet)()
-
     class Meta:
         verbose_name = "Extra Event Information"
         default_manager_name = "objects"
 
+    events = EventManager.from_queryset(ExtraInfoQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage"]
     subpage_types = []
     base_form_class = ExtraInfoPageForm
+    slugName    = "extra-info"
 
     extra_title = models.CharField('Title', max_length=255, blank=True)
     extra_title.help_text = "A more specific title for this occurence (optional)"
@@ -1134,6 +1199,10 @@ class ExtraInfoPage(Page, EventExceptionBase):
     def _past_datetime_from(self):
         return self._checkFromDt(lambda fromDt:fromDt < timezone.localtime())
 
+    @property
+    def _first_datetime_from(self):
+        return self._checkFromDt(lambda _:True)
+
     def _checkFromDt(self, predicate):
         if not self.overrides._occursOn(self.except_date):
             return None
@@ -1142,8 +1211,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
 
 # ------------------------------------------------------------------------------
 class CancellationPageForm(EventExceptionPageForm):
-    slugName = "cancellation"
-
     def clean(self):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
@@ -1158,6 +1225,7 @@ class CancellationPage(Page, EventExceptionBase):
     parent_page_types = ["joyous.RecurringEventPage"]
     subpage_types = []
     base_form_class = CancellationPageForm
+    slugName = "cancellation"
 
     cancellation_title = models.CharField('Title', max_length=255, blank=True)
     cancellation_title.help_text = "Show in place of cancelled event "\
@@ -1237,8 +1305,6 @@ class PostponementQuerySet(EventQuerySet):
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
 
 class PostponementPageForm(EventExceptionPageForm):
-    slugName = "postponement"
-
     def clean(self):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
@@ -1247,15 +1313,15 @@ class PostponementPageForm(EventExceptionPageForm):
         return cleaned_data
 
 class PostponementPage(EventBase, CancellationPage):
-    events = EventManager.from_queryset(PostponementQuerySet)()
-
     class Meta:
         verbose_name = "Postponement"
         default_manager_name = "objects"
 
+    events = EventManager.from_queryset(PostponementQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage"]
     subpage_types = []
     base_form_class = PostponementPageForm
+    slugName = "postponement"
 
     postponement_title = models.CharField('Title', max_length=255)
     postponement_title.help_text = "The title for the postponed event"

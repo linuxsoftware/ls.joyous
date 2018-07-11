@@ -127,7 +127,6 @@ class TestCalendar(TestCase):
         self.assertEqual(links[1].get('title'), "Next year")
         self.assertEqual(links[1].get('href'), "/events/1901/1/")
 
-
     def testCalendarFinish(self):
         response = self.client.get("/events/2099/12/")
         select = response.soup.select

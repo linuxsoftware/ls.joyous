@@ -5,25 +5,94 @@ import datetime as dt
 import calendar
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.http import Http404
+from django import forms
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.db import models
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..utils.weeks import week_info, gregorian_to_week_date
 from ..utils.weeks import weekday_abbr, weekday_name
 from ..utils.mixins import ProxyPageMixin
-from . import getAllEventsByDay
-from . import getAllEventsByWeek
-from . import getAllUpcomingEvents
-from . import getAllPastEvents
+from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
+               getAllPastEvents, getEventFromUid, getAllEvents)
 
 # ------------------------------------------------------------------------------
-# Calendar
+class CalendarPageForm(WagtailAdminPageForm):
+    importHandler = None
+    exportHandler = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def registerImportHandler(cls, handler):
+        class Panel(MultiFieldPanel):
+            def __init__(self, children, heading, classname='', help_text=''):
+                super().__init__(children, '', classname, '')
+                self._heading = heading
+                self._help_text = help_text
+
+            def clone(self):
+                return Panel(children=self.children,
+                             heading=self._heading,
+                             classname=self.classname,
+                             help_text=self._help_text)
+
+            def on_instance_bound(self):
+                super().on_instance_bound()
+                if self._isReady():
+                    self.heading = self._heading
+                    self.help_text = self._help_text
+
+            def render(self):
+                return super().render() if self._isReady() else ""
+
+            def _isReady(self):
+                page = getattr(self, 'instance', None)
+                if not page:
+                    return False
+                hasReq = hasattr(page, '__joyous_edit_request')
+                # only a user with edit and publishing rights should be able
+                # to import iCalendar files
+                perms = page.permissions_for_user(self.request.user)
+                return hasReq and perms.can_publish() and perms.can_edit()
+
+        # TODO support multiple formats?
+        cls.importHandler = handler
+        uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
+        cls.declared_fields['upload'] = forms.FileField(required=False,
+                                                        widget=uploadWidget)
+        CalendarPage.settings_panels.append(Panel([
+              HelpPanel("Warning! this feature is experimental"),
+              FieldPanel('upload'),
+            ], "Import"))
+
+    @classmethod
+    def registerExportHandler(cls, handler):
+        cls.exportHandler = handler
+        CalendarPage.settings_panels.append(MultiFieldPanel([
+            ], "Export"))
+
+    def save(self, commit=True):
+        page = super().save(commit=False)
+        request = getattr(page, '__joyous_edit_request', None)
+
+        if self.importHandler and request:
+            stream = self.cleaned_data.get('upload')
+            if stream is not None:
+                self.importHandler.load(page, request, stream)
+
+        if commit:
+            page.save()
+        return page
+
 # ------------------------------------------------------------------------------
 DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "MM":    r"(1[012]|0?[1-9])",
@@ -31,8 +100,7 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
-from django.contrib.contenttypes.models import ContentType
-
+# ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page):
     """
     CalendarPage displays all the events which are in the same site
@@ -41,19 +109,15 @@ class CalendarPage(RoutablePageMixin, Page):
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']
+    base_form_class = CalendarPageForm
 
     intro = RichTextField(blank=True)
 
-    search_fields = Page.search_fields
+    search_fields = Page.search_fields[:]
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname="full"),
         ]
-    settings_panels = Page.settings_panels + [
-        MultiFieldPanel([
-            ], "Warning! this feature is experimental : Import"),
-        MultiFieldPanel([
-            ], "Export"),
-        ]
+    settings_panels = Page.settings_panels[:]
 
     @route(r"^$")
     @route(r"^{YYYY}/$".format(**DatePictures))
@@ -337,6 +401,19 @@ class CalendarPage(RoutablePageMixin, Page):
         home = request.site.root_page
         return getAllPastEvents(request, home=home)
 
+    def _getEventFromUid(self, request, uid):
+        event = getEventFromUid(request, uid) # might raise ObjectDoesNotExist
+        home = request.site.root_page
+        if event.get_ancestors().filter(id=home.id).exists():
+            # only return event if it is in the same site
+            return event
+        else:
+            return None
+
+    def _getAllEvents(self, request):
+        home = request.site.root_page
+        return getAllEvents(request, home=home)
+
 # ------------------------------------------------------------------------------
 class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
     """
@@ -363,6 +440,17 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getPastEvents(self, request):
         return getAllPastEvents(request, home=self)
+
+    def _getEventFromUid(self, request, uid):
+        event = getEventFromUid(request, uid)
+        if event.get_ancestors().filter(id=self.id).exists():
+            # only return event if it is a descendant
+            return event
+        else:
+            return None
+
+    def _getAllEvents(self, request):
+        return getAllEvents(request, home=self)
 
 # ------------------------------------------------------------------------------
 class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
@@ -395,8 +483,12 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
     def _getPastEvents(self, request):
         return getAllPastEvents(request)
 
-    #def _getAllEvents(self, request):
-    #    return getAllEvents(request)
+    def _getEventFromUid(self, request, uid):
+        return getEventFromUid(request, uid)
 
+    def _getAllEvents(self, request):
+        return getAllEvents(request)
 
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

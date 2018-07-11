@@ -87,7 +87,7 @@ class TestMultidayEvent(TestCase):
         nextWeek = today + dt.timedelta(6 - today.weekday())
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
-            earlier = dt.datetime.combine(now.date(), dt.time.min)
+            earlier = datetimetz(now.date(), dt.time.min)
         nowEvent = MultidayEventPage(owner = self.user,
                                      slug  = "now",
                                      title = "Now Event",
@@ -115,7 +115,7 @@ class TestMultidayEvent(TestCase):
         nextWeek = today + dt.timedelta(6 - today.weekday())
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
-            earlier = dt.datetime.combine(now.date(), dt.time.min)
+            earlier = datetimetz(now.date(), dt.time.min)
         nowEvent = MultidayEventPage(owner = self.user,
                                      slug  = "now",
                                      title = "Now Event",

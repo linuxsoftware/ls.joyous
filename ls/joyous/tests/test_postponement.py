@@ -36,8 +36,6 @@ class TestPostponement(TestCase):
                                         time_to   = dt.time(16))
         self.calendar.add_child(instance=self.event)
         self.postponement = PostponementPage(owner = self.user,
-                                             slug  = "1990-10-10-postponement",
-                                             title = "Postponement for Wednesday 10th of October",
                                              overrides = self.event,
                                              except_date = dt.date(1990,10,10),
                                              cancellation_title   = "Meeting Postponed",
@@ -82,8 +80,6 @@ class TestPostponement(TestCase):
         myday = now.date() + dt.timedelta(1)
         friday = myday + dt.timedelta(days=(4-myday.weekday())%7)
         futureEvent = PostponementPage(owner = self.user,
-                                       slug  = "fri-postponement",
-                                       title = "Postponement for Friday",
                                        overrides = self.event,
                                        except_date = friday,
                                        cancellation_title   = "",
@@ -105,8 +101,6 @@ class TestPostponement(TestCase):
         nextDate = self.event.next_date
         newDate  = nextDate + dt.timedelta(1)
         reschedule = PostponementPage(owner = self.user,
-                                      slug  = "meeting-postponement",
-                                      title = "Postponement for Meeting",
                                       overrides = self.event,
                                       except_date = nextDate,
                                       cancellation_title   = "",
@@ -118,10 +112,10 @@ class TestPostponement(TestCase):
                                       details   = "The meeting will be held early tomorrow")
         self.event.add_child(instance=reschedule)
         nextOn = self.event._nextOn(self.request)
-        self.assertEqual(nextOn[:73],
-                         '<a class="inline-link" href="/events/test-meeting/meeting-postponement/">')
+        url = "/events/test-meeting/{}-postponement/".format(nextDate)
+        self.assertEqual(nextOn[:76], '<a class="inline-link" href="{}">'.format(url))
         self.assertEqual(nextOn[-4:], '</a>')
-        parts = nextOn[73:-4].split()
+        parts = nextOn[76:-4].split()
         self.assertEqual(len(parts), 6)
         self.assertEqual(parts[0], "{:%A}".format(newDate))
         self.assertEqual(int(parts[1][:-2]), newDate.day)
@@ -151,8 +145,6 @@ class TestPostponementTZ(TestCase):
                                         tz = pytz.timezone("US/Eastern"))
         self.calendar.add_child(instance=self.event)
         self.postponement = PostponementPage(owner = self.user,
-                                             slug  = "1990-10-10-postponement",
-                                             title = "Postponement for Wednesday 10th of October 1990",
                                              overrides = self.event,
                                              postponement_title = "Delayed Meeting",
                                              except_date = dt.date(1990,10,10),

@@ -8,8 +8,8 @@ from django.utils.html import format_html
 from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import ModelAdmin
 from wagtail.contrib.modeladmin.options import modeladmin_register
-from .models import EventCategory
-from .formats.ical import ICalendarHandler
+from .models import EventCategory, CalendarPage, CalendarPageForm
+from .formats.ical import ICalHandler
 
 # ------------------------------------------------------------------------------
 @hooks.register('insert_editor_js')
@@ -21,15 +21,24 @@ def editor_js():
 
 # ------------------------------------------------------------------------------
 @hooks.register('before_serve_page')
-def handleExport(page, request, serve_args, serve_kwargs):
+def handlePageExport(page, request, serve_args, serve_kwargs):
     format = request.GET.get('format')
 
     # TODO impement a registry of different format handlers
     if format == "ical":
-        handler = ICalendarHandler()
+        handler = ICalHandler()
         return handler.serve(page, request, serve_args, serve_kwargs)
 
     return None
+
+@hooks.register('before_edit_page')
+def stashRequest(request, page):
+    if isinstance(page, CalendarPage):
+        page.__joyous_edit_request = request
+    return None
+
+CalendarPageForm.registerImportHandler(ICalHandler())
+#CalendarPageForm.registerExportHandler(ICalHandler())
 
 # ------------------------------------------------------------------------------
 class EventCategoryAdmin(ModelAdmin):

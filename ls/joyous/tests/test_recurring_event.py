@@ -60,7 +60,7 @@ class TestRecurringEvent(TestCase):
         now = timezone.localtime()
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
-            earlier = dt.datetime.combine(now.date(), dt.time.min)
+            earlier = datetimetz(now.date(), dt.time.min)
         nowEvent = RecurringEventPage(owner = self.user,
                                       slug  = "now",
                                       title = "Now Event",
