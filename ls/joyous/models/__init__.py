@@ -16,6 +16,7 @@ from .events import getGroupUpcomingEvents
 from .events import removeContentPanels
 
 from .calendar import CalendarPage
+from .calendar import CalendarPageForm
 from .calendar import SpecificCalendarPage
 from .calendar import GeneralCalendarPage
 

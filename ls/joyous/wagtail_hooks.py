@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import ModelAdmin
 from wagtail.contrib.modeladmin.options import modeladmin_register
-from .models import EventCategory
+from .models import EventCategory, CalendarPageForm
 from .formats.ical import ICalendarHandler
 
 # ------------------------------------------------------------------------------
@@ -30,6 +30,9 @@ def handleExport(page, request, serve_args, serve_kwargs):
         return handler.serve(page, request, serve_args, serve_kwargs)
 
     return None
+
+CalendarPageForm.registerImportHandler(ICalendarHandler())
+#CalendarPageForm.registerExportHandler(ICalendarHandler())
 
 # ------------------------------------------------------------------------------
 class EventCategoryAdmin(ModelAdmin):

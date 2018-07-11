@@ -9,9 +9,11 @@ from django.http import Http404
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.db import models
+from django import forms
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..utils.weeks import week_info, gregorian_to_week_date
@@ -33,6 +35,48 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
 
 from django.contrib.contenttypes.models import ContentType
 
+class CalendarPageForm(WagtailAdminPageForm):
+    importHandler = None
+    exportHandler = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def registerImportHandler(cls, handler):
+        # TODO support multiple formats?
+        cls.importHandler = handler
+        uploadWidget = forms.FileInput(attrs={'accept':'text/calendar'})
+        cls.declared_fields['upload'] = forms.FileField(required=False,
+                                                        widget=uploadWidget)
+        CalendarPage.settings_panels.append(MultiFieldPanel([
+              HelpPanel("Warning! this feature is experimental"),
+              FieldPanel('upload'),
+            ], "Import"))
+
+    @classmethod
+    def registerExportHandler(cls, handler):
+        cls.exportHandler = handler
+        CalendarPage.settings_panels.append(MultiFieldPanel([
+            ], "Export"))
+
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     return cleaned_data
+
+    def save(self, commit=True):
+        page = super().save(commit=False)
+
+        if self.importHandler:
+            stream = self.cleaned_data.get('upload')
+            if stream is not None:
+                self.importHandler.load(page, self.cleaned_data['upload'])
+
+        if commit:
+            page.save()
+        return page
+
+
 class CalendarPage(RoutablePageMixin, Page):
     """
     CalendarPage displays all the events which are in the same site
@@ -41,19 +85,15 @@ class CalendarPage(RoutablePageMixin, Page):
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']
+    base_form_class = CalendarPageForm
 
     intro = RichTextField(blank=True)
 
-    search_fields = Page.search_fields
+    search_fields = Page.search_fields[:]
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname="full"),
         ]
-    settings_panels = Page.settings_panels + [
-        MultiFieldPanel([
-            ], "Warning! this feature is experimental : Import"),
-        MultiFieldPanel([
-            ], "Export"),
-        ]
+    settings_panels = Page.settings_panels[:]
 
     @route(r"^$")
     @route(r"^{YYYY}/$".format(**DatePictures))

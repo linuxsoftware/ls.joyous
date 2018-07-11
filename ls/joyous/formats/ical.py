@@ -6,51 +6,63 @@ import pytz
 from socket import gethostname
 from icalendar import Calendar, Event
 from icalendar import vDatetime
-#from html2text import HTML2Text
 from django.http import HttpResponse
 from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
-        EventExceptionBase, ExtraInfoPage, CancellationPage)
+        EventExceptionBase, ExtraInfoPage, CancellationPage, CalendarPage)
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 
 # ------------------------------------------------------------------------------
 class ICalendarHandler:
     def serve(self, page, request, *args, **kwargs):
-        vcal = self.makeVCalendar(page)
-        if vcal is not None:
-            response = HttpResponse(vcal.export(),
-                                    content_type='text/calendar')
+        try:
+            vcal = VCalendar(page)
+            response = HttpResponse(vcal.render(), content_type='text/calendar')
             response['Content-Disposition'] = \
                 'attachment; filename={}.ics'.format(page.slug)
             return response
-        return None
 
-    def makeVCalendar(self, page):
-        # TODO move the making into VCalendar.fromEvent
-        #if not isinstance(page, CalendarPage):
-        return self.make1EventVCalendar(page)
-        #vcal = VCalendar()
-        #for event in vcal._getAllEvents()
+        except TypeError:
+            return None
+
+    def load(self, page, stream):
+        vcal = VCalendar()
+        vcal.parse(stream.read())
+
+# ------------------------------------------------------------------------------
+class VCalendar(Calendar):
+    prodVersion = ".".join(__version__.split(".", 2)[:2])
+    prodId = "-//linuxsoftware.nz//NONSGML Joyous v{}//EN".format(prodVersion)
+
+    def __init__(self, page=None):
+        super().__init__()
+        self.add('prodid',  self.prodId)
+        self.add('version', "2.0")
+        if page is not None:
+            if isinstance(page, CalendarPage):
+                self._initFromCalendarPage(page)
+            else:
+                self._initFromEventPage(page)
+
+    def _initFromCalendarPage(self, page):
+        #for event in page._getAllEvents()
         #timezones
         # return vcal
         return None
 
-    def make1EventVCalendar(self, page):
-        vcal = None
+    def _initFromEventPage(self, page):
         vevent = self.makeVEvent(page)
-        if vevent is not None:
-            vcal = VCalendar()
-            if page.tz and page.tz is not pytz.utc:
-                vtz = create_timezone(page.tz, vevent.dtstart, vevent.dtend)
-                vcal.add_component(vtz)
-            vcal.add_component(vevent)
-            for vchild in vevent.vchildren:
-                vcal.add_component(vchild)
-        return vcal
+        if page.tz and page.tz is not pytz.utc:
+            vtz = create_timezone(page.tz, vevent.dtstart, vevent.dtend)
+            self.add_component(vtz)
+        self.add_component(vevent)
+        for vchild in vevent.vchildren:
+            self.add_component(vchild)
 
-    def makeVEvent(self, page):
+    @staticmethod
+    def makeVEvent(page):
         if isinstance(page, SimpleEventPage):
             return SimpleVEvent(page)
         elif isinstance(page, MultidayEventPage):
@@ -60,29 +72,19 @@ class ICalendarHandler:
         elif isinstance(page, EventExceptionBase):
             return RecurringVEvent(page.overrides)
         else:
-            return None
+            raise TypeError("Unsupported page type")
 
-    def loadVCalendar(self, stream):
-        return
-
-# ------------------------------------------------------------------------------
-class VCalendar(Calendar):
-    prodVersion = ".".join(__version__.split(".", 2)[:2])
-    prodId = "-//linuxsoftware.nz//NONSGML Joyous v{}//EN".format(prodVersion)
-
-    def __init__(self):
-        super().__init__()
-        self.add('prodid',  self.prodId)
-        self.add('version', "2.0")
-
-    def export(self):
+    def render(self):
         return self.to_ical()
+
+    def parse(self, data):
+        return self.from_ical(data)
+
 
 # ------------------------------------------------------------------------------
 class VEvent(Event):
     def __init__(self, page):
         super().__init__()
-        #h2t = HTML2Text()
         self.page = page
         self.vchildren = []
         firstRevision = page.revisions.order_by("created_at").first()
