@@ -70,7 +70,7 @@ class CalendarPageForm(WagtailAdminPageForm):
         if self.importHandler:
             stream = self.cleaned_data.get('upload')
             if stream is not None:
-                self.importHandler.load(page, self.cleaned_data['upload'])
+                self.importHandler.load(page, stream)
 
         if commit:
             page.save()

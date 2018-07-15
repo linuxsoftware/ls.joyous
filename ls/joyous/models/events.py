@@ -7,6 +7,7 @@ from collections import namedtuple
 from functools import partial
 from itertools import chain, groupby
 from operator import attrgetter
+from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -311,8 +312,11 @@ def _get_default_timezone():
 
 class EventBase(models.Model):
     class Meta:
+        # TODO consider if EventBase was not abstract coversion from one event
+        # type to another might be a lot easier?
         abstract = True
 
+    uid = models.CharField(max_length=100, db_index=True, editable=False, default=uuid4)
     category = models.ForeignKey(EventCategory,
                                  related_name="+",
                                  verbose_name="Category",

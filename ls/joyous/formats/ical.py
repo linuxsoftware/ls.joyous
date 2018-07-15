@@ -4,13 +4,16 @@
 import datetime as dt
 import pytz
 from socket import gethostname
+from contextlib import suppress
 from icalendar import Calendar, Event
 from icalendar import vDatetime
 from django.http import HttpResponse
 from django.utils import timezone
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
-        EventExceptionBase, ExtraInfoPage, CancellationPage, CalendarPage)
+        EventExceptionBase, ExtraInfoPage, CancellationPage, EventBase,
+        CalendarPage)
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 
@@ -28,41 +31,38 @@ class ICalendarHandler:
             return None
 
     def load(self, page, stream):
-        vcal = VCalendar()
-        vcal.parse(stream.read())
+        vcal = VCalendar(page)
+        vcal.load(stream)
+
 
 # ------------------------------------------------------------------------------
-class VCalendar(Calendar):
-    prodVersion = ".".join(__version__.split(".", 2)[:2])
-    prodId = "-//linuxsoftware.nz//NONSGML Joyous v{}//EN".format(prodVersion)
+def _getEventByUid(uid):
+    events = []
+    with suppress(ObjectDoesNotExist):
+        events.append(SimpleEventPage.objects.get(uid=uid))
+    with suppress(ObjectDoesNotExist):
+        events.append(MultidayEventPage.objects.get(uid=uid))
+    with suppress(ObjectDoesNotExist):
+        events.append(RecurringEventPage.objects.get(uid=uid))
 
-    def __init__(self, page=None):
-        super().__init__()
-        self.add('prodid',  self.prodId)
-        self.add('version', "2.0")
-        if page is not None:
-            if isinstance(page, CalendarPage):
-                self._initFromCalendarPage(page)
-            else:
-                self._initFromEventPage(page)
-
-    def _initFromCalendarPage(self, page):
-        #for event in page._getAllEvents()
-        #timezones
-        # return vcal
+    if len(events) == 1:
+        return events[0]
+    elif len(events) == 0:
         return None
+    else:
+        raise MultipleObjectsReturned("Multiple events with uid={}".format(uid))
 
-    def _initFromEventPage(self, page):
-        vevent = self.makeVEvent(page)
-        if page.tz and page.tz is not pytz.utc:
-            vtz = create_timezone(page.tz, vevent.dtstart, vevent.dtend)
-            self.add_component(vtz)
-        self.add_component(vevent)
-        for vchild in vevent.vchildren:
-            self.add_component(vchild)
+# ------------------------------------------------------------------------------
+class VEventFactory:
+    def makeVEvent(self, data):
+        if isinstance(data, EventBase):
+            return self._makeVEventFromPage(data)
+        elif isinstance(data, Event):
+            return self._makeVEventFromProps(data)
+        else:
+            raise TypeError("Unsupported input data")
 
-    @staticmethod
-    def makeVEvent(page):
+    def _makeVEventFromPage(self, page):
         if isinstance(page, SimpleEventPage):
             return SimpleVEvent(page)
         elif isinstance(page, MultidayEventPage):
@@ -74,17 +74,80 @@ class VCalendar(Calendar):
         else:
             raise TypeError("Unsupported page type")
 
+    def _makeVEventFromProps(self, props):
+        if 'RRULE' in props:
+            return RecurringVEvent(props)
+        dtend   = props.get('DTEND')
+        dtstart = props.get('DTSTART')
+        if dtend is None or dtstart is None:
+            raise TypeError("Unsupported properties")
+        if (dtend.dt - dt.start.dt) >= dt.timedelta(days=1):
+            return MultidayVEvent(props)
+        else:
+            return SimpleVEvent(props)
+
+class VCalendar:
+    prodVersion = ".".join(__version__.split(".", 2)[:2])
+    prodId = "-//linuxsoftware.nz//NONSGML Joyous v{}//EN".format(prodVersion)
+    factory = VEventFactory()
+
+    def __init__(self, other=None):
+        self.page  = None
+        self.props = None
+
+        self.add('prodid',  self.prodId)
+        self.add('version', "2.0")
+        if isinstance(other, Calendar):
+            self._initFromProps(other)
+        elif isinstance(other, CalendarPage):
+            self._initFromCalendarPage(other)
+        elif isinstance(other, EventBase):
+            self._initFromEventPage(other)
+
+    def _initFromProps(self, props):
+        #for event in page._getAllEvents()
+        #timezones
+        # return vcal
+        return None
+
+    def _initFromCalendarPage(self, other):
+        pass
+
+    def _initFromEventPage(self, page):
+        vevent = self.factory.makeVEvent(page)
+        if page.tz and page.tz is not pytz.utc:
+            vtz = create_timezone(page.tz, vevent.dtstart, vevent.dtend)
+            self.add_component(vtz)
+        self.add_component(vevent)
+        for exception in vevent.vchildren:
+            self.add_component(exception)
+
+    def asProps(self):
+        return self.props
+
+    def asPage(self):
+        return self.page
+
     def render(self):
         return self.to_ical()
 
-    def parse(self, data):
-        return self.from_ical(data)
+    def load(self, stream):
+        cal = Calendar.from_ical(stream.read())
+        for event in cal.walk(name="VEVENT"):
+            page = _getEventByUid(event.get('UID'))
+        #     if not wehavethis(event):
+        #         vevent = self.factory.makeVEvent(event)
+        #         check if such a page exists
+        #         if not create it
 
 
 # ------------------------------------------------------------------------------
-class VEvent(Event):
-    def __init__(self, page):
-        super().__init__()
+class VEvent:
+    def __init__(self):
+        self.page      = None
+        self.component = None
+
+    def setPage(self, page):
         self.page = page
         self.vchildren = []
         firstRevision = page.revisions.order_by("created_at").first()
@@ -116,7 +179,6 @@ class VEvent(Event):
 
     @property
     def description(self):
-        #return h2t.handle(self.page.details)
         return self.page.details
 
     @property
