@@ -484,6 +484,7 @@ class SimpleVEvent(VEvent):
         super().toPage(page)
         assert page.uid == self.get('UID')
         dtstart  = self['DTSTART']
+        # TODO consider an option to convert UTC timezone events into local time
         dtend    = vDt(self.get('DTEND'))
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))
@@ -513,6 +514,7 @@ class MultidayVEvent(VEvent):
         super().toPage(page)
         assert page.uid == self.get('UID')
         dtstart  = self['DTSTART']
+        # TODO consider an option to convert UTC timezone events into local time
         dtend    = vDt(self.get('DTEND'))
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))

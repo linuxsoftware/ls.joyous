@@ -361,7 +361,6 @@ END:VCALENDAR
         self.assertEqual(bigThur.time_to,    dt.time(8,30))
         self.assertEqual(bigThur.when,       "Thursday 26th of July at 9am to 8:30pm")
 
-    @timezone.override("Pacific/Auckland")
     def testOutlook(self):
         stream = BytesIO(rb"""
 BEGIN:VCALENDAR
@@ -430,6 +429,68 @@ END:VCALENDAR
         self.assertEqual(flight2.date,       dt.date(2018,7,31))
         self.assertEqual(flight2.time_from,  dt.time(8,15))
         self.assertEqual(flight2.time_to,    dt.time(9))
+
+    def testFacebook(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+PRODID:-//Facebook//NONSGML Facebook Events V1.0//EN
+X-PUBLISHED-TTL:PT12H
+X-ORIGINAL-URL:https://www.facebook.com/events/501511573641525/
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTAMP:20180729T102010Z
+LAST-MODIFIED:20180729T102010Z
+CREATED:20180729T102010Z
+SEQUENCE:0
+ORGANIZER;CN=Jjjj Bbbbb:MAILTO:noreply@facebookmail.com
+ATTENDEE;CN=Bbbbb Wwwwww;PARTSTAT=ACCEPTED:https://www.facebook.com/bbwwwwww
+ATTENDEE;CN=Jjjj Bbbbb;PARTSTAT=ACCEPTED:https://www.facebook.com/jjjj.bbbbb
+ATTENDEE;CN=Pppp Tttttt;PARTSTAT=TENTATIVE:https://www.facebook.com/pppp.tttttt.123
+DTSTART:20180831T070000Z
+DTEND:20180831T100000Z
+UID:e501511573641525@facebook.com
+SUMMARY:Photo Comp - Prize Giving
+LOCATION:TBC
+URL:https://www.facebook.com/events/501511573641525/
+DESCRIPTION:The much anticipated 2018 West Coa
+ st Alpine Club is open!\nEntries cl
+ ose midnight Friday 24th August. F
+ ull details and entry form in the 
+ linked PDF: https://www.dropbox.co
+ m/s/5vxnep33ccxok9z/PhotoCompDetai
+ ls.pdf?dl=0\nDetails of the prize g
+ iving will be added here in due co
+ urse\, but save the date in the mea
+ n time.\n\nhttps://www.facebook.com/
+ events/501511573641525/
+CLASS:PUBLIC
+STATUS:CONFIRMED
+PARTSTAT:NEEDS-ACTION
+END:VEVENT
+END:VCALENDAR
+""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        events = self.calendar.get_children()
+        self.assertEqual(len(events), 1)
+        event = events[0].specific
+
+        self.assertEqual(event.slug,       "photo-comp-prize-giving")
+        self.assertEqual(event.title,      "Photo Comp - Prize Giving")
+        self.assertEqual(event.details,    "\n".join([
+            "The much anticipated 2018 West Coast Alpine Club is open!",
+            "Entries close midnight Friday 24th August. Full details and "
+            "entry form in the linked PDF: https://www.dropbox.com/s/"
+            "5vxnep33ccxok9z/PhotoCompDetails.pdf?dl=0",
+            "Details of the prize giving will be added here in due course, "
+            "but save the date in the mean time.", "",
+            "https://www.facebook.com/events/501511573641525/"]))
+        self.assertEqual(event.tz.zone,    "UTC")
+        self.assertEqual(event.date,       dt.date(2018,8,31))
+        self.assertEqual(event.time_from,  dt.time(7))
+        self.assertEqual(event.time_to,    dt.time(10))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
