@@ -52,10 +52,6 @@ class ICalHandler:
         vcal = VCalendar(page)
         vcal.load(request, stream.read())
 
-    def save(self, page, request):
-        # redirect to page url#format=ical
-        pass
-
 # ------------------------------------------------------------------------------
 class VCalendar(Calendar, VComponentMixin):
     prodVersion = ".".join(__version__.split(".", 2)[:2])
@@ -155,17 +151,15 @@ class VCalendar(Calendar, VComponentMixin):
             vevent.toPage(event)
             _saveRevision(request, event)
 
-        vchildren = vevent.vchildren[:]
-        exDates = vevent.get('EXDATE')
-        if exDates:
-            vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
-                          for exDate in exDates.dts]
+        vchildren  = vevent.vchildren[:]
+        vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
+                      for exDate in vevent.exDates]
         for vchild in vchildren:
             try:
                 exception = vchild.Page.objects.child_of(event)            \
                                   .get(except_date=vchild['RECURRENCE-ID'].date())
             except ObjectDoesNotExist:
-                self._createExceptionPage(request, vevent)
+                self._createExceptionPage(request, event, vchild)
             else:
                 if exception.isAuthorized(request):
                     self._updateExceptionPage(request, vchild, exception)
@@ -180,11 +174,9 @@ class VCalendar(Calendar, VComponentMixin):
         _addPage(request, self.page, event)
         _saveRevision(request, event)
 
-        vchildren = vevent.vchildren[:]
-        exDates = vevent.get('EXDATE')
-        if exDates:
-            vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
-                          for exDate in exDates.dts]
+        vchildren  = vevent.vchildren[:]
+        vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
+                      for exDate in vevent.exDates]
         for vchild in vchildren:
             self._createExceptionPage(request, event, vchild)
 
@@ -193,13 +185,10 @@ class VCalendar(Calendar, VComponentMixin):
         _addPage(request, event, exception)
         _saveRevision(request, exception)
 
-    def save(self):
-        pass
-
 # ------------------------------------------------------------------------------
 def _addPage(request, parent, page):
     page.owner = request.user
-    page.live  = not request.POST.get('action-publish')
+    page.live  = bool(request.POST.get('action-publish'))
     parent.add_child(instance=page)
 
 def _saveRevision(request, page):
@@ -283,9 +272,9 @@ class vSmart(vText):
         retval = super().__str__()
         param = self.params.get('ENCODING', "").upper()
         if param == 'QUOTED-PRINTABLE':
-            retval = quopri.decodestring(retval).decode('utf-8', 'ignore')
+            retval = quopri.decodestring(retval).decode(self.encoding, 'ignore')
         elif param == 'BASE64':
-            retval = base64.b64decode(retval).decode('utf-8', 'ignore')
+            retval = base64.b64decode(retval).decode(self.encoding, 'ignore')
         return retval
 
 from icalendar.cal import types_factory
@@ -461,6 +450,15 @@ class VEvent(Event, VComponentMixin):
     def modifiedDt(self):
         prop = self.get('LAST-MODIFIED') or self.get('DTSTAMP')
         return prop.datetime()
+
+    @property
+    def exDates(self):
+        retval = []
+        exDates = self.get('EXDATE', [])
+        if not isinstance(exDates, list):
+            exDates = [exDates]
+        retval = [exDate for vddd in exDates for exDate in vddd.dts]
+        return retval
 
 # ------------------------------------------------------------------------------
 class SimpleVEvent(VEvent):
