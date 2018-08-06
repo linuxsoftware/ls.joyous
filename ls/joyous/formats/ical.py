@@ -554,14 +554,14 @@ class RecurringVEvent(VEvent):
                                             .select_related("postponementpage"):
             postponement = getattr(cancellation, "postponementpage", None)
             if postponement:
-                vchildren.append(PostponementVEvent.fromPage(postponement, page))
+                vchildren.append(PostponementVEvent.fromPage(postponement))
             else:
                 excludeDt = getAwareDatetime(cancellation.except_date,
                                              cancellation.time_from,
                                              cancellation.tz, dt.time.min)
                 exDates.append(excludeDt)
                 # NB any cancellation title or details are going to be lost
-                # vchildren.append(CancellationVEvent.fromPage(cancellation, page))
+                # vchildren.append(CancellationVEvent.fromPage(cancellation))
 
             # if not postponement and cancellation.cancellation_title == "":
             #     excludeDt = getAwareDatetime(cancellation.except_date,
@@ -570,12 +570,12 @@ class RecurringVEvent(VEvent):
             #     exDates.append(excludeDt)
             # else:
             #     if cancellation.title != "":
-            #         vchildren.append(CancellationVEvent.fromPage(cancellation, page))
+            #         vchildren.append(CancellationVEvent.fromPage(cancellation))
             #     if postponement:
-            #         vchildren.append(PostponementVEvent.fromPage(postponement, page))
+            #         vchildren.append(PostponementVEvent.fromPage(postponement))
 
         for info in ExtraInfoPage.objects.live().child_of(page):
-            vchildren.append(ExtraInfoVEvent.fromPage(info, page))
+            vchildren.append(ExtraInfoVEvent.fromPage(info))
         return vchildren, exDates
 
     def toPage(self, page):
