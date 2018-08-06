@@ -38,7 +38,7 @@ def stashRequest(request, page):
     return None
 
 CalendarPageForm.registerImportHandler(ICalHandler())
-#CalendarPageForm.registerExportHandler(ICalHandler())
+CalendarPageForm.registerExportHandler(ICalHandler())
 
 # ------------------------------------------------------------------------------
 class EventCategoryAdmin(ModelAdmin):

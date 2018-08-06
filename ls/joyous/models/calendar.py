@@ -24,6 +24,54 @@ from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
                getAllPastEvents, getEventFromUid, getAllEvents)
 
 # ------------------------------------------------------------------------------
+class ImExPanel(MultiFieldPanel):
+    def __init__(self, children, heading, classname='', help_text=''):
+        super().__init__(children, '', classname, '')
+        self._heading = heading
+        self._help_text = help_text
+
+    def clone(self):
+        return self.__class__(children=self.children,
+                              heading=self._heading,
+                              classname=self.classname,
+                              help_text=self._help_text)
+
+    def on_instance_bound(self):
+        super().on_instance_bound()
+        if self._isReady():
+            self.heading = self._heading
+            self.help_text = self._help_text
+
+    def render(self):
+        return super().render() if self._isReady() else ""
+
+    def _isReady(self):
+        page = getattr(self, 'instance', None)
+        if not page:
+            return False
+        hasReq = hasattr(page, '__joyous_edit_request')
+        # only a user with edit and publishing rights should be able
+        # to import iCalendar files
+        perms = page.permissions_for_user(self.request.user)
+        return hasReq and perms.can_publish() and perms.can_edit()
+
+class ImportPanel(ImExPanel):
+    def _isReady(self):
+        page = getattr(self, 'instance', None)
+        if not page:
+            return False
+        hasReq = hasattr(page, '__joyous_edit_request')
+        # only a user with edit and publishing rights should be able
+        # to import iCalendar files
+        perms = page.permissions_for_user(self.request.user)
+        return hasReq and perms.can_publish() and perms.can_edit()
+
+class ExportPanel(ImExPanel):
+    def _isReady(self):
+        page = getattr(self, 'instance', None)
+        return page and page.url is not None and page.live
+
+# ------------------------------------------------------------------------------
 class CalendarPageForm(WagtailAdminPageForm):
     importHandler = None
     exportHandler = None
@@ -33,52 +81,23 @@ class CalendarPageForm(WagtailAdminPageForm):
 
     @classmethod
     def registerImportHandler(cls, handler):
-        class Panel(MultiFieldPanel):
-            def __init__(self, children, heading, classname='', help_text=''):
-                super().__init__(children, '', classname, '')
-                self._heading = heading
-                self._help_text = help_text
-
-            def clone(self):
-                return Panel(children=self.children,
-                             heading=self._heading,
-                             classname=self.classname,
-                             help_text=self._help_text)
-
-            def on_instance_bound(self):
-                super().on_instance_bound()
-                if self._isReady():
-                    self.heading = self._heading
-                    self.help_text = self._help_text
-
-            def render(self):
-                return super().render() if self._isReady() else ""
-
-            def _isReady(self):
-                page = getattr(self, 'instance', None)
-                if not page:
-                    return False
-                hasReq = hasattr(page, '__joyous_edit_request')
-                # only a user with edit and publishing rights should be able
-                # to import iCalendar files
-                perms = page.permissions_for_user(self.request.user)
-                return hasReq and perms.can_publish() and perms.can_edit()
-
         # TODO support multiple formats?
         cls.importHandler = handler
         uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
         cls.declared_fields['upload'] = forms.FileField(required=False,
                                                         widget=uploadWidget)
-        CalendarPage.settings_panels.append(Panel([
-              HelpPanel("Warning! this feature is experimental"),
+        CalendarPage.settings_panels.append(ImportPanel([
+              HelpPanel("<b>Warning!</b> this feature is experimental"),
               FieldPanel('upload'),
-            ], "Import"))
+            ], heading="Import"))
 
     @classmethod
     def registerExportHandler(cls, handler):
         cls.exportHandler = handler
-        CalendarPage.settings_panels.append(MultiFieldPanel([
-            ], "Export"))
+        CalendarPage.settings_panels.append(ExportPanel([
+              # TODO: annex the HelpPanel into ExportPanel?
+              HelpPanel(template="joyous/edit_handlers/export_panel.html")
+            ], heading="Export"))
 
     def save(self, commit=True):
         page = super().save(commit=False)

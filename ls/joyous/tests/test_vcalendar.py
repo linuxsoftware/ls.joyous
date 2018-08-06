@@ -4,17 +4,13 @@
 import sys
 import datetime as dt
 import pytz
-from icalendar import vDatetime
 from django.contrib.auth.models import User
 #from django.core import cache
 from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage)
-from ls.joyous.recurrence import Recurrence
-from ls.joyous.recurrence import WEEKLY, MONTHLY, TU, SA
-from ls.joyous.formats.ical import CalendarTypeError, ICalHandler, VCalendar
+from ls.joyous.models import SimpleEventPage
+from ls.joyous.formats.ical import CalendarTypeError, VCalendar
 from freezegun import freeze_time
 from .testutils import datetimetz
 
@@ -130,25 +126,6 @@ class TestVCalendar(TestCase):
         self.assertEqual(idParts[2], "NONSGML Joyous v0.5")
         self.assertEqual(idParts[3], "EN")
         self.assertEqual(vcal['VERSION'], "2.0")
-
-    # @freeze_time("2018-05-12")
-    # def testFromProps(self):
-    #     eventProps = {'UID':          "4321",
-    #                   'DTSTART':      vDatetime(datetimetz(2018,5,18,9,0)),
-    #                   'DTEND':        vDatetime(datetimetz(2018,5,18,10,0)),
-    #                   'SUMMARY':      "Drs appointment",
-    #                   'DESCRIPTION':  "Sore throat",
-    #                   'LOCATION':     "Medical Centre"}
-    #     vcal = VCalendar.fromProps({'VEVENT': eventProps})
-    #     self.assertEqual(vcal['VERSION'], "2.0")
-    #     vev = vcal.subcomponents[0]
-    #     self.assertIsInstance(vev, SimpleVEvent)
-    #     self.assertEqual(vcal['VERSION'], "2.0")
-    #     self.assertEqual(vev['UID'], "4321")
-    #     self.assertEqual(vev['LOCATION'], "Medical Centre")
-    #     self.assertEqual(vev['DESCRIPTION'], "Sore throat")
-    #     vev.set('DESCRIPTION', "Cold")
-    #     self.assertEqual(vev['DESCRIPTION'], "Cold")
 
     def testLoad(self):
         data  = b"\r\n".join([

@@ -179,7 +179,12 @@ class RecurrenceWidget
         scrollInput:       false
         format:            'Y-m-d'
         dayOfWeekStart:    dowStart
+
+    # TODO: remove dateTimePickerTranslations code after PR4675 is released
+    # (it is benign but useless since Wagtail 2.1)
+    # https://github.com/wagtail/wagtail/pull/4675
     if window.dateTimePickerTranslations
         dtpOpts['i18n'] = lang: window.dateTimePickerTranslations
         dtpOpts['lang'] = 'lang'
+
     $('#' + id).datetimepicker(dtpOpts)
