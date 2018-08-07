@@ -27,7 +27,7 @@ from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
 class ImExPanel(MultiFieldPanel):
     def __init__(self, children, heading, classname='', help_text=''):
         super().__init__(children, '', classname, '')
-        self._heading = heading
+        self._heading   = heading
         self._help_text = help_text
 
     def clone(self):
@@ -39,21 +39,14 @@ class ImExPanel(MultiFieldPanel):
     def on_instance_bound(self):
         super().on_instance_bound()
         if self._isReady():
-            self.heading = self._heading
+            self.heading   = self._heading
             self.help_text = self._help_text
 
     def render(self):
         return super().render() if self._isReady() else ""
 
     def _isReady(self):
-        page = getattr(self, 'instance', None)
-        if not page:
-            return False
-        hasReq = hasattr(page, '__joyous_edit_request')
-        # only a user with edit and publishing rights should be able
-        # to import iCalendar files
-        perms = page.permissions_for_user(self.request.user)
-        return hasReq and perms.can_publish() and perms.can_edit()
+        return False
 
 class ImportPanel(ImExPanel):
     def _isReady(self):
@@ -104,6 +97,7 @@ class CalendarPageForm(WagtailAdminPageForm):
         request = getattr(page, '__joyous_edit_request', None)
 
         if self.importHandler and request:
+            delattr(page, '__joyous_edit_request')
             stream = self.cleaned_data.get('upload')
             if stream is not None:
                 self.importHandler.load(page, request, stream)

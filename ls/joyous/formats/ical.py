@@ -42,11 +42,10 @@ class ICalHandler:
             vcal = VCalendar.fromPage(page, request)
         except CalendarTypeError:
             return None
-        else:
-            response = HttpResponse(vcal.to_ical(), content_type='text/calendar')
-            response['Content-Disposition'] = \
-                'attachment; filename={}.ics'.format(page.slug)
-            return response
+        response = HttpResponse(vcal.to_ical(), content_type='text/calendar')
+        response['Content-Disposition'] = \
+            'attachment; filename={}.ics'.format(page.slug)
+        return response
 
     def load(self, page, request, stream):
         vcal = VCalendar(page)
@@ -355,7 +354,11 @@ class VEventFactory:
         if not dtstart:
             raise CalendarTypeError("Missing DTSTART")
 
-        if 'RRULE' in props:
+        rrule = props.get('RRULE')
+        if rrule is not None:
+            if type(rrule) == list:
+                # TODO support multiple RRULEs?
+                raise CalendarTypeError("Multiple RRULEs")
             return RecurringVEvent.fromProps(props)
 
         dtend    = props.get('DTEND')
@@ -455,7 +458,7 @@ class VEvent(Event, VComponentMixin):
     def exDates(self):
         retval = []
         exDates = self.get('EXDATE', [])
-        if not isinstance(exDates, list):
+        if type(exDates) != list:
             exDates = [exDates]
         retval = [exDate for vddd in exDates for exDate in vddd.dts]
         return retval

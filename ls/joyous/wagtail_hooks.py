@@ -33,7 +33,7 @@ def handlePageExport(page, request, serve_args, serve_kwargs):
 
 @hooks.register('before_edit_page')
 def stashRequest(request, page):
-    if isinstance(page, CalendarPage):
+    if isinstance(page, CalendarPage) and CalendarPageForm.importHandler:
         page.__joyous_edit_request = request
     return None
 

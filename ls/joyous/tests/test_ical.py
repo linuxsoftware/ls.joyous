@@ -40,6 +40,8 @@ class TestImport(TestCase):
         request.user = self.user
         request.site = self.home.get_site()
         request.session = {}
+        request.POST = request.POST.copy()
+        request.POST['action-publish'] = "action-publish"
         return request
 
     def testMeetup(self):

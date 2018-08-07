@@ -34,6 +34,8 @@ class TestVCalendar(TestCase):
         request.user = self.user
         request.site = self.home.get_site()
         request.session = {}
+        request.POST = request.POST.copy()
+        request.POST['action-publish'] = "action-publish"
         return request
 
     @freeze_time("2018-05-12")
