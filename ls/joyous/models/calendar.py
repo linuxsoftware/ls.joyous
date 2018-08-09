@@ -98,9 +98,9 @@ class CalendarPageForm(WagtailAdminPageForm):
 
         if self.importHandler and request:
             delattr(page, '__joyous_edit_request')
-            stream = self.cleaned_data.get('upload')
-            if stream is not None:
-                self.importHandler.load(page, request, stream)
+            upload = self.cleaned_data.get('upload')
+            if upload is not None:
+                self.importHandler.load(page, request, upload)
 
         if commit:
             page.save()

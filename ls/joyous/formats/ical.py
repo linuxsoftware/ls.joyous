@@ -3,16 +3,16 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 from collections import namedtuple
-from contextlib import suppress
 from itertools import chain
 import pytz
 import base64
 import quopri
 from icalendar import Calendar, Event
 from icalendar import vDatetime, vRecur, vDDDTypes, vText
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         EventExceptionBase, ExtraInfoPage, CancellationPage, PostponementPage,
@@ -47,9 +47,9 @@ class ICalHandler:
             'attachment; filename={}.ics'.format(page.slug)
         return response
 
-    def load(self, page, request, stream):
+    def load(self, page, request, upload):
         vcal = VCalendar(page)
-        vcal.load(request, stream.read())
+        vcal.load(request, upload.read(), upload.name)
 
 # ------------------------------------------------------------------------------
 class VCalendar(Calendar, VComponentMixin):
@@ -113,24 +113,36 @@ class VCalendar(Calendar, VComponentMixin):
         super().clear()
         self.subcomponents.clear()
 
-    def load(self, request, data):
+    def load(self, request, data, name=""):
         if self.page is None:
             raise CalendarNotInitializedError("No page set")
-        self.clear()
 
-        for cal in Calendar.from_ical(data, multiple=True):
-            # Typically, this information will consist of an iCalendar stream
-            # with a single iCalendar object.  However, multiple iCalendar
-            # objects can be sequentially grouped together in an iCalendar
-            # stream.
+        # Typically, this information will consist of an iCalendar stream
+        # with a single iCalendar object.  However, multiple iCalendar
+        # objects can be sequentially grouped together in an iCalendar
+        # stream.
+        try:
+            calStream = Calendar.from_ical(data, multiple=True)
+        except ValueError as e:
+            messages.error(request, "Could not parse iCalendar file "+name)
+            #messages.debug(request, str(e))
+            return
+
+        self.clear()
+        numSucess = numFail = 0
+        for cal in calStream:
             for props in cal.walk(name="VTIMEZONE"):
                 # FIXME TODO
                 pass
 
             vmap = {}
             for props in cal.walk(name="VEVENT"):
-                with suppress(CalendarTypeError):
+                try:
                     vevent = self.factory.makeFromProps(props)
+                except CalendarTypeError as e:
+                    numFail += 1
+                    #messages.debug(request, str(e))
+                else:
                     self.add_component(vevent)
                     vmap.setdefault(str(vevent['UID']), VMatch()).add(vevent)
 
@@ -140,15 +152,21 @@ class VCalendar(Calendar, VComponentMixin):
                     try:
                         event = self.page._getEventFromUid(request, vevent['UID'])
                     except ObjectDoesNotExist:
-                        self._createEventPage(request, vevent)
+                        numSucess += self._createEventPage(request, vevent)
                     else:
                         if event:
-                            self._updateEventPage(request, vevent, event)
+                            numSucess += self._updateEventPage(request, vevent, event)
+        if numSucess:
+            messages.success(request, "{} iCal events loaded".format(numSucess))
+        if numFail:
+            messages.error(request, "Could not load {} iCal events".format(numFail))
 
     def _updateEventPage(self, request, vevent, event):
+        numUpdated = 0
         if vevent.modifiedDt > event.latest_revision_created_at:
             vevent.toPage(event)
             _saveRevision(request, event)
+            numUpdated += 1
 
         vchildren  = vevent.vchildren[:]
         vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
@@ -162,6 +180,7 @@ class VCalendar(Calendar, VComponentMixin):
             else:
                 if exception.isAuthorized(request):
                     self._updateExceptionPage(request, vchild, exception)
+        return numUpdated
 
     def _updateExceptionPage(self, request, vchild, exception):
         if vchild.modifiedDt > exception.latest_revision_created_at:
@@ -172,12 +191,14 @@ class VCalendar(Calendar, VComponentMixin):
         event = vevent.makePage(uid=vevent['UID'])
         _addPage(request, self.page, event)
         _saveRevision(request, event)
+        numCreated = 1
 
         vchildren  = vevent.vchildren[:]
         vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
                       for exDate in vevent.exDates]
         for vchild in vchildren:
             self._createExceptionPage(request, event, vchild)
+        return numCreated
 
     def _createExceptionPage(self, request, event, vchild):
         exception = vchild.makePage(overrides=event)
@@ -260,8 +281,10 @@ class vDt(vDDDTypes):
     def timezone(self):
         zone = self.zone()
         if zone:
-            with suppress(pytz.exceptions.UnknownTimeZoneError):
+            try:
                 return pytz.timezone(zone)
+            except pytz.exceptions.UnknownTimeZoneError as e:
+                raise CalendarTypeError(str(e)) from e
         return timezone.get_default_timezone()
 
 class vSmart(vText):
@@ -354,13 +377,6 @@ class VEventFactory:
         if not dtstart:
             raise CalendarTypeError("Missing DTSTART")
 
-        rrule = props.get('RRULE')
-        if rrule is not None:
-            if type(rrule) == list:
-                # TODO support multiple RRULEs?
-                raise CalendarTypeError("Multiple RRULEs")
-            return RecurringVEvent.fromProps(props)
-
         dtend    = props.get('DTEND')
         duration = props.get('DURATION')
         if duration:
@@ -377,15 +393,22 @@ class VEventFactory:
                     dtend = dtstart
         if type(dtstart.dt) != type(dtend.dt):
             raise CalendarTypeError("DTSTART and DTEND types do not match")
-        if dtstart.tzinfo() != dtend.tzinfo():
+        if dtstart.timezone() != dtend.timezone():
             # Yes it is valid, but Joyous does not support it
-            raise CalendarTypeError("Unsupported properties")
+            raise CalendarTypeError("DTSTART.timezone != DTEND.timezone")
+
+        rrule = props.get('RRULE')
+        if rrule is not None:
+            if type(rrule) == list:
+                # TODO support multiple RRULEs?
+                raise CalendarTypeError("Multiple RRULEs")
+            return RecurringVEvent.fromProps(props)
 
         recurrenceId = props.get('RECURRENCE-ID')
         if recurrenceId:
-            if dtstart.tzinfo() != recurrenceId.tzinfo():
+            if dtstart.timezone() != recurrenceId.timezone():
                 # Also valid, but still Joyous does not support it
-                raise CalendarTypeError("Unsupported properties")
+                raise CalendarTypeError("DTSTART.timezone != RECURRENCE-ID.timezone")
 
             if recurrenceId == dtstart:
                 return ExtraInfoVEvent.fromProps(props)
@@ -456,12 +479,13 @@ class VEvent(Event, VComponentMixin):
 
     @property
     def exDates(self):
-        retval = []
         exDates = self.get('EXDATE', [])
         if type(exDates) != list:
             exDates = [exDates]
-        retval = [exDate for vddd in exDates for exDate in vddd.dts]
-        return retval
+        dtType = type(self['DTSTART'].dt)
+        retval = {exDate for vddd in exDates for exDate in vddd.dts
+                  if type(exDate.dt) == dtType}
+        return list(retval)
 
 # ------------------------------------------------------------------------------
 class SimpleVEvent(VEvent):

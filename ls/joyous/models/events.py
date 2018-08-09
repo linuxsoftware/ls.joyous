@@ -1123,6 +1123,11 @@ class EventExceptionBase(models.Model):
         self.slug = "{}-{}".format(self.except_date, self.slugName)
         super().full_clean(*args, **kwargs)
 
+    def isAuthorized(self, request):
+        return all(restriction.accept_request(request)
+                   for restriction in self.get_view_restrictions())
+
+
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):
     def this(self):
@@ -1255,10 +1260,6 @@ class CancellationPage(Page, EventExceptionBase):
     @property
     def status_text(self):
         return "This event has been cancelled."
-
-    def isAuthorized(self, request):
-        return all(restriction.accept_request(request)
-                   for restriction in self.get_view_restrictions())
 
 # ------------------------------------------------------------------------------
 class PostponementQuerySet(EventQuerySet):
