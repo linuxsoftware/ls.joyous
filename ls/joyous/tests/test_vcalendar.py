@@ -5,6 +5,7 @@ import sys
 import datetime as dt
 import pytz
 from django.contrib.auth.models import User
+from django.contrib.messages.storage.fallback import FallbackStorage
 #from django.core import cache
 from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
@@ -34,6 +35,7 @@ class TestVCalendar(TestCase):
         request.user = self.user
         request.site = self.home.get_site()
         request.session = {}
+        request._messages = FallbackStorage(request)
         request.POST = request.POST.copy()
         request.POST['action-publish'] = "action-publish"
         return request

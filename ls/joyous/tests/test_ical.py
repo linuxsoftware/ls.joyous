@@ -8,6 +8,7 @@ import pytz
 from io import BytesIO
 from icalendar import vDatetime
 from django.contrib.auth.models import User
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from wagtail.core.models import Site, Page
@@ -40,6 +41,7 @@ class TestImport(TestCase):
         request.user = self.user
         request.site = self.home.get_site()
         request.session = {}
+        request._messages = FallbackStorage(request)
         request.POST = request.POST.copy()
         request.POST['action-publish'] = "action-publish"
         return request

@@ -49,7 +49,7 @@ class ICalHandler:
 
     def load(self, page, request, upload):
         vcal = VCalendar(page)
-        vcal.load(request, upload.read(), upload.name)
+        vcal.load(request, upload.read(), getattr(upload, 'name', ""))
 
 # ------------------------------------------------------------------------------
 class VCalendar(Calendar, VComponentMixin):
