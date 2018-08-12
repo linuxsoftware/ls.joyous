@@ -1,5 +1,4 @@
 from .events import EventCategory
-from .events import ThisEvent
 from .events import EventBase
 from .events import SimpleEventPage
 from .events import MultidayEventPage

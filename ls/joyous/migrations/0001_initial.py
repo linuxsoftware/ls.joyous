@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import datetime
 from django.db import migrations, models
 import django.db.models.deletion
-import ls.joyous.recurrence
+import ls.joyous.fields
 import wagtail.contrib.routable_page.models
 import wagtail.core.fields
 
@@ -109,7 +109,7 @@ class Migration(migrations.Migration):
                 ('location', models.CharField(blank=True, max_length=255)),
                 ('details', wagtail.core.fields.RichTextField(blank=True)),
                 ('website', models.URLField(blank=True)),
-                ('repeat', ls.joyous.recurrence.RecurrenceField()),
+                ('repeat', ls.joyous.fields.RecurrenceField()),
                 ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='joyous.EventCategory', verbose_name='Category')),
                 ('group_page', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='recurringeventpage_events', related_query_name='recurringeventpage_event', to='joyous.GroupPage')),
                 ('image', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='wagtailimages.Image')),

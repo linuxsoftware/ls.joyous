@@ -32,9 +32,8 @@ from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
 from ..utils.telltime import timeFrom, timeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
-from ..recurrence import RecurrenceField
-from ..edit_handlers2 import ExceptionDatePanel
-from ..widgets import TimeInput
+from ..fields import RecurrenceField
+from ..edit_handlers import ExceptionDatePanel, TimePanel
 from .groups import get_group_model_string, get_group_model
 
 try:
@@ -520,8 +519,8 @@ class SimpleEventPage(Page, EventBase):
         FieldPanel('category'),
         ImageChooserPanel('image'),
         FieldPanel('date'),
-        FieldPanel('time_from', widget=TimeInput),
-        FieldPanel('time_to', widget=TimeInput),
+        TimePanel('time_from'),
+        TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
 
@@ -617,9 +616,9 @@ class MultidayEventPage(Page, EventBase):
         FieldPanel('category'),
         ImageChooserPanel('image'),
         FieldPanel('date_from'),
-        FieldPanel('time_from', widget=TimeInput),
+        TimePanel('time_from'),
         FieldPanel('date_to'),
-        FieldPanel('time_to', widget=TimeInput),
+        TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
 
@@ -733,8 +732,8 @@ class RecurringEventPage(Page, EventBase):
         FieldPanel('category'),
         ImageChooserPanel('image'),
         FieldPanel('repeat'),
-        FieldPanel('time_from', widget=TimeInput),
-        FieldPanel('time_to', widget=TimeInput),
+        TimePanel('time_from'),
+        TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
 
@@ -1342,8 +1341,8 @@ class PostponementPage(EventBase, CancellationPage):
             FieldPanel('postponement_title', classname="full title"),
             ImageChooserPanel('image'),
             FieldPanel('date'),
-            FieldPanel('time_from', widget=TimeInput),
-            FieldPanel('time_to', widget=TimeInput),
+            TimePanel('time_from'),
+            TimePanel('time_to'),
             FieldPanel('details', classname="full"),
             MapFieldPanel('location'),
             FieldPanel('website')],

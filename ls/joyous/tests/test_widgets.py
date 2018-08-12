@@ -7,7 +7,8 @@ from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
 from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
 
 from django.test import TestCase
-from ls.joyous.recurrence import Recurrence, RecurrenceWidget
+from ls.joyous.recurrence import Recurrence
+from ls.joyous.widgets import RecurrenceWidget
 
 class TestRecurrenceWidget(TestCase):
     def testDecompressNull(self):

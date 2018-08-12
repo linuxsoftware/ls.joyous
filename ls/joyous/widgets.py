@@ -7,8 +7,6 @@ import datetime as dt
 import calendar
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
-from django.conf import settings
-from django.utils.formats import get_format, get_format_modules
 from django.utils import timezone
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple, FileInput
@@ -41,33 +39,6 @@ class Time12hrInput(AdminTimeInput):
     @property
     def media(self):
         return Media(js=[static("joyous/js/time12hr_admin.js")])
-
-# ------------------------------------------------------------------------------
-def _add12hrFormats():
-    # Time12hrInput will not work unless django.forms.fields.TimeField
-    # can process 12hr times, so sneak them into the default and all locales
-    # TIME_INPUT_FORMATS.
-
-    # Note: strptime does not accept %P %p is for both cases here
-    _12hrFormats = ['%I:%M%p', # 2:30pm
-                    '%I%p']    # 7am
-    if (_12hrFormats[0] not in settings.TIME_INPUT_FORMATS or
-        _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
-        settings.TIME_INPUT_FORMATS += _12hrFormats
-
-    for lang, _ in getattr(settings, 'WAGTAILADMIN_PERMITTED_LANGUAGES', []):
-        for module in get_format_modules(lang):
-            inputFormats = getattr(module, 'TIME_INPUT_FORMATS', [])
-            if (_12hrFormats[0] not in inputFormats or
-                _12hrFormats[1] not in inputFormats):
-                inputFormats += _12hrFormats
-                setattr(module, 'TIME_INPUT_FORMATS', inputFormats)
-
-if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
-    TimeInput = Time12hrInput
-    _add12hrFormats()
-else:
-    TimeInput = AdminTimeInput
 
 # ------------------------------------------------------------------------------
 (_EveryDay, _SameDay, _DayOfMonth) = (100, 101, 200)
@@ -300,20 +271,5 @@ class ExceptionDateInput(AdminDateInput):
 # that would require ExceptionDateField and ExceptionDateFormField :(
 # or else use custom form for page validation?
 # https://github.com/torchbox/wagtail/pull/1867
-
-# ------------------------------------------------------------------------------
-class IcalFileInput(WidgetWithScript, FileInput):
-    def __init__(self, attrs=None):
-        super().__init__(attrs=attrs)
-
-    def render_js_init(self, id_, name, value):
-        dowStart = get_format("FIRST_DAY_OF_WEEK")
-        return "initExceptionDateChooser({0}, {1}, {2});"\
-               .format(json.dumps(id_), json.dumps(dowStart))
-
-    @property
-    def media(self):
-        return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
-                     js=[static("joyous/js/recurrence_admin.js")])
 
 # ------------------------------------------------------------------------------

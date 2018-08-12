@@ -14,55 +14,15 @@ from django.utils import timezone
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import HelpPanel, FieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
+from ..edit_handlers import ConcealedPanel
 from ..utils.weeks import week_info, gregorian_to_week_date
 from ..utils.weeks import weekday_abbr, weekday_name
 from ..utils.mixins import ProxyPageMixin
 from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
                getAllPastEvents, getEventFromUid, getAllEvents)
-
-# ------------------------------------------------------------------------------
-class ImExPanel(MultiFieldPanel):
-    def __init__(self, children, heading, classname='', help_text=''):
-        super().__init__(children, '', classname, '')
-        self._heading   = heading
-        self._help_text = help_text
-
-    def clone(self):
-        return self.__class__(children=self.children,
-                              heading=self._heading,
-                              classname=self.classname,
-                              help_text=self._help_text)
-
-    def on_instance_bound(self):
-        super().on_instance_bound()
-        if self._isReady():
-            self.heading   = self._heading
-            self.help_text = self._help_text
-
-    def render(self):
-        return super().render() if self._isReady() else ""
-
-    def _isReady(self):
-        return False
-
-class ImportPanel(ImExPanel):
-    def _isReady(self):
-        page = getattr(self, 'instance', None)
-        if not page:
-            return False
-        hasReq = hasattr(page, '__joyous_edit_request')
-        # only a user with edit and publishing rights should be able
-        # to import iCalendar files
-        perms = page.permissions_for_user(self.request.user)
-        return hasReq and perms.can_publish() and perms.can_edit()
-
-class ExportPanel(ImExPanel):
-    def _isReady(self):
-        page = getattr(self, 'instance', None)
-        return page and page.url is not None and page.live
 
 # ------------------------------------------------------------------------------
 class CalendarPageForm(WagtailAdminPageForm):
@@ -74,20 +34,36 @@ class CalendarPageForm(WagtailAdminPageForm):
 
     @classmethod
     def registerImportHandler(cls, handler):
+        class Panel(ConcealedPanel):
+            def _show(self):
+                page = getattr(self, 'instance', None)
+                if not page:
+                    return False
+                hasReq = hasattr(page, '__joyous_edit_request')
+                # only a user with edit and publishing rights should be able
+                # to import iCalendar files
+                perms = page.permissions_for_user(self.request.user)
+                return hasReq and perms.can_publish() and perms.can_edit()
+
         # TODO support multiple formats?
         cls.importHandler = handler
         uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
         cls.declared_fields['upload'] = forms.FileField(required=False,
                                                         widget=uploadWidget)
-        CalendarPage.settings_panels.append(ImportPanel([
+        CalendarPage.settings_panels.append(Panel([
               HelpPanel("<b>Warning!</b> this feature is experimental"),
               FieldPanel('upload'),
             ], heading="Import"))
 
     @classmethod
     def registerExportHandler(cls, handler):
+        class Panel(ConcealedPanel):
+            def _show(self):
+                page = getattr(self, 'instance', None)
+                return page and page.url is not None and page.live
+
         cls.exportHandler = handler
-        CalendarPage.settings_panels.append(ExportPanel([
+        CalendarPage.settings_panels.append(Panel([
               # TODO: annex the HelpPanel into ExportPanel?
               HelpPanel(template="joyous/edit_handlers/export_panel.html")
             ], heading="Export"))
