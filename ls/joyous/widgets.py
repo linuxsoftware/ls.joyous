@@ -14,8 +14,7 @@ from django.template.loader import render_to_string
 from wagtail.utils.widgets import WidgetWithScript
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from dateutil.parser import parse as dt_parse
-from .recurrence import WEEKLY, MONTHLY, YEARLY
-from .recurrence import Weekday, Recurrence
+from .utils.recurrence import Weekday, Recurrence, WEEKLY, MONTHLY, YEARLY
 
 # ------------------------------------------------------------------------------
 class Time12hrInput(AdminTimeInput):

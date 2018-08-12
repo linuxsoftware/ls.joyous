@@ -6,7 +6,7 @@ import sys
 from django.db.models import Field
 from django.core.exceptions import ValidationError
 from django.forms.fields import Field as FormField
-from .recurrence import Recurrence
+from .utils.recurrence import Recurrence
 from .widgets import RecurrenceWidget
 
 # ------------------------------------------------------------------------------

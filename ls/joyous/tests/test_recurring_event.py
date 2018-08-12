@@ -9,8 +9,8 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
-from ls.joyous.recurrence import Recurrence
-from ls.joyous.recurrence import DAILY, WEEKLY, MONTHLY, TU, TH, WEEKEND, EVERYDAY
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, TH, WEEKEND, EVERYDAY
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from .testutils import datetimetz

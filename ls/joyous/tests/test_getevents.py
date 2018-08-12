@@ -9,8 +9,8 @@ from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
-from ls.joyous.recurrence import Recurrence
-from ls.joyous.recurrence import DAILY, WEEKLY, MONTHLY, MO, TU, WE, TH, FR, WEEKEND, EVERYDAY
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import WEEKLY, MO, TU, WE, FR
 from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage)

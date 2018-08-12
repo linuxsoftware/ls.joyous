@@ -20,8 +20,8 @@ from wagtail.admin.edit_handlers import FieldPanel
 from dateutil.rrule import rrule, rrulestr, rrulebase
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
-from .utils.telltime import dateFormatDMY
-from .utils.manythings import toOrdinal, hrJoin
+from .telltime import dateFormatDMY
+from .manythings import toOrdinal, hrJoin
 
 # ------------------------------------------------------------------------------
 class Weekday(rrweekday):

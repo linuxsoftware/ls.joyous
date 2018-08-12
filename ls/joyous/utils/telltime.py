@@ -38,19 +38,6 @@ def getLocalDatetime(date, time, tz=None, timeDefault=dt.time.max):
             localDt = getAwareDatetime(localDt.date(), None, localTZ, timeDefault)
     return localDt
 
-# def fromLocalDateAndTime(date, time, toTZ=None, timeDefault=dt.time.max):
-#     localTZ = timezone.get_current_timezone()
-#     if toTZ is None or toTZ == localTZ:
-#         eventDt = getAwareDatetime(date, time, localTZ, timeDefault)
-#     else:
-#         # create in local time zone
-#         localDt = getAwareDatetime(date, time, localTZ, timeDefault)
-#         # convert to event's time zone
-#         eventDt = localDt.astimezone(toTZ)
-#     if time is None:
-#         eventDt = getAwareDatetime(eventDt.date(), None, toTZ, timeDefault)
-#     return eventDt
-
 def getAwareDatetime(date, time, tz, timeDefault=dt.time.max):
     if time is None:
         time = timeDefault

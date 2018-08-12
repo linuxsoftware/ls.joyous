@@ -10,7 +10,6 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar
-from django.conf import settings
 from django.utils.formats import get_format
 
 # ------------------------------------------------------------------------------

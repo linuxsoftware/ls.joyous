@@ -4,9 +4,9 @@
 import sys
 import datetime as dt
 from django.test import TestCase
-from ls.joyous.recurrence import Recurrence, Weekday
-from ls.joyous.recurrence import MO, TU, WE, TH, FR, SA, SU
-from ls.joyous.recurrence import YEARLY, MONTHLY, WEEKLY, DAILY
+from ls.joyous.utils.recurrence import Recurrence, Weekday
+from ls.joyous.utils.recurrence import MO, TU, WE, TH, FR, SA, SU
+from ls.joyous.utils.recurrence import YEARLY, MONTHLY, WEEKLY, DAILY
 
 # ------------------------------------------------------------------------------
 class TestWeekday(TestCase):

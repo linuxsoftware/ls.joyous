@@ -12,7 +12,7 @@ from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import PostponementPage
 from ls.joyous.models.events import CancellationPage
-from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
+from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 
 
 class TestPostponement(TestCase):

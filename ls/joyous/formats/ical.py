@@ -17,7 +17,7 @@ from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         EventExceptionBase, ExtraInfoPage, CancellationPage, PostponementPage,
         EventBase, CalendarPage)
-from ..recurrence import Recurrence
+from ..utils.recurrence import Recurrence
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 

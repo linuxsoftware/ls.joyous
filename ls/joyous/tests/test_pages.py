@@ -14,7 +14,7 @@ from ls.joyous.models.events import ExtraInfoPage, CancellationPage, Postponemen
 from ls.joyous.models.calendar import CalendarPage, SpecificCalendarPage, GeneralCalendarPage
 from ls.joyous.models.groups import get_group_model
 GroupPage = get_group_model()
-from ls.joyous.recurrence import Recurrence, WEEKLY, MO, WE, FR
+from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import skipUnlessSetup
 
 class PageClassTests(WagtailPageTests):

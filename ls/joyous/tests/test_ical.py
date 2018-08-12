@@ -16,8 +16,8 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, CancellationPage)
 from ls.joyous.models import getAllEvents
-from ls.joyous.recurrence import Recurrence
-from ls.joyous.recurrence import WEEKLY, MONTHLY, TU, SA
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.ical import ICalHandler
 from freezegun import freeze_time
 from .testutils import datetimetz

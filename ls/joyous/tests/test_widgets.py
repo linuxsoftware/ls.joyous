@@ -3,11 +3,10 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from dateutil.rrule import YEARLY, MONTHLY, WEEKLY, DAILY
-from dateutil.rrule import MO, TU, WE, TH, FR, SA, SU
-
 from django.test import TestCase
-from ls.joyous.recurrence import Recurrence
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import YEARLY, WEEKLY
+from ls.joyous.utils.recurrence import MO, TU, WE, TH, FR, SA, SU
 from ls.joyous.widgets import RecurrenceWidget
 
 class TestRecurrenceWidget(TestCase):
