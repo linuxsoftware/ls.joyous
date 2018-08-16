@@ -1,7 +1,9 @@
 # ------------------------------------------------------------------------------
-from .null   import NullHandler
-from .ical   import ICalHandler
-from .google import GoogleCalendarHandler
+# Null Page Export Handler
+# ------------------------------------------------------------------------------
+class NullHandler:
+    def serve(self, page, request, *args, **kwargs):
+        return None
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

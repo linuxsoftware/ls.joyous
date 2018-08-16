@@ -531,7 +531,6 @@ class SimpleEventPage(Page, EventBase):
             return "finished"
         elif getAwareDatetime(self.date, self.time_from, self.tz) < myNow:
             return "started"
-        return None
 
     @property
     def when(self):
@@ -629,7 +628,6 @@ class MultidayEventPage(Page, EventBase):
             return "finished"
         elif getAwareDatetime(self.date_from, self.time_from, self.tz) < myNow:
             return "started"
-        return None
 
     @property
     def when(self):
@@ -746,8 +744,6 @@ class RecurringEventPage(Page, EventBase):
         nextDt = self.__localAfter(timezone.localtime(), dt.time.min)
         if nextDt is not None:
             return nextDt.date()
-        else:
-            return None
 
     @property
     def _upcoming_datetime_from(self):
@@ -765,8 +761,6 @@ class RecurringEventPage(Page, EventBase):
         prevDt = self.__localBefore(timezone.localtime(), dt.time.min)
         if prevDt is not None:
             return prevDt.date()
-        else:
-            return None
 
     @property
     def _past_datetime_from(self):
@@ -803,7 +797,6 @@ class RecurringEventPage(Page, EventBase):
             self.__afterOrPostponedTo(myNow)[0] is None):
             # only just wound up, the last occurence was earlier today
             return "finished"
-        return None
 
     @property
     def status_text(self):
@@ -924,8 +917,6 @@ class RecurringEventPage(Page, EventBase):
         if myFirstDt is not None:
             return getAwareDatetime(myFirstDt.date(), self.time_to,
                                     self.tz, dt.time.max)
-        else:
-            return None
 
     def __localAfterOrPostponedTo(self, fromDt, timeDefault=dt.time.min):
         myFromDt, event = self.__afterOrPostponedTo(fromDt.astimezone(self.tz))
@@ -980,8 +971,6 @@ class RecurringEventPage(Page, EventBase):
         if myFromDt is not None:
             return getLocalDatetime(myFromDt.date(), self.time_from,
                                     self.tz, timeDefault)
-        else:
-            return None
 
     def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
@@ -1001,15 +990,12 @@ class RecurringEventPage(Page, EventBase):
             if occurence not in exceptions:
                 return getAwareDatetime(occurence, self.time_from,
                                         self.tz, dt.time.min)
-        return None
 
     def __localBefore(self, fromDt, timeDefault=dt.time.min, **kwargs):
         myFromDt = self.__before(fromDt.astimezone(self.tz), **kwargs)
         if myFromDt is not None:
             return getLocalDatetime(myFromDt.date(), self.time_from,
                                     self.tz, timeDefault)
-        else:
-            return None
 
     def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
@@ -1034,8 +1020,6 @@ class RecurringEventPage(Page, EventBase):
 
         if last is not None:
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
-        else:
-            return None
 
 # TODO
 # class MultidayReccuringEventPage(RecurringEventPage):
@@ -1189,7 +1173,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
             return "finished"
         elif getAwareDatetime(self.except_date, self.time_from, self.tz) < myNow:
             return "started"
-        return None
 
     @property
     def status_text(self):
@@ -1367,7 +1350,6 @@ class PostponementPage(EventBase, CancellationPage):
             return "finished"
         elif getAwareDatetime(self.date, self.time_from, self.tz) < myNow:
             return "started"
-        return None
 
     @property
     def when(self):

@@ -98,8 +98,6 @@ class Recurrence(rrulebase):
     def until(self):
         if self.rule._until is not None:
             return self.rule._until.date()
-        else:
-            return None
 
     @property
     def wkst(self):

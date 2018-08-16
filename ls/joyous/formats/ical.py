@@ -74,15 +74,15 @@ class VCalendar(Calendar, VComponentMixin):
     @classmethod
     def _fromCalendarPage(cls, page, request):
         vcal = cls(page)
-        vtzs = {}
+        tzs = {}
         for event in page._getAllEvents(request):
             vevent = cls.factory.makeFromPage(event)
             vcal.add_component(vevent)
             for vchild in vevent.vchildren:
                 vcal.add_component(vchild)
             if event.tz and event.tz is not pytz.utc:
-                vtzs.setdefault(event.tz, TimeZoneSpan()).add(vevent)
-        for tz, vspan in vtzs.items():
+                tzs.setdefault(event.tz, TimeZoneSpan()).add(vevent)
+        for tz, vspan in tzs.items():
             vtz = vspan.createVTimeZone(tz)
             vcal.add_component(vtz)
         return vcal
@@ -245,14 +245,10 @@ class vDt(vDDDTypes):
                 return self.dt - dt.timedelta(days=1)
             else:
                 return self.dt
-        else:
-            return None
 
     def time(self):
         if isinstance(self.dt, dt.datetime):
             return self.dt.time()
-        else:
-            return None
 
     def datetime(self, timeDefault=dt.time.min):
         tz = timezone.get_default_timezone()
@@ -263,8 +259,6 @@ class vDt(vDDDTypes):
                 return timezone.make_aware(self.dt, tz)
         elif isinstance(self.dt, dt.date):
             return getAwareDatetime(self.dt, None, tz, timeDefault)
-        else:
-            return None
 
     def tzinfo(self):
         return getattr(self.dt, 'tzinfo', None)
@@ -275,8 +269,6 @@ class vDt(vDDDTypes):
             return tzinfo.zone
         elif hasattr(tzinfo, 'tzname'):
             return tzinfo.tzname(None)
-        else:
-            return None
 
     def timezone(self):
         zone = self.zone()

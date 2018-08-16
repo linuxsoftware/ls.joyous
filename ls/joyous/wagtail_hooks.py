@@ -9,7 +9,7 @@ from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import ModelAdmin
 from wagtail.contrib.modeladmin.options import modeladmin_register
 from .models import EventCategory, CalendarPage, CalendarPageForm
-from .formats.ical import ICalHandler
+from .formats import NullHandler, ICalHandler, GoogleCalendarHandler
 
 # ------------------------------------------------------------------------------
 @hooks.register('insert_editor_js')
@@ -23,13 +23,14 @@ def editor_js():
 @hooks.register('before_serve_page')
 def handlePageExport(page, request, serve_args, serve_kwargs):
     format = request.GET.get('format')
-
     # TODO impement a registry of different format handlers
     if format == "ical":
         handler = ICalHandler()
-        return handler.serve(page, request, serve_args, serve_kwargs)
-
-    return None
+    elif format == "google":
+        handler = GoogleCalendarHandler()
+    else:
+        handler = NullHandler()
+    return handler.serve(page, request, serve_args, serve_kwargs)
 
 @hooks.register('before_edit_page')
 def stashRequest(request, page):

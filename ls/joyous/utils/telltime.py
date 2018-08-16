@@ -15,8 +15,6 @@ def getLocalDate(*args, **kwargs):
 def getLocalTime(date, time, *args, **kwargs):
     if time is not None:
         return getLocalDateAndTime(date, time, *args, **kwargs)[1]
-    else:
-        return None
 
 def getLocalDateAndTime(date, time, *args, **kwargs):
     localDt = getLocalDatetime(date, time, *args, **kwargs)

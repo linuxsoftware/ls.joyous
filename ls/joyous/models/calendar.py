@@ -132,9 +132,6 @@ class CalendarPage(RoutablePageMixin, Page):
             if 1900 <= urlYear <= 2099:
                 return myurl + self.reverse_subpage('serveMonth',
                                                     args=[urlYear, urlMonth])
-            else:
-                return None
-
         today = timezone.localdate()
         if year is None: year = today.year
         if month is None: month = today.month
@@ -188,9 +185,6 @@ class CalendarPage(RoutablePageMixin, Page):
             if 1900 <= urlYear <= 2099:
                 return myurl + self.reverse_subpage('serveWeek',
                                                     args=[urlYear, urlWeek])
-            else:
-                return None
-
         today = timezone.localdate()
         thisYear, thisWeekNum, _ = gregorian_to_week_date(today)
         if year is None: year = thisYear
@@ -396,8 +390,6 @@ class CalendarPage(RoutablePageMixin, Page):
         if event.get_ancestors().filter(id=home.id).exists():
             # only return event if it is in the same site
             return event
-        else:
-            return None
 
     def _getAllEvents(self, request):
         home = request.site.root_page
@@ -435,8 +427,6 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
         if event.get_ancestors().filter(id=self.id).exists():
             # only return event if it is a descendant
             return event
-        else:
-            return None
 
     def _getAllEvents(self, request):
         return getAllEvents(request, home=self)
