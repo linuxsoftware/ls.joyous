@@ -31,9 +31,6 @@ class GoogleCalendarHandler:
 
 # ------------------------------------------------------------------------------
 class GEvent(OrderedDict):
-    def __init__(self):
-        super().__init__()
-
     def set(self, name, value):
         if value:
             self[name] = value

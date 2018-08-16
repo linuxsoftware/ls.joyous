@@ -604,10 +604,10 @@ class RecurringVEvent(VEvent):
         until = vDt(rrule.get('UNTIL', [None])[0])
         if until:
             rrule['UNTIL'] = [until.date()]
-        rrulestr = rrule.to_ical().decode('utf-8', 'ignore')
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))
-        page.repeat     = Recurrence(rrulestr, dtstart=dtstart.date())
+        page.repeat     = Recurrence(rrule.to_ical().decode(),
+                                     dtstart=dtstart.date())
         page.time_from  = dtstart.time()
         page.time_to    = dtend.time()
         page.tz         = dtstart.timezone()
