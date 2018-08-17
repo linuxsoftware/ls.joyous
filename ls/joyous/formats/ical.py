@@ -103,8 +103,10 @@ class VCalendar(Calendar, VComponentMixin):
     def _findCalendarFor(cls, event):
         calendar = CalendarPage.objects.ancestor_of(event).first()
         if not calendar:
-            home = event.get_site().root_page
-            calendar = CalendarPage.objects.descendant_of(home).first()
+            site = event.get_site()
+            if site:
+                home = site.root_page
+                calendar = CalendarPage.objects.descendant_of(home).first()
         if not calendar:
             calendar = CalendarPage.objects.first()
         return calendar

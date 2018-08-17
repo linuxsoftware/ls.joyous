@@ -355,8 +355,10 @@ class CalendarPage(RoutablePageMixin, Page):
     @classmethod
     def _allowAnotherAt(cls, parent):
         # You can only create one of these pages per site
-        home = parent.get_site().root_page
-        return not cls.peers().descendant_of(home).exists()
+        site = parent.get_site()
+        if site is None:
+            return False
+        return not cls.peers().descendant_of(site.root_page).exists()
 
     @classmethod
     def peers(cls):
