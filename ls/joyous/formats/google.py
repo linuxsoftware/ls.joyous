@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# ical import/export format
+# Google Calendar Page Export Handler
 # ------------------------------------------------------------------------------
 import datetime as dt
 from collections import OrderedDict
@@ -89,6 +89,8 @@ class RecurringGEvent(GEvent):
         if page.tz != pytz.utc:
             gevent.set('ctz', page.tz.zone)
         gevent.set('recur', "RRULE:"+ page.repeat._getRrule())
+        # TODO: try and confirm...
+        # Google doesn't accept EXDATE or RDATE here :-(
         return gevent
 
 # ------------------------------------------------------------------------------
