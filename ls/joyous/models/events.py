@@ -138,7 +138,7 @@ def getEventFromUid(request, uid):
     else:
         raise MultipleObjectsReturned("Multiple events with uid={}".format(uid))
 
-def getAllEvents(request, home=None):
+def getAllEvents(request, *, home=None):
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
             RecurringEventPage.events(request).all()]

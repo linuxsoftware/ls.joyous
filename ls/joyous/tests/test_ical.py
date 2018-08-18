@@ -261,7 +261,7 @@ END:VCALENDAR
 """)
         request = self._getRequest()
         self.handler.load(self.calendar, request, stream)
-        events = getAllEvents(request, self.calendar)
+        events = getAllEvents(request, home=self.calendar)
         self.assertEqual(len(events), 5)
         tueMorn, daysOff, lilWeds, cnfCall, bigThur = events
 

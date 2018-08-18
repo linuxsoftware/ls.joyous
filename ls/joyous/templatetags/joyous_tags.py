@@ -30,7 +30,10 @@ def events_this_week(context):
     endOrd = beginOrd + 6
     dateFrom = dt.date.fromordinal(beginOrd)
     dateTo   = dt.date.fromordinal(endOrd)
-    events = getAllEventsByDay(request, dateFrom, dateTo)
+    if cal:
+        events = cal._getEventsByDay(request, dateFrom, dateTo)
+    else:
+        events = getAllEventsByDay(request, dateFrom, dateTo)
     return {'request': request,
             'today':   today,
             'calendarUrl':  calUrl,
@@ -45,6 +48,10 @@ def minicalendar(context):
     home = request.site.root_page
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
+    if cal:
+        events = cal._getEventsByWeek(request, today.year, today.month)
+    else:
+        events = getAllEventsByWeek(request, today.year, today.month)
     return {'request':     request,
             'today':       today,
             'year':        today.year,
@@ -52,7 +59,7 @@ def minicalendar(context):
             'calendarUrl': calUrl,
             'monthName':   calendar.month_name[today.month],
             'weekdayInfo': zip(weekday_abbr, weekday_name),
-            'events':      getAllEventsByWeek(request, today.year, today.month)}
+            'events':      events}
 
 @register.inclusion_tag("joyous/tags/upcoming_events_detailed.html",
                         takes_context=True)
@@ -67,7 +74,7 @@ def subsite_upcoming_events(context):
     request = context['request']
     home = request.site.root_page
     return {'request': request,
-            'events':  getAllUpcomingEvents(request, home)}
+            'events':  getAllUpcomingEvents(request, home=home)}
 
 @register.inclusion_tag("joyous/tags/upcoming_events_list.html",
                         takes_context=True)
