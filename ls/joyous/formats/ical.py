@@ -133,10 +133,6 @@ class VCalendar(Calendar, VComponentMixin):
         self.clear()
         numSucess = numFail = 0
         for cal in calStream:
-            for props in cal.walk(name="VTIMEZONE"):
-                # FIXME TODO
-                pass
-
             vmap = {}
             for props in cal.walk(name="VEVENT"):
                 try:
@@ -283,7 +279,6 @@ class vDt(vDDDTypes):
 
 class vSmart(vText):
     """Text property that automatically decodes encoded strings"""
-    # TODO what about encoding them?
     def __str__(self):
         retval = super().__str__()
         param = self.params.get('ENCODING', "").upper()
