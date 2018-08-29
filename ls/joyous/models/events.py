@@ -161,7 +161,7 @@ def _getEventsByDay(date_from, eventsByDaySrcs):
             days_events += src.days_events
             continuing_events += src.continuing_events
         def sortByTime(thisEvent):
-            fromTime = thisEvent.page._getFromTime()
+            fromTime = thisEvent.page._getFromTime(atDate=day)
             if fromTime is None:
                 fromTime = dt.time.max
             return fromTime
@@ -452,7 +452,7 @@ class EventBase(models.Model):
                                           timeFormat(timeTo, prefix="at "))
         return retval.strip()
 
-    def _getFromTime(self):
+    def _getFromTime(self, atDate=None):
         raise NotImplementedError()
 
     def _getFromDt(self):
@@ -540,7 +540,7 @@ class SimpleEventPage(Page, EventBase):
     def at(self):
         return timeFormat(self._getFromTime())
 
-    def _getFromTime(self):
+    def _getFromTime(self, atDate=None):
         return getLocalTime(self.date, self.time_from, self.tz)
 
     def _getFromDt(self):
@@ -637,7 +637,7 @@ class MultidayEventPage(Page, EventBase):
     def at(self):
         return timeFormat(self._getFromTime())
 
-    def _getFromTime(self):
+    def _getFromTime(self, atDate=None):
         return getLocalTime(self.date_from, self.time_from, self.tz)
 
     def _getFromDt(self):
@@ -811,13 +811,12 @@ class RecurringEventPage(Page, EventBase):
         offset   = 0
         timeFrom = None
         timeTo   = None
-        fromDt   = self.__after(timezone.localtime(timezone=self.tz))
+        myNow    = timezone.localtime(timezone=self.tz)
+        fromDt   = self.__after(myNow) or self.__before(myNow)
         if fromDt is not None:
             offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
-            if self.time_from is not None:
-                timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
-            if self.time_to is not None:
-                timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
+            timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
+            timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
         retval = "{} {}".format(self.repeat._getWhen(offset),
                                 timeFormat(timeFrom, timeTo, "at "))
         return retval.strip()
@@ -826,12 +825,12 @@ class RecurringEventPage(Page, EventBase):
     def at(self):
         return timeFormat(self._getFromTime())
 
-    def _getFromTime(self):
-        timeFrom = None
-        fromDt   = self.__after(timezone.localtime(timezone=self.tz))
-        if fromDt is not None:
-            timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
-        return timeFrom
+    def _getFromTime(self, atDate=None):
+        # What was the time of this event?  Due to timezones that depends what
+        # day we are talking about.  if no day is given, assume today.
+        if atDate is None:
+            atDate = timezone.localdate(timezone=self.tz)
+        return getLocalTime(atDate, self.time_from, self.tz)
 
     def _futureExceptions(self, request):
         """
@@ -1097,7 +1096,7 @@ class EventExceptionBase(models.Model):
     def at(self):
         return timeFormat(self._getFromTime())
 
-    def _getFromTime(self):
+    def _getFromTime(self, atDate=None):
         return getLocalTime(self.except_date, self.time_from, self.tz)
 
     def full_clean(self, *args, **kwargs):
@@ -1373,7 +1372,7 @@ class PostponementPage(EventBase, CancellationPage):
     def at(self):
         return timeFormat(self._getFromTime())
 
-    def _getFromTime(self):
+    def _getFromTime(self, atDate=None):
         return getLocalTime(self.date, self.time_from, self.tz)
 
     def _getFromDt(self):

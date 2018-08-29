@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 from django.conf import settings
 from django.utils import timezone
-from django.utils.formats import get_format, get_format_modules
+from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from .widgets import ExceptionDateInput, Time12hrInput

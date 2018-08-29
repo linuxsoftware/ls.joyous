@@ -131,7 +131,7 @@ class VCalendar(Calendar, VComponentMixin):
             return
 
         self.clear()
-        numSucess = numFail = 0
+        numSuccess = numFail = 0
         for cal in calStream:
             vmap = {}
             for props in cal.walk(name="VEVENT"):
@@ -150,12 +150,12 @@ class VCalendar(Calendar, VComponentMixin):
                     try:
                         event = self.page._getEventFromUid(request, vevent['UID'])
                     except ObjectDoesNotExist:
-                        numSucess += self._createEventPage(request, vevent)
+                        numSuccess += self._createEventPage(request, vevent)
                     else:
                         if event:
-                            numSucess += self._updateEventPage(request, vevent, event)
-        if numSucess:
-            messages.success(request, "{} iCal events loaded".format(numSucess))
+                            numSuccess += self._updateEventPage(request, vevent, event)
+        if numSuccess:
+            messages.success(request, "{} iCal events loaded".format(numSuccess))
         if numFail:
             messages.error(request, "Could not load {} iCal events".format(numFail))
 
