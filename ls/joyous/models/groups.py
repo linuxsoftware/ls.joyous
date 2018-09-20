@@ -44,10 +44,10 @@ def get_group_model():
 # ------------------------------------------------------------------------------
 # GroupPage
 # ------------------------------------------------------------------------------
-# TODO rename! Wagtail page_ptr doesn't use the namespace and GroupPage is too
-# common a name
-# possibilities: HostGroupPage, EventsGroupPage, JoyousGroupPage
 class GroupPage(Page):
+    class Meta:
+        default_related_name = "%(app_label)s_%(model_name)s_set"
+
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']
