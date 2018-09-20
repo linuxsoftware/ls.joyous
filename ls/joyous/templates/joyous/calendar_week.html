@@ -3,9 +3,15 @@
 
 {% block events_view %}
 <div class="events-view">
+  {% if 'L' in page.view_choices %}
   <a class="together list" href="{{ listUrl }}">List View</a> |
+  {% endif %}
+  {% if 'W' in page.view_choices %}
   <a class="together weekly" href="{{ thisWeekUrl }}">This Week</a> |
+  {% endif %}
+  {% if 'M' in page.view_choices %}
   <a class="together monthly" href="{{ monthlyUrl }}">Monthly View</a>
+  {% endif %}
 </div>
 {% endblock events_view %}
 

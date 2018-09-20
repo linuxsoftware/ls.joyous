@@ -14,13 +14,14 @@ from django.utils import timezone
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import HelpPanel, FieldPanel
+from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..edit_handlers import ConcealedPanel
 from ..utils.weeks import week_info, gregorian_to_week_date
 from ..utils.weeks import weekday_abbr, weekday_name
 from ..utils.mixins import ProxyPageMixin
+from ..fields import MultipleSelectField
 from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
                getAllPastEvents, getEventFromUid, getAllEvents)
 
@@ -89,6 +90,10 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
+EVENTS_VIEW_CHOICES = [('L', "List View"),
+                       ('W', "Weekly View"),
+                       ('M', "Monthly View")]
+
 # ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page):
     """
@@ -102,19 +107,29 @@ class CalendarPage(RoutablePageMixin, Page):
 
     intro = RichTextField(blank=True)
 
+    view_choices = MultipleSelectField(blank=True, default=["L","W","M"],
+                                       choices=EVENTS_VIEW_CHOICES)
+    default_view = models.CharField(default="M", max_length=15,
+                                    choices=EVENTS_VIEW_CHOICES)
+
     search_fields = Page.search_fields[:]
     content_panels = Page.content_panels + [
         FieldPanel('intro', classname="full"),
         ]
-    settings_panels = Page.settings_panels[:]
+    settings_panels = Page.settings_panels + [
+        MultiFieldPanel([
+            FieldPanel('view_choices'),
+            FieldPanel('default_view')],
+            heading="View Options"),
+        ]
 
     @route(r"^$")
     @route(r"^{YYYY}/$".format(**DatePictures))
     def routeDefault(self, request, year=None):
-        eventsView = getattr(settings, "JOYOUS_DEFAULT_EVENTS_VIEW", "Monthly")
-        if eventsView == "List":
+        eventsView = request.GET.get('view', self.default_view)
+        if eventsView in ("L", "list"):
             return self.serveUpcoming(request)
-        elif eventsView == "Weekly":
+        elif eventsView in ("W", "weekly"):
             return self.serveWeek(request, year)
         else:
             return self.serveMonth(request, year)

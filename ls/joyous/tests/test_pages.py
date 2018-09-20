@@ -139,19 +139,22 @@ class PageInstanceTests(WagtailPageTests):
     def testCanCreateCalendar(self):
         self.assertCanCreate(self.home, CalendarPage,
                              nested_form_data({'title': "Calendar",
-                                               'intro': rich_text("<h4>What's happening</h4>")}))
+                                               'intro': rich_text("<h4>What's happening</h4>"),
+                                               'default_view': "M"}))
 
     def testCanCreateSpecificCalendar(self):
         SpecificCalendarPage.is_creatable = True
         self.assertCanCreate(self.home, SpecificCalendarPage,
                              nested_form_data({'title': "Calendar",
-                                               'intro': rich_text("<h4>What's happening</h4>")}))
+                                               'intro': rich_text("<h4>What's happening</h4>"),
+                                               'default_view': "M"}))
 
     def testCanCreateGeneralCalendar(self):
         GeneralCalendarPage.is_creatable = True
         self.assertCanCreate(self.home, GeneralCalendarPage,
                              nested_form_data({'title': "Calendar",
-                                               'intro': rich_text("<h4>What's happening</h4>")}))
+                                               'intro': rich_text("<h4>What's happening</h4>"),
+                                               'default_view': "L"}))
 
     def testCanCreateGroup(self):
         self.assertCanCreate(self.home, GroupPage,
