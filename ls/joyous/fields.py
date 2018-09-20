@@ -7,7 +7,6 @@ from django.db.models import Field
 from django.core.exceptions import ValidationError
 from django.forms.fields import Field as FormField
 from django.forms import TypedMultipleChoiceField, CheckboxSelectMultiple
-from django.forms import MultipleChoiceField
 from django.utils.encoding import force_text
 from .utils.recurrence import Recurrence
 from .widgets import RecurrenceWidget

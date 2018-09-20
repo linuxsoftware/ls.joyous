@@ -1,0 +1,16 @@
+<div class="events-view">
+  {% if 'L' in page.view_choices %}
+  <a class="together list" 
+     href="{{ listUrl }}">{{ listLink|default:"List View" }}</a>
+  {% if page.view_choices|length > 1 %} | {% endif %}
+  {% endif %}
+  {% if 'W' in page.view_choices %}
+  <a class="together weekly"
+     href="{{ weeklyUrl }}">{{ weeklyLink|default:"Weekly View" }}</a>
+  {% if 'M' in page.view_choices %} | {% endif %}
+  {% endif %}
+  {% if 'M' in page.view_choices %}
+  <a class="together monthly"
+     href="{{ monthlyUrl }}">{{ monthlyLink|default:"Monthly View" }}</a>
+  {% endif %}
+</div>

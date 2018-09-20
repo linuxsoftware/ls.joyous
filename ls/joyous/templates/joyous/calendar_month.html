@@ -2,17 +2,7 @@
 {% load wagtailcore_tags %}
 
 {% block events_view %}
-<div class="events-view">
-  {% if 'L' in page.view_choices %}
-  <a class="together list" href="{{ listUrl }}">List View</a> |
-  {% endif %}
-  {% if 'W' in page.view_choices %}
-  <a class="together weekly" href="{{ weeklyUrl }}">Weekly View</a> |
-  {% endif %}
-  {% if 'M' in page.view_choices %}
-  <a class="together monthly" href="{{ thisMonthUrl }}">This Month</a>
-  {% endif %}
-</div>
+{% include "joyous/includes/events_view_choices.html" with monthlyUrl=thisMonthUrl monthlyLink="This Month" %}
 {% endblock events_view %}
 
 {% block cal_heading %}

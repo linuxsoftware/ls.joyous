@@ -285,7 +285,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weeklyUrl':    weeklyUrl,
                        'listUrl':      listUrl,
                        'monthName':    calendar.month_name[month],
-                       'weekdayName':  calendar.day_name[month],
+                       'weekdayName':  calendar.day_name[day.weekday()],
                        'events':       eventsOnDay})
 
     @route(r"^upcoming/$")
