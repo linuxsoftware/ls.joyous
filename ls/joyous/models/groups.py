@@ -45,6 +45,11 @@ def get_group_model():
 # GroupPage
 # ------------------------------------------------------------------------------
 class GroupPage(Page):
+    # Define page_ptr so the related_name doesn't clash
+    page_ptr = models.OneToOneField(Page, on_delete=models.CASCADE,
+                                    related_name="%(app_label)s_%(model_name)s",
+                                    parent_link=True)
+
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']

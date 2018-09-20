@@ -335,7 +335,7 @@ def _get_default_timezone():
 
 class EventBase(models.Model):
     class Meta:
-        # TODO consider if EventBase was not abstract coversion from one event
+        # TODO consider if EventBase was not abstract conversion from one event
         # type to another might be a lot easier?
         abstract = True
 
