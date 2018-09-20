@@ -45,9 +45,6 @@ def get_group_model():
 # GroupPage
 # ------------------------------------------------------------------------------
 class GroupPage(Page):
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s_set"
-
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage']

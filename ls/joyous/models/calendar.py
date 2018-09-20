@@ -99,9 +99,6 @@ class CalendarPage(RoutablePageMixin, Page):
     """
     CalendarPage displays all the events which are in the same site
     """
-    class Meta:
-        default_related_name = "%(app_label)s_%(model_name)s_set"
-
     EventsPerPage = 25
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',

@@ -87,12 +87,12 @@ def getGroupUpcomingEvents(request, group):
 
     # Get events that are linked to a group page, or a postponement or extra
     # info a child of the recurring event linked to a group (the long way)
-    rrEvents = group.joyous_recurringeventpage_set(manager='events')        \
-                                          .auth(request).upcoming().this()
-    qrys += [group.joyous_simpleeventpage_set(manager='events')
-                                          .auth(request).upcoming().this(),
-             group.joyous_multidayeventpage_set(manager='events')
-                                          .auth(request).upcoming().this(),
+    rrEvents = group.recurringeventpage_set(manager='events').auth(request)  \
+                                                        .upcoming().this()
+    qrys += [group.simpleeventpage_set(manager='events').auth(request)
+                                                        .upcoming().this(),
+             group.multidayeventpage_set(manager='events').auth(request)
+                                                        .upcoming().this(),
              rrEvents]
     for rrEvent in rrEvents:
         qrys += [PostponementPage.events(request).child_of(rrEvent.page)
@@ -505,7 +505,6 @@ class SimpleEventPage(Page, EventBase):
     class Meta:
         verbose_name = "Event Page"
         default_manager_name = "objects"
-        default_related_name = "%(app_label)s_%(model_name)s_set"
 
     parent_page_types = ["joyous.CalendarPage",
                          "joyous.SpecificCalendarPage",
@@ -601,7 +600,6 @@ class MultidayEventPage(Page, EventBase):
     class Meta:
         verbose_name = "Multiday Event Page"
         default_manager_name = "objects"
-        default_related_name = "%(app_label)s_%(model_name)s_set"
 
     parent_page_types = ["joyous.CalendarPage",
                          "joyous.SpecificCalendarPage",
@@ -709,7 +707,6 @@ class RecurringEventPage(Page, EventBase):
     class Meta:
         verbose_name = "Recurring Event Page"
         default_manager_name = "objects"
-        default_related_name = "%(app_label)s_%(model_name)s_set"
 
     parent_page_types = ["joyous.CalendarPage",
                          "joyous.SpecificCalendarPage",
@@ -1137,7 +1134,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
     class Meta:
         verbose_name = "Extra Event Information"
         default_manager_name = "objects"
-        default_related_name = "%(app_label)s_%(model_name)s_set"
 
     events = EventManager.from_queryset(ExtraInfoQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage"]
@@ -1211,7 +1207,6 @@ class CancellationPage(Page, EventExceptionBase):
     class Meta:
         verbose_name = "Cancellation"
         default_manager_name = "objects"
-        default_related_name = "%(app_label)s_%(model_name)s_set"
 
     parent_page_types = ["joyous.RecurringEventPage"]
     subpage_types = []
