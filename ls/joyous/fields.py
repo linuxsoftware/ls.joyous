@@ -1,7 +1,6 @@
 # ------------------------------------------------------------------------------
 # Joyous Fields
 # ------------------------------------------------------------------------------
-
 import sys
 from django.db.models import Field
 from django.core.exceptions import ValidationError
@@ -56,7 +55,7 @@ class RecurrenceField(Field):
     def get_internal_type(self):
         return "CharField"
 
-
+# ------------------------------------------------------------------------------
 class RecurrenceFormField(FormField):
     widget = RecurrenceWidget
 

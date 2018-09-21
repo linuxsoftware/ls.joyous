@@ -1044,15 +1044,6 @@ class EventExceptionPageForm(WagtailAdminPageForm):
             self.add_error('except_date',
                            'That date already has {}'.format(description))
 
-    # def save(self, commit=True):
-    #     page = super().save(commit=False)
-    #     name = getattr(self, 'name', page.slugName.title())
-    #     page.title = "{} for {}".format(name, dateFormat(page.except_date))
-    #     page.slug = "{}-{}".format(page.except_date, page.slugName)
-    #     if commit:
-    #         page.save()
-    #     return page
-
 class EventExceptionBase(models.Model):
     class Meta:
         abstract = True
