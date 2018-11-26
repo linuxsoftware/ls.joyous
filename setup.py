@@ -55,7 +55,8 @@ setup(name="ls.joyous",
                                   "static/joyous/img/*.jpg",
                                   "static/joyous/js/*.js",
                                   "static/joyous/js/vendor/*.js",
-                                  "locale/*/LC_MESSAGES/django.po"
+                                  "locale/*/LC_MESSAGES/django.po",
+                                  "locale/*/LC_MESSAGES/django.mo"
                                  ],
                    },
       setup_requires=["setuptools_scm"],
