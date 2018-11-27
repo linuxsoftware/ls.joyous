@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-26 18:46-0500\n"
-"PO-Revision-Date: 2018-11-26 18:18-0500\n"
+"POT-Creation-Date: 2018-11-27 14:09-0500\n"
+"PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -18,7 +18,92 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.1.1\n"
 
+#: templates/joyous/calendar_list_past.html:15
+#: templates/joyous/calendar_list_upcoming.html:17
+msgid "Upcoming Events"
+msgstr "Évènements à venir"
+
+#: templates/joyous/calendar_list_past.html:17
+#: templates/joyous/calendar_list_upcoming.html:15
+msgid "Past Events"
+msgstr "Événements passés"
+
+#: templates/joyous/calendar_month.html:5
+msgid "This Month"
+msgstr "Cette mois"
+
+#: templates/joyous/calendar_week.html:5
+#: templates/joyous/tags/events_this_week.html:4
+msgid "This Week"
+msgstr "Cette semaine"
+
+#: templates/joyous/edit_handlers/exception_date_object.html:28
+msgid "Time Zone"
+msgstr "Fuseau horaire"
+
+#: templates/joyous/edit_handlers/export_panel.html:13
+msgid "Download"
+msgstr "Télécharger"
+
+#: templates/joyous/edit_handlers/export_panel.html:16
 #: templates/joyous/includes/calendar_export.html:3
 #: templates/joyous/includes/event_export.html:5
-msgid "Export ICal"
+msgid "Export iCal"
 msgstr "Exporter pour iCal"
+
+#: templates/joyous/includes/event_export.html:3
+msgid "Google Calendar"
+msgstr "Google Agenda"
+
+#: templates/joyous/includes/events_view_choices.html:4
+msgid "List View"
+msgstr "Vue en liste"
+
+#: templates/joyous/includes/events_view_choices.html:9
+msgid "Weekly View"
+msgstr "Vue hebdomadaire"
+
+#: templates/joyous/includes/events_view_choices.html:14
+msgid "Monthly View"
+msgstr "Vue mensuelle"
+
+#: templates/joyous/includes/minicalendar.html:12
+msgid "Previous month"
+msgstr "Mois précédent"
+
+#: templates/joyous/includes/minicalendar.html:13
+msgid "Next month"
+msgstr "Mois prochain"
+
+#: templates/joyous/tags/events_this_week.html:8
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: templates/joyous/tags/upcoming_events_list.html:3
+msgid "Events"
+msgstr "Événements"
+
+#: templates/joyous/widgets/recurrence_widget.html:7
+msgid "From Date"
+msgstr "Date de début"
+
+#: templates/joyous/widgets/recurrence_widget.html:17
+msgid "Frequency"
+msgstr "Fréquence"
+
+#: templates/joyous/widgets/recurrence_widget.html:28
+msgid "Until Date"
+msgstr "Date de fin"
+
+#: templates/joyous/widgets/recurrence_widget.html:38
+msgid "Use Advanced Options"
+msgstr "Utiliser les options avancées"
+
+#: templates/joyous/widgets/recurrence_widget.html:139
+msgid "What are the rules for when this event recurs?"
+msgstr "Quelles sont les règles lorsque cet événement se reproduira?"
+
+#, fuzzy
+#~| msgid "Export ICal"
+#~ msgid "Export ICAL"
+#~ msgstr "Exporter pour iCal"
