@@ -1,6 +1,6 @@
 {% load wagtailcore_tags %}
 {% if events %}
-    <h3>Events</h3>
+    <h3>{% trans "Events" %}</h3>
     <div class="upcoming-events">
       {% for title, event in events %}
       <div class="event-item clearfix">

@@ -12,9 +12,9 @@
       {% block cal_options %}
       <div class="calendar-options clearfix">
         {% block events_view %}
-        {% include "joyous/includes/events_view_choices.html" with listLink="Upcoming Events" %}
+        {% include "joyous/includes/events_view_choices.html" with listLink=_("Upcoming Events") %}
         {% endblock events_view %}
-        <h3>Past Events</h3>
+        <h3>{% trans "Past Events" %}</h3>
       </div>
       {% endblock cal_options %}
 

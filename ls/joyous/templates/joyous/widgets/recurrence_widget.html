@@ -4,7 +4,7 @@
     <ul class="fields ev-simple-repeat">
         <li>
             <div class="field date_field admin_date_input">
-                <label>From Date</label>
+                <label>{% trans "From Date" %}</label>
                 <div class="field-content">
                     <div class="input ev-start-date">
 {% with widget=widget.subwidgets.0 %}{% include widget.template_name %}{% endwith %}
@@ -14,7 +14,7 @@
         </li>
         <li>
             <div class="field typed_choice_field">
-                <label>Frequency</label>
+                <label>{% trans "Frequency" %}</label>
                 <div class="field-content">
                     <div class="input ev-freq-choice">
 {% with widget=widget.subwidgets.1 %}{% include widget.template_name %}{% endwith %}
@@ -25,7 +25,7 @@
         </li>
         <li>
             <div class="date_field admin_date_input">
-                <label>Until Date</label>
+                <label>{% trans "Until Date" %}</label>
                 <div class="field-content">
                     <div class="input ev-until-date">
 {% with widget=widget.subwidgets.5 %}{% include widget.template_name %}{% endwith %}
@@ -35,7 +35,7 @@
         </li>
     </ul>
     <div class="ev-show-advanced">
-        <label ><input class="ev-show-advanced-cbx" type="checkbox">Use Advanced Options</label>
+        <label ><input class="ev-show-advanced-cbx" type="checkbox">{% trans "Use Advanced Options" %}</label>
     </div>
     <ul class="fields ev-advanced-repeat">
         <li>
@@ -136,6 +136,6 @@
     </div>
 </div>
 <div class="object-help help">
-    What are the rules for when this event recurrs?
+    {% trans "What are the rules for when this event recurs?" %}
 </div>
 <script>initRecurrenceWidget("{{ widget.attrs.id|escapejs }}");</script>

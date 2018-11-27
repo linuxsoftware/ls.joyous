@@ -2,7 +2,7 @@
 {% load wagtailcore_tags %}
 
 {% block events_view %}
-{% include "joyous/includes/events_view_choices.html" with monthlyUrl=thisMonthUrl monthlyLink="This Month" %}
+{% include "joyous/includes/events_view_choices.html" with monthlyUrl=thisMonthUrl monthlyLink=_("This Month") %}
 {% endblock events_view %}
 
 {% block cal_heading %}
