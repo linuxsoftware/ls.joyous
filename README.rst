@@ -42,3 +42,10 @@ I am aiming to support the latest releases of Wagtail and Django.  Older version
 Getting Help
 -------------
 Please report bugs or ask questions using the `Issue Tracker <http://github.com/linuxsoftware/ls.joyous/issues>`_.
+
+Thanks To
+-------------
+
+`Sauce Labs <https://saucelabs.com>`_ for their cross-browser testing platform.
+
+.. image:: /docs/powered-by-sauce-labs.png
