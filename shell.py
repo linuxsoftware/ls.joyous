@@ -19,7 +19,7 @@ elif __name__ == "builtins":
     import pprint
     import ls.joyous
     from ls.joyous.models import *
-    from ls.joyous.recurrence import *
+    from ls.joyous.utils.recurrence import *
     from ls.joyous.utils import manythings, telltime
     from ls.joyous.formats import ical
     L=list

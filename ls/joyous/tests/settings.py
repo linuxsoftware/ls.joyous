@@ -21,7 +21,7 @@ DATABASES = {
 
 SECRET_KEY = 'not needed'
 
-ROOT_URLCONF = 'wagtail.tests.urls'
+ROOT_URLCONF = 'ls.joyous.tests.urls'
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
