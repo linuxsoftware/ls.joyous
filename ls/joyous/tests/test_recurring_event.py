@@ -4,6 +4,7 @@
 import sys
 import datetime as dt
 import pytz
+from freezegun import freeze_time
 import calendar
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -174,8 +175,8 @@ class RecurringEventPageTZ(TestCase):
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(len(evod1.continuing_events), 0)
 
+    @freeze_time("2017-05-31")
     def testLocalWhen(self):
-        # WARNING depending upon DST
         with timezone.override("America/Los_Angeles"):
             self.assertEqual(self.event.when,
                              "Tuesdays at 4pm to 6:30pm")
