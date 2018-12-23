@@ -112,11 +112,14 @@ class TestCalendar(TestCase):
         self.assertEqual(event['href'], "/events/2011/06/05/")
         self.assertEqual(event['title'], "Tree Planting")
 
-    def testInvalidDate(self):
-        response = self.client.get("/events/2012/13/")
-        self.assertEqual(response.status_code, 404)
+    def testInvalidDates(self):
+        invalidDates = ["2012/13", "2008/W54", "2099/W53"]
+        for date in invalidDates:
+            with self.subTest(date=date):
+                response = self.client.get("/events/{}/".format(date))
+                self.assertEqual(response.status_code, 404)
 
-    def testCalendarStart(self):
+    def testCalendarStartMonth(self):
         response = self.client.get("/events/1900/1/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
@@ -127,7 +130,7 @@ class TestCalendar(TestCase):
         self.assertEqual(links[1].get('title'), "Next year")
         self.assertEqual(links[1].get('href'), "/events/1901/1/")
 
-    def testCalendarFinish(self):
+    def testCalendarFinishMonth(self):
         response = self.client.get("/events/2099/12/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
@@ -138,6 +141,55 @@ class TestCalendar(TestCase):
         self.assertEqual(links[1].get('title'), "Previous year")
         self.assertEqual(links[1].get('href'), "/events/2098/12/")
 
-    def testFutureDate(self):
+    def testCalendarStartWeek(self):
+        response = self.client.get("/events/1900/W1/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        links0 = select('.calendar-options .events-view a')
+        self.assertEqual(len(links0), 3)
+        self.assertEqual(links0[0].get_text(), "List View")
+        self.assertEqual(links0[1].get_text(), "This Week")
+        self.assertEqual(links0[2].get_text(), "Monthly View")
+        self.assertEqual(links0[2].get('href'), "/events/1900/1/")
+        links1 = select('thead a')
+        self.assertEqual(len(links1), 2)
+        self.assertEqual(links1[0].get('title'), "Next week")
+        self.assertEqual(links1[0].get('href'), "/events/1900/W2/")
+        self.assertEqual(links1[1].get('title'), "Next year")
+        self.assertEqual(links1[1].get('href'), "/events/1901/W1/")
+
+    def testCalendarFinishWeek(self):
+        response = self.client.get("/events/2099/W52/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        links0 = select('.calendar-options .events-view a')
+        self.assertEqual(len(links0), 3)
+        self.assertEqual(links0[0].get_text(), "List View")
+        self.assertEqual(links0[1].get_text(), "This Week")
+        self.assertEqual(links0[2].get_text(), "Monthly View")
+        self.assertEqual(links0[2].get('href'), "/events/2099/12/")
+        links1 = select('thead a')
+        self.assertEqual(len(links1), 2)
+        self.assertEqual(links1[0].get('title'), "Previous week")
+        self.assertEqual(links1[0].get('href'), "/events/2099/W51/")
+        self.assertEqual(links1[1].get('title'), "Previous year")
+        self.assertEqual(links1[1].get('href'), "/events/2098/W52/")
+
+    def testNextYearW53(self):
+        response = self.client.get("/events/2098/W53/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        links = select('thead a')
+        self.assertEqual(len(links), 3)
+        self.assertEqual(links[0].get('title'), "Previous week")
+        self.assertEqual(links[0].get('href'), "/events/2098/W52/")
+        self.assertEqual(links[1].get('title'), "Next week")
+        self.assertEqual(links[1].get('href'), "/events/2099/W1/")
+        self.assertEqual(links[2].get('title'), "Previous year")
+        self.assertEqual(links[2].get('href'), "/events/2097/W52/")
+
+    def testFutureDates(self):
         response = self.client.get("/events/2525/1/")
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get("/events/2100/W1/")
         self.assertEqual(response.status_code, 404)

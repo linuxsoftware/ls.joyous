@@ -18,7 +18,7 @@ from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..edit_handlers import ConcealedPanel
-from ..utils.weeks import week_info, gregorian_to_week_date
+from ..utils.weeks import week_info, gregorian_to_week_date, num_weeks_in_year
 from ..utils.weeks import weekday_abbr, weekday_name
 from ..utils.mixins import ProxyPageMixin
 from ..fields import MultipleSelectField
@@ -197,9 +197,14 @@ class CalendarPage(RoutablePageMixin, Page):
     def serveWeek(self, request, year=None, week=None):
         myurl = self.get_url(request)
         def myUrl(urlYear, urlWeek):
-            if 1900 <= urlYear <= 2099:
-                return myurl + self.reverse_subpage('serveWeek',
-                                                    args=[urlYear, urlWeek])
+            if (urlYear < 1900 or
+                urlYear > 2099 or
+                urlYear == 2099 and urlWeek == 53):
+                return None
+            if urlWeek == 53 and num_weeks_in_year(urlYear) == 52:
+                urlWeek = 52
+            return myurl + self.reverse_subpage('serveWeek',
+                                                args=[urlYear, urlWeek])
         today = timezone.localdate()
         thisYear, thisWeekNum, _ = gregorian_to_week_date(today)
         if year is None: year = thisYear
@@ -208,13 +213,16 @@ class CalendarPage(RoutablePageMixin, Page):
         week = int(week)
 
         firstDay, lastDay, prevYearNumWeeks, yearNumWeeks = week_info(year, week)
-        eventsInWeek = self._getEventsByDay(request, firstDay, lastDay)
-        monthlyUrl = myurl + self.reverse_subpage('serveMonth',
-                                                  args=[firstDay.year, firstDay.month])
-        listUrl = myurl + self.reverse_subpage('serveUpcoming')
         if week == 53 and yearNumWeeks == 52:
-            year += 1
-            week = 1
+            raise Http404("Only 52 weeks in {}".format(year))
+
+        eventsInWeek = self._getEventsByDay(request, firstDay, lastDay)
+        if firstDay.year >= 1900:
+            monthlyUrl = myurl + self.reverse_subpage('serveMonth',
+                                                      args=[firstDay.year, firstDay.month])
+        else:
+            monthlyUrl = myurl + self.reverse_subpage('serveMonth', args=[1900, 1])
+        listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
         prevWeek = week - 1
         prevWeekYear = year
