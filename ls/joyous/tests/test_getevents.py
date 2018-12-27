@@ -6,16 +6,18 @@ import datetime as dt
 import pytz
 import calendar
 from django.test import RequestFactory, TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser, Group
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils import timezone
-from wagtail.core.models import Page
+from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MO, TU, WE, FR
 from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage)
 from ls.joyous.models.events import (getAllEventsByDay, getAllEventsByWeek,
-        getAllUpcomingEvents, getAllPastEvents, getGroupUpcomingEvents)
+        getAllUpcomingEvents, getAllPastEvents, getGroupUpcomingEvents,
+        getEventFromUid)
 from ls.joyous.models.groups import get_group_model
 from .testutils import datetimetz
 
@@ -40,8 +42,23 @@ class TestGetEvents(TestCase):
                                     title  = "Pet Show",
                                     date      = dt.date(2013,1,5),
                                     time_from = dt.time(11),
-                                    time_to   = dt.time(17,30))
+                                    time_to   = dt.time(17,30),
+                                    uid       = "29daefed-fed1-4e47-9408-43ec9b06a06d")
         self.calendar.add_child(instance=self.show)
+
+        GROUPS = PageViewRestriction.GROUPS
+        self.friends = Group.objects.create(name = "Friends")
+        self.rendezvous = SimpleEventPage(owner = self.user,
+                                          slug   = "rendezvous",
+                                          title  = "Private Rendezvous",
+                                          date      = dt.date(2013,1,10),
+                                          uid       = "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
+        self.calendar.add_child(instance=self.rendezvous)
+        self.rendezvous.save_revision().publish()
+        restriction = PageViewRestriction.objects.create(restriction_type = GROUPS,
+                                                         page = self.rendezvous)
+        restriction.groups.set([self.friends])
+        restriction.save()
 
         self.party = MultidayEventPage(owner = self.user,
                                        slug  = "allnighter",
@@ -49,7 +66,8 @@ class TestGetEvents(TestCase):
                                        date_from = dt.date(2012,12,31),
                                        date_to   = dt.date(2013,1,1),
                                        time_from = dt.time(23),
-                                       time_to   = dt.time(3))
+                                       time_to   = dt.time(3),
+                                       uid       = "initiative+technology")
         self.calendar.add_child(instance=self.party)
 
         self.standup = RecurringEventPage(slug   = "test-meeting",
@@ -59,7 +77,8 @@ class TestGetEvents(TestCase):
                                                               freq=WEEKLY,
                                                               byweekday=[MO,WE,FR]),
                                           time_from = dt.time(13,30),
-                                          time_to   = dt.time(16))
+                                          time_to   = dt.time(16),
+                                          uid       = "initiative+technology")
         self.group.add_child(instance=self.standup)
 
         self.postponement = PostponementPage(owner = self.user,
@@ -80,11 +99,25 @@ class TestGetEvents(TestCase):
     def testGetAllEventsByDay(self):
         events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
         self.assertEqual(len(events), 31)
-        evod = events[0]
-        self.assertEqual(evod.date, dt.date(2013,1,1))
-        self.assertEqual(len(evod.all_events), 1)
-        self.assertEqual(len(evod.days_events), 0)
-        self.assertEqual(len(evod.continuing_events), 1)
+        evod1 = events[0]
+        self.assertEqual(evod1.date, dt.date(2013,1,1))
+        self.assertEqual(len(evod1.all_events), 1)
+        self.assertEqual(len(evod1.days_events), 0)
+        self.assertEqual(len(evod1.continuing_events), 1)
+        evod10 = events[9]
+        self.assertEqual(evod10.date, dt.date(2013,1,10))
+        self.assertEqual(len(evod10.all_events), 0)
+
+    def testAuthGetAllEventsByDay(self):
+        self.request.user.groups.set([self.friends])
+        events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
+        self.assertEqual(len(events), 31)
+        evod10 = events[9]
+        self.assertEqual(evod10.date, dt.date(2013,1,10))
+        self.assertEqual(len(evod10.all_events), 1)
+        self.assertEqual(len(evod10.days_events), 1)
+        event = evod10.days_events[0]
+        self.assertEqual(event.title, "Private Rendezvous")
 
     def testGetAllEventsByWeek(self):
         weeks = getAllEventsByWeek(self.request, 2013, 1)
@@ -148,3 +181,22 @@ class TestGetEvents(TestCase):
         self.assertEqual(events[0].title, "Gap Analysis")
         self.assertEqual(events[1].title, "Planning to Plan")
 
+    def testGetEventFromUid(self):
+        event = getEventFromUid(self.request, "29daefed-fed1-4e47-9408-43ec9b06a06d")
+        self.assertEqual(event.title, "Pet Show")
+
+    def testMultiGetEventFromUid(self):
+        with self.assertRaises(MultipleObjectsReturned):
+            getEventFromUid(self.request, "initiative+technology")
+
+    def testMissingGetEventFromUid(self):
+        with self.assertRaises(ObjectDoesNotExist):
+            getEventFromUid(self.request, "d12971fb-e694-4a04-aba2-fb1a4a7166b9")
+
+    def testAuthGetEventFromUid(self):
+        event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
+        self.assertIsNone(event)
+        self.request.user.groups.set([self.friends])
+        event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
+        self.assertIsNotNone(event.title)
+        self.assertEqual(event.title, "Private Rendezvous")
