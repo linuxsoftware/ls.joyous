@@ -11,7 +11,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
-from ls.joyous.utils.recurrence import WEEKLY, MO, TU, WE, FR
+from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, MO, TU, WE, FR, SU
 from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage)
@@ -200,3 +200,38 @@ class TestGetEvents(TestCase):
         event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
         self.assertIsNotNone(event.title)
         self.assertEqual(event.title, "Private Rendezvous")
+
+
+class TestGetEventsTZ(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@foo.test', 's3cr3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
+        self.calendar = GeneralCalendarPage(owner = self.user,
+                                            slug  = "events",
+                                            title = "Events")
+        self.home.add_child(instance=self.calendar)
+
+        self.night = RecurringEventPage(slug   = "pacnight",
+                                        title  = "Pacific Night",
+                                        repeat = Recurrence(dtstart=dt.date(2018,12,1),
+                                                            count=1,
+                                                            freq=MONTHLY,
+                                                            byweekday=[SU(-1)]),
+                                        time_from = dt.time(23,0),
+                                        time_to   = dt.time(23,30),
+                                        tz = pytz.timezone("Pacific/Pago_Pago"))
+        self.calendar.add_child(instance=self.night)
+        self.night.save_revision().publish()
+
+    @timezone.override("Pacific/Kiritimati")
+    def testExtremeTZGetAllEventsByDay(self):
+        events = getAllEventsByDay(self.request, dt.date(2019,1,1), dt.date(2019,1,31))
+        self.assertEqual(len(events), 31)
+        evod1 = events[0]
+        self.assertEqual(evod1.date, dt.date(2019,1,1))
+        self.assertEqual(len(evod1.all_events), 1)
+        self.assertEqual(len(evod1.days_events), 1)
+        self.assertEqual(evod1.days_events[0].title, "Pacific Night")

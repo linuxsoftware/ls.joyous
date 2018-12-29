@@ -200,6 +200,7 @@ class RecurringEventPageTZ(TestCase):
         self.assertEqual(when.tzinfo.zone, "Pacific/Auckland")
         self.assertEqual(when.weekday(), calendar.WEDNESDAY)
 
+    @timezone.override("Pacific/Kiritimati")
     def testExtremeTimeZones(self):
         lions = RecurringEventPage(owner = self.user,
                                    slug  = "pago-pago-lions",
@@ -212,7 +213,6 @@ class RecurringEventPageTZ(TestCase):
                                    location = "Lions Den, Tafuna, PagoPago",
                                    website = "http://www.lionsclubs.org.nz")
         self.calendar.add_child(instance=lions)
-        with timezone.override("Pacific/Kiritimati"):
-            self.assertEqual(lions.when,
-                             "The Saturday after the first Thursday and "
-                             "Saturday after the third Thursday of the month at 12am")
+        self.assertEqual(lions.when,
+                         "The Saturday after the first Thursday and "
+                         "Saturday after the third Thursday of the month at 12am")

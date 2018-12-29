@@ -212,7 +212,8 @@ class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     def holiday(self):
         return self.holidays.get(self.date)
 
-_1day = dt.timedelta(days=1)
+_1day  = dt.timedelta(days=1)
+_2days = dt.timedelta(days=2)
 
 # ------------------------------------------------------------------------------
 # Event models
@@ -497,7 +498,7 @@ class SimpleEventQuerySet(EventQuerySet):
                     yield evod
         qs = self._clone()
         qs._iterable_class = ByDayIterable
-        return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
+        return qs.filter(date__range=(fromDate - _2days, toDate + _2days))
 
 class SimpleEventPage(Page, EventBase):
     events = EventManager.from_queryset(SimpleEventQuerySet)()
@@ -581,8 +582,8 @@ class MultidayEventQuerySet(EventQuerySet):
                     yield evod
         qs = self._clone()
         qs._iterable_class = ByDayIterable
-        return qs.filter(date_to__gte   = fromDate - _1day)   \
-                 .filter(date_from__lte = toDate + _1day)
+        return qs.filter(date_to__gte   = fromDate - _2days)   \
+                 .filter(date_from__lte = toDate + _2days)
 
 class MultidayEventPageForm(EventPageForm):
     def _checkStartBeforeEnd(self, cleaned_data):
@@ -655,8 +656,8 @@ class RecurringEventQuerySet(EventQuerySet):
                          for ord in range(fromOrd, toOrd+1)]
                 for page in super().__iter__():
                     exceptions = self.__getExceptionsFor(page)
-                    for occurence in page.repeat.between(fromDate - _1day,
-                                                         toDate + _1day, True):
+                    for occurence in page.repeat.between(fromDate - _2days,
+                                                         toDate + _2days, True):
                         thisEvent = None
                         exception = exceptions.get(occurence)
                         if exception:
@@ -680,7 +681,7 @@ class RecurringEventQuerySet(EventQuerySet):
                     yield evod
 
             def __getExceptionsFor(self, page):
-                dateRange = (fromDate - _1day, toDate + _1day)
+                dateRange = (fromDate - _2days, toDate + _2days)
                 exceptions = {}
                 for extraInfo in ExtraInfoPage.events(request).child_of(page)\
                                      .filter(except_date__range=dateRange):
@@ -726,14 +727,16 @@ class RecurringEventPage(Page, EventBase):
     # exclude_holidays = models.BooleanField(default=False)
     # exclude_holidays.help_text = "Cancel any occurence of this event on a public holiday"
 
-    content_panels = Page.content_panels + [
+    content_panels0 = Page.content_panels + [
         FieldPanel('category'),
         ImageChooserPanel('image'),
-        FieldPanel('repeat'),
+        FieldPanel('repeat')]
+    content_panels1 = [
         TimePanel('time_from'),
         TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
+    content_panels = content_panels0 + content_panels1
 
     @property
     def next_date(self):
@@ -952,7 +955,7 @@ class RecurringEventPage(Page, EventBase):
     def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
         if self.time_from and self.time_from < fromDt.time():
-            fromDate += dt.timedelta(days=1)
+            fromDate += _1day
         exceptions = set()
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self)          \
@@ -977,7 +980,7 @@ class RecurringEventPage(Page, EventBase):
     def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
         if self.time_from and self.time_from > fromDt.time():
-            fromDate -= dt.timedelta(days=1)
+            fromDate -= _1day
         exceptions = set()
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self)          \
@@ -998,8 +1001,45 @@ class RecurringEventPage(Page, EventBase):
         if last is not None:
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
 
-# TODO
 # class MultidayReccuringEventPage(RecurringEventPage):
+#     class Meta:
+#         verbose_name = "Multiday Recurring Event Page"
+#         default_manager_name = "objects"
+#
+#     parent_page_types = ["joyous.CalendarPage",
+#                          "joyous.SpecificCalendarPage",
+#                          "joyous.GeneralCalendarPage",
+#                          get_group_model_string()]
+#     subpage_types = []
+#     base_form_class = MultidayEventPageForm
+#
+#     num_days = models.IntegerField("Number of days", default=1)
+#
+#     content_panels = RecurringEventPage.content_panels0 + [
+#         FieldPanel('num_days'),
+#         ] + RecurringEventPage.content_panels1
+#
+    # @property
+    # def status(self):
+    #     myNow = timezone.localtime(timezone=self.tz)
+    #     if getAwareDatetime(self.date_to, self.time_to, self.tz) < myNow:
+    #         return "finished"
+    #     elif getAwareDatetime(self.date_from, self.time_from, self.tz) < myNow:
+    #         return "started"
+    #
+    # @property
+    # def when(self):
+    #     return self._getLocalWhen(self.date_from, self.date_to)
+    #
+    # @property
+    # def at(self):
+    #     return timeFormat(self._getFromTime())
+    #
+    # def _getFromTime(self, atDate=None):
+    #     return getLocalTime(self.date_from, self.time_from, self.tz)
+    #
+    # def _getFromDt(self):
+    #     return getLocalDatetime(self.date_from, self.time_from, self.tz)
 
 # ------------------------------------------------------------------------------
 class EventExceptionQuerySet(EventQuerySet):
