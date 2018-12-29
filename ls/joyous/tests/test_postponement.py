@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import pytz
+from freezegun import freeze_time
 import datetime as dt
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
@@ -96,6 +97,7 @@ class TestPostponement(TestCase):
     def testWhen(self):
         self.assertEqual(self.postponement.when, "Thursday 11th of October 1990 at 1pm to 4:30pm")
 
+    @freeze_time("2017-05-01")
     def testAt(self):
         self.assertEqual(self.postponement.at.strip(), "1pm")
         nextDate = self.event.next_date

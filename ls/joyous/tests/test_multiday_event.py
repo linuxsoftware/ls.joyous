@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import MultidayEventPage
+from ls.joyous.models.events import MultidayEventPage, MultidayEventPageForm
 from .testutils import datetimetz
 
 class TestMultidayEvent(TestCase):
@@ -188,3 +188,58 @@ class TestMultidayEventTZ(TestCase):
         self.assertEqual(when.tzinfo.zone, "Pacific/Auckland")
         self.assertEqual(when.time(), dt.time.max)
         self.assertEqual(when.date(), dt.date(2018,3,17))
+
+
+class TestMultidayEventPageForm(TestCase):
+    Form = MultidayEventPage.get_edit_handler().get_form_class()
+
+    def setUp(self):
+        timezone.activate("Pacific/Auckland")
+
+    def tearDown(self):
+        timezone.deactivate()
+
+    def testValidDates(self):
+        form = self.Form({'slug':      "C2C",
+                          'title':     "Coast to Coast",
+                          'date_from': "2019-02-08",
+                          'date_to':   "2019-02-09",
+                          'time_from': "07:00:00",
+                          'tz':        "Pacific/Auckland"})
+        self.assertTrue(form.is_valid())
+        self.assertDictEqual(form.errors, {})
+
+    def testValidEndTimeBeforeStartTime(self):
+        form = self.Form({'slug':      "ABC",
+                          'title':     "AlphaBravoCharlie",
+                          'date_from': "2012-03-08",
+                          'date_to':   "2012-03-09",
+                          'time_from': "13:00:00",
+                          'time_to':   "12:00:00",
+                          'tz':        "Pacific/Auckland"})
+        self.assertTrue(form.is_valid())
+        self.assertDictEqual(form.errors, {})
+
+    def testEndDateBeforeStartDate(self):
+        form = self.Form({'slug':      "Q2U",
+                          'title':     "QWERTY2UIOPA",
+                          'date_from': "2019-02-10",
+                          'date_to':   "2019-02-09",
+                          'time_from': "07:00:00",
+                          'tz':        "Pacific/Auckland"})
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors,
+                             {'date_to': ["Event cannot end before it starts"]})
+
+
+    def testEndTimeBeforeStartTime(self):
+        form = self.Form({'slug':      "AB",
+                          'title':     "AlphaBravo",
+                          'date_from': "2012-03-08",
+                          'date_to':   "2012-03-08",
+                          'time_from': "13:00:00",
+                          'time_to':   "12:00:00",
+                          'tz':        "Pacific/Auckland"})
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors,
+                             {'time_to': ["Event cannot end before it starts"]})

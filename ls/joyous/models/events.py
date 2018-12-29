@@ -854,28 +854,6 @@ class RecurringEventPage(Page, EventBase):
         retval.sort(key=attrgetter('except_date'))
         return retval
 
-    def _getException(self, request):
-        """
-        Returns all future extra info, cancellations and postponements created
-        for this recurring event
-        """
-        retval = []
-        # We know all future exception dates are in the parent time zone
-        myToday = timezone.localdate(timezone=self.tz)
-
-        for extraInfo in ExtraInfoPage.events(request).child_of(self)         \
-                                      .filter(except_date__gte=myToday):
-            retval.append(extraInfo)
-        for cancellation in CancellationPage.events(request).child_of(self)   \
-                                            .filter(except_date__gte=myToday):
-            postponement = getattr(cancellation, "postponementpage", None)
-            if postponement:
-                retval.append(postponement)
-            else:
-                retval.append(cancellation)
-        retval.sort(key=attrgetter('except_date'))
-        return retval
-
     def _nextOn(self, request):
         """
         Formatted date/time of when this event (including any postponements)
