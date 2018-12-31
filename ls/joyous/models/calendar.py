@@ -102,7 +102,8 @@ class CalendarPage(RoutablePageMixin, Page):
     EventsPerPage = 25
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
-                     'joyous.RecurringEventPage']
+                     'joyous.RecurringEventPage',
+                     'joyous.MultidayRecurringEventPage']
     base_form_class = CalendarPageForm
 
     intro = RichTextField(blank=True)

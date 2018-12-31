@@ -11,11 +11,12 @@ from operator import attrgetter
 from uuid import uuid4
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.query import ModelIterable
-from django.utils.html import format_html
 from django.utils import timezone
+from django.utils.html import format_html
 from timezone_field import TimeZoneField
 from wagtail.core.query import PageQuerySet
 from wagtail.core.models import Page, PageManager, PageViewRestriction
@@ -27,6 +28,7 @@ from wagtail.images import get_image_model_string
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
+from ..utils.mixins import ProxyPageMixin
 from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime, todayUtc)
 from ..utils.telltime import timeFrom, timeTo
@@ -668,15 +670,22 @@ class RecurringEventQuerySet(EventQuerySet):
                         if thisEvent:
                             pageFromDate = getLocalDate(occurence,
                                                         page.time_from, page.tz)
-                            pageToDate  = getLocalDate(occurence,
-                                                       page.time_to, page.tz)
-                            dayNum = pageFromDate.toordinal() - fromOrd
+                            pageFromOrd = pageFromDate.toordinal()
+                            daysDelta = dt.timedelta(days=page.num_days - 1)
+                            pageToDate = getLocalDate(occurence + daysDelta,
+                                                      page.time_to, page.tz)
+                            pageToOrd = pageToDate.toordinal()
+
+                            dayNum = pageFromOrd - fromOrd
                             if 0 <= dayNum <= toOrd - fromOrd:
                                 evods[dayNum].days_events.append(thisEvent)
-                            if pageFromDate != pageToDate:
-                                if 0 <= dayNum+1 <= toOrd - fromOrd:
-                                    cont = evods[dayNum+1].continuing_events
+
+                            for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
+                                dayNum = pageOrd - fromOrd
+                                if 1 <= dayNum <= toOrd - fromOrd:
+                                    cont = evods[dayNum].continuing_events
                                     cont.append(thisEvent)
+
                 for evod in evods:
                     yield evod
 
@@ -721,7 +730,10 @@ class RecurringEventPage(Page, EventBase):
     # FIXME So that Fred can't cancel Barney's event
     # owner_subpages_only = True
 
-    repeat  = RecurrenceField()
+    repeat   = RecurrenceField()
+    num_days = models.IntegerField("Number of days", default=1,
+                                   validators=[MinValueValidator(1),
+                                               MaxValueValidator(99)])
 
     # TODO 
     # exclude_holidays = models.BooleanField(default=False)
@@ -790,7 +802,9 @@ class RecurringEventPage(Page, EventBase):
         if eventStart is None:
             # the last occurences must have been cancelled
             return "finished"
-        eventFinish = getAwareDatetime(eventStart.date(), event.time_to, self.tz)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        eventFinish = getAwareDatetime(eventStart.date() + daysDelta,
+                                       event.time_to, self.tz)
         if (event.time_from is not None and
             eventStart < myNow < eventFinish):
             # if there are two occurences on the same day then we may miss
@@ -814,13 +828,12 @@ class RecurringEventPage(Page, EventBase):
         offset   = 0
         timeFrom = None
         timeTo   = None
-        myNow    = timezone.localtime(timezone=self.tz)
-        fromDt   = self.__after(myNow) or self.__before(myNow)
+        fromDt   = self._getFromDt()
         if fromDt is not None:
             offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
             timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
             timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
-        retval = "{} {}".format(self.repeat._getWhen(offset),
+        retval = "{} {}".format(self.repeat._getWhen(offset, self.num_days),
                                 timeFormat(timeFrom, timeTo, "at "))
         return retval.strip()
 
@@ -830,10 +843,15 @@ class RecurringEventPage(Page, EventBase):
 
     def _getFromTime(self, atDate=None):
         # What was the time of this event?  Due to timezones that depends what
-        # day we are talking about.  if no day is given, assume today.
+        # day we are talking about.  If no day is given, assume today.
         if atDate is None:
             atDate = timezone.localdate(timezone=self.tz)
         return getLocalTime(atDate, self.time_from, self.tz)
+
+    def _getFromDt(self):
+        # Get the datetime of the next event after or before now
+        myNow = timezone.localtime(timezone=self.tz)
+        return self.__after(myNow) or self.__before(myNow)
 
     def _futureExceptions(self, request):
         """
@@ -895,7 +913,9 @@ class RecurringEventPage(Page, EventBase):
     def _getMyFirstDatetimeTo(self):
         myFirstDt = self._getMyFirstDatetimeFrom()
         if myFirstDt is not None:
-            return getAwareDatetime(myFirstDt.date(), self.time_to,
+            daysDelta = dt.timedelta(days=self.num_days - 1)
+            return getAwareDatetime(myFirstDt.date() + daysDelta,
+                                    self.time_to,
                                     self.tz, dt.time.max)
 
     def __localAfterOrPostponedTo(self, fromDt, timeDefault=dt.time.min):
@@ -1001,45 +1021,15 @@ class RecurringEventPage(Page, EventBase):
         if last is not None:
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
 
-# class MultidayReccuringEventPage(RecurringEventPage):
-#     class Meta:
-#         verbose_name = "Multiday Recurring Event Page"
-#         default_manager_name = "objects"
-#
-#     parent_page_types = ["joyous.CalendarPage",
-#                          "joyous.SpecificCalendarPage",
-#                          "joyous.GeneralCalendarPage",
-#                          get_group_model_string()]
-#     subpage_types = []
-#     base_form_class = MultidayEventPageForm
-#
-#     num_days = models.IntegerField("Number of days", default=1)
-#
-#     content_panels = RecurringEventPage.content_panels0 + [
-#         FieldPanel('num_days'),
-#         ] + RecurringEventPage.content_panels1
-#
-    # @property
-    # def status(self):
-    #     myNow = timezone.localtime(timezone=self.tz)
-    #     if getAwareDatetime(self.date_to, self.time_to, self.tz) < myNow:
-    #         return "finished"
-    #     elif getAwareDatetime(self.date_from, self.time_from, self.tz) < myNow:
-    #         return "started"
-    #
-    # @property
-    # def when(self):
-    #     return self._getLocalWhen(self.date_from, self.date_to)
-    #
-    # @property
-    # def at(self):
-    #     return timeFormat(self._getFromTime())
-    #
-    # def _getFromTime(self, atDate=None):
-    #     return getLocalTime(self.date_from, self.time_from, self.tz)
-    #
-    # def _getFromDt(self):
-    #     return getLocalDatetime(self.date_from, self.time_from, self.tz)
+# ------------------------------------------------------------------------------
+class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
+    """a proxy of RecurringEventPage that exposes the hidden num_days field"""
+    class Meta:
+        verbose_name = "Multiday Recurring Event Page"
+
+    content_panels = RecurringEventPage.content_panels0 + [
+        FieldPanel('num_days'),
+        ] + RecurringEventPage.content_panels1
 
 # ------------------------------------------------------------------------------
 class EventExceptionQuerySet(EventQuerySet):

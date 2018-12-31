@@ -163,7 +163,7 @@ class Recurrence(rrulebase):
     def __str__(self):
         return self._getWhen(0)
 
-    def _getWhen(self, offset):
+    def _getWhen(self, offset, numDays=1):
         retval = ""
         if self.freq == DAILY:
             if self.interval > 1:
@@ -236,6 +236,8 @@ class Recurrence(rrulebase):
                     retval = "{}, every {} months".format(retval, self.interval)
                 else:
                     retval = "{}, every {} years".format(retval, self.interval)
+        if numDays >= 2:
+            retval += " for {} days".format(numDays)
         if self.until:
             until = self.until + dt.timedelta(days=offset)
             # TODO make format configurable
