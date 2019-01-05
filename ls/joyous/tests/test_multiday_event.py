@@ -10,6 +10,7 @@ from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import MultidayEventPage, MultidayEventPageForm
+from freezegun import freeze_time
 from .testutils import datetimetz
 
 class TestMultidayEvent(TestCase):
@@ -171,6 +172,7 @@ class TestMultidayEventTZ(TestCase):
         self.assertEqual(evod1.all_events[0], evod5.all_events[0])
         self.assertEqual(evod1.all_events[0].page, evod5.all_events[0].page)
 
+    @freeze_time("2018-04-01")
     def testLocalWhen(self):
         self.assertEqual(self.event.when,
                          "Friday 16th of March to Wednesday 21st of March")

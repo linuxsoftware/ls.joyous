@@ -46,6 +46,7 @@ class TestImport(TestCase):
         request.POST['action-publish'] = "action-publish"
         return request
 
+    @freeze_time("2018-07-24 19:00:00")
     def testMeetup(self):
         stream = BytesIO(b"""\
 BEGIN:VCALENDAR\r
@@ -112,6 +113,7 @@ END:VCALENDAR""")
         self.assertEqual(event.time_to,    dt.time(21,30))
         self.assertEqual(event.tz.zone,    "America/New_York")
 
+    @freeze_time("2018-02-01")
     @timezone.override("Pacific/Auckland")
     def testGoogleCalendar(self):
         stream = BytesIO(rb"""

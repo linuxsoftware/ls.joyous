@@ -5,6 +5,8 @@ import unittest
 import datetime as dt
 from functools import wraps
 from django.utils import timezone
+from dateutil import parser
+from freezegun import freeze_time
 
 
 def skipUnlessSetup(attrs):
@@ -29,3 +31,24 @@ def datetimetz(*args):
     elif type(args[0]) == dt.date:
         datetime = dt.datetime.combine(*args)
     return timezone.make_aware(datetime)
+
+
+__abracadabra = object()
+
+def freeze_timetz(time_to_freeze=None, tz_offset=__abracadabra,
+                  *args, **kwargs):
+    if tz_offset is not __abracadabra:
+        raise TypeError("Use plain freeze_time if you want to pass a tz_offset")
+
+    if time_to_freeze is None:
+        time_to_freeze = timezone.localtime().replace(tzinfo=None)
+    elif isinstance(time_to_freeze, dt.date):
+        time_to_freeze = dt.datetime.combine(time_to_freeze, dt.datetime.time())
+    elif isinstance(time_to_freeze, str):
+        time_to_freeze = parser.parse(time_to_freeze)
+
+    if (isinstance(time_to_freeze, dt.datetime) and
+        timezone.is_naive(time_to_freeze)):
+        time_to_freeze = timezone.make_aware(time_to_freeze)
+
+    return freeze_time(time_to_freeze, *args, **kwargs)

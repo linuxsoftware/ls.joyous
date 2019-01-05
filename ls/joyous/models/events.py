@@ -496,8 +496,7 @@ class SimpleEventQuerySet(EventQuerySet):
                     if pageFromDate != pageToDate:
                         if 0 <= dayNum+1 <= toOrd - fromOrd:
                             evods[dayNum+1].continuing_events.append(thisEvent)
-                for evod in evods:
-                    yield evod
+                yield from evods
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _2days, toDate + _2days))
@@ -580,8 +579,7 @@ class MultidayEventQuerySet(EventQuerySet):
                         elif pageFromDate < day <= pageToDate:
                             continuing_events.append(ThisEvent(page.title, page))
                     evods.append(EventsOnDay(day, days_events, continuing_events))
-                for evod in evods:
-                    yield evod
+                yield from evods
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date_to__gte   = fromDate - _2days)   \
@@ -685,9 +683,7 @@ class RecurringEventQuerySet(EventQuerySet):
                                 if 1 <= dayNum <= toOrd - fromOrd:
                                     cont = evods[dayNum].continuing_events
                                     cont.append(thisEvent)
-
-                for evod in evods:
-                    yield evod
+                yield from evods
 
             def __getExceptionsFor(self, page):
                 dateRange = (fromDate - _2days, toDate + _2days)
@@ -798,15 +794,16 @@ class RecurringEventPage(Page, EventBase):
             if untilDt < myNow:
                 return "finished"
         todayStart = getAwareDatetime(myNow.date(), dt.time.min, self.tz)
-        eventStart, event = self.__afterOrPostponedTo(todayStart)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        eventStart, event = self.__afterOrPostponedTo(todayStart - daysDelta)
         if eventStart is None:
             # the last occurences must have been cancelled
             return "finished"
-        daysDelta = dt.timedelta(days=self.num_days - 1)
         eventFinish = getAwareDatetime(eventStart.date() + daysDelta,
                                        event.time_to, self.tz)
-        if (event.time_from is not None and
-            eventStart < myNow < eventFinish):
+        if event.time_from is None:
+            eventStart += _1day
+        if eventStart < myNow < eventFinish:
             # if there are two occurences on the same day then we may miss
             # that one of them has started
             return "started"
@@ -894,7 +891,8 @@ class RecurringEventPage(Page, EventBase):
 
     def _occursOn(self, myDate):
         """
-        Returns true iff this event occurs on this date (in event's own timezone)
+        Returns true iff an occurence of this event starts on this date
+        (given in the event's own timezone).
         (Does not include postponements, but does exclude cancellations)
         """
         # TODO analyse which is faster (rrule or db) and test that first
@@ -1135,7 +1133,8 @@ class ExtraInfoPage(Page, EventExceptionBase):
         default_manager_name = "objects"
 
     events = EventManager.from_queryset(ExtraInfoQuerySet)()
-    parent_page_types = ["joyous.RecurringEventPage"]
+    parent_page_types = ["joyous.RecurringEventPage",
+                         "joyous.MultidayRecurringEventPage"]
     subpage_types = []
     base_form_class = ExtraInfoPageForm
     slugName    = "extra-info"
@@ -1207,7 +1206,8 @@ class CancellationPage(Page, EventExceptionBase):
         verbose_name = "Cancellation"
         default_manager_name = "objects"
 
-    parent_page_types = ["joyous.RecurringEventPage"]
+    parent_page_types = ["joyous.RecurringEventPage",
+                         "joyous.MultidayRecurringEventPage"]
     subpage_types = []
     base_form_class = CancellationPageForm
     slugName = "cancellation"
@@ -1279,8 +1279,7 @@ class PostponementQuerySet(EventQuerySet):
                     if pageFromDate != pageToDate:
                         if 0 <= dayNum+1 <= toOrd - fromOrd:
                             evods[dayNum+1].continuing_events.append(thisEvent)
-                for evod in evods:
-                    yield evod
+                yield from evods
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
@@ -1299,7 +1298,8 @@ class PostponementPage(EventBase, CancellationPage):
         default_manager_name = "objects"
 
     events = EventManager.from_queryset(PostponementQuerySet)()
-    parent_page_types = ["joyous.RecurringEventPage"]
+    parent_page_types = ["joyous.RecurringEventPage",
+                         "joyous.MultidayRecurringEventPage"]
     subpage_types = []
     base_form_class = PostponementPageForm
     slugName = "postponement"

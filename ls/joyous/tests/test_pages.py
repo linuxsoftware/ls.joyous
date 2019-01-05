@@ -9,7 +9,8 @@ from django.contrib.auth.models import Group, Permission
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from wagtail.core.models import Page
-from ls.joyous.models.events import SimpleEventPage, MultidayEventPage, RecurringEventPage
+from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
+                                     RecurringEventPage, MultidayRecurringEventPage)
 from ls.joyous.models.events import ExtraInfoPage, CancellationPage, PostponementPage
 from ls.joyous.models.calendar import CalendarPage, SpecificCalendarPage, GeneralCalendarPage
 from ls.joyous.models.groups import get_group_model
@@ -55,8 +56,16 @@ class PageClassTests(WagtailPageTests):
         self.assertCanCreateAt(GroupPage, RecurringEventPage)
         self.assertCanNotCreateAt(Page, RecurringEventPage)
 
+    def testCanCreateMultidayRecurringEvent(self):
+        self.assertCanCreateAt(CalendarPage, MultidayRecurringEventPage)
+        self.assertCanCreateAt(SpecificCalendarPage, MultidayRecurringEventPage)
+        self.assertCanCreateAt(GeneralCalendarPage, MultidayRecurringEventPage)
+        self.assertCanCreateAt(GroupPage, MultidayRecurringEventPage)
+        self.assertCanNotCreateAt(Page, MultidayRecurringEventPage)
+
     def testCanCreateExtraInfo(self):
         self.assertCanCreateAt(RecurringEventPage, ExtraInfoPage)
+        self.assertCanCreateAt(MultidayRecurringEventPage, ExtraInfoPage)
         self.assertCanNotCreateAt(CalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
@@ -64,6 +73,7 @@ class PageClassTests(WagtailPageTests):
 
     def testCanCreateCancellation(self):
         self.assertCanCreateAt(RecurringEventPage, CancellationPage)
+        self.assertCanCreateAt(MultidayRecurringEventPage, CancellationPage)
         self.assertCanNotCreateAt(CalendarPage, CancellationPage)
         self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
@@ -71,6 +81,7 @@ class PageClassTests(WagtailPageTests):
 
     def testCanCreatePostponement(self):
         self.assertCanCreateAt(RecurringEventPage, PostponementPage)
+        self.assertCanCreateAt(MultidayRecurringEventPage, PostponementPage)
         self.assertCanNotCreateAt(CalendarPage, PostponementPage)
         self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
         self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
@@ -99,16 +110,33 @@ class PageClassTests(WagtailPageTests):
                                        {ExtraInfoPage, CancellationPage,
                                         PostponementPage})
 
+
+    def testMultidayRecurringEventAllows(self):
+        self.assertAllowedParentPageTypes(MultidayRecurringEventPage,
+                                          {CalendarPage,
+                                           SpecificCalendarPage,
+                                           GeneralCalendarPage,
+                                           GroupPage})
+        self.assertAllowedSubpageTypes(MultidayRecurringEventPage,
+                                       {ExtraInfoPage, CancellationPage,
+                                        PostponementPage})
+
     def testExtraInfoAllows(self):
-        self.assertAllowedParentPageTypes(ExtraInfoPage, {RecurringEventPage})
+        self.assertAllowedParentPageTypes(ExtraInfoPage,
+                                          {RecurringEventPage,
+                                           MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(ExtraInfoPage, {})
 
     def testCancellationAllows(self):
-        self.assertAllowedParentPageTypes(CancellationPage, {RecurringEventPage})
+        self.assertAllowedParentPageTypes(CancellationPage,
+                                          {RecurringEventPage,
+                                           MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(CancellationPage, {})
 
     def testPostponementAllows(self):
-        self.assertAllowedParentPageTypes(PostponementPage, {RecurringEventPage})
+        self.assertAllowedParentPageTypes(PostponementPage,
+                                          {RecurringEventPage,
+                                           MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(PostponementPage, {})
 
 
@@ -193,6 +221,22 @@ class PageInstanceTests(WagtailPageTests):
                                                'tz':         pytz.timezone("Pacific/Auckland"),
                                                'details':
                                                    rich_text("<p>Stand up straight!</p>")}))
+
+    @skipUnlessSetup("group")
+    def testCanCreateMultidayRecurringEvent(self):
+        self.assertCanCreate(self.group, MultidayRecurringEventPage,
+                             nested_form_data({'title':      "Team Retreat",
+                                               'repeat_0':   dt.date(1987,8,7),
+                                               'repeat_1':   0,                    # yearly
+                                               'repeat_2':   1,                    # every year
+                                               'repeat_6':   1,                    # the first
+                                               'repeat_7':   4,                    # Friday of
+                                               'repeat_12':  {8:8},                # August
+                                               'num_days':   3,
+                                               'time_from':  dt.time(17),
+                                               'tz':         pytz.timezone("Pacific/Auckland"),
+                                               'details':
+                                                   rich_text("<p>Three days of T-E-A-M</p>")}))
 
     @skipUnlessSetup("event")
     def testCanCreateExtraInfo(self):

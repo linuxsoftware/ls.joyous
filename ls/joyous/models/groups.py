@@ -52,7 +52,8 @@ class GroupPage(Page):
 
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
-                     'joyous.RecurringEventPage']
+                     'joyous.RecurringEventPage',
+                     'joyous.MultidayRecurringEventPage']
 
     content = RichTextField(default='', blank=True)
     content.help_text = "An area of text for whatever you like"
