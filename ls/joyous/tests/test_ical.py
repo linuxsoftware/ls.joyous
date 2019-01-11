@@ -30,8 +30,8 @@ class TestImport(TestCase):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.requestFactory = RequestFactory()
         self.calendar = CalendarPage(owner = self.user,
-                                slug  = "events",
-                                title = "Events")
+                                     slug  = "events",
+                                     title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
         self.handler = ICalHandler()

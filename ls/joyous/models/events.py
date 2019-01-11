@@ -408,6 +408,9 @@ class EventBase(models.Model):
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending)
+        """
         raise NotImplementedError()
 
     @property
@@ -428,8 +431,11 @@ class EventBase(models.Model):
                               if getattr(panel, "field_name", None) not in remove]
 
     def isAuthorized(self, request):
+        restrictions = self.get_view_restrictions()
+        if restrictions and request is None:
+            return False
         return all(restriction.accept_request(request)
-                   for restriction in self.get_view_restrictions())
+                   for restriction in restrictions)
 
     def _getLocalWhen(self, date_from, date_to=None):
         dateFrom, timeFrom = getLocalDateAndTime(date_from, self.time_from,
@@ -789,12 +795,13 @@ class RecurringEventPage(Page, EventBase):
     @property
     def status(self):
         myNow = timezone.localtime(timezone=self.tz)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
         if self.repeat.until:
-            untilDt = getAwareDatetime(self.repeat.until, self.time_to, self.tz)
+            untilDt = getAwareDatetime(self.repeat.until + daysDelta,
+                                       self.time_to, self.tz)
             if untilDt < myNow:
                 return "finished"
         todayStart = getAwareDatetime(myNow.date(), dt.time.min, self.tz)
-        daysDelta = dt.timedelta(days=self.num_days - 1)
         eventStart, event = self.__afterOrPostponedTo(todayStart - daysDelta)
         if eventStart is None:
             # the last occurences must have been cancelled
@@ -1103,8 +1110,11 @@ class EventExceptionBase(models.Model):
         super().full_clean(*args, **kwargs)
 
     def isAuthorized(self, request):
+        restrictions = self.get_view_restrictions()
+        if restrictions and request is None:
+            return False
         return all(restriction.accept_request(request)
-                   for restriction in self.get_view_restrictions())
+                   for restriction in restrictions)
 
 
 # ------------------------------------------------------------------------------

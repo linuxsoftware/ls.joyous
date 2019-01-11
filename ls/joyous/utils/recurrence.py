@@ -53,6 +53,8 @@ WEEKDAYS = [MO, TU, WE, TH, FR]
 WEEKEND = [SA, SU]
 EVERYDAY = WEEKDAYS + WEEKEND
 
+JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC = range(1, 13)
+
 # ------------------------------------------------------------------------------
 class Recurrence(rrulebase):
     def __init__(self, *args, **kwargs):
@@ -80,10 +82,17 @@ class Recurrence(rrulebase):
 
     @property
     def dtstart(self):
+        """
+        The recurrence start date.
+        """
         return self.rule._dtstart.date()
 
     @property
     def frequency(self):
+        """
+        How often the recurrence repeats.
+        ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
+        """
         freqOptions = ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
         if self.freq < len(freqOptions):
             return freqOptions[self.freq]
@@ -92,15 +101,28 @@ class Recurrence(rrulebase):
 
     @property
     def until(self):
+        """
+        The last occurence in the rule is the greatest date that is
+        less than or equal to the value specified in the until parameter.
+        """
         if self.rule._until is not None:
             return self.rule._until.date()
 
     @property
     def wkst(self):
+        """
+        The week start day.  The default week start is got from
+        calendar.firstweekday() which Joyous sets based on the Django
+        FIRST_DAY_OF_WEEK setting.
+        """
         return Weekday(self.rule._wkst)
 
     @property
     def byweekday(self):
+        """
+        The weekdays where the recurrence will be applied.  In RFC5545 this is
+        called BYDAY, but is renamed by dateutil to avoid ambiguity.
+        """
         retval = []
         if self.rule._byweekday:
             retval += [Weekday(day) for day in self.rule._byweekday]
@@ -110,6 +132,9 @@ class Recurrence(rrulebase):
 
     @property
     def bymonthday(self):
+        """
+        The month days where the recurrence will be applied.
+        """
         retval = []
         if self.rule._bymonthday:
             retval += self.rule._bymonthday
@@ -119,6 +144,9 @@ class Recurrence(rrulebase):
 
     @property
     def bymonth(self):
+        """
+        The months where the recurrence will be applied.
+        """
         if self.rule._bymonth:
             return list(self.rule._bymonth)
         else:
@@ -129,6 +157,10 @@ class Recurrence(rrulebase):
             yield occurence.date()
 
     def getCount(self):
+        """
+        How many occurrences will be generated.
+        The use of the until keyword together with the count keyword is deprecated.
+        """
         return self.rule.count()
 
     def __repr__(self):

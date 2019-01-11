@@ -3,9 +3,9 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
-from wagtail.core.models import Page
+from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import CancellationPage
@@ -61,6 +61,51 @@ class TestCancellation(TestCase):
         self.assertEqual(evod2.date, dt.date(1989,2,13))
         self.assertEqual(len(evod2.days_events), 0)
         self.assertEqual(len(evod2.continuing_events), 0)
+
+    def testUnexplainedCancellation(self):
+        self._cancel_1999_02_08()
+
+        events = RecurringEventPage.events.byDay(dt.date(1999,2,1),
+                                                dt.date(1999,2,28))
+        self.assertEqual(len(events), 28)
+        evod = events[7]
+        self.assertEqual(evod.date, dt.date(1999,2,8))
+        self.assertEqual(len(evod.days_events), 0)
+        self.assertEqual(len(evod.continuing_events), 0)
+
+    def testUnexplainedCancellationExplained(self):
+        restriction = self._cancel_1999_02_08()
+
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        KEY = PageViewRestriction.passed_view_restrictions_session_key
+        request.session = {KEY: [restriction.id]}
+        events = RecurringEventPage.events(request).byDay(dt.date(1999,2,1),
+                                                          dt.date(1999,2,28))
+        self.assertEqual(len(events), 28)
+        evod = events[7]
+        self.assertEqual(evod.date, dt.date(1999,2,8))
+        self.assertEqual(len(evod.days_events), 1)
+        self.assertEqual(len(evod.continuing_events), 0)
+        title, page = evod.days_events[0]
+        self.assertEqual(title, "Restructure Pending")
+        self.assertIs(type(page), CancellationPage)
+
+    def _cancel_1999_02_08(self):
+        cancellation = CancellationPage(owner = self.user,
+                                        slug  = "1999-02-08-cancellation",
+                                        title = "Cancellation for Monday 8th of February",
+                                        overrides = self.event,
+                                        except_date = dt.date(1999, 2, 8),
+                                        cancellation_title   = "Restructure Pending",
+                                        cancellation_details = "Keep it quiet")
+        self.event.add_child(instance=cancellation)
+        PASSWORD = PageViewRestriction.PASSWORD
+        restriction = PageViewRestriction.objects.create(restriction_type = PASSWORD,
+                                                         password = "s3cr3t",
+                                                         page = cancellation)
+        restriction.save()
+        return restriction
 
     def testStatus(self):
         self.assertEqual(self.cancellation.status, "cancelled")

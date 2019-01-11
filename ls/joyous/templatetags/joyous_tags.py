@@ -34,11 +34,11 @@ def events_this_week(context):
         events = cal._getEventsByDay(request, dateFrom, dateTo)
     else:
         events = getAllEventsByDay(request, dateFrom, dateTo)
-    return {'request': request,
-            'today':   today,
+    return {'request':      request,
+            'today':        today,
             'calendarUrl':  calUrl,
             'calendarName': calName,
-            'events':  events }
+            'events':       events }
 
 @register.inclusion_tag("joyous/tags/minicalendar.html",
                         takes_context=True)
@@ -102,6 +102,7 @@ def next_on(context, event):
     eventNextOn = getattr(event, '_nextOn', lambda _:None)
     return eventNextOn(request)
 
+# ------------------------------------------------------------------------------
 # Format times and dates e.g. on event page
 @register.filter
 def time_display(time):

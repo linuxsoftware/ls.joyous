@@ -4,7 +4,6 @@
 import sys
 import datetime as dt
 import pytz
-from freezegun import freeze_time
 import calendar
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -13,8 +12,8 @@ from wagtail.core.models import Page
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, TH, WEEKEND, EVERYDAY
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage
-from .testutils import datetimetz
+from ls.joyous.models.events import RecurringEventPage, CancellationPage
+from .testutils import datetimetz, freeze_timetz
 
 class TestRecurringEvent(TestCase):
     def setUp(self):
@@ -83,6 +82,42 @@ class TestRecurringEvent(TestCase):
         self.calendar.add_child(instance=pastAndFutureEvent)
         self.assertIsNone(pastAndFutureEvent.status)
         self.assertEqual(pastAndFutureEvent.status_text, "")
+
+    @freeze_timetz("2008-05-04 09:01")
+    def testJustFinishedStatus(self):
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "breakfast1",
+                                   title = "Breakfast-in-bed",
+                                   repeat = Recurrence(dtstart=dt.date(2008,2,1),
+                                                       until=dt.date(2008,5,9),
+                                                       freq=WEEKLY,
+                                                       byweekday=WEEKEND),
+                                      time_from = dt.time(8),
+                                      time_to   = dt.time(9))
+        self.calendar.add_child(instance=event)
+        self.assertEqual(event.status, "finished")
+
+    @freeze_timetz("2008-05-04 07:00")
+    def testLastOccurenceCancelledStatus(self):
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "breakfast2",
+                                   title = "Breakfast-in-bed",
+                                   repeat = Recurrence(dtstart=dt.date(2008,2,1),
+                                                       until=dt.date(2008,5,9),
+                                                       freq=WEEKLY,
+                                                       byweekday=WEEKEND),
+                                      time_from = dt.time(8),
+                                      time_to   = dt.time(9))
+        self.calendar.add_child(instance=event)
+        cancellation = CancellationPage(owner = self.user,
+                                        slug  = "2008-05-04-cancellation",
+                                        title = "Cancellation for Sunday 4th of May",
+                                        overrides = event,
+                                        except_date = dt.date(2008, 5, 4),
+                                        cancellation_title   = "Fire in the kitchen",
+                                        cancellation_details = "The bacon fat is burning")
+        event.add_child(instance=cancellation)
+        self.assertEqual(event.status, "finished")
 
     def testWhen(self):
         self.assertEqual(self.event.when, "The first Tuesday of the month at 6:30pm to 8pm")
@@ -175,7 +210,7 @@ class RecurringEventPageTZ(TestCase):
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(len(evod1.continuing_events), 0)
 
-    @freeze_time("2017-05-31")
+    @freeze_timetz("2017-05-31")
     def testLocalWhen(self):
         with timezone.override("America/Los_Angeles"):
             self.assertEqual(self.event.when,
