@@ -35,16 +35,9 @@ from ..utils.telltime import timeFrom, timeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 from ..fields import RecurrenceField
-from ..edit_handlers import ExceptionDatePanel, TimePanel
+from ..edit_handlers import ExceptionDatePanel, TimePanel, MapFieldPanel
 from .groups import get_group_model_string, get_group_model
 
-try:
-    # Use wagtailgmaps for location if it is installed
-    # but don't depend upon it
-    settings.INSTALLED_APPS.index('wagtailgmaps')
-    from wagtailgmaps.edit_handlers import MapFieldPanel
-except (ValueError, ImportError):
-    MapFieldPanel = FieldPanel
 
 # ------------------------------------------------------------------------------
 # API get functions
@@ -434,8 +427,9 @@ class EventBase(models.Model):
         restrictions = self.get_view_restrictions()
         if restrictions and request is None:
             return False
-        return all(restriction.accept_request(request)
-                   for restriction in restrictions)
+        else:
+            return all(restriction.accept_request(request)
+                       for restriction in restrictions)
 
     def _getLocalWhen(self, date_from, date_to=None):
         dateFrom, timeFrom = getLocalDateAndTime(date_from, self.time_from,
@@ -565,8 +559,8 @@ class MultidayEventQuerySet(EventQuerySet):
         return qs.filter(date_from__lte = todayUtc() + _1day)
 
     def byDay(self, fromDate, toDate):
-        fromOrd =  fromDate.toordinal()
-        toOrd   =  toDate.toordinal()
+        fromOrd = fromDate.toordinal()
+        toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
             def __iter__(self):
                 evods = []
@@ -1113,8 +1107,9 @@ class EventExceptionBase(models.Model):
         restrictions = self.get_view_restrictions()
         if restrictions and request is None:
             return False
-        return all(restriction.accept_request(request)
-                   for restriction in restrictions)
+        else:
+            return all(restriction.accept_request(request)
+                       for restriction in restrictions)
 
 
 # ------------------------------------------------------------------------------

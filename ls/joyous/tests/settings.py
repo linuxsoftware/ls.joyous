@@ -40,8 +40,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #'wagtail.tests.context_processors.do_not_use_static_url',
-                #'wagtail.contrib.settings.context_processors.settings',
+                'wagtail.tests.context_processors.do_not_use_static_url',
             ],
             'debug': True,  # required in order to catch template errors
         },

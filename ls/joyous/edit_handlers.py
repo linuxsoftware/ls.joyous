@@ -53,6 +53,16 @@ class TimePanel(FieldPanel):
         widget = AdminTimeInput
 
 # ------------------------------------------------------------------------------
+try:
+    # Use wagtailgmaps for location if it is installed
+    # but don't depend upon it
+    settings.INSTALLED_APPS.index('wagtailgmaps')
+    from wagtailgmaps.edit_handlers import MapFieldPanel
+    MapFieldPanel.UsingWagtailGMaps = True
+except (ValueError, ImportError):
+    MapFieldPanel = FieldPanel
+
+# ------------------------------------------------------------------------------
 class ConcealedPanel(MultiFieldPanel):
     def __init__(self, children, heading, classname='', help_text=''):
         super().__init__(children, '', classname, '')

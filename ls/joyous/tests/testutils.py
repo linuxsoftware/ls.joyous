@@ -6,9 +6,10 @@ import datetime as dt
 from functools import wraps
 from django.utils import timezone
 from dateutil import parser
+from wagtail.core.models import Site, Page
 from freezegun import freeze_time
 
-
+# ------------------------------------------------------------------------------
 def skipUnlessSetup(attrs):
     if type(attrs) == str:
         attrs = [attrs]
@@ -22,7 +23,7 @@ def skipUnlessSetup(attrs):
         return test
     return decorator
 
-
+# ------------------------------------------------------------------------------
 def datetimetz(*args):
     if len(args) < 2:
         return timezone.localtime()
@@ -32,7 +33,7 @@ def datetimetz(*args):
         datetime = dt.datetime.combine(*args)
     return timezone.make_aware(datetime)
 
-
+# ------------------------------------------------------------------------------
 __abracadabra = object()
 
 def freeze_timetz(time_to_freeze=None, tz_offset=__abracadabra,
@@ -52,3 +53,11 @@ def freeze_timetz(time_to_freeze=None, tz_offset=__abracadabra,
         time_to_freeze = timezone.make_aware(time_to_freeze)
 
     return freeze_time(time_to_freeze, *args, **kwargs)
+
+# ------------------------------------------------------------------------------
+def getPage(path):
+    return Page.objects.get(url_path=path).specific
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

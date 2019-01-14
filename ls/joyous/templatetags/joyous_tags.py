@@ -11,6 +11,7 @@ from ..models import getGroupUpcomingEvents
 from ..models import getAllEventsByWeek
 from ..models import CalendarPage
 from ..utils.weeks import weekday_abbr, weekday_name
+from ..edit_handlers import MapFieldPanel
 
 register = template.Library()
 
@@ -78,11 +79,12 @@ def subsite_upcoming_events(context):
 
 @register.inclusion_tag("joyous/tags/upcoming_events_list.html",
                         takes_context=True)
-def group_upcoming_events(context):
+def group_upcoming_events(context, group=None):
     request = context.get('request')
-    page = context.get('page')
-    if page:
-        events = getGroupUpcomingEvents(request, page)
+    if group is None:
+        group = context.get('page')
+    if group:
+        events = getGroupUpcomingEvents(request, group)
     else:
         events = []
     return {'request': request,
@@ -90,17 +92,35 @@ def group_upcoming_events(context):
 
 @register.inclusion_tag("joyous/tags/future_exceptions_list.html",
                         takes_context=True)
-def future_exceptions(context, event):
+def future_exceptions(context, rrevent=None):
     request = context['request']
-    exceptions = event._futureExceptions(request)
+    if rrevent is None:
+        rrevent = context.get('page')
+    if rrevent:
+        exceptions = rrevent._futureExceptions(request)
+    else:
+        exceptions = []
     return {'request':    request,
             'exceptions': exceptions}
 
 @register.simple_tag(takes_context=True)
-def next_on(context, event):
+def next_on(context, rrevent=None):
     request = context['request']
-    eventNextOn = getattr(event, '_nextOn', lambda _:None)
+    if rrevent is None:
+        rrevent = context.get('page')
+    eventNextOn = getattr(rrevent, '_nextOn', lambda _:None)
     return eventNextOn(request)
+
+@register.inclusion_tag("joyous/tags/location_gmap.html",
+                        takes_context=True)
+# TODO: Could make this a simple_tag, but would then need to
+# watch out for unsafe HTML
+def location_gmap(context, location):
+    """Display a link to Google maps iff we are using WagtailGMaps"""
+    gmapq = None
+    if getattr(MapFieldPanel, "UsingWagtailGMaps", False):
+        gmapq = location
+    return {'gmapq': gmapq}
 
 # ------------------------------------------------------------------------------
 # Format times and dates e.g. on event page
