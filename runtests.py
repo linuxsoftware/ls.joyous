@@ -25,7 +25,7 @@ def run():
 
 def coverage():
     if "--coverage" in sys.argv:
-        cover = Coverage(source=["ls.joyous"])
+        cover = Coverage(source=["ls.joyous"], omit=["*/tests*"])
         cover.start()
         failures = run()
         cover.stop()
