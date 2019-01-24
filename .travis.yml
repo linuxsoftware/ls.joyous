@@ -1,0 +1,37 @@
+# https://github.com/linuxsoftware/ls.joyous
+
+language: python
+
+env:
+ - WAGTAIL_VERSION=2.2.2
+ - WAGTAIL_VERSION=2.3
+ - WAGTAIL_VERSION=2.4
+
+python:
+  - "3.5"
+  - "3.6"
+
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: required
+      env: WAGTAIL_VERSION=2.2.2
+    - python: 3.7
+      dist: xenial
+      sudo: required
+      env: WAGTAIL_VERSION=2.3
+    - python: 3.7
+      dist: xenial
+      sudo: required
+      env: WAGTAIL_VERSION=2.4
+
+install:
+  - pip install -r requirements.txt
+  - pip install wagtail==$WAGTAIL_VERSION
+
+script:
+  - ./runtests.py --coverage
+
+after_success:
+  - coveralls

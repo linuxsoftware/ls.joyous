@@ -3,10 +3,19 @@
 # ----------------------
 
 import sys
+import os
+import io
 import subprocess
 import codecs
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
+
+# allow setup.py to be run from any path
+here = Path(__file__).resolve().parent
+os.chdir(str(here))
+
+with io.open("README.rst", encoding="utf-8") as readme:
+    README = readme.read()
 
 class RunTests(TestCommand):
     def run(self):
@@ -18,7 +27,7 @@ setup(name="ls.joyous",
           'write_to':  "ls/joyous/_version.py",
       },
       description="A calendar application for Wagtail.",
-      long_description=codecs.open("README.rst", encoding="utf-8").read(),
+      long_description=README,
       keywords=["calendar", "events", "wagtail", "groupware"],
       classifiers=["Development Status :: 4 - Beta",
                    "Framework :: Django",
