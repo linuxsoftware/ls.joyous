@@ -127,7 +127,7 @@ class TestVCalendar(TestCase):
         self.assertEqual(len(idParts), 4)
         self.assertEqual(idParts[0], "-")
         self.assertEqual(idParts[1], "linuxsoftware.nz")
-        self.assertEqual(idParts[2], "NONSGML Joyous v0.6")
+        self.assertEqual(idParts[2][:14], "NONSGML Joyous")
         self.assertEqual(idParts[3], "EN")
         self.assertEqual(vcal['VERSION'], "2.0")
 
