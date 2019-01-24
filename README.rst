@@ -1,6 +1,9 @@
 ls.joyous
 ===============
 
+.. image:: https://secure.travis-ci.org/linuxsoftware/ls.joyous.svg?branch=master
+   :target: https://travis-ci.org/linuxsoftware/ls.joyous
+
 Events
 -------
 Simple, multiday, and recurring events can be added to the calendar.
