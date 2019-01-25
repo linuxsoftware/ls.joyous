@@ -16,7 +16,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import MultidayRecurringEventPage
 from .testutils import datetimetz, freeze_timetz
 
-class TestMultidayRecurringEvent(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,

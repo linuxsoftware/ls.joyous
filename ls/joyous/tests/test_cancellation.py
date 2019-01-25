@@ -12,7 +12,7 @@ from ls.joyous.models.events import CancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 
 
-class TestCancellation(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3(r3t')

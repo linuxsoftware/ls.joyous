@@ -14,7 +14,7 @@ from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import datetimetz
 
 
-class TestExtraInfo(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')

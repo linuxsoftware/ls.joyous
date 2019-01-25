@@ -9,7 +9,7 @@ from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import SimpleEventPage
 
-class TestCalendar(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         calendar = CalendarPage(owner  = self.user,

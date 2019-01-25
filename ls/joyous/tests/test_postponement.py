@@ -16,7 +16,7 @@ from ls.joyous.models.events import CancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 
 
-class TestPostponement(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
@@ -128,7 +128,7 @@ class TestPostponement(TestCase):
         self.assertEqual(parts[5], "8:30am")
 
 
-class TestPostponementTZ(TestCase):
+class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')

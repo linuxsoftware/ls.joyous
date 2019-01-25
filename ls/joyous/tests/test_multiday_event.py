@@ -13,7 +13,7 @@ from ls.joyous.models.events import MultidayEventPage, MultidayEventPageForm
 from freezegun import freeze_time
 from .testutils import datetimetz
 
-class TestMultidayEvent(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -139,7 +139,7 @@ class TestMultidayEvent(TestCase):
         self.assertIsNone(self.event.group)
 
 
-class TestMultidayEventTZ(TestCase):
+class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -192,7 +192,7 @@ class TestMultidayEventTZ(TestCase):
         self.assertEqual(when.date(), dt.date(2018,3,17))
 
 
-class TestMultidayEventPageForm(TestCase):
+class TestPageForm(TestCase):
     Form = MultidayEventPage.get_edit_handler().get_form_class()
 
     def setUp(self):

@@ -17,7 +17,7 @@ from ls.joyous.formats.ical import SimpleVEvent, MultidayVEvent, RecurringVEvent
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------
-class TestSimpleVEvent(TestCase):
+class TestSimple(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"
@@ -46,7 +46,7 @@ class TestSimpleVEvent(TestCase):
                          tz.localize(dt.datetime(1987,6,5,11,0)))
 
 # ------------------------------------------------------------------------------
-class TestMultidayVEvent(TestCase):
+class TestMultiday(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"
@@ -76,7 +76,7 @@ class TestMultidayVEvent(TestCase):
                          tz.localize(dt.datetime(2018,3,20,23,59,59,999999)))
 
 # ------------------------------------------------------------------------------
-class TestRecurringVEvent(TestCase):
+class TestRecurring(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"

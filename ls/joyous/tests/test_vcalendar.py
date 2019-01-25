@@ -16,7 +16,7 @@ from freezegun import freeze_time
 from .testutils import datetimetz
 
 # ------------------------------------------------------------------------------
-class TestVCalendar(TestCase):
+class Test(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"

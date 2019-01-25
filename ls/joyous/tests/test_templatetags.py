@@ -18,7 +18,7 @@ from ls.joyous.models import (SimpleEventPage, RecurringEventPage,
 from .testutils import datetimetz, freeze_timetz
 from .testutils import getPage
 
-class TestTemplateTags(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.requestFactory = RequestFactory()
@@ -463,7 +463,7 @@ class TestTemplateTags(TestCase):
                          "Early Morning Matches on Thursday 4th of October")
 
 
-class TestTagsNoCalendar(TestCase):
+class TestNoCalendar(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.request = RequestFactory().get("/test")

@@ -15,7 +15,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage, CancellationPage
 from .testutils import datetimetz, freeze_timetz
 
-class TestRecurringEvent(TestCase):
+class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
@@ -179,7 +179,7 @@ class TestRecurringEvent(TestCase):
         self.assertIs(self.event._occursOn(dt.date(2018,3,13)), False)
 
 
-class RecurringEventPageTZ(TestCase):
+class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@ok.test', 's3cr3t')

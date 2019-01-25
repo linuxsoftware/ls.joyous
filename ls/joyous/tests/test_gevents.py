@@ -16,7 +16,7 @@ from ls.joyous.formats.google import (SimpleGEvent, MultidayGEvent,
         RecurringGEvent)
 
 # ------------------------------------------------------------------------------
-class TestSimpleGEvent(TestCase):
+class TestSimple(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -41,7 +41,7 @@ class TestSimpleGEvent(TestCase):
         self.assertEqual(gev['ctz'],   "America/Los_Angeles")
 
 # ------------------------------------------------------------------------------
-class TestMultidayGEvent(TestCase):
+class TestMultiday(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"
@@ -68,7 +68,7 @@ class TestMultidayGEvent(TestCase):
         self.assertEqual(gev['ctz'],   "Pacific/Niue")
 
 # ------------------------------------------------------------------------------
-class TestRecurringGEvent(TestCase):
+class TestRecurring(TestCase):
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
         site.hostname = "joy.test"

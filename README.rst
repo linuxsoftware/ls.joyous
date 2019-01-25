@@ -3,6 +3,8 @@ ls.joyous
 
 .. image:: https://secure.travis-ci.org/linuxsoftware/ls.joyous.svg?branch=master
    :target: https://travis-ci.org/linuxsoftware/ls.joyous
+.. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
+   :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
 
 Events
 -------
