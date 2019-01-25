@@ -9,4 +9,5 @@ python-dateutil
 
 django-beautifulsoup-test
 coverage
+coveralls
 freezegun

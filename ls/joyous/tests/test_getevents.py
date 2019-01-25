@@ -9,7 +9,7 @@ from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils import timezone
-from wagtail.core.models import Page, PageViewRestriction
+from wagtail.core.models import Site, Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, MO, TU, WE, FR, SU
 from ls.joyous.models.calendar import GeneralCalendarPage
@@ -235,3 +235,48 @@ class TestGetEventsTZ(TestCase):
         self.assertEqual(len(evod1.all_events), 1)
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(evod1.days_events[0].title, "Pacific Night")
+
+
+class TestGetEventsNoCalendar(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@foo.test', 's3cr3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
+        self.request.site = Site.objects.get(is_default_site=True)
+        self.group = GroupPage(slug = "initech", title = "Initech Corporation")
+        self.home.add_child(instance=self.group)
+        self.standup = RecurringEventPage(slug   = "test-meeting",
+                                          title  = "Test Meeting",
+                                          repeat = Recurrence(dtstart=dt.date(2013,1,1),
+                                                              until=dt.date(2013,5,31),
+                                                              freq=WEEKLY,
+                                                              byweekday=[MO,WE,FR]),
+                                          time_from = dt.time(13,30),
+                                          time_to   = dt.time(16),
+                                          uid       = "initiative+technology")
+        self.group.add_child(instance=self.standup)
+        self.postponement = PostponementPage(owner = self.user,
+                                             slug  = "2013-01-09-postponement",
+                                             title = "Postponement for Wednesday 16th of October",
+                                             overrides = self.standup,
+                                             except_date = dt.date(2013,1,16),
+                                             cancellation_title   = "Meeting Postponed",
+                                             cancellation_details =
+                                                 "The meeting has been postponed until tomorrow",
+                                             postponement_title   = "A Meeting",
+                                             date      = dt.date(2013,1,17),
+                                             time_from = dt.time(13),
+                                             time_to   = dt.time(16,30),
+                                             details   = "Yes a test meeting on a Thursday")
+        self.standup.add_child(instance=self.postponement)
+
+    def testGetAllEventsByDay(self):
+        events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
+        self.assertEqual(len(events), 31)
+        evod2 = events[1]
+        self.assertEqual(evod2.date, dt.date(2013,1,2))
+        self.assertEqual(len(evod2.all_events), 1)
+        self.assertEqual(len(evod2.continuing_events), 0)
+        self.assertEqual(len(evod2.days_events), 1)

@@ -461,3 +461,75 @@ class TestTemplateTags(TestCase):
                          "/chess-club/lunchtime-matches/1984-10-03-postponement/")
         self.assertEqual(postponement.find(class_="item-text").get_text(strip=True),
                          "Early Morning Matches on Thursday 4th of October")
+
+
+class TestTagsNoCalendar(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
+        self.request.site = Site.objects.get(is_default_site=True)
+
+    @freeze_timetz("1987-08-16 12:45")
+    def testEventsThisWeek(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% events_this_week %}"
+        ).render(Context({'request': self.request}))
+        self.assertHTMLEqual(out, """
+<div class="events-this-week">
+  <h3>This Week</h3>
+  <div class="events">
+      <div class="day today">
+        <div class="event-day" title="Today">
+            <h4>Sunday</h4> 16th Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day">
+            <h4>Monday</h4> 17th Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day">
+            <h4>Tuesday</h4> 18th Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day">
+            <h4>Wednesday</h4> 19th Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day" >
+            <h4>Thursday</h4> 20th Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day" >
+            <h4>Friday</h4> 21st Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+      <div class="day">
+        <div class="event-day" >
+            <h4>Saturday</h4> 22nd Aug
+        </div>
+        <div class="days-events">
+        </div>
+      </div>
+  </div>
+</div>
+""")
