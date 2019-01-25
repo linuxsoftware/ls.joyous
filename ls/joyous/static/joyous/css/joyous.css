@@ -78,13 +78,13 @@
 .event-index a:hover,
 .event-index a:active,
 .event-index a:visited  {
-    color: #36454f;
+    color:                 #36454f;
     background-color:      transparent;
-    text-decoration: none;
+    text-decoration:       none;
 }
 .event-index a:hover .item-heading  {
-    color: #36454f;
-    text-decoration: underline;
+    color:                  #36454f;
+    text-decoration:        underline;
 }
 .event-index a:active .item-heading  {
     color:                 white;
@@ -400,19 +400,19 @@ table.minicalendar {
 .minicalendar .sun  {
     color:                 #950011;
 }
-.minicalendar tbody tr td a {
+.minicalendar tbody tr td .event {
     color:                 #36454f;
     font-weight:           bold;
     text-decoration:       none; 
     border-bottom:         1px dotted #36454f;
 }
-.minicalendar tbody tr td a,
-.minicalendar tbody tr td a {
+.minicalendar tbody tr td .holiday .event,
+.minicalendar tbody tr td .sun .event {
+    color:                 #950011;
     border-bottom:         1px dotted #950011;
 }
-.minicalendar tbody tr td a:hover {
-    border-bottom:         none;
-    text-decoration:       underline; 
+.minicalendar tbody tr td a.event:hover {
+    border-bottom-style:   solid;
 }
 
 /*-----------------------------------------------------------------------*/

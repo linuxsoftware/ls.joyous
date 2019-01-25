@@ -41,7 +41,7 @@ proj.directory-list = [{'dirloc': loc('ls/joyous'),
 proj.file-list = [loc('runtests.py')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('runtests.py'): ('project',
-        (u'test_templatetags',
+        (u'test_templatetags.TestNoCalendar',
          ''))}
 proj.main-file = loc('runtests.py')
 testing.test-framework = {None: ':internal djangotest'}

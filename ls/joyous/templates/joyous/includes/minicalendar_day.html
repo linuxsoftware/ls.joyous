@@ -2,8 +2,12 @@
 {% if evod %}
 <td class="{{ evod.weekday }} day{% if evod.date == today %} today{% endif %}">
   <div {% if evod.holiday %}class="day-title holiday" title="{{ evod.holiday }}"{% else %}class="day-title"{% endif %}>
-    {% if calendarUrl and evod.all_events %}
+    {% if evod.all_events %}
+    {% if calendarUrl %}
     <a class="event" title="{{ evod.preview }}" href="{{ calendarUrl }}{{ evod.date|date:"Y/m/d/" }}">{{ evod.date.day }}</a>
+    {% else %}
+    <span class="event" title="{{ evod.preview }}">{{ evod.date.day }}</span>
+    {% endif %}
     {% else %}
     <span>{{ evod.date.day }}</span>
     {% endif %}

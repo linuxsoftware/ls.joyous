@@ -18,7 +18,7 @@ from ls.joyous.models import (SimpleEventPage, RecurringEventPage,
 from .testutils import datetimetz, freeze_timetz
 from .testutils import getPage
 
-class Test(TestCase):
+class TestMultiSite(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.requestFactory = RequestFactory()
@@ -338,15 +338,20 @@ class Test(TestCase):
         self.assertEqual(len(select("tbody td.day")), 31)
         self.assertEqual(len(select("tbody td.noday")), 4)
         self.assertEqual(len(select('tbody td.day a[title="Lunchtime Chess Matches"]')), 12)
-        events = select('tbody td.day a')
-        self.assertEqual(events[0].get_text(), "1")
-        self.assertEqual(events[0]['title'], "No Chess Club Today")
-        self.assertEqual(events[1].get_text(), "4")
-        self.assertEqual(events[1]['title'], "Early Morning Matches, Executive Committee Meeting")
-        self.assertEqual(events[3].get_text(), "6")
-        self.assertEqual(events[3]['title'], "Flea Market")
-        self.assertEqual(events[15].get_text(), "25")
-        self.assertEqual(events[15]['title'], "Executive Committee Meeting, Drama Group")
+        links = select('tbody td.day a')
+        self.assertEqual(len(links), 19)
+        self.assertEqual(links[0].get_text(), "1")
+        self.assertEqual(links[0]['href'], "/events/1984/10/01/")
+        self.assertEqual(links[0]['title'], "No Chess Club Today")
+        self.assertEqual(links[1].get_text(), "4")
+        self.assertEqual(links[1]['href'], "/events/1984/10/04/")
+        self.assertEqual(links[1]['title'], "Early Morning Matches, Executive Committee Meeting")
+        self.assertEqual(links[3].get_text(), "6")
+        self.assertEqual(links[3]['href'], "/events/1984/10/06/")
+        self.assertEqual(links[3]['title'], "Flea Market")
+        self.assertEqual(links[15].get_text(), "25")
+        self.assertEqual(links[15]['href'], "/events/1984/10/25/")
+        self.assertEqual(links[15]['title'], "Executive Committee Meeting, Drama Group")
 
     @freeze_timetz("1984-09-05 10:00")
     def testAllUpcomingEvents(self):
@@ -466,6 +471,20 @@ class Test(TestCase):
 class TestNoCalendar(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        home = getPage("/home/")
+        chess = GroupPage(slug="chess-club", title="Chess Club")
+        home.add_child(instance=chess)
+        chess.save_revision().publish()
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "lunchtime-matches",
+                                   title = "Lunchtime Chess Matches",
+                                   repeat = Recurrence(dtstart=dt.date(1984,8,5),
+                                                       freq=WEEKLY,
+                                                       byweekday=[MO,WE,FR]),
+                                   time_from = dt.time(12),
+                                   time_to   = dt.time(13))
+        chess.add_child(instance=event)
+        event.save_revision().publish()
         self.request = RequestFactory().get("/test")
         self.request.user = self.user
         self.request.session = {}
@@ -493,6 +512,9 @@ class TestNoCalendar(TestCase):
             <h4>Monday</h4> 17th Aug
         </div>
         <div class="days-events">
+            <a href="/chess-club/lunchtime-matches/" class="event">
+              12pm Lunchtime Chess Matches
+            </a>
         </div>
       </div>
       <div class="day">
@@ -507,6 +529,9 @@ class TestNoCalendar(TestCase):
             <h4>Wednesday</h4> 19th Aug
         </div>
         <div class="days-events">
+            <a href="/chess-club/lunchtime-matches/" class="event">
+              12pm Lunchtime Chess Matches
+            </a>
         </div>
       </div>
       <div class="day">
@@ -521,6 +546,9 @@ class TestNoCalendar(TestCase):
             <h4>Friday</h4> 21st Aug
         </div>
         <div class="days-events">
+            <a href="/chess-club/lunchtime-matches/" class="event">
+              12pm Lunchtime Chess Matches
+            </a>
         </div>
       </div>
       <div class="day">
@@ -533,3 +561,23 @@ class TestNoCalendar(TestCase):
   </div>
 </div>
 """)
+
+    @freeze_timetz("1984-10-24 10:00")
+    def testMinicalendar(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% minicalendar %}"
+        ).render(Context({'request': self.request}))
+        soup = BeautifulSoup(out, "html5lib")
+        select = soup.select
+        self.assertEqual(len(select('thead a')), 0)
+        self.assertEqual(len(select("table.minicalendar thead tr th.sun")), 1)
+        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(month.string.strip(), "October")
+        year = select("tr.heading th.month .year-number")[0]
+        self.assertEqual(year.string.strip(), "1984")
+        self.assertEqual(len(select("tbody tr")), 5)
+        self.assertEqual(len(select("tbody td")), 35)
+        self.assertEqual(len(select("tbody td.day")), 31)
+        self.assertEqual(len(select("tbody td.noday")), 4)
+        self.assertEqual(len(select('tbody td.day span.event')), 14)
