@@ -6,7 +6,7 @@ import sys
 import os
 import io
 import subprocess
-import codecs
+from pathlib import Path
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 

@@ -22,6 +22,8 @@ class Time12hrInput(AdminTimeInput):
     """
     Display and Edit time fields in a 12hr format
     """
+    template_name = 'joyous/widgets/time12hr_input.html'
+
     def __init__(self, attrs=None):
         super().__init__(attrs=attrs, format=None)
 
@@ -30,11 +32,6 @@ class Time12hrInput(AdminTimeInput):
             return value.strftime("%I:%M%P") # %P for lower case am/pm
         else:
             return value
-
-    def render_js_init(self, id_, name, value):
-        return "$(function() {{"                               \
-               "  initTime12hrChooser({})"                     \
-               "  }});".format(json.dumps(id_))
 
     @property
     def media(self):

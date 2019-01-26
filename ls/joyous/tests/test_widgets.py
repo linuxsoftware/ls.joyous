@@ -7,8 +7,9 @@ from django.test import TestCase
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import YEARLY, WEEKLY
 from ls.joyous.utils.recurrence import MO, TU, WE, TH, FR, SA, SU
-from ls.joyous.widgets import RecurrenceWidget
+from ls.joyous.widgets import RecurrenceWidget, Time12hrInput, ExceptionDateInput
 
+# ------------------------------------------------------------------------------
 class TestRecurrenceWidget(TestCase):
     def testDecompressNull(self):
         widget = RecurrenceWidget()
@@ -85,3 +86,41 @@ class TestRecurrenceWidget(TestCase):
                         bymonth=[1])
         self.assertEqual(str(widget.value_from_datadict(data, {}, 'repeat')),
                          str(rr))
+
+# ------------------------------------------------------------------------------
+class TestTime12hrInput(TestCase):
+    def testNullValue(self):
+        widget = Time12hrInput()
+        self.assertEqual(widget.value_from_datadict({}, {}, 'time'), None)
+
+    def testRenderNone(self):
+        widget = Time12hrInput()
+        out = widget.render('time', None, {'id': "time_id"})
+        self.assertHTMLEqual(out, """
+<input type="text" name="time" id="time_id" autocomplete="off">
+<script>initTime12hrChooser("time_id");</script>""")
+
+    def testRenderValues(self):
+        attrs = {'id': "time_id"}
+        widget = Time12hrInput()
+        out = widget.render('time', dt.time(10,15,54,89123), attrs)
+        self.assertHTMLEqual(out, """
+<input type="text" name="time" id="time_id" autocomplete="off" value="10:15am">
+<script>initTime12hrChooser("time_id");</script>""")
+        out = widget.render('time', dt.time(12,51,34,89123), attrs)
+        self.assertHTMLEqual(out, """
+<input type="text" name="time" id="time_id" autocomplete="off" value="12:51pm">
+<script>initTime12hrChooser("time_id");</script>""")
+
+    def testRenderFromString(self):
+        attrs = {'id': "time_id"}
+        widget = Time12hrInput()
+        out = widget.render('time', "1pm", attrs)
+        self.assertHTMLEqual(out, """
+<input type="text" name="time" id="time_id" autocomplete="off" value="1pm">
+<script>initTime12hrChooser("time_id");</script>""")
+
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

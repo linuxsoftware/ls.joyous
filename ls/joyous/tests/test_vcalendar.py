@@ -9,8 +9,10 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 #from django.core import cache
 from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models import SimpleEventPage
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
+from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
+                              CancellationPage, PostponementPage, GroupPage)
 from ls.joyous.formats.ical import CalendarTypeError, VCalendar
 from freezegun import freeze_time
 from .testutils import datetimetz
@@ -41,7 +43,7 @@ class Test(TestCase):
         return request
 
     @freeze_time("2018-05-12")
-    def testFromCalendarPage(self):
+    def testFromSimpleCalendarPage(self):
         page = SimpleEventPage(owner = self.user,
                                slug  = "bbq",
                                title = "BBQ",
@@ -68,8 +70,63 @@ class Test(TestCase):
             with self.subTest(prop=prop.split(b'\r\n',1)[0]):
                 self.assertIn(prop, export)
 
+    @freeze_time("2019-01-21")
+    def testFromCalendarPage(self):
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "chess",
+                                  title = "Chess",
+                                  repeat = Recurrence(dtstart=dt.date(2000,1,1),
+                                                      freq=WEEKLY,
+                                                      byweekday=[MO,WE,FR]),
+                                  time_from = dt.time(12),
+                                  time_to   = dt.time(13))
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        cancellation = CancellationPage(owner = self.user,
+                                        slug  = "2019-02-04-cancellation",
+                                        title = "Cancellation for Monday 4th of February",
+                                        overrides = page,
+                                        except_date = dt.date(2019, 2, 4),
+                                        cancellation_title   = "No Chess Club Today")
+        page.add_child(instance=cancellation)
+        cancellation.save_revision().publish()
+        postponement = PostponementPage(owner = self.user,
+                                        slug  = "2019-10-02-postponement",
+                                        title = "Postponement for Wednesday 2nd of October",
+                                        overrides = page,
+                                        except_date = dt.date(2019, 10, 2),
+                                        cancellation_title   = "",
+                                        postponement_title   = "Early Morning Matches",
+                                        date      = dt.date(2019,10,3),
+                                        time_from = dt.time(7,30),
+                                        time_to   = dt.time(8,30))
+        page.add_child(instance=postponement)
+        postponement.save_revision().publish()
+        vcal = VCalendar.fromPage(self.calendar, self._getRequest("/events/"))
+        export = vcal.to_ical()
+        props = [b"SUMMARY:Chess",
+                 b"DTSTART;TZID=Asia/Tokyo:20000103T120000",
+                 b"DTEND;TZID=Asia/Tokyo:20000103T130000",
+                 b"DTSTAMP:20190121T000000Z",
+                 b"UID:",
+                 b"SEQUENCE:1",
+                 b"RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;WKST=SU",
+                 b"EXDATE;TZID=Asia/Tokyo:20190204T120000",
+                 b"CREATED:20190121T000000Z",
+                 b"DESCRIPTION:",
+                 b"LAST-MODIFIED:20190121T000000Z",
+                 b"LOCATION:",
+                 b"URL:http://joy.test/events/chess/",
+                 b"SUMMARY:Early Morning Matches",
+                 b"DTSTART;TZID=Asia/Tokyo:20191003T073000",
+                 b"DTEND;TZID=Asia/Tokyo:20191003T083000",
+                 b"RECURRENCE-ID;TZID=Asia/Tokyo:20191002T120000", ]
+        for prop in props:
+            with self.subTest(prop=prop):
+                self.assertIn(prop, export)
+
     @freeze_time("2018-05-12")
-    def testFromEventPage(self):
+    def testFromSimpleEventPage(self):
         page = SimpleEventPage(owner = self.user,
                                slug  = "pet-show",
                                title = "Pet Show",
@@ -111,6 +168,55 @@ class Test(TestCase):
         for prop in props:
             with self.subTest(prop=prop.split(b'\r\n',1)[0]):
                 self.assertIn(prop, export)
+
+    @freeze_time("2019-01-21")
+    def testFromEventPage(self):
+        chess = GroupPage(slug="chess-club", title="Chess Club")
+        self.home.add_child(instance=chess)
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "chess",
+                                  title = "Chess",
+                                  repeat = Recurrence(dtstart=dt.date(2000,1,1),
+                                                      freq=WEEKLY,
+                                                      byweekday=[MO,WE,FR]),
+                                  time_from = dt.time(12),
+                                  time_to   = dt.time(13))
+        chess.add_child(instance=page)
+        page.save_revision().publish()
+        postponement = PostponementPage(owner = self.user,
+                                        slug  = "2019-10-02-postponement",
+                                        title = "Postponement for Wednesday 2nd of October",
+                                        overrides = page,
+                                        except_date = dt.date(2019, 10, 2),
+                                        cancellation_title   = "",
+                                        postponement_title   = "Early Morning Matches",
+                                        date      = dt.date(2019,10,3),
+                                        time_from = dt.time(7,30),
+                                        time_to   = dt.time(8,30))
+        page.add_child(instance=postponement)
+        postponement.save_revision().publish()
+        vcal = VCalendar.fromPage(page, self._getRequest("/events/chess/"))
+        export = vcal.to_ical()
+        props = [b"SUMMARY:Chess",
+                 b"DTSTART;TZID=Asia/Tokyo:20000103T120000",
+                 b"DTEND;TZID=Asia/Tokyo:20000103T130000",
+                 b"DTSTAMP:20190121T000000Z",
+                 b"UID:",
+                 b"SEQUENCE:1",
+                 b"RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;WKST=SU",
+                 b"CREATED:20190121T000000Z",
+                 b"DESCRIPTION:",
+                 b"LAST-MODIFIED:20190121T000000Z",
+                 b"LOCATION:",
+                 b"URL:http://joy.test/chess-club/chess/",
+                 b"SUMMARY:Early Morning Matches",
+                 b"DTSTART;TZID=Asia/Tokyo:20191003T073000",
+                 b"DTEND;TZID=Asia/Tokyo:20191003T083000",
+                 b"RECURRENCE-ID;TZID=Asia/Tokyo:20191002T120000", ]
+        for prop in props:
+            with self.subTest(prop=prop):
+                self.assertIn(prop, export)
+
 
     def testFromUnsupported(self):
         page = Page(owner = self.user,

@@ -717,23 +717,5 @@ class PostponementVEvent(ExceptionVEvent):
         return super().makePage(**kwargs)
 
 # ------------------------------------------------------------------------------
-class RawVEvent(VEvent):
-    @classmethod
-    def fromPage(cls, page):
-        vevent = super().fromPage(page)
-        # FIXME
-        return vevent
-
-    def toPage(self, page):
-        super().toPage(page)
-        # FIXME
-
-    def makePage(self):
-        #page = IcalEventPage(uid = self['UID'])
-        # FIXME
-        #return page
-        pass
-
-# ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
