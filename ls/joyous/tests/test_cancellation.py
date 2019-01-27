@@ -11,7 +11,7 @@ from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import CancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 
-
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -129,3 +129,7 @@ class Test(TestCase):
 
     def testAt(self):
         self.assertEqual(self.cancellation.at.strip(), "1pm")
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

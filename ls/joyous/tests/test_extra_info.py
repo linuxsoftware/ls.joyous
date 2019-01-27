@@ -13,7 +13,7 @@ from ls.joyous.models.events import ExtraInfoPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import datetimetz
 
-
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -87,3 +87,7 @@ class Test(TestCase):
 
     def testGroup(self):
         self.assertIsNone(self.info.group)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

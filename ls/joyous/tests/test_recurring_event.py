@@ -15,6 +15,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage, CancellationPage
 from .testutils import datetimetz, freeze_timetz
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -178,7 +179,7 @@ class Test(TestCase):
         self.assertIs(self.event._occursOn(dt.date(2018,3,6)), True)
         self.assertIs(self.event._occursOn(dt.date(2018,3,13)), False)
 
-
+# ------------------------------------------------------------------------------
 class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -251,3 +252,7 @@ class TestTZ(TestCase):
         self.assertEqual(lions.when,
                          "The Saturday after the first Thursday and "
                          "Saturday after the third Thursday of the month at 12am")
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

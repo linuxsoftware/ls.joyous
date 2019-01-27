@@ -13,6 +13,7 @@ from ls.joyous.models.events import MultidayEventPage, MultidayEventPageForm
 from freezegun import freeze_time
 from .testutils import datetimetz
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -245,3 +246,7 @@ class TestPageForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form.errors,
                              {'time_to': ["Event cannot end before it starts"]})
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

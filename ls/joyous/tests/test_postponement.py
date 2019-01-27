@@ -15,7 +15,7 @@ from ls.joyous.models.events import PostponementPage
 from ls.joyous.models.events import CancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 
-
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -127,7 +127,7 @@ class Test(TestCase):
         self.assertEqual(parts[4], "at")
         self.assertEqual(parts[5], "8:30am")
 
-
+# ------------------------------------------------------------------------------
 class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -182,3 +182,7 @@ class TestTZ(TestCase):
         title, page = evod1.continuing_events[0]
         self.assertEqual(title, "Delayed Meeting")
         self.assertIs(type(page), PostponementPage)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

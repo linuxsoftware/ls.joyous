@@ -18,6 +18,7 @@ GroupPage = get_group_model()
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import skipUnlessSetup
 
+# ------------------------------------------------------------------------------
 class PageClassTests(WagtailPageTests):
     """
     Tests on the class definitions of pages - no instances required
@@ -139,7 +140,7 @@ class PageClassTests(WagtailPageTests):
                                            MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(PostponementPage, {})
 
-
+# ------------------------------------------------------------------------------
 class PageInstanceTests(WagtailPageTests):
     """
     Tests with instantiated pages
@@ -267,3 +268,6 @@ class PageInstanceTests(WagtailPageTests):
                                                'date':                 dt.date(2009,8,15),
                                                'time_from':            dt.time(13)}))
 
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

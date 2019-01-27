@@ -16,6 +16,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import MultidayRecurringEventPage
 from .testutils import datetimetz, freeze_timetz
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -75,3 +76,7 @@ class Test(TestCase):
     @freeze_timetz("2035-04-03 10:00:00")
     def testPrevDate(self):
         self.assertEqual(self.event.prev_date, dt.date(2034, 8, 4))
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

@@ -23,6 +23,7 @@ from .testutils import datetimetz
 
 GroupPage = get_group_model()
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -201,7 +202,7 @@ class Test(TestCase):
         self.assertIsNotNone(event.title)
         self.assertEqual(event.title, "Private Rendezvous")
 
-
+# ------------------------------------------------------------------------------
 class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -236,7 +237,7 @@ class TestTZ(TestCase):
         self.assertEqual(len(evod1.days_events), 1)
         self.assertEqual(evod1.days_events[0].title, "Pacific Night")
 
-
+# ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -280,3 +281,7 @@ class TestNoCalendar(TestCase):
         self.assertEqual(len(evod2.all_events), 1)
         self.assertEqual(len(evod2.continuing_events), 0)
         self.assertEqual(len(evod2.days_events), 1)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

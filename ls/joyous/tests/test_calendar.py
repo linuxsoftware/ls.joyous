@@ -9,6 +9,7 @@ from wagtail.core.models import Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import SimpleEventPage
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
@@ -193,3 +194,7 @@ class Test(TestCase):
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/events/2100/W1/")
         self.assertEqual(response.status_code, 404)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

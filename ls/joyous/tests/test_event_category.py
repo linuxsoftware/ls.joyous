@@ -5,6 +5,7 @@ import sys
 from django.test import TestCase
 from ls.joyous.models.events import EventCategory
 
+# ------------------------------------------------------------------------------
 class Test(TestCase):
     def testDefaultInit(self):
         cat = EventCategory()
@@ -17,3 +18,7 @@ class Test(TestCase):
         self.assertEqual(cat.code, "A1")
         self.assertEqual(cat.name, "AlphaOne")
         self.assertEqual(str(cat), "AlphaOne")
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

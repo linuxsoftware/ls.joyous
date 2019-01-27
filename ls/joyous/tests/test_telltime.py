@@ -10,6 +10,7 @@ from ls.joyous.utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime,
         timeFrom, timeTo, timeFormat, dateFormat, dateFormatDMY)
 
+# ------------------------------------------------------------------------------
 class TestLocalTimes(TestCase):
     def testGetAwareDatetime(self):
         when = getAwareDatetime(dt.date(1999,12,1), dt.time(2),
@@ -61,7 +62,7 @@ class TestLocalTimes(TestCase):
         localTZ = pytz.timezone("Asia/Tokyo")
         self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
 
-
+# ------------------------------------------------------------------------------
 class TestNullableTimes(TestCase):
     def testTimeFrom(self):
         self.assertEqual(timeFrom(None), dt.time(0))
@@ -71,7 +72,7 @@ class TestNullableTimes(TestCase):
         self.assertEqual(timeTo(None), dt.time.max)
         self.assertEqual(timeTo(dt.time(8)), dt.time(8))
 
-
+# ------------------------------------------------------------------------------
 class TestFormats(TestCase):
     def testTimeFormat(self):
         self.assertEqual(timeFormat(None), "")
@@ -99,4 +100,6 @@ class TestFormats(TestCase):
         self.assertEqual(dateFormatDMY(dt.date(2016,5,22)), "22 May 2016")
         self.assertEqual(dateFormatDMY(None), "")
 
-
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

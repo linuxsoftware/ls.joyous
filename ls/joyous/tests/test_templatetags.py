@@ -17,6 +17,7 @@ from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
 from .testutils import datetimetz, freeze_timetz
 from .testutils import getPage
 
+# ------------------------------------------------------------------------------
 class TestMultiSite(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -466,7 +467,7 @@ class TestMultiSite(TestCase):
         self.assertEqual(postponement.find(class_="item-text").get_text(strip=True),
                          "Early Morning Matches on Thursday 4th of October")
 
-
+# ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
@@ -580,3 +581,7 @@ class TestNoCalendar(TestCase):
         self.assertEqual(len(select("tbody td.day")), 31)
         self.assertEqual(len(select("tbody td.noday")), 4)
         self.assertEqual(len(select('tbody td.day span.event')), 14)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
