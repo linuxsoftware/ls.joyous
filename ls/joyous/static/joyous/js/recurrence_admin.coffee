@@ -156,16 +156,16 @@ class RecurrenceWidget
     widget.enable()
     return
 
-@initExceptionDateChooser = (id, validDates, dowStart=0) ->
+@initExceptionDateChooser = (id, validDates, opts) ->
     dtpOpts =
         onGenerate: (ct) ->
             past = new Date()
-            past.setDate(past.getDate()-90)
+            past.setDate(past.getDate()-200)
             past.setDate(1)
             future = new Date()
-            future.setDate(future.getDate()+217)
+            future.setDate(future.getDate()+600)
             future.setDate(1)
-            if validDates != -1 and past < ct < future
+            if validDates != null and past < ct < future
                 #console.log(ct)
                 $(this).find('td.xdsoft_date').addClass('xdsoft_disabled')
                 for yyyymmdd in validDates
@@ -178,13 +178,6 @@ class RecurrenceWidget
         timepicker:        false
         scrollInput:       false
         format:            'Y-m-d'
-        dayOfWeekStart:    dowStart
-
-    # TODO: remove dateTimePickerTranslations code after PR4675 is released
-    # (it is benign but useless since Wagtail 2.1)
-    # https://github.com/wagtail/wagtail/pull/4675
-    if window.dateTimePickerTranslations
-        dtpOpts['i18n'] = lang: window.dateTimePickerTranslations
-        dtpOpts['lang'] = 'lang'
-
+        dayOfWeekStart:    0
+    $.extend(dtpOpts, opts)
     $('#' + id).datetimepicker(dtpOpts)

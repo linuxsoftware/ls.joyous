@@ -203,21 +203,18 @@
     widget.enable();
   };
 
-  this.initExceptionDateChooser = function(id, validDates, dowStart) {
+  this.initExceptionDateChooser = function(id, validDates, opts) {
     var dtpOpts;
-    if (dowStart == null) {
-      dowStart = 0;
-    }
     dtpOpts = {
       onGenerate: function(ct) {
         var dd, future, i, len, mm, past, results, yyyy, yyyymmdd;
         past = new Date();
-        past.setDate(past.getDate() - 90);
+        past.setDate(past.getDate() - 200);
         past.setDate(1);
         future = new Date();
-        future.setDate(future.getDate() + 217);
+        future.setDate(future.getDate() + 600);
         future.setDate(1);
-        if (validDates !== -1 && (past < ct && ct < future)) {
+        if (validDates !== null && (past < ct && ct < future)) {
           $(this).find('td.xdsoft_date').addClass('xdsoft_disabled');
           results = [];
           for (i = 0, len = validDates.length; i < len; i++) {
@@ -234,14 +231,9 @@
       timepicker: false,
       scrollInput: false,
       format: 'Y-m-d',
-      dayOfWeekStart: dowStart
+      dayOfWeekStart: 0
     };
-    if (window.dateTimePickerTranslations) {
-      dtpOpts['i18n'] = {
-        lang: window.dateTimePickerTranslations
-      };
-      dtpOpts['lang'] = 'lang';
-    }
+    $.extend(dtpOpts, opts);
     return $('#' + id).datetimepicker(dtpOpts);
   };
 

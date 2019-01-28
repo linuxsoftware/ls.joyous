@@ -1,0 +1,2 @@
+{% include 'django/forms/widgets/date.html' %}
+<script>initExceptionDateChooser("{{ widget.attrs.id|escapejs }}", {{ widget.valid_dates|safe }}, {{ widget.config_json|safe }});</script>
