@@ -5,8 +5,6 @@ ls.joyous
    :target: https://travis-ci.org/linuxsoftware/ls.joyous
 .. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
    :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
-.. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
-   :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
 
 About
 ------
