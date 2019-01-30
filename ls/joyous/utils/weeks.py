@@ -49,6 +49,7 @@ def _gregorian_to_iso(date_value):
     return date_value.isocalendar()
 
 def _iso_week_of_month(date_value):
+    "0-starting index which ISO-week in the month this date is"
     weekday_of_first = date_value.replace(day=1).weekday()
     return (date_value.day + weekday_of_first - 1) // 7
 
@@ -91,11 +92,11 @@ def _gregorian_to_ssweek(date_value):
     return (date_value.year, weekNum, dayOfWeek)
 
 def _ssweek_of_month(date_value):
+    "0-starting index which Sundaystarting-week in the month this date is"
     weekday_of_first = (date_value.replace(day=1).weekday() + 1) % 7
     return (date_value.day + weekday_of_first - 1) // 7
 
 # ------------------------------------------------------------------------------
-
 if get_format("FIRST_DAY_OF_WEEK") == 1:
     calendar.setfirstweekday(calendar.MONDAY)
     week_info = _iso_info
@@ -112,6 +113,9 @@ else:
     week_of_month = _ssweek_of_month
     weekday_abbr = calendar.day_abbr[-1:] + calendar.day_abbr[:-1]
     weekday_name = calendar.day_name[-1:] + calendar.day_name[:-1]
+
+# FIXME encapsulate these functions in classes
+# for ease of testing if nothing else
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

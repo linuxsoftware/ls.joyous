@@ -6,9 +6,10 @@ ls.joyous
 .. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
    :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
 
-Events
--------
-Simple, multiday, and recurring events can be added to the calendar.
+About
+------
+Joyous is a reusable calendar application for Wagtail. Features include rrule
+based recurring events with cancellations and postponements; iCal import and export; Gcal export; event permissioning; and multi-site aware calendars.
 
 Demo
 -----
