@@ -5,6 +5,8 @@ ls.joyous
    :target: https://travis-ci.org/linuxsoftware/ls.joyous
 .. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
    :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
+.. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
+   :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
 
 About
 ------
@@ -55,6 +57,4 @@ Thanks To
 `Sauce Labs <https://saucelabs.com>`_ for their cross-browser testing platform.
 
 .. image:: /docs/powered-by-sauce-labs.png
-
-
 
