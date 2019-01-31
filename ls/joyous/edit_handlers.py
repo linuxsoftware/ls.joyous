@@ -46,7 +46,7 @@ def _add12hrFormats():
 
 # ------------------------------------------------------------------------------
 class TimePanel(FieldPanel):
-    if getattr(settings, "JOYOUS_TIME_INPUT", "12") in (12, "12"):
+    if getattr(settings, "JOYOUS_TIME_INPUT", "24") in (12, "12"):
         widget = Time12hrInput
         _add12hrFormats()
     else:
