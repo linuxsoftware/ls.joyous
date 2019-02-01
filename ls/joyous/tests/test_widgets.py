@@ -125,7 +125,11 @@ class TestTime12hrInput(TestCase):
         out = widget.render('time', None, {'id': "time_id"})
         self.assertHTMLEqual(out, """
 <input type="text" name="time" id="time_id" autocomplete="off">
-<script>initTime12hrChooser("time_id");</script>""")
+<script>
+$(function() {
+    initTime12hrChooser("time_id");
+});
+</script>""")
 
     def testRenderValues(self):
         attrs = {'id': "time_id"}
@@ -133,11 +137,19 @@ class TestTime12hrInput(TestCase):
         out = widget.render('time', dt.time(10,15,54,89123), attrs)
         self.assertHTMLEqual(out, """
 <input type="text" name="time" id="time_id" autocomplete="off" value="10:15am">
-<script>initTime12hrChooser("time_id");</script>""")
+<script>
+$(function() {
+    initTime12hrChooser("time_id");
+});
+</script>""")
         out = widget.render('time', dt.time(12,51,34,89123), attrs)
         self.assertHTMLEqual(out, """
 <input type="text" name="time" id="time_id" autocomplete="off" value="12:51pm">
-<script>initTime12hrChooser("time_id");</script>""")
+<script>
+$(function() {
+    initTime12hrChooser("time_id");
+});
+</script>""")
 
     def testRenderFromString(self):
         attrs = {'id': "time_id"}
@@ -145,7 +157,11 @@ class TestTime12hrInput(TestCase):
         out = widget.render('time', "1pm", attrs)
         self.assertHTMLEqual(out, """
 <input type="text" name="time" id="time_id" autocomplete="off" value="1pm">
-<script>initTime12hrChooser("time_id");</script>""")
+<script>
+$(function() {
+    initTime12hrChooser("time_id");
+});
+</script>""")
 
     def testMedia(self):
         widget = Time12hrInput()
