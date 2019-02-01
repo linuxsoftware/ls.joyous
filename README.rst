@@ -45,6 +45,8 @@ Compatibility
 --------------
 I am aiming to support the latest releases of Wagtail and Django.  Older versions may be dropped without much notice.  Let me know if that is a problem for you.  Other versions may work - YMMV.
 
+FYI: Django 2.1 is a definite minimum requirement.
+
 Getting Help
 -------------
 Please report bugs or ask questions using the `Issue Tracker <http://github.com/linuxsoftware/ls.joyous/issues>`_.
