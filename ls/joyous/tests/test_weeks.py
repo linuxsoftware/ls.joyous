@@ -11,8 +11,8 @@ from ls.joyous.utils.weeks import (
 from ls.joyous.utils.weeks import (
         _ssweek_year_start, _ssweek_info, _ssweek_num_weeks,
         _gregorian_to_ssweek, _ssweek_to_gregorian, _ssweek_of_month)
-from django.utils.formats import get_format, reset_format_cache
-from django.conf import settings
+from django.utils.translation import override
+from django.utils.formats import get_format
 import importlib
 
 # ------------------------------------------------------------------------------
@@ -103,16 +103,9 @@ class TestSundayStartingWeek(TestCase):
 
 # ------------------------------------------------------------------------------
 class TestSetting(TestCase):
-    def setUp(self):
-        self.oldFirstDow = settings.FIRST_DAY_OF_WEEK
-        reset_format_cache()
-
-    def tearDown(self):
-        settings.FIRST_DAY_OF_WEEK = self.oldFirstDow
-        reset_format_cache()
-
+    @override('en-gb')
     def testMondayStartingWeek(self):
-        settings.FIRST_DAY_OF_WEEK = 1
+        # FIRST_DAY_OF_WEEK is Monday for Great Britain
         self.assertEqual(get_format('FIRST_DAY_OF_WEEK'), 1)
         importlib.reload(ls.joyous.utils.weeks)
         from ls.joyous.utils.weeks import (week_info, num_weeks_in_year,
@@ -126,8 +119,9 @@ class TestSetting(TestCase):
         self.assertEqual(weekday_name, ["Monday","Tuesday","Wednesday","Thursday",
                                         "Friday","Saturday","Sunday"])
 
+    @override('en-au')
     def testSundayStartingWeek(self):
-        settings.FIRST_DAY_OF_WEEK = 0
+        # FIRST_DAY_OF_WEEK is Sunday for Australia
         self.assertEqual(get_format('FIRST_DAY_OF_WEEK'), 0)
         importlib.reload(ls.joyous.utils.weeks)
         from ls.joyous.utils.weeks import (week_info, num_weeks_in_year,

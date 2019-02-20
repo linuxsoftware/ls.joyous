@@ -10,7 +10,6 @@ TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'tests', 'templates')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-TIME_ZONE = 'Asia/Tokyo'
 
 DATABASES = {
     'default': {
@@ -26,8 +25,6 @@ ROOT_URLCONF = 'ls.joyous.tests.urls'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-
-USE_TZ = True
 
 TEMPLATES = [
     {
@@ -87,6 +84,12 @@ INSTALLED_APPS = [
 ]
 
 WSGI_APPLICATION = 'demo.wsgi.application'
+
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'Asia/Tokyo'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
 
 WAGTAIL_SITE_NAME = "Testing"
 BASE_URL = 'http://joy.test'
