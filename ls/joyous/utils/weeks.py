@@ -104,8 +104,8 @@ if get_format("FIRST_DAY_OF_WEEK") == 1:
     num_weeks_in_year = _iso_num_weeks
     gregorian_to_week_date = _gregorian_to_iso
     week_of_month = _iso_week_of_month
-    weekday_abbr = dates.WEEKDAYS_ABBR.values()
-    weekday_name = dates.WEEKDAYS.values()
+    weekday_abbr = [dates.WEEKDAYS_ABBR[k] for k in range(7)]
+    weekday_name = [dates.WEEKDAYS[k] for k in range(7)]
 else:
     calendar.setfirstweekday(calendar.SUNDAY)
     week_info = _ssweek_info
