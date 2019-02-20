@@ -10,6 +10,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar
+from django.utils import dates
 from django.utils.formats import get_format
 
 # ------------------------------------------------------------------------------
@@ -103,16 +104,16 @@ if get_format("FIRST_DAY_OF_WEEK") == 1:
     num_weeks_in_year = _iso_num_weeks
     gregorian_to_week_date = _gregorian_to_iso
     week_of_month = _iso_week_of_month
-    weekday_abbr = calendar.day_abbr[:]
-    weekday_name = calendar.day_name[:]
+    weekday_abbr = dates.WEEKDAYS_ABBR.values()
+    weekday_name = dates.WEEKDAYS.values()
 else:
     calendar.setfirstweekday(calendar.SUNDAY)
     week_info = _ssweek_info
     num_weeks_in_year = _ssweek_num_weeks
     gregorian_to_week_date = _gregorian_to_ssweek
     week_of_month = _ssweek_of_month
-    weekday_abbr = calendar.day_abbr[-1:] + calendar.day_abbr[:-1]
-    weekday_name = calendar.day_name[-1:] + calendar.day_name[:-1]
+    weekday_abbr = [dates.WEEKDAYS_ABBR[k%7] for k in range(6,13)]
+    weekday_name = [dates.WEEKDAYS[k%7] for k in range(6,13)]
 
 # FIXME encapsulate these functions in classes
 # for ease of testing if nothing else

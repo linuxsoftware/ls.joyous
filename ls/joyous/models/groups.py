@@ -4,6 +4,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import FieldPanel
@@ -55,7 +56,7 @@ class GroupPage(Page):
                      'joyous.RecurringEventPage',
                      'joyous.MultidayRecurringEventPage']
 
-    content = RichTextField(default='', blank=True)
+    content = RichTextField(_("content"), default='', blank=True)
     content.help_text = "An area of text for whatever you like"
 
     content_panels = Page.content_panels + [

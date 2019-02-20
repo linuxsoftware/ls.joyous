@@ -17,6 +17,8 @@ from django.db.models import Q
 from django.db.models.query import ModelIterable
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 from timezone_field import TimeZoneField
 from wagtail.core.query import PageQuerySet
 from wagtail.core.models import Page, PageManager, PageViewRestriction
@@ -216,11 +218,11 @@ _2days = dt.timedelta(days=2)
 class EventCategory(models.Model):
     class Meta:
         ordering = ["name"]
-        verbose_name = "Event Category"
-        verbose_name_plural = "Event Categories"
+        verbose_name = _("event category")
+        verbose_name_plural = _("event categories")
 
-    code = models.CharField(max_length=4, unique=True)
-    name = models.CharField(max_length=80)
+    code = models.CharField(_("code"), max_length=4, unique=True)
+    name = models.CharField(_("name"), max_length=80)
 
     def __str__(self):
         return self.name
@@ -338,26 +340,28 @@ class EventBase(models.Model):
     uid = models.CharField(max_length=255, db_index=True, editable=False, default=uuid4)
     category = models.ForeignKey(EventCategory,
                                  related_name="+",
-                                 verbose_name="Category",
+                                 verbose_name=_("category"),
                                  on_delete=models.SET_NULL,
                                  blank=True, null=True)
     image = models.ForeignKey(get_image_model_string(),
                               null=True, blank=True,
-                              on_delete=models.SET_NULL,
-                              related_name='+')
+                              related_name='+',
+                              verbose_name=_("image"),
+                              on_delete=models.SET_NULL)
 
-    time_from = models.TimeField("Start time", null=True, blank=True)
-    time_to = models.TimeField("End time", null=True, blank=True)
+    time_from = models.TimeField(_("start time"), null=True, blank=True)
+    time_to = models.TimeField(_("end time"), null=True, blank=True)
     # No you can't set different timezones for time_from and time_to
-    tz = TimeZoneField(verbose_name="Time zone",
+    tz = TimeZoneField(verbose_name=_("time zone"),
                        default=_get_default_timezone)
 
     group_page  = models.ForeignKey(get_group_model_string(),
                                     null=True, blank=True,
+                                    verbose_name=_("group page"),
                                     on_delete=models.SET_NULL)
-    details  = RichTextField(blank=True)
-    location = models.CharField(max_length=255, blank=True)
-    website = models.URLField(blank=True)
+    details  = RichTextField(_("details"), blank=True)
+    location = models.CharField(_("location"), max_length=255, blank=True)
+    website = models.URLField(_("website"), blank=True)
 
     search_fields = Page.search_fields + [
         index.SearchField('location'),
@@ -410,9 +414,9 @@ class EventBase(models.Model):
     def status_text(self):
         status = self.status
         if status == "finished":
-            return "This event has finished."
+            return _("This event has finished.")
         elif status == "started":
-            return "This event has started."
+            return _("This event has started.")
         else:
             return ""
 
@@ -446,13 +450,13 @@ class EventBase(models.Model):
 
         if dateFrom == dateTo:
             retval = "{} {}".format(dateFormat(dateFrom),
-                                    timeFormat(timeFrom, timeTo, "at "))
+                                    timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
             retval = "{} {}".format(dateFormat(dateFrom),
-                                    timeFormat(timeFrom, prefix="at "))
+                                    timeFormat(timeFrom, prefix=gettext("at ")))
             retval = "{} to {} {}".format(retval.strip(),
                                           dateFormat(dateTo),
-                                          timeFormat(timeTo, prefix="at "))
+                                          timeFormat(timeTo, prefix=gettext("at ")))
         return retval.strip()
 
     def _getFromTime(self, atDate=None):
@@ -505,7 +509,8 @@ class SimpleEventPage(Page, EventBase):
     events = EventManager.from_queryset(SimpleEventQuerySet)()
 
     class Meta:
-        verbose_name = "Event Page"
+        verbose_name = _("event page")
+        verbose_name_plural = _("event pages")
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
@@ -515,7 +520,7 @@ class SimpleEventPage(Page, EventBase):
     subpage_types = []
     base_form_class = EventPageForm
 
-    date    = models.DateField("Date", default=dt.date.today)
+    date    = models.DateField(_("date"), default=dt.date.today)
 
     content_panels = Page.content_panels + [
         FieldPanel('category'),
@@ -590,7 +595,7 @@ class MultidayEventPageForm(EventPageForm):
         startDate = cleaned_data.get('date_from', dt.date.min)
         endDate   = cleaned_data.get('date_to', dt.date.max)
         if startDate > endDate:
-            self.add_error('date_to', "Event cannot end before it starts")
+            self.add_error('date_to', _("Event cannot end before it starts"))
         elif startDate == endDate:
             super()._checkStartBeforeEnd(cleaned_data)
 
@@ -599,7 +604,8 @@ class MultidayEventPage(Page, EventBase):
     events = EventManager.from_queryset(MultidayEventQuerySet)()
 
     class Meta:
-        verbose_name = "Multiday Event Page"
+        verbose_name = _("multiday event page")
+        verbose_name_plural = _("multiday event pages")
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
@@ -609,8 +615,8 @@ class MultidayEventPage(Page, EventBase):
     subpage_types = []
     base_form_class = MultidayEventPageForm
 
-    date_from = models.DateField("Start date", default=dt.date.today)
-    date_to = models.DateField("End date", default=dt.date.today)
+    date_from = models.DateField(_("start date"), default=dt.date.today)
+    date_to = models.DateField(_("end date"), default=dt.date.today)
 
     content_panels = Page.content_panels + [
         FieldPanel('category'),
@@ -711,7 +717,8 @@ class RecurringEventPage(Page, EventBase):
     events = EventManager.from_queryset(RecurringEventQuerySet)()
 
     class Meta:
-        verbose_name = "Recurring Event Page"
+        verbose_name = _("recurring event page")
+        verbose_name_plural = _("recurring event pages")
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.CalendarPage",
@@ -726,8 +733,8 @@ class RecurringEventPage(Page, EventBase):
     # FIXME So that Fred can't cancel Barney's event
     # owner_subpages_only = True
 
-    repeat   = RecurrenceField()
-    num_days = models.IntegerField("Number of days", default=1,
+    repeat   = RecurrenceField(_("repeat"))
+    num_days = models.IntegerField(_("number of days"), default=1,
                                    validators=[MinValueValidator(1),
                                                MaxValueValidator(99)])
 
@@ -817,7 +824,7 @@ class RecurringEventPage(Page, EventBase):
     def status_text(self):
         status = self.status
         if status == "finished":
-            return "These events have finished."
+            return _("These events have finished.")
         else:
             return super().status_text
 
@@ -832,7 +839,7 @@ class RecurringEventPage(Page, EventBase):
             timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
             timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
         retval = "{} {}".format(self.repeat._getWhen(offset, self.num_days),
-                                timeFormat(timeFrom, timeTo, "at "))
+                                timeFormat(timeFrom, timeTo, gettext("at ")))
         return retval.strip()
 
     @property
@@ -884,7 +891,7 @@ class RecurringEventPage(Page, EventBase):
         if nextDt is not None:
             timeFrom = nextDt.time() if event.time_from is not None else None
             retval = "{} {}".format(dateFormat(nextDt.date()),
-                                    timeFormat(timeFrom, prefix="at "))
+                                    timeFormat(timeFrom, prefix=gettext("at ")))
             if event is not self and event.isAuthorized(request):
                 retval = format_html('<a class="inline-link" href="{}">{}</a>',
                                      event.url, retval)
@@ -1024,7 +1031,8 @@ class RecurringEventPage(Page, EventBase):
 class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
     """a proxy of RecurringEventPage that exposes the hidden num_days field"""
     class Meta:
-        verbose_name = "Multiday Recurring Event Page"
+        verbose_name = _("multiday recurring event page")
+        verbose_name_plural = _("multiday recurring event pages")
 
     content_panels = RecurringEventPage.content_panels0 + [
         FieldPanel('num_days'),
@@ -1062,11 +1070,12 @@ class EventExceptionBase(models.Model):
     overrides = models.ForeignKey('joyous.RecurringEventPage',
                                   null=True, blank=False,
                                   # can't set to CASCADE, so go with SET_NULL
-                                  on_delete=models.SET_NULL,
-                                  related_name='+')
-    overrides.help_text = "The recurring event that we are updating."
-    except_date = models.DateField('For Date')
-    except_date.help_text = "For this date"
+                                  related_name='+',
+                                  verbose_name=_("overrides"),
+                                  on_delete=models.SET_NULL)
+    overrides.help_text = _("The recurring event that we are updating.")
+    except_date = models.DateField(_("For Date"))
+    except_date.help_text = _("For this date")
 
     # Original properties
     time_from   = property(attrgetter("overrides.time_from"))
@@ -1124,7 +1133,7 @@ class ExtraInfoQuerySet(EventExceptionQuerySet):
         return qs
 
 class ExtraInfoPageForm(EventExceptionPageForm):
-    name        = "Extra Information"
+    name        = _("Extra Information")
     description = name.lower()
 
     def clean(self):
@@ -1134,7 +1143,8 @@ class ExtraInfoPageForm(EventExceptionPageForm):
 
 class ExtraInfoPage(Page, EventExceptionBase):
     class Meta:
-        verbose_name = "Extra Event Information"
+        verbose_name = _("extra event information")
+        verbose_name_plural = _("extra event information")
         default_manager_name = "objects"
 
     events = EventManager.from_queryset(ExtraInfoQuerySet)()
@@ -1144,10 +1154,10 @@ class ExtraInfoPage(Page, EventExceptionBase):
     base_form_class = ExtraInfoPageForm
     slugName    = "extra-info"
 
-    extra_title = models.CharField('Title', max_length=255, blank=True)
-    extra_title.help_text = "A more specific title for this occurence (optional)"
-    extra_information = RichTextField(blank=False)
-    extra_information.help_text = "Information just for this date"
+    extra_title = models.CharField(_("title"), max_length=255, blank=True)
+    extra_title.help_text = _("A more specific title for this occurence (optional)")
+    extra_information = RichTextField(_("extra information"), blank=False)
+    extra_information.help_text = _("Information just for this date")
 
     search_fields = Page.search_fields + [
         index.SearchField('extra_title'),
@@ -1208,7 +1218,8 @@ class CancellationPageForm(EventExceptionPageForm):
 
 class CancellationPage(Page, EventExceptionBase):
     class Meta:
-        verbose_name = "Cancellation"
+        verbose_name = _("cancellation")
+        verbose_name_plural = _("cancellations")
         default_manager_name = "objects"
 
     parent_page_types = ["joyous.RecurringEventPage",
@@ -1217,11 +1228,11 @@ class CancellationPage(Page, EventExceptionBase):
     base_form_class = CancellationPageForm
     slugName = "cancellation"
 
-    cancellation_title = models.CharField('Title', max_length=255, blank=True)
-    cancellation_title.help_text = "Show in place of cancelled event "\
-                                   "(Leave empty to show nothing)"
-    cancellation_details = RichTextField('Details', blank=True)
-    cancellation_details.help_text = "Why was the event cancelled?"
+    cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
+    cancellation_title.help_text = _("Show in place of cancelled event "
+                                     "(Leave empty to show nothing)")
+    cancellation_details = RichTextField(_("details"), blank=True)
+    cancellation_details.help_text = _("Why was the event cancelled?")
 
     search_fields = Page.search_fields + [
         index.SearchField('cancellation_title'),
@@ -1234,7 +1245,7 @@ class CancellationPage(Page, EventExceptionBase):
         MultiFieldPanel([
             FieldPanel('cancellation_title', classname="full title"),
             FieldPanel('cancellation_details', classname="full")],
-            heading="Cancellation"),
+            heading=_("Cancellation")),
         ]
     promote_panels = []
 
@@ -1244,7 +1255,7 @@ class CancellationPage(Page, EventExceptionBase):
 
     @property
     def status_text(self):
-        return "This event has been cancelled."
+        return _("This event has been cancelled.")
 
 # ------------------------------------------------------------------------------
 class PostponementQuerySet(EventQuerySet):
@@ -1299,7 +1310,8 @@ class PostponementPageForm(EventExceptionPageForm):
 
 class PostponementPage(EventBase, CancellationPage):
     class Meta:
-        verbose_name = "Postponement"
+        verbose_name = _("postponement")
+        verbose_name_plural = _("postponements")
         default_manager_name = "objects"
 
     events = EventManager.from_queryset(PostponementQuerySet)()
@@ -1309,9 +1321,9 @@ class PostponementPage(EventBase, CancellationPage):
     base_form_class = PostponementPageForm
     slugName = "postponement"
 
-    postponement_title = models.CharField('Title', max_length=255)
-    postponement_title.help_text = "The title for the postponed event"
-    date    = models.DateField("Date")
+    postponement_title = models.CharField(_("title"), max_length=255)
+    postponement_title.help_text = _("The title for the postponed event")
+    date = models.DateField(_("date"))
 
     search_fields = Page.search_fields + [
         index.SearchField('postponement_title'),
@@ -1322,7 +1334,7 @@ class PostponementPage(EventBase, CancellationPage):
         MultiFieldPanel([
             FieldPanel('cancellation_title', classname="full title"),
             FieldPanel('cancellation_details', classname="full")],
-            heading="Cancellation"),
+            heading=_("Cancellation")),
         MultiFieldPanel([
             FieldPanel('postponement_title', classname="full title"),
             ImageChooserPanel('image'),
@@ -1332,7 +1344,7 @@ class PostponementPage(EventBase, CancellationPage):
             FieldPanel('details', classname="full"),
             MapFieldPanel('location'),
             FieldPanel('website')],
-            heading="Postponed to"),
+            heading=_("Postponed to")),
     ]
     promote_panels = []
 

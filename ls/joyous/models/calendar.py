@@ -11,6 +11,7 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils import dates
+from django.utils.translation import gettext_lazy as _
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
@@ -49,12 +50,13 @@ class CalendarPageForm(WagtailAdminPageForm):
         # TODO support multiple formats?
         cls.importHandler = handler
         uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
-        cls.declared_fields['upload'] = forms.FileField(required=False,
+        cls.declared_fields['upload'] = forms.FileField(label=_("upload"),
+                                                        required=False,
                                                         widget=uploadWidget)
         CalendarPage.settings_panels.append(Panel([
-              HelpPanel("<b>Warning!</b> this feature is experimental"),
+              HelpPanel(_("<b>Warning!</b> this feature is experimental")),
               FieldPanel('upload'),
-            ], heading="Import"))
+            ], heading=_("Import")))
 
     @classmethod
     def registerExportHandler(cls, handler):
@@ -67,7 +69,7 @@ class CalendarPageForm(WagtailAdminPageForm):
         CalendarPage.settings_panels.append(Panel([
               # TODO: annex the HelpPanel into ExportPanel?
               HelpPanel(template="joyous/edit_handlers/export_panel.html")
-            ], heading="Export"))
+            ], heading=_("Export")))
 
     def save(self, commit=True):
         page = super().save(commit=False)
@@ -92,15 +94,17 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
-EVENTS_VIEW_CHOICES = [('L', "List View"),
-                       ('W', "Weekly View"),
-                       ('M', "Monthly View")]
+EVENTS_VIEW_CHOICES = [('L', _("List View")),
+                       ('W', _("Weekly View")),
+                       ('M', _("Monthly View"))]
 
 # ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page):
-    """
-    CalendarPage displays all the events which are in the same site
-    """
+    """CalendarPage displays all the events which are in the same site"""
+    class Meta:
+        verbose_name = _("multiday event page")
+        verbose_name_plural = _("multiday event pages")
+
     EventsPerPage = 25
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
@@ -108,11 +112,12 @@ class CalendarPage(RoutablePageMixin, Page):
                      'joyous.MultidayRecurringEventPage']
     base_form_class = CalendarPageForm
 
-    intro = RichTextField(blank=True)
-
-    view_choices = MultipleSelectField(blank=True, default=["L","W","M"],
+    intro = RichTextField(_("intro"), blank=True)
+    view_choices = MultipleSelectField(_("view choices"), blank=True,
+                                       default=["L","W","M"],
                                        choices=EVENTS_VIEW_CHOICES)
-    default_view = models.CharField(default="M", max_length=15,
+    default_view = models.CharField(_("default view"),
+                                    default="M", max_length=15,
                                     choices=EVENTS_VIEW_CHOICES)
 
     search_fields = Page.search_fields[:]
@@ -123,7 +128,7 @@ class CalendarPage(RoutablePageMixin, Page):
         MultiFieldPanel([
             FieldPanel('view_choices'),
             FieldPanel('default_view')],
-            heading="View Options"),
+            heading=_("View Options")),
         ]
 
     @route(r"^$")
@@ -253,7 +258,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'thisWeekUrl':  myUrl(thisYear, thisWeekNum),
                        'monthlyUrl':   monthlyUrl,
                        'listUrl':      listUrl,
-                       'weekName':     "Week {}".format(week),
+                       'weekName':     "Week {}".format(week), # FIXME %
                        'weekdayAbbr':  weekday_abbr,
                        'events':       [eventsInWeek]})
 
