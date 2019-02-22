@@ -234,48 +234,6 @@ class TestFrançais(TestCase):
         self.assertEqual(holidays[0].div.string.strip(),
                          "Taranaki Anniversary Day")
 
-    def testUpcomingEvents(self):
-        response = self.client.get("/calendrier/upcoming/")
-        select = response.soup.select
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".upcoming-events")), 1)
-        self.assertEqual(len(select(".upcoming-events .event-item")), 0)
-
-    # def testPastEvents(self):
-    #     response = self.client.get("/calendrier/past/")
-    #     select = response.soup.select
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(len(select(".past-events")), 1)
-    #     events = select(".past-events .event-item")
-    #     self.assertEqual(len(events), 1)
-    #     title = events[0].select("a.event-title")[0]
-    #     self.assertEqual(title.string.strip(), "Tree Planting")
-    #     self.assertEqual(title['href'], "/events/tree-planting/")
-    #     when = events[0].select(".event-when")[0]
-    #     self.assertEqual(when.string.strip(),
-    #                      "Sunday 5th of June 2011 at 9:30am to 11am")
-    #
-    # def testMiniMonthView(self):
-    #     response = self.client.get("/calendrier/mini/2011/06/")
-    #     self.assertEqual(response.status_code, 404)
-    #
-    # def testMiniMonthAjaxView(self):
-    #     response = self.client.get("/calendrier/mini/2011/06/",
-    #                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-    #     select = response.soup.select
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(len(select("table.minicalendar thead tr th.sun")), 1)
-    #     month = select("tr.heading th.month .month-name")[0]
-    #     self.assertEqual(month.string.strip(), "June")
-    #     self.assertEqual(len(select("tbody tr")), 5)
-    #     self.assertEqual(len(select("tbody td")), 35)
-    #     self.assertEqual(len(select("tbody td.day")), 30)
-    #     self.assertEqual(len(select("tbody td.noday")), 5)
-    #     event = select("tbody td.day a.event")[0]
-    #     self.assertEqual(event.string.strip(), "5")
-    #     self.assertEqual(event['href'], "/calendrier/2011/06/05/")
-    #     self.assertEqual(event['title'], "Tree Planting")
-
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

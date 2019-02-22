@@ -1,5 +1,5 @@
 {% extends "joyous/joyous_base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags i18n %}
 
 {% block content %}
   <div class="content">
@@ -14,7 +14,7 @@
         {% block events_view %}
         {% include "joyous/includes/events_view_choices.html" %}
         {% endblock events_view %}
-        <h3>Events on {{ day|date:"l, jS F Y"}}</h3>
+        <h3>{% blocktrans with day=day|date:"l, jS F Y" %}Events on {{ day }}{% endblocktrans %}</h3>
       </div>
       {% endblock cal_options %}
 

@@ -1,0 +1,5 @@
+version 0.80
+--------------
+CSS
+.page-index .item-heading -> .page-index strong
+.event-index .item-heading -> .event-index strong

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-21 11:48+1300\n"
+"POT-Creation-Date: 2019-02-23 12:14+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -35,17 +35,17 @@ msgid "Export"
 msgstr "Exportation"
 
 #: ls/joyous/models/calendar.py:97
-#: ls/joyous/templates/joyous/includes/events_view_choices.html:4
+#: ls/joyous/templates/joyous/includes/events_view_choices.html:5
 msgid "List View"
 msgstr "Vue en liste"
 
 #: ls/joyous/models/calendar.py:98
-#: ls/joyous/templates/joyous/includes/events_view_choices.html:9
+#: ls/joyous/templates/joyous/includes/events_view_choices.html:10
 msgid "Weekly View"
 msgstr "Vue hebdomadaire"
 
 #: ls/joyous/models/calendar.py:99
-#: ls/joyous/templates/joyous/includes/events_view_choices.html:14
+#: ls/joyous/templates/joyous/includes/events_view_choices.html:15
 msgid "Monthly View"
 msgstr "Vue mensuelle"
 
@@ -278,6 +278,11 @@ msgstr "Remis à"
 msgid "content"
 msgstr "contenu"
 
+#: ls/joyous/templates/joyous/calendar_list_day.html:17
+#, python-format
+msgid "Events on %(day)s"
+msgstr "Evénements le %(day)s"
+
 #: ls/joyous/templates/joyous/calendar_list_past.html:15
 #: ls/joyous/templates/joyous/calendar_list_upcoming.html:17
 msgid "Upcoming Events"
@@ -292,10 +297,38 @@ msgstr "Événements passés"
 msgid "This Month"
 msgstr "Cette mois"
 
+#: ls/joyous/templates/joyous/calendar_month.html:13
+#: ls/joyous/templates/joyous/includes/minicalendar.html:12
+msgid "Previous month"
+msgstr "Mois précédent"
+
+#: ls/joyous/templates/joyous/calendar_month.html:17
+#: ls/joyous/templates/joyous/includes/minicalendar.html:13
+msgid "Next month"
+msgstr "Mois prochain"
+
+#: ls/joyous/templates/joyous/calendar_month.html:22
+#: ls/joyous/templates/joyous/calendar_week.html:22
+msgid "Previous year"
+msgstr "Année précédent"
+
+#: ls/joyous/templates/joyous/calendar_month.html:26
+#: ls/joyous/templates/joyous/calendar_week.html:26
+msgid "Next year"
+msgstr "L'année prochaine"
+
 #: ls/joyous/templates/joyous/calendar_week.html:5
 #: ls/joyous/templates/joyous/tags/events_this_week.html:4
 msgid "This Week"
 msgstr "Cette semaine"
+
+#: ls/joyous/templates/joyous/calendar_week.html:13
+msgid "Previous week"
+msgstr "Semaine précédente"
+
+#: ls/joyous/templates/joyous/calendar_week.html:17
+msgid "Next week"
+msgstr "La semaine prochaine"
 
 #: ls/joyous/templates/joyous/edit_handlers/exception_date_object.html:28
 msgid "Time Zone"
@@ -311,21 +344,38 @@ msgstr "Télécharger"
 msgid "Export iCal"
 msgstr "Exporter pour iCal"
 
+#: ls/joyous/templates/joyous/includes/calendar_month_day.html:20
+#: ls/joyous/templates/joyous/includes/calendar_week_day.html:20
+#: ls/joyous/templates/joyous/tags/events_this_week.html:20
+msgid "cont."
+msgstr ""
+
 #: ls/joyous/templates/joyous/includes/event_export.html:3
 msgid "Google Calendar"
 msgstr "Google Agenda"
 
-#: ls/joyous/templates/joyous/includes/minicalendar.html:12
-msgid "Previous month"
-msgstr "Mois précédent"
+#: ls/joyous/templates/joyous/includes/event_overrides.html:4
+msgid "See also <strong>other occurrences</strong> of this event."
+msgstr "Voir aussi <strong>d'autres occurrences</strong> de cet événement"
 
-#: ls/joyous/templates/joyous/includes/minicalendar.html:13
-msgid "Next month"
-msgstr "Mois prochain"
+#: ls/joyous/templates/joyous/includes/when_where.html:7
+#, python-format
+msgid "Postponed from %(postponed_from)s"
+msgstr "Remis à plus tard de %(postponed_from)s"
+
+#: ls/joyous/templates/joyous/includes/when_where.html:13
+#, python-format
+msgid "Next on %(event_next_on)s"
+msgstr "Suivant sur %(event_next_on)s"
 
 #: ls/joyous/templates/joyous/tags/events_this_week.html:8
 msgid "Today"
 msgstr "Aujourd'hui"
+
+#: ls/joyous/templates/joyous/tags/future_exceptions_list.html:9
+#: ls/joyous/templates/joyous/tags/future_exceptions_list.html:11
+msgid "on"
+msgstr "le"
 
 #: ls/joyous/templates/joyous/tags/upcoming_events_list.html:3
 msgid "Events"
@@ -346,6 +396,27 @@ msgstr "Date de fin"
 #: ls/joyous/templates/joyous/widgets/recurrence_widget.html:38
 msgid "Use Advanced Options"
 msgstr "Utiliser les options avancées"
+
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:43
+msgid "Every"
+msgstr "Chaque"
+
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:54
+msgid "On Days"
+msgstr "Les jours"
+
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:64
+msgid "On"
+msgstr ""
+
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:83
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:102
+msgid "And"
+msgstr "Et"
+
+#: ls/joyous/templates/joyous/widgets/recurrence_widget.html:123
+msgid "Of"
+msgstr "De"
 
 #: ls/joyous/templates/joyous/widgets/recurrence_widget.html:139
 msgid "What are the rules for when this event recurs?"

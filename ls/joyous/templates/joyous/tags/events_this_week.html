@@ -17,7 +17,7 @@
           {% endif %}
           {% for title, event in evod.continuing_events %}
             <a href="{% pageurl event %}" class="event event-continues">
-              {{title}} cont.
+                {{title}} {% trans "cont." %}
             </a>
           {% endfor %}
           {% for title, event in evod.days_events %}

@@ -2,6 +2,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
+{% with overrides=page.overrides %}
   <div class="content">
     <div class="event clearfix">
       {% if page.status %}
@@ -19,8 +20,7 @@
         {{ page.details|richtext }}
       </div> 
     </div>
-    <div class="event-overrides event-index">
-      <a class="item" href="{% pageurl page.overrides %}">See also <div class="item-heading">other occurences</div> of this event.</a>
-    </div>
+    {% include "joyous/includes/event_overrides.html" %}
   </div>
+{% endwith %}
 {% endblock %}

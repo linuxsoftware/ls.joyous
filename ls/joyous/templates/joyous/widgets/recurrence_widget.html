@@ -40,7 +40,7 @@
     <ul class="fields ev-advanced-repeat">
         <li>
             <div class="number_input">
-                <label>Every</label>
+                <label>{% trans "Every" %}</label>
                 <div class="field-content">
                     <div class="ev-short-input input ev-interval-num">
 {% with widget=widget.subwidgets.2 %}{% include widget.template_name %}{% endwith %}
@@ -51,7 +51,7 @@
         </li>
         <li class="ev-advanced-weekly-repeat">
             <div class="">
-                <label>On Days</label>
+                <label>{% trans "On Days" %}</label>
                 <div class="field-content">
                     <div class="ev-days-input input ev-weekdays">
 {% with widget=widget.subwidgets.3 %}{% include widget.template_name %}{% endwith %}
@@ -61,7 +61,7 @@
         </li>
         <li class="ev-advanced-monthly-repeat">
             <div class="ev-double-field ev-primary">
-                <label>On </label>
+                <label>{% trans "On" %} </label>
                 <div class="ev-half-field typed_choice_field">
                     <div class="field-content">
                         <div class="input ev-ord-choice">
@@ -80,7 +80,7 @@
                 </div>
             </div>
             <div class="ev-double-field ev-secondary">
-                <label>And </label>
+                <label>{% trans "And" %} </label>
                 <div class="ev-half-field typed_choice_field">
                     <div class="field-content">
                         <div class="input ev-ord-choice">
@@ -99,7 +99,7 @@
                 </div>
             </div>
             <div class="ev-double-field ev-secondary">
-                <label>And </label>
+                <label>{% trans "And" %} </label>
                 <div class="ev-half-field typed_choice_field">
                     <div class="field-content">
                         <div class="input ev-ord-choice">
@@ -120,7 +120,7 @@
         </li>
         <li class="ev-advanced-yearly-repeat">
             <div class="">
-                <label>Of</label>
+                <label>{% trans "Of" %}</label>
                 <div class="field-content">
                     <div class="ev-months-input input ev-months">
 {% with widget=widget.subwidgets.12 %}{% include widget.template_name %}{% endwith %}

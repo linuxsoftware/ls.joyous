@@ -2,7 +2,7 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
-{% with event=page.overrides %}
+{% with overrides=page.overrides %}
   <div class="content">
     <div class="event clearfix">
       {% if page.status %}
@@ -13,22 +13,20 @@
       {% if page.extra_title %}
         <h1 class="event-heading">{{ page.extra_title }}</h1>
       {% else %}
-        <h1 class="event-heading">{{ event.title }}</h1>
+        <h1 class="event-heading">{{ overrides.title }}</h1>
       {% endif %}
       <div class="event-image">
-        {% image event.image width-350 %}
+        {% image overrides.image width-350 %}
       </div>
       {% include "joyous/includes/who_when_where.html" with event=page %}
       <div class="event-extra-info">
         {{ page.extra_information|richtext }}
       </div> 
       <div class="event-details">
-        {{ event.details|richtext }}
+        {{ overrides.details|richtext }}
       </div> 
     </div>
-    <div class="event-overrides event-index">
-      <a class="item" href="{% pageurl event %}">See also <div class="item-heading">other occurences</div> of this event.</a>
-    </div>
+    {% include "joyous/includes/event_overrides.html" %}
   </div>
 {% endwith %}
 {% endblock %}

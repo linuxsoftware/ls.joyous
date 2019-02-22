@@ -82,11 +82,11 @@
     background-color:      transparent;
     text-decoration:       none;
 }
-.event-index a:hover .item-heading  {
+.event-index a:hover strong  {
     color:                  #36454f;
     text-decoration:        underline;
 }
-.event-index a:active .item-heading  {
+.event-index a:active strong  {
     color:                 white;
     background-color:      #36454f;
     text-decoration:       underline;
@@ -98,7 +98,7 @@
     display:               block;
     min-height:            28px;
 }
-.event-index .item-heading {
+.event-index strong {
     display:               inline;
     font-weight:           bold;
     font-size:             18px;

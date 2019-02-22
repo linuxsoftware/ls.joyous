@@ -1,5 +1,5 @@
 {% extends "joyous/calendar_base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags i18n %}
 
 {% block events_view %}
 {% include "joyous/includes/events_view_choices.html" with monthlyUrl=thisMonthUrl monthlyLink=_("This Month") %}
@@ -10,20 +10,20 @@
   <th colspan="7" class="month">
     <span class="month-heading">
       {% if prevMonthUrl %}
-      <a title="Previous month" rel="nofollow" href="{{ prevMonthUrl }}">&lt;</a>
+      <a title="{% trans 'Previous month' %}" rel="nofollow" href="{{ prevMonthUrl }}">&lt;</a>
       {% endif %}
       <div class="month-name">{{ monthName }}</div>
       {% if nextMonthUrl %}
-      <a title="Next month" rel="nofollow" href="{{ nextMonthUrl }}">&gt;</a>
+      <a title="{% trans 'Next month' %}" rel="nofollow" href="{{ nextMonthUrl }}">&gt;</a>
       {% endif %}
     </span>
     <span class="year-heading">
       {% if prevYearUrl %}
-      <a title="Previous year" rel="nofollow" href="{{ prevYearUrl }}">&lt;</a>
+      <a title="{% trans 'Previous year' %}" rel="nofollow" href="{{ prevYearUrl }}">&lt;</a>
       {% endif %}
       <div class="year-number">{{ year }}</div>
       {% if nextYearUrl %}
-      <a title="Next year" rel="nofollow" href="{{ nextYearUrl }}">&gt;</a>
+      <a title="{% trans 'Next year' %}" rel="nofollow" href="{{ nextYearUrl }}">&gt;</a>
       {% endif %}
     </span>
   </th>

@@ -1,14 +1,14 @@
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags i18n %}
 {% if exceptions %}
 <div class="event-index">
   {% for exception in exceptions %}
   <a class="item" href="{% pageurl exception %}">
-    <div class="item-heading">{{ exception.localTitle }}</div>
+    <strong>{{ exception.localTitle }}</strong>
     {% if exception.postponement_title %}
     {% if exception.cancellation_title %}
-    <p class="item-text">{{ exception.cancellation_title }} on {{ exception.postponed_from }}</p>
+    <p class="item-text">{{ exception.cancellation_title }} {% trans "on" %} {{ exception.postponed_from }}</p>
     {% endif %}
-    <p class="item-text">{{ exception.postponement_title }} on {{ exception.postponed_to }}</p>
+    <p class="item-text">{{ exception.postponement_title }} {% trans "on" %} {{ exception.postponed_to }}</p>
     {% elif exception.cancellation_title %}
     <p class="item-text">{{ exception.cancellation_title }}</p>
     {% elif exception.extra_title %}
