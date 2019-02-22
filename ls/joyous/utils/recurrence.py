@@ -16,8 +16,11 @@ import datetime as dt
 from dateutil.rrule import rrule, rrulestr, rrulebase
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
+from django.utils import dates
 from .telltime import dateFormatDMY
 from .manythings import toOrdinal, hrJoin
+
+# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 class Weekday(rrweekday):
@@ -32,13 +35,17 @@ class Weekday(rrweekday):
         return self._getWhen(0)
 
     def _getWhen(self, offset):
-        when = calendar.day_name[self.weekday]
+        weekdayNames = [str(dates.WEEKDAYS[k]) for k in range(7)]
+
+        # when = calendar.day_name[self.weekday]
+        when = weekdayNames[self.weekday]
         if offset == 0:
             if not self.n:
                 return when
             else:
                 return "{} {}".format(toOrdinal(self.n), when)
-        localWhen = calendar.day_name[(self.weekday + offset) % 7]
+        # localWhen = calendar.day_name[(self.weekday + offset) % 7]
+        localWhen = weekdayNames[(self.weekday + offset) % 7]
         if not self.n:
             return localWhen
         else:
@@ -196,6 +203,8 @@ class Recurrence(rrulebase):
         return self._getWhen(0)
 
     def _getWhen(self, offset, numDays=1):
+        monthNames = [""] + [str(dates.MONTHS[m]) for m in range(1,13)]
+
         retval = ""
         if self.freq == DAILY:
             if self.interval > 1:
@@ -214,7 +223,8 @@ class Recurrence(rrulebase):
             if self.freq == MONTHLY:
                 of = " of the month"
             else:
-                months = [calendar.month_name[m] for m in self.bymonth]
+                #months = [calendar.month_name[m] for m in self.bymonth]
+                months = [monthNames[m] for m in self.bymonth]
                 of = " of {}".format(hrJoin(months))
             days = []
             if self.byweekday:
@@ -244,9 +254,10 @@ class Recurrence(rrulebase):
                     retval = hrJoin(["{}{:+d}".format(day, offset) for day in days])
 
             elif len(self.bymonthday) == 1:
-                wrappedMonthNames = calendar.month_name[:]
-                wrappedMonthNames[0] = calendar.month_name[-1]
-                wrappedMonthNames.append(calendar.month_name[1])
+                # wrappedMonthNames = calendar.month_name[:]
+                # wrappedMonthNames[0] = calendar.month_name[-1]
+                # wrappedMonthNames.append(calendar.month_name[1])
+                wrappedMonthNames = [monthNames[k%12+1] for k in range(11,25)]
 
                 d = self.bymonthday[0]
                 if d == 1 and offset < 0:
