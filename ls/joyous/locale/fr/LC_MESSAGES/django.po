@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-24 19:31+1300\n"
+"POT-Creation-Date: 2019-02-24 23:03+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -471,30 +471,125 @@ msgstr "samedis"
 msgid "Sundays"
 msgstr "dimanches"
 
-#: ls/joyous/utils/recurrence.py:43
+#: ls/joyous/utils/recurrence.py:44
 #, python-brace-format
 msgid "{ordinal} {weekday}"
 msgstr "{ordinal} {weekday}"
 
-#: ls/joyous/utils/recurrence.py:51
+#: ls/joyous/utils/recurrence.py:52
 #, python-brace-format
 msgid "{localWeekday} before the {ordinal} {weekday}"
 msgstr "{localWeekday} avant le {ordinal} {weekday}"
 
-#: ls/joyous/utils/recurrence.py:54
+#: ls/joyous/utils/recurrence.py:55
 #, python-brace-format
 msgid "{localWeekday} after the {ordinal} {weekday}"
 msgstr "{localWeekday} après le {ordinal} {weekday}"
 
+#: ls/joyous/utils/recurrence.py:207
+#, python-brace-format
+msgid "Every {n} days"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:209
+msgid "Daily"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:213
+#, python-brace-format
+msgid "Fortnightly on {days}"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:215
+#, fuzzy, python-brace-format
+#| msgid "Events on %(day)s"
+msgid "Every {n} weeks on {days}"
+msgstr "Evénements le %(day)s"
+
 #: ls/joyous/utils/recurrence.py:220
-msgid " of the month"
+#, fuzzy
+#| msgid " of the month"
+msgid "of the month"
 msgstr " du mois"
 
-#: ls/joyous/utils/recurrence.py:223 ls/joyous/utils/recurrence.py:257
-#: ls/joyous/utils/recurrence.py:262
-#, python-brace-format
-msgid " of {months}"
+#: ls/joyous/utils/recurrence.py:223 ls/joyous/utils/recurrence.py:263
+#: ls/joyous/utils/recurrence.py:268
+#, fuzzy, python-brace-format
+#| msgid " of {months}"
+msgid "of {months}"
 msgstr " de {months}"
+
+#: ls/joyous/utils/recurrence.py:228
+#, fuzzy
+#| msgid "Every"
+msgid "Everyday"
+msgstr "Chaque"
+
+#: ls/joyous/utils/recurrence.py:233
+#, python-brace-format
+msgid "Every {when}"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:236
+#, python-brace-format
+msgid "The {when}"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:239
+#, python-brace-format
+msgid "the {ordinal}"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:242
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} before the {ordinal} {weekday}"
+msgid "Two days before {theOrdinal} day"
+msgstr "{localWeekday} avant le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:245
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} before the {ordinal} {weekday}"
+msgid "The day before {theOrdinal} day"
+msgstr "{localWeekday} avant le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:248
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} after the {ordinal} {weekday}"
+msgid "The day after {theOrdinal} day"
+msgstr "{localWeekday} après le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:251
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} after the {ordinal} {weekday}"
+msgid "Two days after {theOrdinal} day"
+msgstr "{localWeekday} après le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:271
+#, fuzzy, python-brace-format
+#| msgid "{ordinal} {weekday}"
+msgid "The {ordinal} day"
+msgstr "{ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:275
+#, python-brace-format
+msgid "{when}, every {n} months"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:278
+#, python-brace-format
+msgid "{when}, every {n} years"
+msgstr ""
+
+#: ls/joyous/utils/recurrence.py:281
+#, fuzzy, python-brace-format
+#| msgid "Mondays"
+msgid "for {n} days"
+msgstr "lundis"
+
+#: ls/joyous/utils/recurrence.py:285
+#, python-brace-format
+msgid "(until {when})"
+msgstr ""
 
 #~ msgid "Monday"
 #~ msgstr "lundi"
