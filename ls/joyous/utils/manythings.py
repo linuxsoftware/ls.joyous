@@ -25,10 +25,11 @@ def toOrdinal(n):
 
 # ------------------------------------------------------------------------------
 def hrJoin(items):
+    conjuction = " {} ".format(_("and"))
     if len(items) <= 2:
-        return _(" and ").join(items)
+        return conjuction.join(items)
     else:
-        return ", ".join(items[:-1]) + _(" and ") + items[-1]
+        return ", ".join(items[:-1]) + conjuction + items[-1]
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

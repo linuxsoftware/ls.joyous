@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-24 14:40+1300\n"
+"POT-Creation-Date: 2019-02-24 19:31+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -69,7 +69,9 @@ msgid "View Options"
 msgstr "Options d'affichage"
 
 #: ls/joyous/models/calendar.py:261
-msgid "Week {}"
+#, fuzzy, python-brace-format
+#| msgid "Week {}"
+msgid "Week {weekNum}"
 msgstr "Semaine {}"
 
 #: ls/joyous/models/events.py:221
@@ -429,17 +431,17 @@ msgstr "De"
 msgid "What are the rules for when this event recurs?"
 msgstr "Quelles sont les règles lorsque cet événement se reproduira?"
 
-#: ls/joyous/utils/manythings.py:21
+#: ls/joyous/utils/manythings.py:18
 msgid "last"
 msgstr "dernier"
 
-#: ls/joyous/utils/manythings.py:23
+#: ls/joyous/utils/manythings.py:20
 msgid "penultimate"
 msgstr "avant-dernier"
 
-#: ls/joyous/utils/manythings.py:32 ls/joyous/utils/manythings.py:34
-msgid " and "
-msgstr " et "
+#: ls/joyous/utils/manythings.py:28
+msgid "and"
+msgstr "et"
 
 #: ls/joyous/utils/names.py:20
 msgid "Mondays"
