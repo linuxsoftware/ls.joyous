@@ -16,11 +16,10 @@ import datetime as dt
 from dateutil.rrule import rrule, rrulestr, rrulebase
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
-from django.utils import dates
+from django.utils.translation import gettext as _
 from .telltime import dateFormatDMY
 from .manythings import toOrdinal, hrJoin
-
-# ------------------------------------------------------------------------------
+from .names import MONDAY_TO_SUNDAY, MONTH_NAMES, WRAPPED_MONTH_NAMES
 
 # ------------------------------------------------------------------------------
 class Weekday(rrweekday):
@@ -35,32 +34,31 @@ class Weekday(rrweekday):
         return self._getWhen(0)
 
     def _getWhen(self, offset):
-        weekdayNames = [str(dates.WEEKDAYS[k]) for k in range(7)]
-
-        # when = calendar.day_name[self.weekday]
-        when = weekdayNames[self.weekday]
+        weekday = MONDAY_TO_SUNDAY[self.weekday]
         if offset == 0:
             if not self.n:
-                return when
+                return weekday
             else:
-                return "{} {}".format(toOrdinal(self.n), when)
-        # localWhen = calendar.day_name[(self.weekday + offset) % 7]
-        localWhen = weekdayNames[(self.weekday + offset) % 7]
+                ordinal = toOrdinal(self.n)
+                return _("{ordinal} {weekday}").format(**locals())
+
+        localWeekday = MONDAY_TO_SUNDAY[(self.weekday + offset) % 7]
         if not self.n:
-            return localWhen
+            return localWeekday
         else:
             ordinal = toOrdinal(self.n)
             if offset < 0:
-                return "{} before the {} {}".format(localWhen, ordinal, when)
+                return _("{localWeekday} before the "
+                         "{ordinal} {weekday}").format(**locals())
             else:
-                return "{} after the {} {}".format(localWhen, ordinal, when)
+                return _("{localWeekday} after the "
+                         "{ordinal} {weekday}").format(**locals())
 
-MO, TU, WE, TH, FR, SA, SU = map(Weekday, range(7))
-WEEKDAYS = [MO, TU, WE, TH, FR]
-WEEKEND = [SA, SU]
-EVERYDAY = WEEKDAYS + WEEKEND
-
-JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC = range(1, 13)
+MO, TU, WE, TH, FR, SA, SU = EVERYWEEKDAY = map(Weekday, range(7))
+# WORKDAYS = [MO, TU, WE, TH, FR]
+# WEEKEND = [SA, SU]
+# EVERYDAY = WORKDAYS + WEEKEND
+# JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC = range(1, 13)
 
 # ------------------------------------------------------------------------------
 class Recurrence(rrulebase):
@@ -203,8 +201,6 @@ class Recurrence(rrulebase):
         return self._getWhen(0)
 
     def _getWhen(self, offset, numDays=1):
-        monthNames = [""] + [str(dates.MONTHS[m]) for m in range(1,13)]
-
         retval = ""
         if self.freq == DAILY:
             if self.interval > 1:
@@ -221,11 +217,10 @@ class Recurrence(rrulebase):
 
         elif self.freq in (MONTHLY, YEARLY):
             if self.freq == MONTHLY:
-                of = " of the month"
+                of = _(" of the month")
             else:
-                #months = [calendar.month_name[m] for m in self.bymonth]
-                months = [monthNames[m] for m in self.bymonth]
-                of = " of {}".format(hrJoin(months))
+                months = [MONTH_NAMES[m] for m in self.bymonth]
+                of = _(" of {months}").format(months=hrJoin(months))
             days = []
             if self.byweekday:
                 if len(self.byweekday) == 7 and all(not day.n for day in self.byweekday):
@@ -254,22 +249,17 @@ class Recurrence(rrulebase):
                     retval = hrJoin(["{}{:+d}".format(day, offset) for day in days])
 
             elif len(self.bymonthday) == 1:
-                # wrappedMonthNames = calendar.month_name[:]
-                # wrappedMonthNames[0] = calendar.month_name[-1]
-                # wrappedMonthNames.append(calendar.month_name[1])
-                wrappedMonthNames = [monthNames[k%12+1] for k in range(11,25)]
-
                 d = self.bymonthday[0]
                 if d == 1 and offset < 0:
                     d = offset
                     if self.freq != MONTHLY:
-                        months = [wrappedMonthNames[m-1] for m in self.bymonth]
-                        of = " of {}".format(hrJoin(months))
+                        months = [WRAPPED_MONTH_NAMES[m-1] for m in self.bymonth]
+                        of = _(" of {months}").format(months=hrJoin(months))
                 elif d == -1 and offset > 0:
                     d = offset
                     if self.freq != MONTHLY:
-                        months = [wrappedMonthNames[m+1] for m in self.bymonth]
-                        of = " of {}".format(hrJoin(months))
+                        months = [WRAPPED_MONTH_NAMES[m+1] for m in self.bymonth]
+                        of = _(" of {months}").format(months=hrJoin(months))
                 else:
                     d += offset
                 retval = "The {} day".format(toOrdinal(d))

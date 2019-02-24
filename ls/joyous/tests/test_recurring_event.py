@@ -10,7 +10,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
 from ls.joyous.utils.recurrence import Recurrence
-from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, TH, WEEKEND, EVERYDAY
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY
+from ls.joyous.utils.recurrence import TU, TH, SA, SU, EVERYWEEKDAY
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage, CancellationPage
 from .testutils import datetimetz, freeze_timetz
@@ -54,7 +55,7 @@ class Test(TestCase):
                                        repeat = Recurrence(dtstart=dt.date(2008,2,1),
                                                            until=dt.date(2008,5,4),
                                                            freq=WEEKLY,
-                                                           byweekday=WEEKEND))
+                                                           byweekday=[SA,SU]))
         self.calendar.add_child(instance=pastEvent)
         self.assertEqual(pastEvent.status, "finished")
         self.assertEqual(pastEvent.status_text, "These events have finished.")
@@ -73,7 +74,7 @@ class Test(TestCase):
         self.assertEqual(nowEvent.status, "started")
         self.assertEqual(nowEvent.status_text, "This event has started.")
         today = timezone.localdate()
-        notToday = [weekday for weekday in EVERYDAY if weekday.weekday != today.weekday()]
+        notToday = [weekday for weekday in EVERYWEEKDAY if weekday.weekday != today.weekday()]
         pastAndFutureEvent = RecurringEventPage(owner = self.user,
                                                 slug  = "not-today",
                                                 title = "Any day but today",
@@ -92,7 +93,7 @@ class Test(TestCase):
                                    repeat = Recurrence(dtstart=dt.date(2008,2,1),
                                                        until=dt.date(2008,5,9),
                                                        freq=WEEKLY,
-                                                       byweekday=WEEKEND),
+                                                       byweekday=[SA,SU]),
                                       time_from = dt.time(8),
                                       time_to   = dt.time(9))
         self.calendar.add_child(instance=event)
@@ -106,7 +107,7 @@ class Test(TestCase):
                                    repeat = Recurrence(dtstart=dt.date(2008,2,1),
                                                        until=dt.date(2008,5,9),
                                                        freq=WEEKLY,
-                                                       byweekday=WEEKEND),
+                                                       byweekday=[SA,SU]),
                                       time_from = dt.time(8),
                                       time_to   = dt.time(9))
         self.calendar.add_child(instance=event)

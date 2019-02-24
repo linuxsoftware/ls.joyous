@@ -1,30 +1,37 @@
 # ------------------------------------------------------------------------------
 # Many things utilities
 # ------------------------------------------------------------------------------
+from django.utils.translation import get_language
+from django.utils.translation import to_locale
+from django.utils.translation import gettext as _
+from num2words import num2words
 import inflect
 
 # ------------------------------------------------------------------------------
 __inflection = inflect.engine()
 
+def _num(n, to):
+    try:
+        return num2words(n, lang=to_locale(get_language()), to=to)
+    except NotImplementedError:
+        return _(num2words(n, lang="en", to=to))
+
 def toOrdinal(n):
-    ordinal = ""
     if n == -1:
-        ordinal = "last"
+        return _("last")
     elif n == -2:
-        ordinal = "penultimate"
-    elif n > 0:
-        ordinal = __inflection.ordinal(n)
-        if 1 <= n <= 5:
-            # use first, second etc up to fifth
-            ordinal = __inflection.number_to_words(ordinal)
-    return ordinal
+        return _("penultimate")
+    elif 1 <= n <= 5:
+        return _(_num(n, to="ordinal"))
+    else:
+        return _(_num(n, to="ordinal_num"))
 
 # ------------------------------------------------------------------------------
 def hrJoin(items):
     if len(items) <= 2:
-        return " and ".join(items)
+        return _(" and ").join(items)
     else:
-        return ", ".join(items[:-1]) + " and " + items[-1]
+        return ", ".join(items[:-1]) + _(" and ") + items[-1]
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

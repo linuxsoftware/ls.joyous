@@ -2,7 +2,7 @@ Django
 wagtail
 
 django-timezone-field
-inflect
+num2words
 holidays
 icalendar
 python-dateutil

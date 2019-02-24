@@ -1,13 +1,8 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-23 12:14+1300\n"
+"POT-Creation-Date: 2019-02-24 14:40+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,19 +13,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.1.1\n"
 
-#: ls/joyous/models/calendar.py:53
+#: ls/joyous/models/calendar.py:54
 msgid "upload"
 msgstr "télécharger"
 
-#: ls/joyous/models/calendar.py:57
+#: ls/joyous/models/calendar.py:58
 msgid "<b>Warning!</b> this feature is experimental"
 msgstr "<b>Attention!</b> cette fonctionnalité est expérimentale."
 
-#: ls/joyous/models/calendar.py:59
+#: ls/joyous/models/calendar.py:60
 msgid "Import"
 msgstr "Importation"
 
-#: ls/joyous/models/calendar.py:72
+#: ls/joyous/models/calendar.py:73
 msgid "Export"
 msgstr "Exportation"
 
@@ -73,6 +68,10 @@ msgstr "vue par défaut"
 msgid "View Options"
 msgstr "Options d'affichage"
 
+#: ls/joyous/models/calendar.py:261
+msgid "Week {}"
+msgstr "Semaine {}"
+
 #: ls/joyous/models/events.py:221
 msgid "event category"
 msgstr "catégories d'événement"
@@ -109,7 +108,7 @@ msgstr "heure de fin"
 msgid "time zone"
 msgstr "fuseau horaire"
 
-#: ls/joyous/models/events.py:360
+#: ls/joyous/models/events.py:360 ls/joyous/models/groups.py:50
 msgid "group page"
 msgstr "page de groupe"
 
@@ -274,9 +273,17 @@ msgstr "Le titre de l'épreuve reportée"
 msgid "Postponed to"
 msgstr "Remis à"
 
-#: ls/joyous/models/groups.py:59
+#: ls/joyous/models/groups.py:51
+msgid "group pages"
+msgstr "pages de groupe"
+
+#: ls/joyous/models/groups.py:63
 msgid "content"
 msgstr "contenu"
+
+#: ls/joyous/models/groups.py:64
+msgid "An area of text for whatever you like"
+msgstr "Une zone de texte pour ce que vous voulez"
 
 #: ls/joyous/templates/joyous/calendar_list_day.html:17
 #, python-format
@@ -421,3 +428,179 @@ msgstr "De"
 #: ls/joyous/templates/joyous/widgets/recurrence_widget.html:139
 msgid "What are the rules for when this event recurs?"
 msgstr "Quelles sont les règles lorsque cet événement se reproduira?"
+
+#: ls/joyous/utils/manythings.py:21
+msgid "last"
+msgstr "dernier"
+
+#: ls/joyous/utils/manythings.py:23
+msgid "penultimate"
+msgstr "avant-dernier"
+
+#: ls/joyous/utils/manythings.py:32 ls/joyous/utils/manythings.py:34
+msgid " and "
+msgstr " et "
+
+#: ls/joyous/utils/names.py:20
+msgid "Mondays"
+msgstr "lundis"
+
+#: ls/joyous/utils/names.py:21
+msgid "Tuesdays"
+msgstr "mardis"
+
+#: ls/joyous/utils/names.py:22
+msgid "Wednesdays"
+msgstr "mercredis"
+
+#: ls/joyous/utils/names.py:23
+msgid "Thursdays"
+msgstr "jeudis"
+
+#: ls/joyous/utils/names.py:24
+msgid "Fridays"
+msgstr "vendredis"
+
+#: ls/joyous/utils/names.py:25
+msgid "Saturdays"
+msgstr "samedis"
+
+#: ls/joyous/utils/names.py:26
+msgid "Sundays"
+msgstr "dimanches"
+
+#: ls/joyous/utils/recurrence.py:43
+#, python-brace-format
+msgid "{ordinal} {weekday}"
+msgstr "{ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:51
+#, python-brace-format
+msgid "{localWeekday} before the {ordinal} {weekday}"
+msgstr "{localWeekday} avant le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:54
+#, python-brace-format
+msgid "{localWeekday} after the {ordinal} {weekday}"
+msgstr "{localWeekday} après le {ordinal} {weekday}"
+
+#: ls/joyous/utils/recurrence.py:220
+msgid " of the month"
+msgstr " du mois"
+
+#: ls/joyous/utils/recurrence.py:223 ls/joyous/utils/recurrence.py:257
+#: ls/joyous/utils/recurrence.py:262
+#, python-brace-format
+msgid " of {months}"
+msgstr " de {months}"
+
+#~ msgid "Monday"
+#~ msgstr "lundi"
+
+#~ msgid "Tuesday"
+#~ msgstr "mardi"
+
+#~ msgid "Wednesday"
+#~ msgstr "mercredi"
+
+#~ msgid "Thursday"
+#~ msgstr "jeudi"
+
+#~ msgid "Friday"
+#~ msgstr "vendredi"
+
+#~ msgid "Saturday"
+#~ msgstr "samedi"
+
+#~ msgid "Sunday"
+#~ msgstr "dimanche"
+
+#~ msgid "Mon"
+#~ msgstr "lun"
+
+#~ msgid "Tue"
+#~ msgstr "mar"
+
+#~ msgid "Wed"
+#~ msgstr "mer"
+
+#~ msgid "Thu"
+#~ msgstr "jeu"
+
+#~ msgid "Fri"
+#~ msgstr "ven"
+
+#~ msgid "Sat"
+#~ msgstr "sam"
+
+#~ msgid "Sun"
+#~ msgstr "dim"
+
+#~ msgid "January"
+#~ msgstr "janvier"
+
+#~ msgid "February"
+#~ msgstr "février"
+
+#~ msgid "March"
+#~ msgstr "mars"
+
+#~ msgid "April"
+#~ msgstr "avril"
+
+#~ msgid "May"
+#~ msgstr "mai"
+
+#~ msgid "June"
+#~ msgstr "juin"
+
+#~ msgid "July"
+#~ msgstr "juillet"
+
+#~ msgid "August"
+#~ msgstr "août"
+
+#~ msgid "September"
+#~ msgstr "septembre"
+
+#~ msgid "October"
+#~ msgstr "octobre"
+
+#~ msgid "November"
+#~ msgstr "novembre"
+
+#~ msgid "December"
+#~ msgstr "décembre"
+
+#~ msgid "Jan"
+#~ msgstr "jan"
+
+#~ msgid "Feb"
+#~ msgstr "fév"
+
+#~ msgid "Mar"
+#~ msgstr "mar"
+
+#~ msgid "Apr"
+#~ msgstr "avr"
+
+#~ msgid "Jun"
+#~ msgstr "jui"
+
+#~ msgid "Jul"
+#~ msgstr "jul"
+
+#~ msgid "Aug"
+#~ msgstr "aoû"
+
+#~ msgid "Sep"
+#~ msgstr "sep"
+
+#~ msgid "Oct"
+#~ msgstr "oct"
+
+#~ msgid "Nov"
+#~ msgstr "nov"
+
+#~ msgid "Dec"
+#~ msgstr "déc"

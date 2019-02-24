@@ -115,9 +115,9 @@ class TestSetting(TestCase):
         self.assertIs(num_weeks_in_year, _iso_num_weeks)
         self.assertIs(gregorian_to_week_date, _gregorian_to_iso)
         self.assertIs(week_of_month, _iso_week_of_month)
-        self.assertEqual(weekday_abbr, ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"])
-        self.assertEqual(weekday_name, ["Monday","Tuesday","Wednesday","Thursday",
-                                        "Friday","Saturday","Sunday"])
+        self.assertEqual(weekday_abbr, ("Mon","Tue","Wed","Thu","Fri","Sat","Sun"))
+        self.assertEqual(weekday_name, ("Monday","Tuesday","Wednesday","Thursday",
+                                        "Friday","Saturday","Sunday"))
 
     @override('en-au')
     def testSundayStartingWeek(self):
@@ -131,9 +131,9 @@ class TestSetting(TestCase):
         self.assertIs(num_weeks_in_year, _ssweek_num_weeks)
         self.assertIs(gregorian_to_week_date, _gregorian_to_ssweek)
         self.assertIs(week_of_month, _ssweek_of_month)
-        self.assertEqual(weekday_abbr, ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"])
-        self.assertEqual(weekday_name, ["Sunday","Monday","Tuesday","Wednesday","Thursday",
-                                        "Friday","Saturday"])
+        self.assertEqual(weekday_abbr, ("Sun","Mon","Tue","Wed","Thu","Fri","Sat"))
+        self.assertEqual(weekday_name, ("Sunday","Monday","Tuesday","Wednesday","Thursday",
+                                        "Friday","Saturday"))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
