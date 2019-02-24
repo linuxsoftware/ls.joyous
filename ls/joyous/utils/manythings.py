@@ -5,11 +5,8 @@ from django.utils.translation import get_language
 from django.utils.translation import to_locale
 from django.utils.translation import gettext as _
 from num2words import num2words
-import inflect
 
 # ------------------------------------------------------------------------------
-__inflection = inflect.engine()
-
 def _num(n, to):
     try:
         return num2words(n, lang=to_locale(get_language()), to=to)
