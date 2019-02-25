@@ -11,9 +11,9 @@ class _Names(tuple):
         return str(super().__getitem__(i))
 
 # ------------------------------------------------------------------------------
-MONDAY_TO_SUNDAY   = _Names(dates.WEEKDAYS[k] for k in range(7))
+MONDAY_TO_SUNDAY = WEEKDAY_NAMES = _Names(dates.WEEKDAYS[k] for k in range(7))
 SUNDAY_TO_SATURDAY = _Names(dates.WEEKDAYS[k%7] for k in range(6,13))
-MON_TO_SUN = _Names(dates.WEEKDAYS_ABBR[k] for k in range(7))
+MON_TO_SUN = WEEKDAY_ABBRS = _Names(dates.WEEKDAYS_ABBR[k] for k in range(7))
 SUN_TO_SAT = _Names(dates.WEEKDAYS_ABBR[k%7] for k in range(6,13))
 
 # ------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ class TestFormats(TestCase):
         self.assertEqual(timeFormat(dt.time(13,26)), "1:26pm")
         self.assertEqual(timeFormat(dt.time(8), prefix="~~"), "~~8am")
         self.assertEqual(timeFormat(dt.time(8), dt.time(11)), "8am to 11am")
-        self.assertEqual(timeFormat(dt.time(20), dt.time(2), "at ", "-> "),
+        self.assertEqual(timeFormat(dt.time(20), dt.time(2), "at ", "->"),
                          "at 8pm -> 2am")
 
     def testDateFormat(self):

@@ -7,6 +7,7 @@ from inspect import signature
 from django.conf import settings
 from django.utils import dateformat
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 # ------------------------------------------------------------------------------
 def getLocalDate(*args, **kwargs):
@@ -56,26 +57,34 @@ def timeTo(time_to):
     return time_to if time_to is not None else dt.time.max
 
 # ------------------------------------------------------------------------------
-# TODO i18n
-def timeFormat(time_from, time_to=None, prefix="", infix="to "):
+def timeFormat(time_from, time_to=None, prefix="", infix=None):
     # e.g. 10am
     retval = ""
     if time_from != "" and time_from is not None:
         retval += prefix
-        retval += dateformat.time_format(time_from, "fA ").lower()
+        retval += dateformat.time_format(time_from, "fA").lower()
     if time_to != "" and time_to is not None:
-        retval += infix
-        retval += format(dateformat.time_format(time_to, "fA").lower())
+        to = format(dateformat.time_format(time_to, "fA").lower())
+        if infix is not None:
+            retval = "{} {} {}".format(retval, infix, to)
+        else:
+            retval = _("{fromTime} to {toTime}").format(fromTime=retval,
+                                                        toTime=to)
     return retval.strip()
 
-# TODO i18n
 def dateFormat(when):
     # e.g. Friday 14th of April 2011
     retval = ""
     if when is not None:
-        retval = dateformat.format(when, "l jS \\o\\f F")
+        dow = dateformat.format(when, "l")
+        dom = dateformat.format(when, "jS")
+        month = dateformat.format(when, "F")
         if when.year != dt.date.today().year:
-            retval += " {}".format(when.year)
+            retval = _("{weekday} {day} of {month} {year}")  \
+                    .format(weekday=dow, day=dom, month=month, year=when.year)
+        else:
+            retval = _("{weekday} {day} of {month}")  \
+                    .format(weekday=dow, day=dom, month=month)
     return retval
 
 def dateFormatDMY(when):

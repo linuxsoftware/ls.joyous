@@ -130,7 +130,7 @@ def time_display(time):
 
 @register.filter
 def at_time_display(time):
-    return timeFormat(time, prefix="at ")
+    return timeFormat(time, prefix=_("at "))
 
 @register.filter
 def date_display(date):

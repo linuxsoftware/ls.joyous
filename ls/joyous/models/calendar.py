@@ -19,7 +19,7 @@ from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from ..edit_handlers import ConcealedPanel
-from ..utils.names import MONDAY_TO_SUNDAY, MONTH_NAMES, MONTH_ABBRS
+from ..utils.names import WEEKDAY_NAMES, MONTH_NAMES, MONTH_ABBRS
 from ..utils.weeks import week_info, gregorian_to_week_date, num_weeks_in_year
 from ..utils.weeks import weekday_abbr, weekday_name
 from ..utils.mixins import ProxyPageMixin
@@ -298,7 +298,7 @@ class CalendarPage(RoutablePageMixin, Page):
                        'weeklyUrl':    weeklyUrl,
                        'listUrl':      listUrl,
                        'monthName':    MONTH_NAMES[month],
-                       'weekdayName':  MONDAY_TO_SUNDAY[day.weekday()],
+                       'weekdayName':  WEEKDAY_NAMES[day.weekday()],
                        'events':       eventsOnDay})
 
     @route(r"^upcoming/$")

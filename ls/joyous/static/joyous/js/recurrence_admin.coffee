@@ -131,24 +131,23 @@ class RecurrenceWidget
 
     _freqChanged: (freq) ->
         visible = [false, false, false]
-        units = ""
-        switch parseInt(freq, 10)
+        frequency = parseInt(freq, 10)
+        switch frequency
             when 3
                 visible = [false, false, false]
-                units = "Day(s)"
             when 2
                 visible = [true,  false, false]
-                units = "Week(s)"
             when 1
                 visible = [false, true,  false]
-                units = "Month(s)"
             when 0
                 visible = [false, true, true]
-                units = "Year(s)"
         @our(".ev-advanced-weekly-repeat").toggle(visible[0])
         @our(".ev-advanced-monthly-repeat").toggle(visible[1])
         @our(".ev-advanced-yearly-repeat").toggle(visible[2])
-        @our(".ev-interval-units").text(units)
+        @our(".ev-interval-units-days").toggle(frequency==3)
+        @our(".ev-interval-units-weeks").toggle(frequency==2)
+        @our(".ev-interval-units-months").toggle(frequency==1)
+        @our(".ev-interval-units-years").toggle(frequency==0)
         return
 
 @initRecurrenceWidget = (id) ->

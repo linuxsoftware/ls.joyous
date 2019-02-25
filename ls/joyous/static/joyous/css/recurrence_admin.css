@@ -18,8 +18,12 @@
 .ev-short-input input {
     width:                   10em;
 }
-.ev-short-input .interval-units {
+.ev-short-input .interval-units-days,
+.ev-short-input .interval-units-weeks,
+.ev-short-input .interval-units-months,
+.ev-short-input .interval-units-years {
     padding:                 0 0 0 12px;
+    display:                 none;
 }
 .ev-days-input label {
     width:                   14%;

@@ -167,30 +167,29 @@
     };
 
     RecurrenceWidget.prototype._freqChanged = function(freq) {
-      var units, visible;
+      var frequency, visible;
       visible = [false, false, false];
-      units = "";
-      switch (parseInt(freq, 10)) {
+      frequency = parseInt(freq, 10);
+      switch (frequency) {
         case 3:
           visible = [false, false, false];
-          units = "Day(s)";
           break;
         case 2:
           visible = [true, false, false];
-          units = "Week(s)";
           break;
         case 1:
           visible = [false, true, false];
-          units = "Month(s)";
           break;
         case 0:
           visible = [false, true, true];
-          units = "Year(s)";
       }
       this.our(".ev-advanced-weekly-repeat").toggle(visible[0]);
       this.our(".ev-advanced-monthly-repeat").toggle(visible[1]);
       this.our(".ev-advanced-yearly-repeat").toggle(visible[2]);
-      this.our(".ev-interval-units").text(units);
+      this.our(".ev-interval-units-days").toggle(frequency === 3);
+      this.our(".ev-interval-units-weeks").toggle(frequency === 2);
+      this.our(".ev-interval-units-months").toggle(frequency === 1);
+      this.our(".ev-interval-units-years").toggle(frequency === 0);
     };
 
     return RecurrenceWidget;

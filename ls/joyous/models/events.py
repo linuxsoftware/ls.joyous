@@ -1089,10 +1089,10 @@ class EventExceptionBase(models.Model):
 
     @property
     def localTitle(self):
-        # TODO localize for language too?
         name = self.title.partition(" for ")[0]
         exceptDate = getLocalDate(self.except_date, self.time_from, self.tz)
-        title = "{} for {}".format(name, dateFormat(exceptDate))
+        title = _("{exception} for {date}").format(exception=_(name),
+                                                   date=dateFormat(exceptDate))
         return title
 
     @property

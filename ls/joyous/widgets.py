@@ -4,7 +4,6 @@
 import sys
 import json
 import datetime as dt
-import calendar
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
 from django.utils.formats import get_format
@@ -15,7 +14,9 @@ from django.forms.widgets import MultiWidget, NumberInput, Select, \
 from django.template.loader import render_to_string
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from dateutil.parser import parse as dt_parse
-from .utils.recurrence import Weekday, Recurrence, WEEKLY, MONTHLY, YEARLY
+from .utils.recurrence import Weekday, Recurrence, DAILY, WEEKLY, MONTHLY, YEARLY
+from .utils.manythings import toTheOrdinal
+from .utils.names import WEEKDAY_NAMES, WEEKDAY_ABBRS, MONTH_ABBRS
 
 # ------------------------------------------------------------------------------
 class Time12hrInput(AdminTimeInput):
@@ -38,7 +39,7 @@ class Time12hrInput(AdminTimeInput):
         return Media(js=[static("joyous/js/time12hr_admin.js")])
 
 # ------------------------------------------------------------------------------
-(_EveryDay, _SameDay, _DayOfMonth) = (100, 101, 200)
+(EVERY_DAY, SAME_DAY, DAY_OF_MONTH) = (100, 101, 200)
 
 class RecurrenceWidget(MultiWidget):
     """
@@ -47,30 +48,30 @@ class RecurrenceWidget(MultiWidget):
     template_name = 'joyous/widgets/recurrence_widget.html'
 
     def __init__(self, attrs=None):
-        freqOptions = [(3, _("Daily")),
-                       (2, _("Weekly")),
-                       (1, _("Monthly")),
-                       (0, _("Yearly"))]
-        ordOptions1 = [(1, _("The First")),
-                       (2, _("The Second")),
-                       (3, _("The Third")),
-                       (4, _("The Fourth")),
-                       (5, _("The Fifth")),
-                       (-1, _("The Last")),
-                       (_EveryDay, _("Every")),
-                       (_SameDay, _("The Same"))]
+        freqOptions = [(DAILY,   _("Daily")),
+                       (WEEKLY,  _("Weekly")),
+                       (MONTHLY, _("Monthly")),
+                       (YEARLY,  _("Yearly"))]
+        ordOptions1 = [(1,  toTheOrdinal(1)),
+                       (2,  toTheOrdinal(2)),
+                       (3,  toTheOrdinal(3)),
+                       (4,  toTheOrdinal(4)),
+                       (5,  toTheOrdinal(5)),
+                       (-1, toTheOrdinal(-1)),
+                       (EVERY_DAY, _("Every")),
+                       (SAME_DAY, _("The Same"))]
         ordOptions2 = [(None, ""),
-                       (1, _("The First")),
-                       (2, _("The Second")),
-                       (3, _("The Third")),
-                       (4, _("The Fourth")),
-                       (5, _("The Fifth")),
-                       (-1, _("The Last"))]
-        dayOptions1  = enumerate(calendar.day_abbr)
-        dayOptions2  = [(None, "")] + list(enumerate(calendar.day_name))
-        dayOptions3  = list(enumerate(calendar.day_name)) +\
-                       [(_DayOfMonth, _("Day of the month"))]
-        monthOptions = enumerate(calendar.month_abbr[1:], 1)
+                       (1,    toTheOrdinal(1)),
+                       (2,    toTheOrdinal(2)),
+                       (3,    toTheOrdinal(3)),
+                       (4,    toTheOrdinal(4)),
+                       (5,    toTheOrdinal(5)),
+                       (-1,   toTheOrdinal(-1))]
+        dayOptions1  = enumerate(WEEKDAY_ABBRS)
+        dayOptions2  = [(None, "")] + list(enumerate(WEEKDAY_NAMES))
+        dayOptions3  = list(enumerate(WEEKDAY_NAMES)) +\
+                       [(DAY_OF_MONTH, _("Day of the month"))]
+        monthOptions = enumerate(MONTH_ABBRS[1:], 1)
 
         numAttrs = {'min': 1, 'max': 366}
         disableAttrs = {'disabled': True}
@@ -94,8 +95,8 @@ class RecurrenceWidget(MultiWidget):
 
     def decompress(self, value):
         wdayChoices = []
-        ordChoices  = [_SameDay,    None, None]
-        dayChoices  = [_DayOfMonth, None, None]
+        ordChoices  = [SAME_DAY,    None, None]
+        dayChoices  = [DAY_OF_MONTH, None, None]
         monChoices  = []
         if isinstance(value, Recurrence):
             if value.freq == WEEKLY:
@@ -104,17 +105,17 @@ class RecurrenceWidget(MultiWidget):
             elif value.freq in (MONTHLY, YEARLY):
                 if value.byweekday:
                     if len(value.byweekday) == 7 and all(not day.n for day in value.byweekday):
-                        ordChoices[0] = _EveryDay
-                        dayChoices[0] = _DayOfMonth
+                        ordChoices[0] = EVERY_DAY
+                        dayChoices[0] = DAY_OF_MONTH
                     else:
                         for (i, day) in enumerate(value.byweekday[:3]):
                             dayChoices[i] = day.weekday
-                            ordChoices[i] = day.n or _EveryDay
+                            ordChoices[i] = day.n or EVERY_DAY
                 elif value.bymonthday:
                     ordChoices[0] = value.bymonthday[0]
                     if value.dtstart.day == ordChoices[0]:
-                        ordChoices[0] = _SameDay
-                    dayChoices[0] = _DayOfMonth
+                        ordChoices[0] = SAME_DAY
+                    dayChoices[0] = DAY_OF_MONTH
                 if value.bymonth:
                     monChoices = value.bymonth
                 else:
@@ -191,17 +192,17 @@ class RecurrenceWidget(MultiWidget):
                 if values[3]:
                     wdayChoices = [int(day) for day in values[3]]
             elif freq in (MONTHLY, YEARLY):
-                if dayChoices[0] == _DayOfMonth:    # day of the month
-                    if ordChoices[0] == _EveryDay:      # every day, == daily
+                if dayChoices[0] == DAY_OF_MONTH:    # day of the month
+                    if ordChoices[0] == EVERY_DAY:      # every day, == daily
                         wdayChoices = range(7)
-                    elif ordChoices[0] == _SameDay:     # the same day of the month
+                    elif ordChoices[0] == SAME_DAY:     # the same day of the month
                         mdayChoices = None
                     else:
                         mdayChoices = [ordChoices[0]]
                 else:                         # a day of the week
-                    if ordChoices[0] == _EveryDay:      # every of this weekday
+                    if ordChoices[0] == EVERY_DAY:      # every of this weekday
                         wdayChoices = [Weekday(dayChoices[0])]
-                    elif ordChoices[0] == _SameDay:     # the same weekday of the month
+                    elif ordChoices[0] == SAME_DAY:     # the same weekday of the month
                         wdayNum = (dtstart.day - 1) // 7 + 1
                         wdayChoices = [Weekday(dayChoices[0], wdayNum)]
                     else:

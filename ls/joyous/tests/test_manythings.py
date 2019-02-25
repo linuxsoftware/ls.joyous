@@ -6,11 +6,13 @@ import datetime as dt
 import pytz
 from django.test import TestCase
 from django.utils import translation
-from ls.joyous.utils.manythings import toOrdinal, hrJoin
+from ls.joyous.utils.manythings import toOrdinal, toTheOrdinal, hrJoin
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
     def testToOrdinal(self):
+        self.assertEqual(toOrdinal(-1), "last")
+        self.assertEqual(toOrdinal(-2), "penultimate")
         self.assertEqual(toOrdinal(1), "first")
         self.assertEqual(toOrdinal(2), "second")
         self.assertEqual(toOrdinal(3), "third")
@@ -26,11 +28,23 @@ class Test(TestCase):
         self.assertEqual(toOrdinal(102), "102nd")
         self.assertEqual(toOrdinal(6543), "6543rd")
 
-    def testLastToOrdinal(self):
-        self.assertEqual(toOrdinal(-1), "last")
+    def testToTheOrdinal(self):
+        self.assertEqual(toTheOrdinal(-1), "The Last")
+        self.assertEqual(toTheOrdinal(-2, False), "the penultimate")
+        self.assertEqual(toTheOrdinal(1), "The First")
+        self.assertEqual(toTheOrdinal(2), "The Second")
+        self.assertEqual(toTheOrdinal(3), "The Third")
+        self.assertEqual(toTheOrdinal(4), "The Fourth")
+        self.assertEqual(toTheOrdinal(5), "The Fifth")
 
-    def testPenultimateToOrdinal(self):
-        self.assertEqual(toOrdinal(-2), "penultimate")
+    def testToTheOrdinalNum(self):
+        self.assertEqual(toTheOrdinal(6), "The 6th")
+        self.assertEqual(toTheOrdinal(11), "The 11th")
+        self.assertEqual(toTheOrdinal(12), "The 12th")
+        self.assertEqual(toTheOrdinal(13), "The 13th")
+        self.assertEqual(toTheOrdinal(21), "The 21st")
+        self.assertEqual(toTheOrdinal(102), "The 102nd")
+        self.assertEqual(toTheOrdinal(6543), "The 6543rd")
 
     def testHumanReadableJoin(self):
         self.assertEqual(hrJoin([""]), "")
@@ -50,6 +64,8 @@ class  TestFrançais(TestCase):
         translation.deactivate()
 
     def testToOrdinal(self):
+        self.assertEqual(toOrdinal(-1), "dernier")
+        self.assertEqual(toOrdinal(-2), "avant-dernier")
         self.assertEqual(toOrdinal (1), "premier")
         self.assertEqual(toOrdinal (2), "deuxième")
         self.assertEqual(toOrdinal (3), "troisième")
@@ -65,11 +81,24 @@ class  TestFrançais(TestCase):
         self.assertEqual(toOrdinal(102), "102me")
         self.assertEqual(toOrdinal(6543), "6543me")
 
-    def testLastToOrdinal(self):
-        self.assertEqual(toOrdinal(-1), "dernier")
+    def testToTheOrdinal(self):
+        self.assertEqual(toTheOrdinal(-1), "Le Dernier")
+        self.assertEqual(toTheOrdinal(-2, True), "L'Avant-Dernier")
+        self.assertEqual(toTheOrdinal(-2, False), "l'avant-dernier")
+        self.assertEqual(toTheOrdinal(1), "La Premier")
+        self.assertEqual(toTheOrdinal(2, False), "la deuxième")
+        self.assertEqual(toTheOrdinal(3), "Le Troisième")
+        self.assertEqual(toTheOrdinal(4), "Le Quatrième")
+        self.assertEqual(toTheOrdinal(5), "Le Cinquième")
 
-    def testPenultimateToOrdinal(self):
-        self.assertEqual(toOrdinal(-2), "avant-dernier")
+    def testToOrdinalNum(self):
+        self.assertEqual(toTheOrdinal(6), "La 6me")
+        self.assertEqual(toTheOrdinal(11), "La 11er")
+        self.assertEqual(toTheOrdinal(12), "La 12me")
+        self.assertEqual(toTheOrdinal(13), "La 13me")
+        self.assertEqual(toTheOrdinal(21), "La 21er")
+        self.assertEqual(toTheOrdinal(102), "La 102me")
+        self.assertEqual(toTheOrdinal(6543), "La 6543me")
 
     def testHumanReadableJoin(self):
         self.assertEqual(hrJoin([""]), "")
@@ -79,6 +108,23 @@ class  TestFrançais(TestCase):
                          "vent, glace et feu")
         self.assertEqual(hrJoin (["chien", "chat", "poule", "yak", "fourmi"]),
                          "chien, chat, poule, yak et fourmi")
+
+# ------------------------------------------------------------------------------
+class  TestΕλληνικά(TestCase):
+    def setUp(self):
+        translation.activate('el')
+
+    def tearDown(self):
+        translation.deactivate()
+
+    def testToOrdinal(self):
+        self.assertEqual(toOrdinal(-1), "τελευταίος")
+        self.assertEqual(toOrdinal(-2), "προτελευταία")
+        self.assertEqual(toOrdinal (1), "τελευταίο")
+        self.assertEqual(toOrdinal (2), "προτελευταία")
+        self.assertEqual(toOrdinal (3), "πρώτη")
+        self.assertEqual(toOrdinal (4), "δεύτερη")
+        self.assertEqual(toOrdinal (5), "τρίτη")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

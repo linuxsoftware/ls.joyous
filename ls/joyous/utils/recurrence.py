@@ -18,8 +18,8 @@ from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
 from django.utils.translation import gettext as _
 from .telltime import dateFormatDMY
-from .manythings import toOrdinal, hrJoin
-from .names import (MONDAY_TO_SUNDAY, WEEKDAY_NAMES_PLURAL,
+from .manythings import toOrdinal, toTheOrdinal, hrJoin
+from .names import (WEEKDAY_NAMES, WEEKDAY_NAMES_PLURAL,
                     MONTH_NAMES, WRAPPED_MONTH_NAMES)
 
 # ------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ class Weekday(rrweekday):
     def __str__(self):
         return self._getWhen(0)
 
-    def _getWhen(self, offset, names=MONDAY_TO_SUNDAY):
+    def _getWhen(self, offset, names=WEEKDAY_NAMES):
         weekday = names[self.weekday]
         if offset == 0:
             if not self.n:
@@ -236,8 +236,7 @@ class Recurrence(rrulebase):
                         retval = _("The {when}").format(when=retval)
 
             elif len(self.bymonthday) > 1:
-                days = [_("the {ordinal}").format(ordinal=toOrdinal(d))
-                        for d in self.bymonthday]
+                days = [toTheOrdinal(d, False) for d in self.bymonthday]
                 if offset == -2:
                     retval = _("Two days before {theOrdinal} day") \
                              .format(theOrdinal=hrJoin(days))
