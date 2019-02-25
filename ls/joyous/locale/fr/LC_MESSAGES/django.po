@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-24 23:03+1300\n"
+"POT-Creation-Date: 2019-02-25 23:18+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -407,6 +407,7 @@ msgid "Use Advanced Options"
 msgstr "Utiliser les options avancées"
 
 #: ls/joyous/templates/joyous/widgets/recurrence_widget.html:43
+#: ls/joyous/widgets.py:60
 msgid "Every"
 msgstr "Chaque"
 
@@ -491,7 +492,7 @@ msgstr "{localWeekday} après le {ordinal} {weekday}"
 msgid "Every {n} days"
 msgstr ""
 
-#: ls/joyous/utils/recurrence.py:209
+#: ls/joyous/utils/recurrence.py:209 ls/joyous/widgets.py:50
 msgid "Daily"
 msgstr ""
 
@@ -591,113 +592,48 @@ msgstr "lundis"
 msgid "(until {when})"
 msgstr ""
 
-#~ msgid "Monday"
-#~ msgstr "lundi"
+#: ls/joyous/widgets.py:51
+msgid "Weekly"
+msgstr "Hebdomadaire"
 
-#~ msgid "Tuesday"
-#~ msgstr "mardi"
+#: ls/joyous/widgets.py:52
+msgid "Monthly"
+msgstr "Mensuel"
 
-#~ msgid "Wednesday"
-#~ msgstr "mercredi"
+#: ls/joyous/widgets.py:53
+msgid "Yearly"
+msgstr "Annuel"
 
-#~ msgid "Thursday"
-#~ msgstr "jeudi"
+#: ls/joyous/widgets.py:54 ls/joyous/widgets.py:63
+msgid "The First"
+msgstr "Le premier"
 
-#~ msgid "Friday"
-#~ msgstr "vendredi"
+#: ls/joyous/widgets.py:55 ls/joyous/widgets.py:64
+msgid "The Second"
+msgstr "La deuxième"
 
-#~ msgid "Saturday"
-#~ msgstr "samedi"
+#: ls/joyous/widgets.py:56 ls/joyous/widgets.py:65
+msgid "The Third"
+msgstr "Le troisième"
 
-#~ msgid "Sunday"
-#~ msgstr "dimanche"
+#: ls/joyous/widgets.py:57 ls/joyous/widgets.py:66
+msgid "The Fourth"
+msgstr "Le quatrième"
 
-#~ msgid "Mon"
-#~ msgstr "lun"
+#: ls/joyous/widgets.py:58 ls/joyous/widgets.py:67
+msgid "The Fifth"
+msgstr "Le cinquième"
 
-#~ msgid "Tue"
-#~ msgstr "mar"
+#: ls/joyous/widgets.py:59 ls/joyous/widgets.py:68
+msgid "The Last"
+msgstr "Le dernier"
 
-#~ msgid "Wed"
-#~ msgstr "mer"
+#: ls/joyous/widgets.py:61
+msgid "The Same"
+msgstr "Le même"
 
-#~ msgid "Thu"
-#~ msgstr "jeu"
-
-#~ msgid "Fri"
-#~ msgstr "ven"
-
-#~ msgid "Sat"
-#~ msgstr "sam"
-
-#~ msgid "Sun"
-#~ msgstr "dim"
-
-#~ msgid "January"
-#~ msgstr "janvier"
-
-#~ msgid "February"
-#~ msgstr "février"
-
-#~ msgid "March"
-#~ msgstr "mars"
-
-#~ msgid "April"
-#~ msgstr "avril"
-
-#~ msgid "May"
-#~ msgstr "mai"
-
-#~ msgid "June"
-#~ msgstr "juin"
-
-#~ msgid "July"
-#~ msgstr "juillet"
-
-#~ msgid "August"
-#~ msgstr "août"
-
-#~ msgid "September"
-#~ msgstr "septembre"
-
-#~ msgid "October"
-#~ msgstr "octobre"
-
-#~ msgid "November"
-#~ msgstr "novembre"
-
-#~ msgid "December"
-#~ msgstr "décembre"
-
-#~ msgid "Jan"
-#~ msgstr "jan"
-
-#~ msgid "Feb"
-#~ msgstr "fév"
-
-#~ msgid "Mar"
-#~ msgstr "mar"
-
-#~ msgid "Apr"
-#~ msgstr "avr"
-
-#~ msgid "Jun"
-#~ msgstr "jui"
-
-#~ msgid "Jul"
-#~ msgstr "jul"
-
-#~ msgid "Aug"
-#~ msgstr "aoû"
-
-#~ msgid "Sep"
-#~ msgstr "sep"
-
-#~ msgid "Oct"
-#~ msgstr "oct"
-
-#~ msgid "Nov"
-#~ msgstr "nov"
-
-#~ msgid "Dec"
-#~ msgstr "déc"
+#: ls/joyous/widgets.py:72
+#, fuzzy
+#| msgid " of the month"
+msgid "Day of the month"
+msgstr " du mois"

@@ -9,6 +9,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.forms import Media
 from django.utils.formats import get_format
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple, FileInput
 from django.template.loader import render_to_string
@@ -46,29 +47,29 @@ class RecurrenceWidget(MultiWidget):
     template_name = 'joyous/widgets/recurrence_widget.html'
 
     def __init__(self, attrs=None):
-        freqOptions = [(3, "Daily"),
-                       (2, "Weekly"),
-                       (1, "Monthly"),
-                       (0, "Yearly")]
-        ordOptions1 = [(1, "The First"),
-                       (2, "The Second"),
-                       (3, "The Third"),
-                       (4, "The Fourth"),
-                       (5, "The Fifth"),
-                       (-1, "The Last"),
-                       (_EveryDay, "Every"),
-                       (_SameDay, "The Same")]
+        freqOptions = [(3, _("Daily")),
+                       (2, _("Weekly")),
+                       (1, _("Monthly")),
+                       (0, _("Yearly"))]
+        ordOptions1 = [(1, _("The First")),
+                       (2, _("The Second")),
+                       (3, _("The Third")),
+                       (4, _("The Fourth")),
+                       (5, _("The Fifth")),
+                       (-1, _("The Last")),
+                       (_EveryDay, _("Every")),
+                       (_SameDay, _("The Same"))]
         ordOptions2 = [(None, ""),
-                       (1, "The First"),
-                       (2, "The Second"),
-                       (3, "The Third"),
-                       (4, "The Fourth"),
-                       (5, "The Fifth"),
-                       (-1, "The Last")]
+                       (1, _("The First")),
+                       (2, _("The Second")),
+                       (3, _("The Third")),
+                       (4, _("The Fourth")),
+                       (5, _("The Fifth")),
+                       (-1, _("The Last"))]
         dayOptions1  = enumerate(calendar.day_abbr)
         dayOptions2  = [(None, "")] + list(enumerate(calendar.day_name))
         dayOptions3  = list(enumerate(calendar.day_name)) +\
-                       [(_DayOfMonth, "Day of the month")]
+                       [(_DayOfMonth, _("Day of the month"))]
         monthOptions = enumerate(calendar.month_abbr[1:], 1)
 
         numAttrs = {'min': 1, 'max': 366}
