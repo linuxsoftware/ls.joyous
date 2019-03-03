@@ -37,6 +37,7 @@ class CalendarNotInitializedError(RuntimeError):
 
 # ------------------------------------------------------------------------------
 class ICalHandler:
+    """Serve and load iCalendar files"""
     def serve(self, page, request, *args, **kwargs):
         try:
             vcal = VCalendar.fromPage(page, request)

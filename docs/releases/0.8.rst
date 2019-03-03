@@ -1,0 +1,37 @@
+=========================
+Wagtail 0.8 release notes - IN DEVELOPMENT
+=========================
+
+.. contents::
+    :local:
+    :depth: 1
+
+
+What's new
+==========
+
+Documentation
+~~~~~~~~~~~~~
+You are reading it.
+
+Internationalisation
+~~~~~~~~~~~~~~~~~~~~
+Joyous now supports multiple languages.  Thanks to Dylan Ferris for the work on
+the internationalization of Joyous and creating the French translation.
+
+Heureux heureux, joie joie.
+
+CSS
+~~~
+.page-index .item-heading has been changed to .page-index strong, and
+.event-index .item-heading has been changed to .event-index strong
+
+base.html
+~~~~~~~~~
+Joyous no longer needs a customised base.html with "global_css" and
+"background" blocks.  The joyous.css is included in the "extra_css" block, and 
+the HTML required for popups on the calendar pages are generated dynamically
+by Javascript.
+
+
+

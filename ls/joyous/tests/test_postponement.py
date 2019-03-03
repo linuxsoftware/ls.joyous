@@ -160,7 +160,7 @@ class TestTZ(TestCase):
     def testLocalTitle(self):
         self.assertEqual(self.postponement.title,
                          "Postponement for Wednesday 10th of October 1990")
-        self.assertEqual(self.postponement.localTitle,
+        self.assertEqual(self.postponement.local_title,
                          "Postponement for Thursday 11th of October 1990")
 
     @timezone.override("Asia/Colombo")

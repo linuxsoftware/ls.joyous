@@ -26,7 +26,7 @@ class ProxyPageMixin:
 
     @classmethod
     def peers(cls):
-        """return others of the same type"""
+        """Return others of the same type"""
         return cls.objects.filter(content_type=cls._getContentType())
 
     @classmethod

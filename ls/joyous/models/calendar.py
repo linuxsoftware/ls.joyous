@@ -100,7 +100,7 @@ EVENTS_VIEW_CHOICES = [('L', _("List View")),
 
 # ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page):
-    """CalendarPage displays all the events which are in the same site"""
+    """CalendarPage displays all the events which are in the same site."""
     class Meta:
         verbose_name = _("calendar page")
         verbose_name_plural = _("calendar pages")
@@ -112,7 +112,8 @@ class CalendarPage(RoutablePageMixin, Page):
                      'joyous.MultidayRecurringEventPage']
     base_form_class = CalendarPageForm
 
-    intro = RichTextField(_("intro"), blank=True)
+    intro = RichTextField(_("intro"), blank=True,
+                          help_text=_("Introductory text."))
     view_choices = MultipleSelectField(_("view choices"), blank=True,
                                        default=["L","W","M"],
                                        choices=EVENTS_VIEW_CHOICES)
@@ -134,6 +135,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^$")
     @route(r"^{YYYY}/$".format(**DatePictures))
     def routeDefault(self, request, year=None):
+        """Route a request to the default calendar view."""
         eventsView = request.GET.get('view', self.default_view)
         if eventsView in ("L", "list"):
             return self.serveUpcoming(request)
@@ -144,12 +146,14 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^{YYYY}/{Mon}/$(?i)".format(**DatePictures))
     def routeByMonthAbbr(self, request, year, monthAbbr):
+        """Route a request with a month abbreviation to the monthly view."""
         month = (DatePictures['Mon'].index(monthAbbr.lower()) // 4) + 1
         return self.serveMonth(request, year, month)
 
     @route(r"^month/$")
     @route(r"^{YYYY}/{MM}/$".format(**DatePictures))
     def serveMonth(self, request, year=None, month=None):
+        """Monthly calendar view."""
         myurl = self.get_url(request)
         def myUrl(urlYear, urlMonth):
             if 1900 <= urlYear <= 2099:
@@ -203,6 +207,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^week/$")
     @route(r"^{YYYY}/W{WW}/$".format(**DatePictures))
     def serveWeek(self, request, year=None, week=None):
+        """Weekly calendar view."""
         myurl = self.get_url(request)
         def myUrl(urlYear, urlWeek):
             if (urlYear < 1900 or
@@ -265,6 +270,7 @@ class CalendarPage(RoutablePageMixin, Page):
     @route(r"^day/$")
     @route(r"^{YYYY}/{MM}/{DD}/$".format(**DatePictures))
     def serveDay(self, request, year=None, month=None, dom=None):
+        """The events of the day list view."""
         myurl = self.get_url(request)
         today = timezone.localdate()
         if year is None: year = today.year
@@ -303,6 +309,7 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^upcoming/$")
     def serveUpcoming(self, request):
+        """Upcoming events list view."""
         myurl = self.get_url(request)
         today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
@@ -331,6 +338,7 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^past/$")
     def servePast(self, request):
+        """Past events list view."""
         myurl = self.get_url(request)
         today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
@@ -359,6 +367,7 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
+        """Serve data for the MiniMonth template tag."""
         if not request.is_ajax():
             raise Http404("/mini/ is for ajax requests only")
 
@@ -385,7 +394,7 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @classmethod
     def _allowAnotherAt(cls, parent):
-        # You can only create one of these pages per site
+        """You can only create one of these pages per site."""
         site = parent.get_site()
         if site is None:
             return False
@@ -393,31 +402,41 @@ class CalendarPage(RoutablePageMixin, Page):
 
     @classmethod
     def peers(cls):
-        """return others of the same concrete type"""
+        """Return others of the same concrete type."""
         contentType = ContentType.objects.get_for_model(cls)
         return cls.objects.filter(content_type=contentType)
 
     def _getEventsOnDay(self, request, day):
+        """Return all the events in this site for a given day."""
         home = request.site.root_page
         return getAllEventsByDay(request, day, day, home=home)[0]
 
     def _getEventsByDay(self, request, firstDay, lastDay):
+        """
+        Return the events in this site for the dates given, grouped by day.
+        """
         home = request.site.root_page
         return getAllEventsByDay(request, firstDay, lastDay, home=home)
 
     def _getEventsByWeek(self, request, year, month):
+        """
+        Return the events in this site for the given month grouped by week.
+        """
         home = request.site.root_page
         return getAllEventsByWeek(request, year, month, home=home)
 
     def _getUpcomingEvents(self, request):
+        """Return the upcoming events in this site."""
         home = request.site.root_page
         return getAllUpcomingEvents(request, home=home)
 
     def _getPastEvents(self, request):
+        """Return the past events in this site."""
         home = request.site.root_page
         return getAllPastEvents(request, home=home)
 
     def _getEventFromUid(self, request, uid):
+        """Try and find an event with the given UID in this site."""
         event = getEventFromUid(request, uid) # might raise ObjectDoesNotExist
         home = request.site.root_page
         if event.get_ancestors().filter(id=home.id).exists():
@@ -425,6 +444,7 @@ class CalendarPage(RoutablePageMixin, Page):
             return event
 
     def _getAllEvents(self, request):
+        """Return all the events in this site."""
         home = request.site.root_page
         return getAllEvents(request, home=home)
 
@@ -441,31 +461,40 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
 
     @classmethod
     def _allowAnotherAt(cls, parent):
-        # Don't limit creation
+        """Don't limit creation."""
         return True
 
     def _getEventsOnDay(self, request, day):
+        """Return my child events for a given day."""
         return getAllEventsByDay(request, day, day, home=self)[0]
 
     def _getEventsByDay(self, request, firstDay, lastDay):
+        """
+        Return my child events for the dates given,  grouped by day.
+        """
         return getAllEventsByDay(request, firstDay, lastDay, home=self)
 
     def _getEventsByWeek(self, request, year, month):
+        """Return my child events for the given month grouped by week."""
         return getAllEventsByWeek(request, year, month, home=self)
 
     def _getUpcomingEvents(self, request):
+        """Return my upcoming child events."""
         return getAllUpcomingEvents(request, home=self)
 
     def _getPastEvents(self, request):
+        """Return my past child events."""
         return getAllPastEvents(request, home=self)
 
     def _getEventFromUid(self, request, uid):
+        """Try and find a child event with the given UID."""
         event = getEventFromUid(request, uid)
         if event.get_ancestors().filter(id=self.id).exists():
             # only return event if it is a descendant
             return event
 
     def _getAllEvents(self, request):
+        """Return all my child events."""
         return getAllEvents(request, home=self)
 
 # ------------------------------------------------------------------------------
@@ -481,32 +510,37 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
 
     @classmethod
     def _allowAnotherAt(cls, parent):
-        # You can only create one of these pages
+        """You can only create one of these pages."""
         return not cls.peers().exists()
 
-    @classmethod
-    def _getContentType(cls):
-        return ContentType.objects.get_for_model(cls, for_concrete_model=False)
-
     def _getEventsOnDay(self, request, day):
+        """Return all the events for a given day."""
         return getAllEventsByDay(request, day, day)[0]
 
     def _getEventsByDay(self, request, firstDay, lastDay):
+        """
+        Return all events for the dates given, grouped by day.
+        """
         return getAllEventsByDay(request, firstDay, lastDay)
 
     def _getEventsByWeek(self, request, year, month):
+        """Return all events for the given month grouped by week."""
         return getAllEventsByWeek(request, year, month)
 
     def _getUpcomingEvents(self, request):
+        """Return all the upcoming events."""
         return getAllUpcomingEvents(request)
 
     def _getPastEvents(self, request):
+        """Return all the past events."""
         return getAllPastEvents(request)
 
     def _getEventFromUid(self, request, uid):
+        """Try and find an event with the given UID."""
         return getEventFromUid(request, uid)
 
     def _getAllEvents(self, request):
+        """Return all the events."""
         return getAllEvents(request)
 
 # ------------------------------------------------------------------------------

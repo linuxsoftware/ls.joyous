@@ -11,13 +11,22 @@ from django.utils.translation import gettext as _
 
 # ------------------------------------------------------------------------------
 def getLocalDate(*args, **kwargs):
+    """
+    Get the date in the local timezone from date and optionally time
+    """
     return getLocalDateAndTime(*args, **kwargs)[0]
 
 def getLocalTime(date, time, *args, **kwargs):
+    """
+    Get the time in the local timezone from date and time
+    """
     if time is not None:
         return getLocalDateAndTime(date, time, *args, **kwargs)[1]
 
 def getLocalDateAndTime(date, time, *args, **kwargs):
+    """
+    Get the date and time in the local timezone from date and optionally time
+    """
     localDt = getLocalDatetime(date, time, *args, **kwargs)
     if time is not None:
         return (localDt.date(), localDt.timetz())
@@ -25,6 +34,9 @@ def getLocalDateAndTime(date, time, *args, **kwargs):
         return (localDt.date(), None)
 
 def getLocalDatetime(date, time, tz=None, timeDefault=dt.time.max):
+    """
+    Get a datetime in the local timezone from date and optionally time
+    """
     localTZ = timezone.get_current_timezone()
     if tz is None or tz == localTZ:
         localDt = getAwareDatetime(date, time, tz, timeDefault)
@@ -38,6 +50,11 @@ def getLocalDatetime(date, time, tz=None, timeDefault=dt.time.max):
     return localDt
 
 def getAwareDatetime(date, time, tz, timeDefault=dt.time.max):
+    """
+    Get a datetime in the given timezone from date and optionally time.
+    If time is not given it will default to timeDefault if that is given
+    or if not then to the end of the day.
+    """
     if time is None:
         time = timeDefault
     datetime = dt.datetime.combine(date, time)
@@ -47,18 +64,29 @@ def getAwareDatetime(date, time, tz, timeDefault=dt.time.max):
     return datetime
 
 def todayUtc():
+    """
+    The current date in the UTC timezone
+    """
     return dt.datetime.utcnow().date()
 
 # ------------------------------------------------------------------------------
 def timeFrom(time_from):
+    """
+    Return time_from if it is set, otherwise return the start of the day
+    """
     return time_from if time_from is not None else dt.time.min
 
 def timeTo(time_to):
+    """
+    Return time_to if it is set, otherwise return the end of the day
+    """
     return time_to if time_to is not None else dt.time.max
 
 # ------------------------------------------------------------------------------
 def timeFormat(time_from, time_to=None, prefix="", infix=None):
-    # e.g. 10am
+    """
+    Format the times time_from and optionally time_to, e.g. 10am
+    """
     retval = ""
     if time_from != "" and time_from is not None:
         retval += prefix
@@ -73,7 +101,9 @@ def timeFormat(time_from, time_to=None, prefix="", infix=None):
     return retval.strip()
 
 def dateFormat(when):
-    # e.g. Friday 14th of April 2011
+    """
+    Format the date when, e.g. Friday 14th of April 2011
+    """
     retval = ""
     if when is not None:
         dow = dateformat.format(when, "l")
@@ -88,7 +118,9 @@ def dateFormat(when):
     return retval
 
 def dateFormatDMY(when):
-    # e.g. 14 April 2017
+    """
+    Format when as day month year, e.g. 14 April 2017
+    """
     if when is not None:
         return dateformat.format(when, "j F Y")
     else:

@@ -101,11 +101,24 @@ def _ssweek_of_month(date_value):
 # ------------------------------------------------------------------------------
 if get_format("FIRST_DAY_OF_WEEK") == 1:
     calendar.setfirstweekday(calendar.MONDAY)
+
+    #: Give all the info we need from one calculation
+    #: (first_day, last_day, prev_year_num_weeks, year_num_weeks)
     week_info = _iso_info
+
+    #: Get the number of weeks in this year
     num_weeks_in_year = _iso_num_weeks
+
+    #: year, week and day for the given Gregorian calendar date
     gregorian_to_week_date = _gregorian_to_iso
+
+    #: Returns a 0-starting index of which week in the month this date is
     week_of_month = _iso_week_of_month
+
+    #: Abbreviations of the days of the week
     weekday_abbr = MON_TO_SUN
+
+    #: Names of the days of the week
     weekday_name = MONDAY_TO_SUNDAY
 else:
     calendar.setfirstweekday(calendar.SUNDAY)

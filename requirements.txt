@@ -11,3 +11,9 @@ django-beautifulsoup-test
 coverage
 coveralls
 freezegun
+
+Sphinx
+sphinx_rtd_theme
+# sphinxcontrib-spelling
+# pyenchant
+# sphinx-autobuild

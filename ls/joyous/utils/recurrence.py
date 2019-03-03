@@ -24,6 +24,10 @@ from .names import (WEEKDAY_NAMES, WEEKDAY_NAMES_PLURAL,
 
 # ------------------------------------------------------------------------------
 class Weekday(rrweekday):
+    """
+    Represents a day of the week, for every occurence of the week
+    or for a specific week in the period.  e.g. The first Friday of the month.
+    """
     def __repr__(self):
         s = ("MO", "TU", "WE", "TH", "FR", "SA", "SU")[self.weekday]
         if not self.n:
@@ -62,6 +66,14 @@ MO, TU, WE, TH, FR, SA, SU = EVERYWEEKDAY = map(Weekday, range(7))
 
 # ------------------------------------------------------------------------------
 class Recurrence(rrulebase):
+    """
+    Implementation of the recurrence rules somewhat based upon
+    `RFC5545 <https://tools.ietf.org/html/rfc5545>`_ RRules,
+    implemented using dateutil.rrule.
+
+    Does not support timezones ... and probably never will.
+    Does not support a frequency of by-hour, by-minute or by-second.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__()
         arg0 = args[0] if len(args) else None
@@ -76,14 +88,27 @@ class Recurrence(rrulebase):
         else:
             self.rule = rrule(*args, **kwargs)
 
-    # expose all
-    freq        = property(attrgetter("rule._freq"))
-    interval    = property(attrgetter("rule._interval"))
-    count       = property(attrgetter("rule._count"))
-    byweekno    = property(attrgetter("rule._byweekno"))
-    byyearday   = property(attrgetter("rule._byyearday"))
-    byeaster    = property(attrgetter("rule._byeaster"))
-    bysetpos    = property(attrgetter("rule._bysetpos"))
+    # expose all rrule properties
+    #: How often the recurrence repeats. (0,1,2,3)
+    freq = property(attrgetter("rule._freq"))
+
+    #: The interval between each freq iteration.
+    interval = property(attrgetter("rule._interval"))
+
+    #: Limit on the number of occurrences.
+    count = property(attrgetter("rule._count"))
+
+    #: The week numbers to apply the recurrence to.
+    byweekno = property(attrgetter("rule._byweekno"))
+
+    #: The year days to apply the recurrence to.
+    byyearday = property(attrgetter("rule._byyearday"))
+
+    #: An offset from Easter Sunday.
+    byeaster = property(attrgetter("rule._byeaster"))
+
+    #: The nth occurrence of the rule inside the frequency period.
+    bysetpos = property(attrgetter("rule._bysetpos"))
 
     @property
     def dtstart(self):
@@ -99,10 +124,10 @@ class Recurrence(rrulebase):
         ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
         """
         freqOptions = ("YEARLY", "MONTHLY", "WEEKLY", "DAILY")
-        if self.freq < len(freqOptions):
-            return freqOptions[self.freq]
+        if self.rule._freq < len(freqOptions):
+            return freqOptions[self.rule._freq]
         else:
-            return "unsupported_frequency_{}".format(self.freq)
+            return "unsupported_frequency_{}".format(self.rule._freq)
 
     @property
     def until(self):

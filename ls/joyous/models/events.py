@@ -45,20 +45,33 @@ from .groups import get_group_model_string, get_group_model
 # API get functions
 # ------------------------------------------------------------------------------
 def getAllEventsByDay(request, fromDate, toDate, *, home=None):
+    """
+    Return all the events (under home if given) for the dates given, grouped by
+    day.
+    """
     qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
             MultidayEventPage.events(request).byDay(fromDate, toDate),
             RecurringEventPage.events(request).byDay(fromDate, toDate),
             PostponementPage.events(request).byDay(fromDate, toDate)]
+    # FIXME where is ExtraInfoPage? does RecurringEventPage.byDay return it?
+    # if so add a comment saying that
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     evods = _getEventsByDay(fromDate, qrys)
     return evods
 
 def getAllEventsByWeek(request, year, month, *, home=None):
+    """
+    Return all the events (under home if given) for the given month, grouped by
+    week.
+    """
     return _getEventsByWeek(year, month,
                             partial(getAllEventsByDay, request, home=home))
 
 def getAllUpcomingEvents(request, *, home=None):
+    """
+    Return all the upcoming events (under home if given).
+    """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
             RecurringEventPage.events(request).upcoming().this(),
@@ -72,6 +85,9 @@ def getAllUpcomingEvents(request, *, home=None):
     return events
 
 def getGroupUpcomingEvents(request, group):
+    """
+    Return all the upcoming events that are assigned to the specified group.
+    """
     # Get events that are a child of a group page, or a postponement or extra
     # info a child of the recurring event child of the group (using descendant_of)
     qrys = [SimpleEventPage.events(request).upcoming().child_of(group).this(),
@@ -101,6 +117,9 @@ def getGroupUpcomingEvents(request, group):
     return events
 
 def getAllPastEvents(request, *, home=None):
+    """
+    Return all the past events (under home if given).
+    """
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),
             RecurringEventPage.events(request).past().this(),
@@ -115,7 +134,8 @@ def getAllPastEvents(request, *, home=None):
 def getEventFromUid(request, uid):
     """
     Get the event by its UID
-    (returns None if we have no auth, raises ObjectDoesNotExist if it is not found)
+    (returns None if we have no authority, raises ObjectDoesNotExist if it is
+    not found).
     """
     events = []
     with suppress(ObjectDoesNotExist):
@@ -124,6 +144,7 @@ def getEventFromUid(request, uid):
         events.append(MultidayEventPage.objects.get(uid=uid))
     with suppress(ObjectDoesNotExist):
         events.append(RecurringEventPage.objects.get(uid=uid))
+    # FIXME where is ExtraInfoPage?
 
     if len(events) == 1:
         if events[0].isAuthorized(request):
@@ -136,9 +157,13 @@ def getEventFromUid(request, uid):
         raise MultipleObjectsReturned("Multiple events with uid={}".format(uid))
 
 def getAllEvents(request, *, home=None):
+    """
+    Return all the events (under home if given).
+    """
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
             RecurringEventPage.events(request).all()]
+    # FIXME where is ExtraInfoPage?
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -216,6 +241,7 @@ _2days = dt.timedelta(days=2)
 # Event models
 # ------------------------------------------------------------------------------
 class EventCategory(models.Model):
+    """The category type of an event."""
     class Meta:
         ordering = ["name"]
         verbose_name = _("event category")
@@ -376,10 +402,12 @@ class EventBase(models.Model):
     if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
         content_panels1.append(PageChooserPanel('group_page'))
 
-    # adding the event as a child of a group automatically assigns the event to
-    # that group.
     @property
     def group(self):
+        """
+        The group this event belongs to.  Adding the event as a child of a
+        group automatically assigns the event to that group.
+        """
         retval = None
         parent = self.get_parent()
         Group = get_group_model()
@@ -391,27 +419,42 @@ class EventBase(models.Model):
 
     @property
     def _upcoming_datetime_from(self):
+        """
+        The datetime this event next starts in the local timezone, or None if
+        it is finished.
+        """
         fromDt = self._getFromDt()
         return fromDt if fromDt >= timezone.localtime() else None
 
     @property
     def _past_datetime_from(self):
+        """
+        The datetime this event previously started in the local timezone, or
+        None if it never did.
+        """
         fromDt = self._getFromDt()
         return fromDt if fromDt < timezone.localtime() else None
 
     @property
     def _first_datetime_from(self):
+        """
+        The datetime this event first started in the local time zone, or None if
+        it never did.
+        """
         return self._getFromDt()
 
     @property
     def status(self):
         """
-        The current status of the event (started, finished or pending)
+        The current status of the event (started, finished or pending).
         """
         raise NotImplementedError()
 
     @property
     def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
         status = self.status
         if status == "finished":
             return _("This event has finished.")
@@ -422,12 +465,18 @@ class EventBase(models.Model):
 
     @classmethod
     def _removeContentPanels(cls, remove):
+        """
+        Remove the panels and so hide the fields named.
+        """
         if type(remove) is str:
             remove = [remove]
         cls.content_panels = [panel for panel in cls.content_panels
                               if getattr(panel, "field_name", None) not in remove]
 
     def isAuthorized(self, request):
+        """
+        Is the user authorized for the requested action with this event?
+        """
         restrictions = self.get_view_restrictions()
         if restrictions and request is None:
             return False
@@ -436,6 +485,9 @@ class EventBase(models.Model):
                        for restriction in restrictions)
 
     def _getLocalWhen(self, date_from, date_to=None):
+        """
+        Returns a string describing when the event occurs (in the local time zone).
+        """
         dateFrom, timeFrom = getLocalDateAndTime(date_from, self.time_from,
                                                  self.tz, dt.time.min)
 
@@ -460,12 +512,21 @@ class EventBase(models.Model):
         return retval.strip()
 
     def _getFromTime(self, atDate=None):
+        """
+        Time that the event starts (in the local time zone) for the given date.
+        """
         raise NotImplementedError()
 
     def _getFromDt(self):
+        """
+        Datetime that the event starts (in the local time zone).
+        """
         raise NotImplementedError()
 
 def removeContentPanels(remove):
+    """
+    Remove the panels and so hide the fields named.
+    """
     SimpleEventPage._removeContentPanels(remove)
     MultidayEventPage._removeContentPanels(remove)
     RecurringEventPage._removeContentPanels(remove)
@@ -533,6 +594,9 @@ class SimpleEventPage(Page, EventBase):
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.date, self.time_to, self.tz) < myNow:
             return "finished"
@@ -541,16 +605,28 @@ class SimpleEventPage(Page, EventBase):
 
     @property
     def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
         return self._getLocalWhen(self.date)
 
     @property
     def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
+        """
+        Time that the event starts (in the local time zone).
+        """
         return getLocalTime(self.date, self.time_from, self.tz)
 
     def _getFromDt(self):
+        """
+        Datetime that the event starts (in the local time zone).
+        """
         return getLocalDatetime(self.date, self.time_from, self.tz)
 
 # ------------------------------------------------------------------------------
@@ -630,6 +706,9 @@ class MultidayEventPage(Page, EventBase):
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.date_to, self.time_to, self.tz) < myNow:
             return "finished"
@@ -638,16 +717,28 @@ class MultidayEventPage(Page, EventBase):
 
     @property
     def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
         return self._getLocalWhen(self.date_from, self.date_to)
 
     @property
     def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
+        """
+        Time that the event starts (in the local time zone).
+        """
         return getLocalTime(self.date_from, self.time_from, self.tz)
 
     def _getFromDt(self):
+        """
+        Datetime that the event starts (in the local time zone).
+        """
         return getLocalDatetime(self.date_from, self.time_from, self.tz)
 
 # ------------------------------------------------------------------------------
@@ -756,7 +847,7 @@ class RecurringEventPage(Page, EventBase):
     @property
     def next_date(self):
         """
-        Date when this event is next scheduled to occur
+        Date when this event is next scheduled to occur in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
         nextDt = self.__localAfter(timezone.localtime(), dt.time.min)
@@ -765,6 +856,10 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def _upcoming_datetime_from(self):
+        """
+        The datetime this event next starts in the local time zone, or None if
+        it is finished.
+        """
         nextDt = self.__localAfter(timezone.localtime(), dt.time.max,
                                    excludeCancellations=True,
                                    excludeExtraInfo=True)
@@ -773,7 +868,7 @@ class RecurringEventPage(Page, EventBase):
     @property
     def prev_date(self):
         """
-        Date when this event last occurred
+        Date when this event last occurred in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
         prevDt = self.__localBefore(timezone.localtime(), dt.time.min)
@@ -782,6 +877,10 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def _past_datetime_from(self):
+        """
+        The datetime this event previously started in the local time zone, or
+        None if it never did.
+        """
         prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
                                     excludeCancellations=True,
                                     excludeExtraInfo=True)
@@ -789,12 +888,19 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def _first_datetime_from(self):
+        """
+        The datetime this event first started in the local time zone, or None if
+        it never did.
+        """
         myFromDt = self._getMyFirstDatetimeFrom()
         localTZ = timezone.get_current_timezone()
         return myFromDt.astimezone(localTZ)
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
         myNow = timezone.localtime(timezone=self.tz)
         daysDelta = dt.timedelta(days=self.num_days - 1)
         if self.repeat.until:
@@ -822,6 +928,9 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
         status = self.status
         if status == "finished":
             return _("These events have finished.")
@@ -830,6 +939,9 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
         offset   = 0
         timeFrom = None
         timeTo   = None
@@ -844,17 +956,24 @@ class RecurringEventPage(Page, EventBase):
 
     @property
     def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
-        # What was the time of this event?  Due to timezones that depends what
-        # day we are talking about.  If no day is given, assume today.
+        """
+        What was the time of this event?  Due to timezones that depends what
+        day we are talking about.  If no day is given, assume today.
+        """
         if atDate is None:
             atDate = timezone.localdate(timezone=self.tz)
         return getLocalTime(atDate, self.time_from, self.tz)
 
     def _getFromDt(self):
-        # Get the datetime of the next event after or before now
+        """
+        Get the datetime of the next event after or before now.
+        """
         myNow = timezone.localtime(timezone=self.tz)
         return self.__after(myNow) or self.__before(myNow)
 
@@ -901,7 +1020,8 @@ class RecurringEventPage(Page, EventBase):
         """
         Returns true iff an occurence of this event starts on this date
         (given in the event's own timezone).
-        (Does not include postponements, but does exclude cancellations)
+
+        (Does not include postponements, but does exclude cancellations.)
         """
         # TODO analyse which is faster (rrule or db) and test that first
         if myDate not in self.repeat:
@@ -912,11 +1032,17 @@ class RecurringEventPage(Page, EventBase):
         return True
 
     def _getMyFirstDatetimeFrom(self):
+        """
+        The datetime this event first started, or None if it never did.
+        """
         myStartDt = getAwareDatetime(self.repeat.dtstart, None,
                                      self.tz, dt.time.min)
         return self.__after(myStartDt, excludeCancellations=False)
 
     def _getMyFirstDatetimeTo(self):
+        """
+        The datetime this event first finished, or None if it never did.
+        """
         myFirstDt = self._getMyFirstDatetimeFrom()
         if myFirstDt is not None:
             daysDelta = dt.timedelta(days=self.num_days - 1)
@@ -1085,10 +1211,16 @@ class EventExceptionBase(models.Model):
 
     @property
     def overrides_repeat(self):
+        """
+        The recurrence rule of the event being overridden.
+        """
         return getattr(self.overrides, 'repeat', None)
 
     @property
-    def localTitle(self):
+    def local_title(self):
+        """
+        Localised version of the human-readable title of the page.
+        """
         name = self.title.partition(" for ")[0]
         exceptDate = getLocalDate(self.except_date, self.time_from, self.tz)
         title = _("{exception} for {date}").format(exception=_(name),
@@ -1097,22 +1229,38 @@ class EventExceptionBase(models.Model):
 
     @property
     def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
         return EventBase._getLocalWhen(self, self.except_date)
 
     @property
     def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
+        """
+        Time that the event starts (in the local time zone).
+        """
         return getLocalTime(self.except_date, self.time_from, self.tz)
 
     def full_clean(self, *args, **kwargs):
+        """
+        Apply fixups that need to happen before per-field validation occurs.
+        Sets the page's title.
+        """
         name = getattr(self, 'name', self.slugName.title())
         self.title = "{} for {}".format(name, dateFormat(self.except_date))
         self.slug = "{}-{}".format(self.except_date, self.slugName)
         super().full_clean(*args, **kwargs)
 
     def isAuthorized(self, request):
+        """
+        Is the user authorized for the requested action with this event?
+        """
         restrictions = self.get_view_restrictions()
         if restrictions and request is None:
             return False
@@ -1180,6 +1328,9 @@ class ExtraInfoPage(Page, EventExceptionBase):
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.except_date, self.time_to, self.tz) < myNow:
             return "finished"
@@ -1188,21 +1339,38 @@ class ExtraInfoPage(Page, EventExceptionBase):
 
     @property
     def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
         return EventBase.status_text.fget(self)
 
     @property
     def _upcoming_datetime_from(self):
-        return self._checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
+        """
+        The datetime this event next starts in the local time zone, or None if
+        it is finished.
+        """
+        return self.__checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
 
     @property
     def _past_datetime_from(self):
-        return self._checkFromDt(lambda fromDt:fromDt < timezone.localtime())
+        """
+        The datetime this event previously started in the local timezone, or
+        None if it never did.
+        """
+        return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
 
+#FIXME: is this really needed? if so why is it not in Cancellation too? investigate ical
     @property
     def _first_datetime_from(self):
-        return self._checkFromDt(lambda _:True)
+        """
+        The datetime this event first started in the local time zone, or None if
+        it never did.
+        """
+        return self.__checkFromDt(lambda _:True)
 
-    def _checkFromDt(self, predicate):
+#FIXME: is this really needed?
+    def __checkFromDt(self, predicate):
         if not self.overrides._occursOn(self.except_date):
             return None
         fromDt = getLocalDatetime(self.except_date, self.time_from, self.tz)
@@ -1251,10 +1419,16 @@ class CancellationPage(Page, EventExceptionBase):
 
     @property
     def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
         return "cancelled"
 
     @property
     def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
         return _("This event has been cancelled.")
 
 # ------------------------------------------------------------------------------
@@ -1350,16 +1524,23 @@ class PostponementPage(EventBase, CancellationPage):
 
     @property
     def tz(self):
-        # use the parent's time zone
+        """
+        The time zone for the event.  Uses the overridden time zone.
+        """
         return self.overrides.tz
 
     @property
     def group(self):
-        # use the parent's group
+        """
+        The group this event belongs to.  Uses the overridden group.
+        """
         return self.overrides.group
 
     @property
     def status(self):
+        """
+        The current status of the postponement (started, finished or pending).
+        """
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.date, self.time_to, self.tz) < myNow:
             return "finished"
@@ -1368,30 +1549,51 @@ class PostponementPage(EventBase, CancellationPage):
 
     @property
     def when(self):
+        """
+        A string describing when the postponement occurs (in the local time zone).
+        """
         return self._getLocalWhen(self.date)
 
     @property
     def postponed_from_when(self):
+        """
+        A string describing when the event was postponed from (in the local time zone).
+        """
         return self.cancellationpage.when
 
     @property
     def postponed_from(self):
+        """
+        Date that the event was postponed from (in the local time zone).
+        """
         fromDate = getLocalDate(self.except_date, self.time_from, self.tz)
         return dateFormat(fromDate)
 
     @property
     def postponed_to(self):
+        """
+        Date that the event was postponed to (in the local time zone).
+        """
         toDate = getLocalDate(self.date, self.time_from, self.tz)
         return dateFormat(toDate)
 
     @property
     def at(self):
+        """
+        A string describing what time the postponement starts (in the local time zone).
+        """
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
+        """
+        Time that the postponement starts (in the local time zone).
+        """
         return getLocalTime(self.date, self.time_from, self.tz)
 
     def _getFromDt(self):
+        """
+        Datetime that the postponement starts (in the local time zone).
+        """
         return getLocalDatetime(self.date, self.time_from, self.tz)
 
 # ------------------------------------------------------------------------------

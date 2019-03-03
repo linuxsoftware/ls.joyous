@@ -13,6 +13,7 @@ from ..utils.telltime import getAwareDatetime
 
 # ------------------------------------------------------------------------------
 class GoogleCalendarHandler:
+    """Redirect to a new Google Calendar event"""
     def serve(self, page, request, *args, **kwargs):
         gevent = self._makeFromPage(page)
         if gevent:

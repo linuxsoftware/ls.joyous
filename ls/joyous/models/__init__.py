@@ -3,6 +3,7 @@ from .events import EventBase
 from .events import SimpleEventPage
 from .events import MultidayEventPage
 from .events import RecurringEventPage
+from .events import MultidayRecurringEventPage
 from .events import EventExceptionBase
 from .events import ExtraInfoPage
 from .events import CancellationPage

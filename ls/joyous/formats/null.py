@@ -2,6 +2,7 @@
 # Null Page Export Handler
 # ------------------------------------------------------------------------------
 class NullHandler:
+    """Serve nothing (when nothing else matches)"""
     def serve(self, page, request, *args, **kwargs):
         return None
 

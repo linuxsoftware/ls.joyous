@@ -18,8 +18,8 @@ from wagtail.admin.edit_handlers import FieldPanel
 def get_group_model_string():
     """
     Get the dotted ``app.Model`` name for the group model as a string.
-    Useful for developers making Wagtail plugins that need to refer to the
-    group model, such as in foreign keys, but the model itself is not required.
+    Useful for developers that need to refer to the group model, such as in
+    foreign keys, but the model itself is not required.
     """
     return getattr(settings, "JOYOUS_GROUP_MODEL", "joyous.GroupPage")
 
@@ -27,7 +27,7 @@ def get_group_model_string():
 def get_group_model():
     """
     Get the group model from the ``JOYOUS_GROUP_MODEL`` setting.
-    Useful for developers making Wagtail plugins that need the group model.
+    Useful for developers that need the group model.
     Defaults to the standard :class:`~joyous.Group` model
     if no custom model is defined.
     """

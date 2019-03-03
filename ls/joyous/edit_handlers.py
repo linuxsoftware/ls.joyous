@@ -10,6 +10,9 @@ from .widgets import ExceptionDateInput, Time12hrInput
 
 # ------------------------------------------------------------------------------
 class ExceptionDatePanel(FieldPanel):
+    """
+    Used to select from the dates of the recurrence
+    """
     widget = ExceptionDateInput
     object_template = "joyous/edit_handlers/exception_date_object.html"
 
@@ -46,6 +49,9 @@ def _add12hrFormats():
 
 # ------------------------------------------------------------------------------
 class TimePanel(FieldPanel):
+    """
+    Used to select time using either a 12 or 24 hour time widget
+    """
     if getattr(settings, "JOYOUS_TIME_INPUT", "24") in (12, "12"):
         widget = Time12hrInput
         _add12hrFormats()
@@ -64,6 +70,9 @@ except (ValueError, ImportError):
 
 # ------------------------------------------------------------------------------
 class ConcealedPanel(MultiFieldPanel):
+    """
+    A panel that can be hidden
+    """
     def __init__(self, children, heading, classname='', help_text=''):
         super().__init__(children, '', classname, '')
         self._heading   = heading

@@ -12,6 +12,9 @@ from .widgets import RecurrenceWidget
 
 # ------------------------------------------------------------------------------
 class RecurrenceField(Field):
+    """
+    DB Field for recurrences
+    """
     description = "The rule for recurring events"
 
     def __init__(self, *args, **kwargs):
