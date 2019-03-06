@@ -305,7 +305,7 @@ table.calendar {
     white-space:           nowrap;
 }
 
-#overlay {
+#calendar-overlay {
     position:              fixed;
     top:                   0;
     left:                  0;
@@ -316,7 +316,7 @@ table.calendar {
     display:               none;
 }
 
-.popup-outer {
+.day-popup-outer {
     position:              absolute;
     top:                   0;
     left:                  0;
@@ -324,7 +324,7 @@ table.calendar {
     z-index:               3;
     display:               none;
 }
-.popup {
+.day-popup {
     position:              relative;
     padding:               20px;
     background:            white;
@@ -335,7 +335,7 @@ table.calendar {
     border:                2px solid #c65000;
     overflow:              auto;
 }
-.popup .close {
+.day-popup .close {
     position:              absolute;
     top:                   5px;
     right:                 20px;

@@ -14,10 +14,20 @@ class EventsCalendar
         return
 
     _enablePopup: () ->
-        $("#overlay, .popup-outer, .popup .close").click () ->
-            $("#overlay, .popup-outer").hide()
+        if $("#calendar-overlay").length == 0
+            $("""
+  <div id="calendar-overlay"></div>
+  <div class="day-popup-outer">
+    <div id="read-more-events" class="calendar day-popup">
+      <a class="close" href="#">×</a>
+      <div class="day-title"></div>
+      <div class="days-events"></div>
+    </div>
+  </div>""").appendTo("body")
+        $("#calendar-overlay, .day-popup-outer, .day-popup .close").click () ->
+            $("#calendar-overlay, .day-popup-outer").hide()
             return false
-        $(".popup").click (event) ->
+        $(".day-popup").click (event) ->
             event.stopPropagation()
 
     _handleResize: () ->
@@ -52,8 +62,8 @@ class EventsCalendar
             events = day.find(".days-events").clone().height('auto')
             $("#read-more-events .days-events").replaceWith(events)
             y = Math.max(ev.pageY - 100, $(window).scrollTop())
-            $(".popup-outer").css('top', y)
-            $("#overlay, .popup-outer").show()
+            $(".day-popup-outer").css('top', y)
+            $("#calendar-overlay, .day-popup-outer").show()
             return false
         day.append(link)
         return

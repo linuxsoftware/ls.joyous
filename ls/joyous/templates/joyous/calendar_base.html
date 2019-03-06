@@ -1,17 +1,6 @@
 {% extends "joyous/joyous_base.html" %}
 {% load static wagtailcore_tags %}
 
-{% block background %}
-  <div id="overlay"></div>
-  <div class="popup-outer">
-    <div id="read-more-events" class="calendar popup">
-      <a class="close" href="#">×</a>  
-      <div class="day-title"></div>
-      <div class="days-events"></div>
-    </div>
-  </div>
-{% endblock background %}
-
 {% block content %}
   <div class="content">
     <div class="page-heading">
