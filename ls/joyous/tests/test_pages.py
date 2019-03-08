@@ -6,6 +6,7 @@ import datetime as dt
 import pytz
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission
+from django.utils import translation
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from wagtail.core.models import Page
@@ -139,6 +140,94 @@ class PageClassTests(WagtailPageTests):
                                           {RecurringEventPage,
                                            MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(PostponementPage, {})
+
+    def testCalendarVerboseName(self):
+        self.assertEqual(CalendarPage.get_verbose_name(),
+                         "Calendar page")
+
+    def testSpecificCalendarVerboseName(self):
+        self.assertEqual(SpecificCalendarPage.get_verbose_name(),
+                         "Specific calendar page")
+
+    def testGeneralCalendarVerboseName(self):
+        self.assertEqual(GeneralCalendarPage.get_verbose_name(),
+                         "General calendar page")
+
+    def testSimpleEventVerboseName(self):
+        self.assertEqual(SimpleEventPage.get_verbose_name(),
+                         "Event page")
+
+    def testMultidayEventVerboseName(self):
+        self.assertEqual(MultidayEventPage.get_verbose_name(),
+                         "Multiday event page")
+
+    def testRecurringEventVerboseName(self):
+        self.assertEqual(RecurringEventPage.get_verbose_name(),
+                         "Recurring event page")
+
+    def testMultidayRecurringEventVerboseName(self):
+        self.assertEqual(MultidayRecurringEventPage.get_verbose_name(),
+                         "Multiday recurring event page")
+
+    def testExtraInfoVerboseName(self):
+        self.assertEqual(ExtraInfoPage.get_verbose_name(),
+                         "Extra event information")
+
+    def testCancellationVerboseName(self):
+        self.assertEqual(CancellationPage.get_verbose_name(),
+                         "Cancellation")
+
+    def testPostponementVerboseName(self):
+        self.assertEqual(PostponementPage.get_verbose_name(),
+                         "Postponement")
+
+# ------------------------------------------------------------------------------
+class PageClassTestsFrançais(WagtailPageTests):
+    def setUp(self):
+        translation.activate('fr')
+
+    def tearDown(self):
+        translation.deactivate()
+
+    def testCalendarVerboseName(self):
+        self.assertEqual(CalendarPage.get_verbose_name(),
+                         "Page de calendrier")
+
+    def testSpecificCalendarVerboseName(self):
+        self.assertEqual(SpecificCalendarPage.get_verbose_name(),
+                         "Page de calendrier spécifique")
+
+    def testGeneralCalendarVerboseName(self):
+        self.assertEqual(GeneralCalendarPage.get_verbose_name(),
+                         "Page de calendrier générale")
+
+    def testSimpleEventVerboseName(self):
+        self.assertEqual(SimpleEventPage.get_verbose_name(),
+                         "Page de l'événement")
+
+    def testMultidayEventVerboseName(self):
+        self.assertEqual(MultidayEventPage.get_verbose_name(),
+                         "Page de l'événement sur plusieurs jours")
+
+    def testRecurringEventVerboseName(self):
+        self.assertEqual(RecurringEventPage.get_verbose_name(),
+                         "Page d'événement récurrent")
+
+    def testMultidayRecurringEventVerboseName(self):
+        self.assertEqual(MultidayRecurringEventPage.get_verbose_name(),
+                         "Page d'événements récurrents sur plusieurs jours")
+
+    def testExtraInfoVerboseName(self):
+        self.assertEqual(ExtraInfoPage.get_verbose_name(),
+                         "Informations supplémentaires sur l'événement")
+
+    def testCancellationVerboseName(self):
+        self.assertEqual(CancellationPage.get_verbose_name(),
+                         "Annulation")
+
+    def testPostponementVerboseName(self):
+        self.assertEqual(PostponementPage.get_verbose_name(),
+                         "Report")
 
 # ------------------------------------------------------------------------------
 class PageInstanceTests(WagtailPageTests):

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-26 12:38+1300\n"
+"POT-Creation-Date: 2019-03-08 15:31+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -44,13 +44,13 @@ msgstr "Vue hebdomadaire"
 msgid "Monthly View"
 msgstr "Vue mensuelle"
 
-#: ls/joyous/models/calendar.py:105 ls/joyous/models/events.py:607
-msgid "multiday event page"
-msgstr "page de l'événement sur plusieurs jours"
+#: ls/joyous/models/calendar.py:105
+msgid "calendar page"
+msgstr "page de calendrier"
 
-#: ls/joyous/models/calendar.py:106 ls/joyous/models/events.py:608
-msgid "multiday event pages"
-msgstr "pages d'évènements sur plusieurs jours"
+#: ls/joyous/models/calendar.py:106
+msgid "calendar pages"
+msgstr "pages de calendrier"
 
 #: ls/joyous/models/calendar.py:115
 msgid "intro"
@@ -72,6 +72,22 @@ msgstr "Options d'affichage"
 #, python-brace-format
 msgid "Week {weekNum}"
 msgstr "Semaine {weekNum}"
+
+#: ls/joyous/models/calendar.py:437
+msgid "specific calendar page"
+msgstr "page de calendrier spécifique"
+
+#: ls/joyous/models/calendar.py:438
+msgid "specific calendar pages"
+msgstr "pages de calendrier spécifiques"
+
+#: ls/joyous/models/calendar.py:477
+msgid "general calendar page"
+msgstr "page de calendrier générale"
+
+#: ls/joyous/models/calendar.py:478
+msgid "general calendar pages"
+msgstr "pages de calendrier générales"
 
 #: ls/joyous/models/events.py:221
 msgid "event category"
@@ -154,6 +170,14 @@ msgstr "date"
 #: ls/joyous/models/events.py:598
 msgid "Event cannot end before it starts"
 msgstr "L'événement ne peut pas se terminer avant qu'il ne commence"
+
+#: ls/joyous/models/events.py:607
+msgid "multiday event page"
+msgstr "page de l'événement sur plusieurs jours"
+
+#: ls/joyous/models/events.py:608
+msgid "multiday event pages"
+msgstr "pages d'évènements sur plusieurs jours"
 
 #: ls/joyous/models/events.py:618
 msgid "start date"

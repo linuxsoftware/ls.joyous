@@ -102,8 +102,8 @@ EVENTS_VIEW_CHOICES = [('L', _("List View")),
 class CalendarPage(RoutablePageMixin, Page):
     """CalendarPage displays all the events which are in the same site"""
     class Meta:
-        verbose_name = _("multiday event page")
-        verbose_name_plural = _("multiday event pages")
+        verbose_name = _("calendar page")
+        verbose_name_plural = _("calendar pages")
 
     EventsPerPage = 25
     subpage_types = ['joyous.SimpleEventPage',
@@ -433,6 +433,10 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
     """
     SpecificCalendarPage displays only the events which are its children
     """
+    class Meta(ProxyPageMixin.Meta):
+        verbose_name = _("specific calendar page")
+        verbose_name_plural = _("specific calendar pages")
+
     is_creatable  = False  # creation is disabled by default
 
     @classmethod
@@ -469,6 +473,10 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
     """
     GeneralCalendarPage displays all the events no matter where they are
     """
+    class Meta(ProxyPageMixin.Meta):
+        verbose_name = _("general calendar page")
+        verbose_name_plural = _("general calendar pages")
+
     is_creatable  = False  # creation is disabled by default
 
     @classmethod
