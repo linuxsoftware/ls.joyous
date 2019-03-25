@@ -79,5 +79,22 @@ A party that starts on 2018-12-31 at 9pm and finishes on 2019-01-01 at 2am
 --------------------------------------------------------------------------
 This party spans 2 days, so the most accurate way of recording it would be with a ``MultidayEventPage``.
 
-But you might not consider the party as *really* being on January 1.  (After all who is going to turn up after midnight?)  So you could record it as a ``SimpleEventPage``, but leave the time_to field blank, or enter it as 24:59:59.  It is technically not as accurate, but it is up to you.  Happy happy joy joy. 
+But you might not consider the party as *really* being on January 1.  (After all who is going to turn up after midnight?)  So you could record it as a ``SimpleEventPage``, but leave the time_to field blank, or enter it as 24:59:59.  It is technically not as accurate, but it is up to you.
 
+When a Postponement is not a postponement
+-----------------------------------------
+The ``PostponementPage`` was named with the intention that it would be used
+for when an occurence of a recurring event had to be postponed until a later
+time.  But it could also be used to move the occurrence to start at an earlier
+time, finish at a different time, or change some other field.
+
+If you would like to change the name, you can do so by putting the following
+bit of code in your application's models.py or wagtail_hooks.py.
+
+    .. code-block:: python
+
+        from ls.joyous.models import PostponementPage
+
+        PostponementPage._meta.verbose_name = "event change"
+        PostponementPage._meta.verbose_name_plural = "event changes"
+        PostponementPage.slugName = "change"

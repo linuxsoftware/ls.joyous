@@ -137,13 +137,14 @@ class VCalendar(Calendar, VComponentMixin):
             vmap = {}
             for props in cal.walk(name="VEVENT"):
                 try:
-                    vevent = self.factory.makeFromProps(props)
+                    match = vmap.setdefault(str(props['UID']), VMatch())
+                    vevent = self.factory.makeFromProps(props, match.parent)
                 except CalendarTypeError as e:
                     numFail += 1
                     #messages.debug(request, str(e))
                 else:
                     self.add_component(vevent)
-                    vmap.setdefault(str(vevent['UID']), VMatch()).add(vevent)
+                    match.add(vevent)
 
             for vmatch in vmap.values():
                 vevent = vmatch.parent
@@ -346,19 +347,25 @@ class VMatch:
         if self.parent:
             self.parent.vchildren.append(component)
         else:
+            # I don't know of any iCalendar producer that lists exceptions
+            # before the recurring event, but RFC doesn't seem to say that
+            # it can't happen either.
             self.orphans.append(component)
 
     def _addParent(self, component):
         if self.parent:
             raise self.DuplicateError("UID {}".format(component['UID']))
         self.parent = component
-        self.parent.vchildren += self.orphans
+        for orphan in self.orphans:
+            # reprocess orphans now their parent has been found
+            vevent = VCalendar.factory.makeFromProps(orphan, self.parent)
+            self.parent.vchildren.append(vevent)
         self.orphans.clear()
 
 # ------------------------------------------------------------------------------
 class VEventFactory:
     """Creates VEvent objects"""
-    def makeFromProps(self, props):
+    def makeFromProps(self, props, parent):
         if 'UID' not in props:
             raise CalendarTypeError("Missing UID")
         if 'DTSTAMP' not in props:
@@ -378,7 +385,7 @@ class VEventFactory:
         else:
             if not dtend:
                 if isinstance(dtstart.dt, dt.date):
-                    dtend = vDt(dtstart + dt.timedelta(days=1))
+                    dtend = vDt(dtstart.dt + dt.timedelta(days=1))
                 else:
                     dtend = dtstart
         if type(dtstart.dt) != type(dtend.dt):
@@ -400,7 +407,9 @@ class VEventFactory:
                 # Also valid, but still Joyous does not support it
                 raise CalendarTypeError("DTSTART.timezone != RECURRENCE-ID.timezone")
 
-            if recurrenceId == dtstart:
+            if (parent and recurrenceId == dtstart and
+                parent['DTEND'].time() == dtend.time() and
+                props['DESCRIPTION']):
                 return ExtraInfoVEvent.fromProps(props)
             else:
                 return PostponementVEvent.fromProps(props)

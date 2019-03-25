@@ -4,7 +4,7 @@
 </div>
 {% if event.postponed_from_when %}
 <div class="event-postponed-from">
-  {% blocktrans with postponed_from=event.postponed_from_when %}Postponed from {{ postponed_from }}{% endblocktrans %}
+    {{ event.postponed_from_when }}
 </div>
 {% endif %}
 {% next_on event as event_next_on %}

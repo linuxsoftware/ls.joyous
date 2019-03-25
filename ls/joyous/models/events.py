@@ -1559,7 +1559,16 @@ class PostponementPage(EventBase, CancellationPage):
         """
         A string describing when the event was postponed from (in the local time zone).
         """
-        return self.cancellationpage.when
+        when = self.cancellationpage.when
+        originalFromDt = dt.datetime.combine(self.except_date,
+                                             timeFrom(self.overrides.time_from))
+        changedFromDt = dt.datetime.combine(self.date, timeFrom(self.time_from))
+        if originalFromDt < changedFromDt:
+            return _("Postponed from {when}").format(when=when)
+        elif originalFromDt > changedFromDt or self.overrides.time_to != self.time_to:
+            return _("Rescheduled from {when}").format(when=when)
+        else:
+            return None
 
     @property
     def postponed_from(self):

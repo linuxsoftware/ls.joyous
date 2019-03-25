@@ -332,13 +332,35 @@ class TestUpdate(TestCase):
                                      title = "Events")
         self.home.add_child(instance=self.calendar)
         self.calendar.save_revision().publish()
-        self.event = SimpleEventPage(owner = self.user,
-                                     slug   = "mini-fair",
-                                     title  = "Mini-Fair",
-                                     date   = dt.date(2018,4,7),
-                                     uid = "978-1523093400-1523100600@bloorneighbours.ca")
-        self.calendar.add_child(instance=self.event)
-        self.event.save_revision().publish()
+        event = SimpleEventPage(owner = self.user,
+                                slug   = "mini-fair",
+                                title  = "Mini-Fair",
+                                date   = dt.date(2018,4,7),
+                                uid = "978-1523093400-1523100600@bloorneighbours.ca")
+        self.calendar.add_child(instance=event)
+        event.save_revision().publish()
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "tango-thursdays",
+                                   title = "Tango Thursdays",
+                                   details = "Weekly tango lessons at the Dance Spot",
+                                   repeat  = Recurrence(dtstart=dt.date(2018,3,29),
+                                                        freq=WEEKLY,
+                                                        byweekday=[TH]),
+                                   time_from = dt.time(19,30),
+                                   time_to   = dt.time(22,0),
+                                   tz        = pytz.timezone("US/Eastern"),
+                                   website   = "http://torontodancespot.com/",
+                                   location  = "622 Bloor St. W., Toronto ON, M6G 1K7",
+                                   uid = "645-1524080440-854495893@bloorneighbours.ca")
+        self.calendar.add_child(instance=event)
+        event.save_revision().publish()
+        cancellation = CancellationPage(owner = self.user,
+                                        slug  = "2018-04-04-cancellation",
+                                        title = "Cancellation for Thursday 12th of April",
+                                        overrides = event,
+                                        except_date = dt.date(2019, 2, 12))
+        event.add_child(instance=cancellation)
+        cancellation.save_revision().publish()
 
     def _getRequest(self, path="/"):
         request = self.requestFactory.get(path)
@@ -351,7 +373,7 @@ class TestUpdate(TestCase):
         return request
 
     @freeze_timetz("2018-03-06 9:00")
-    def testLoad(self):
+    def testLoadSimple(self):
         data  = b"\r\n".join([
                 b"BEGIN:VCALENDAR",
                 b"VERSION:2.0",
@@ -371,6 +393,41 @@ class TestUpdate(TestCase):
                 b"SUMMARY:Mini-Fair & Garage Sale",
                 b"DESCRIPTION:",
                 b"URL:http://bloorneighbours.ca/event/mini-fair-garage-sale/",
+                b"END:VEVENT",
+                b"END:VCALENDAR",])
+        vcal = VCalendar(self.calendar)
+        vcal.load(self._getRequest(), data)
+        events = SimpleEventPage.events.child_of(self.calendar)            \
+                                       .filter(date=dt.date(2018,4,7)).all()
+        self.assertEqual(len(events), 1)
+        event = events[0]
+        self.assertEqual(event.owner,      self.user)
+        self.assertEqual(event.slug,       "mini-fair")
+        self.assertEqual(event.title,      "Mini-Fair & Garage Sale")
+        self.assertEqual(event.date,       dt.date(2018,4,7))
+        self.assertEqual(event.time_from,  dt.time(9,30))
+        self.assertEqual(event.time_to,    dt.time(11,30))
+        revisions = event.revisions.all()
+        self.assertEqual(len(revisions), 2)
+        rev1, rev2 = revisions
+        self.assertEqual(rev1.created_at, datetimetz(2018, 2, 1, 13, 0))
+        self.assertEqual(rev2.created_at, datetimetz(2018, 3, 6, 9, 0))
+
+    @freeze_timetz("2018-03-06 9:00")
+    def testLoadRecurring(self):
+        data  = b"\r\n".join([
+                b"BEGIN:VCALENDAR",
+                b"VERSION:2.0",
+                b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
+                b"BEGIN:VEVENT",
+                b"DESCRIPTION:Weekly tango lessons at the Dance Spot",
+                b"DTEND;20180329T220000",
+                b"DTSTART:20180329T193000",
+                b"DTSTAMP:20180402T054745Z",
+                b"LOCATION:622 Bloor St. W., Toronto ON, M6G 1K7",
+                b"SUMMARY:Tango Thursdays",
+                b"UID:645-1524080440-854495893@bloorneighbours.ca",
+                b"URL:http://torontodancespot.com/",
                 b"END:VEVENT",
                 b"END:VCALENDAR",])
         vcal = VCalendar(self.calendar)
