@@ -327,7 +327,7 @@ END:VCALENDAR
         self.assertEqual(daysOff.slug,       "three-days-off")
         self.assertEqual(daysOff.title,      "Three days off")
         self.assertEqual(daysOff.details,    "")
-        self.assertEqual(daysOff.tz.zone,    "Asia/Tokyo")
+        self.assertEqual(daysOff.tz.zone,    "Pacific/Auckland")
         self.assertEqual(daysOff.date_from,  dt.date(2018,7,13))
         self.assertEqual(daysOff.time_from,  None)
         self.assertEqual(daysOff.date_to,    dt.date(2018,7,15))

@@ -7,15 +7,17 @@ import pytz
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib import messages
-#from django.core import cache
+from django.utils import timezone
 from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
-                              CancellationPage, PostponementPage, GroupPage)
+                              CancellationPage, PostponementPage, ExtraInfoPage,
+                              GroupPage)
 from ls.joyous.formats.ical import (CalendarTypeError, CalendarNotInitializedError,
                                     VCalendar)
+from freezegun import freeze_time
 from .testutils import datetimetz, freeze_timetz, getPage
 
 # ------------------------------------------------------------------------------
@@ -355,12 +357,21 @@ class TestUpdate(TestCase):
         self.calendar.add_child(instance=event)
         event.save_revision().publish()
         cancellation = CancellationPage(owner = self.user,
-                                        slug  = "2018-04-04-cancellation",
-                                        title = "Cancellation for Thursday 12th of April",
+                                        slug  = "2019-02-14-cancellation",
+                                        title = "Cancellation for Thursday 14th of April",
                                         overrides = event,
-                                        except_date = dt.date(2019, 2, 12))
+                                        except_date = dt.date(2019, 2, 14))
         event.add_child(instance=cancellation)
         cancellation.save_revision().publish()
+        info = ExtraInfoPage(owner = self.user,
+                             slug  = "2018-04-05-extra-info",
+                             title = "Extra-Info for Thursday 5th of April",
+                             overrides = event,
+                             except_date = dt.date(2018, 4, 5),
+                             extra_title = "Performance",
+                             extra_information = "Performance for the public")
+        event.add_child(instance=info)
+        info.save_revision().publish()
 
     def _getRequest(self, path="/"):
         request = self.requestFactory.get(path)
@@ -413,17 +424,32 @@ class TestUpdate(TestCase):
         self.assertEqual(rev1.created_at, datetimetz(2018, 2, 1, 13, 0))
         self.assertEqual(rev2.created_at, datetimetz(2018, 3, 6, 9, 0))
 
-    @freeze_timetz("2018-03-06 9:00")
+    @freeze_timetz("2018-04-08 10:00")
+    @timezone.override("America/Toronto")
     def testLoadRecurring(self):
         data  = b"\r\n".join([
                 b"BEGIN:VCALENDAR",
                 b"VERSION:2.0",
                 b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
                 b"BEGIN:VEVENT",
+                b"SUMMARY:Fierce Tango",
+                b"DESCRIPTION:Argentine Show Tango Performance",
+                b"DTSTART:20180405T193000",
+                b"DTEND:20180405T220000",
+                b"RECURRENCE-ID:20180405T193000",
+                b"DTSTAMP:20180408T094745Z",
+                b"LAST-MODIFIED:20180314T010000Z",
+                b"UID:645-1524080440-854495893@bloorneighbours.ca",
+                b"END:VEVENT",
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Tango Thursdays",
                 b"DESCRIPTION:Weekly tango lessons at the Dance Spot",
-                b"DTEND;20180329T220000",
                 b"DTSTART:20180329T193000",
-                b"DTSTAMP:20180402T054745Z",
+                b"DTEND:20180329T220000",
+                b"RRULE:FREQ=WEEKLY;BYDAY=TH",
+                b"DTSTAMP:20180408T094745Z",
+                b"LAST-MODIFIED:20180131T010000Z",
+                b"EXDATE:20181025T193000",
                 b"LOCATION:622 Bloor St. W., Toronto ON, M6G 1K7",
                 b"SUMMARY:Tango Thursdays",
                 b"UID:645-1524080440-854495893@bloorneighbours.ca",
@@ -432,22 +458,32 @@ class TestUpdate(TestCase):
                 b"END:VCALENDAR",])
         vcal = VCalendar(self.calendar)
         vcal.load(self._getRequest(), data)
-        events = SimpleEventPage.events.child_of(self.calendar)            \
-                                       .filter(date=dt.date(2018,4,7)).all()
+        events = RecurringEventPage.events.child_of(self.calendar).all()
         self.assertEqual(len(events), 1)
         event = events[0]
-        self.assertEqual(event.owner,      self.user)
-        self.assertEqual(event.slug,       "mini-fair")
-        self.assertEqual(event.title,      "Mini-Fair & Garage Sale")
-        self.assertEqual(event.date,       dt.date(2018,4,7))
-        self.assertEqual(event.time_from,  dt.time(9,30))
-        self.assertEqual(event.time_to,    dt.time(11,30))
+        self.assertEqual(event.slug,  "tango-thursdays")
+        self.assertEqual(event.title, "Tango Thursdays")
+        self.assertEqual(repr(event.repeat),
+                        "DTSTART:20180329\n" \
+                        "RRULE:FREQ=WEEKLY;WKST=SU;BYDAY=TH")
+        self.assertEqual(event.time_from,  dt.time(19,30))
+        self.assertEqual(event.time_to,    dt.time(22,0))
         revisions = event.revisions.all()
+        self.assertEqual(len(revisions), 1)
+        info = ExtraInfoPage.events.child_of(event).get()
+        self.assertEqual(info.slug,  "2018-04-05-extra-info")
+        self.assertEqual(info.title, "Extra-Info for Thursday 5th of April")
+        self.assertEqual(info.extra_title, "Fierce Tango")
+        self.assertEqual(info.extra_information, "Argentine Show Tango Performance")
+        self.assertEqual(info.except_date, dt.date(2018,4,5))
+        revisions = info.revisions.all()
         self.assertEqual(len(revisions), 2)
-        rev1, rev2 = revisions
-        self.assertEqual(rev1.created_at, datetimetz(2018, 2, 1, 13, 0))
-        self.assertEqual(rev2.created_at, datetimetz(2018, 3, 6, 9, 0))
-
+        cancellations = CancellationPage.events.child_of(event).all()
+        self.assertEqual(len(cancellations), 2)
+        cancellation = cancellations[0]
+        self.assertEqual(cancellation.except_date, dt.date(2019,2,14))
+        cancellation = cancellations[1]
+        self.assertEqual(cancellation.except_date, dt.date(2018,10,25))
 
 # ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):

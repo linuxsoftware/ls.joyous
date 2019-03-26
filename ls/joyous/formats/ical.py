@@ -137,7 +137,7 @@ class VCalendar(Calendar, VComponentMixin):
             vmap = {}
             for props in cal.walk(name="VEVENT"):
                 try:
-                    match = vmap.setdefault(str(props['UID']), VMatch())
+                    match = vmap.setdefault(str(props.get('UID')), VMatch())
                     vevent = self.factory.makeFromProps(props, match.parent)
                 except CalendarTypeError as e:
                     numFail += 1
@@ -251,7 +251,7 @@ class vDt(vDDDTypes):
             return self.dt.time()
 
     def datetime(self, timeDefault=dt.time.min):
-        tz = timezone.get_default_timezone()
+        tz = timezone.get_current_timezone()
         if isinstance(self.dt, dt.datetime):
             if timezone.is_aware(self.dt):
                 return self.dt
@@ -277,7 +277,7 @@ class vDt(vDDDTypes):
                 return pytz.timezone(zone)
             except pytz.exceptions.UnknownTimeZoneError as e:
                 raise CalendarTypeError(str(e)) from e
-        return timezone.get_default_timezone()
+        return timezone.get_current_timezone()
 
 class vSmart(vText):
     """Text property that automatically decodes encoded strings"""
