@@ -1304,7 +1304,7 @@ class ExtraInfoPage(Page, EventExceptionBase):
 
     extra_title = models.CharField(_("title"), max_length=255, blank=True)
     extra_title.help_text = _("A more specific title for this occurence (optional)")
-    extra_information = RichTextField(_("extra information"), blank=False)
+    extra_information = RichTextField(_("extra information"), blank=True)
     extra_information.help_text = _("Information just for this date")
 
     search_fields = Page.search_fields + [

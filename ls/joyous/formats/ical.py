@@ -225,7 +225,7 @@ class vDt(vDDDTypes):
         if value is not None:
             if hasattr(value, 'dt'):
                 value = value.dt
-            if isinstance(value, dt.date) and inclusive:
+            if type(value) == dt.date and inclusive:
                 value += value.timedelta(days=1)
             super().__init__(value)
 
@@ -238,26 +238,26 @@ class vDt(vDDDTypes):
         return self.dt == value
 
     def date(self, inclusive=False):
-        if isinstance(self.dt, dt.datetime):
+        if type(self.dt) == dt.datetime:
             return self.dt.date()
-        elif isinstance(self.dt, dt.date):
+        elif type(self.dt) == dt.date:
             if inclusive:
                 return self.dt - dt.timedelta(days=1)
             else:
                 return self.dt
 
     def time(self):
-        if isinstance(self.dt, dt.datetime):
+        if type(self.dt) == dt.datetime:
             return self.dt.time()
 
     def datetime(self, timeDefault=dt.time.min):
         tz = timezone.get_current_timezone()
-        if isinstance(self.dt, dt.datetime):
+        if type(self.dt) == dt.datetime:
             if timezone.is_aware(self.dt):
                 return self.dt
             else:
                 return timezone.make_aware(self.dt, tz)
-        elif isinstance(self.dt, dt.date):
+        elif type(self.dt) == dt.date:
             return getAwareDatetime(self.dt, None, tz, timeDefault)
 
     def tzinfo(self):
@@ -384,7 +384,7 @@ class VEventFactory:
                 dtend = props['DTEND'] = vDt(dtstart.dt + duration.dt)
         else:
             if not dtend:
-                if isinstance(dtstart.dt, dt.date):
+                if type(dtstart.dt) == dt.date:
                     dtend = vDt(dtstart.dt + dt.timedelta(days=1))
                 else:
                     dtend = dtstart
@@ -402,14 +402,15 @@ class VEventFactory:
             return RecurringVEvent.fromProps(props)
 
         recurrenceId = props.get('RECURRENCE-ID')
-        if recurrenceId:
+        if recurrenceId is not None:
             if dtstart.timezone() != recurrenceId.timezone():
                 # Also valid, but still Joyous does not support it
                 raise CalendarTypeError("DTSTART.timezone != RECURRENCE-ID.timezone")
 
             if (parent and recurrenceId == dtstart and
                 parent['DTEND'].time() == dtend.time() and
-                props['DESCRIPTION']):
+                (parent['SUMMARY'] != props['SUMMARY'] or
+                 parent['DESCRIPTION'] != props['DESCRIPTION'] != "")):
                 return ExtraInfoVEvent.fromProps(props)
             else:
                 return PostponementVEvent.fromProps(props)
@@ -462,7 +463,7 @@ class VEvent(Event, VComponentMixin):
         return vevent
 
     def toPage(self, page):
-        page.title      = str(self.get('SUMMARY', ""))
+        pass
 
     def makePage(self, **kwargs):
         if not hasattr(self, 'Page'):
@@ -507,6 +508,7 @@ class SimpleVEvent(VEvent):
     def toPage(self, page):
         super().toPage(page)
         assert page.uid == self.get('UID')
+        page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
         # TODO consider an option to convert UTC timezone events into local time
         dtend    = vDt(self.get('DTEND'))
@@ -537,6 +539,7 @@ class MultidayVEvent(VEvent):
     def toPage(self, page):
         super().toPage(page)
         assert page.uid == self.get('UID')
+        page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
         # TODO consider an option to convert UTC timezone events into local time
         dtend    = vDt(self.get('DTEND'))
@@ -605,6 +608,7 @@ class RecurringVEvent(VEvent):
     def toPage(self, page):
         super().toPage(page)
         assert page.uid == self.get('UID')
+        page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
         dtend    = vDt(self.get('DTEND'))
         rrule = self['RRULE']
