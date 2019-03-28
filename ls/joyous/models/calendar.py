@@ -51,12 +51,18 @@ class CalendarPageForm(WagtailAdminPageForm):
         # TODO support multiple formats?
         cls.importHandler = handler
         uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
-        cls.declared_fields['upload'] = forms.FileField(label=_("upload"),
-                                                        required=False,
-                                                        widget=uploadWidget)
+        cls.declared_fields['upload'] = forms.FileField(
+                                            label=_("Upload"),
+                                            required=False,
+                                            widget=uploadWidget)
+        cls.declared_fields['utc2local'] = forms.BooleanField(
+                                            label=_("Convert UTC to localtime?"),
+                                            required=False,
+                                            initial=True)
         CalendarPage.settings_panels.append(Panel([
               HelpPanel(_("<b>Warning!</b> this feature is experimental")),
               FieldPanel('upload'),
+              FieldPanel('utc2local'),
             ], heading=_("Import")))
 
     @classmethod
@@ -78,9 +84,10 @@ class CalendarPageForm(WagtailAdminPageForm):
 
         if self.importHandler and request:
             delattr(page, '__joyous_edit_request')
+            utc2local = self.cleaned_data.get('utc2local')
             upload = self.cleaned_data.get('upload')
             if upload is not None:
-                self.importHandler.load(page, request, upload)
+                self.importHandler.load(page, request, upload, utc2local=utc2local)
 
         if commit:
             page.save()

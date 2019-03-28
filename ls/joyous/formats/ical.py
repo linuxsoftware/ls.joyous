@@ -19,7 +19,7 @@ from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         EventExceptionBase, ExtraInfoPage, CancellationPage, PostponementPage,
         EventBase, CalendarPage)
 from ..utils.recurrence import Recurrence
-from ..utils.telltime import getAwareDatetime
+from ..utils.telltime import getAwareDatetime, getLocalDatetime
 from .vtimezone import create_timezone
 
 # ------------------------------------------------------------------------------
@@ -49,8 +49,8 @@ class ICalHandler:
             'attachment; filename={}.ics'.format(page.slug)
         return response
 
-    def load(self, page, request, upload):
-        vcal = VCalendar(page)
+    def load(self, page, request, upload, **kwargs):
+        vcal = VCalendar(page, **kwargs)
         vcal.load(request, upload.read(), getattr(upload, 'name', ""))
 
 # ------------------------------------------------------------------------------
@@ -58,9 +58,10 @@ class VCalendar(Calendar, VComponentMixin):
     prodVersion = ".".join(__version__.split(".", 2)[:2])
     prodId = "-//linuxsoftware.nz//NONSGML Joyous v{}//EN".format(prodVersion)
 
-    def __init__(self, page=None):
+    def __init__(self, page=None, utc2local=False):
         super().__init__(self)
         self.page = page
+        self.utc2local = utc2local
         self.set('PRODID',  self.prodId)
         self.set('VERSION', "2.0")
 
@@ -138,8 +139,10 @@ class VCalendar(Calendar, VComponentMixin):
             tz = timezone.get_current_timezone()
             zone = cal.get('X-WR-TIMEZONE', None)
             if zone:
-                with suppress(pytz.exceptions.UnknownTimeZoneError):
+                try:
                     tz = pytz.timezone(zone)
+                except pytz.exceptions.UnknownTimeZoneError:
+                    messages.warning(request, "Unknown time zone {}".format(zone))
             with timezone.override(tz):
                 result = self._loadEvents(request, cal.walk(name="VEVENT"))
                 numSuccess += result[0]
@@ -156,6 +159,8 @@ class VCalendar(Calendar, VComponentMixin):
             try:
                 match = vmap.setdefault(str(props.get('UID')), VMatch())
                 vevent = self.factory.makeFromProps(props, match.parent)
+                if self.utc2local:
+                    vevent._convertTZ()
             except CalendarTypeError as e:
                 numFail += 1
                 #messages.debug(request, str(e))
@@ -404,6 +409,7 @@ class VEventFactory:
                     dtend = vDt(dtstart.dt + dt.timedelta(days=1))
                 else:
                     dtend = dtstart
+                props['DTEND'] = dtend
         if type(dtstart.dt) != type(dtend.dt):
             raise CalendarTypeError("DTSTART and DTEND types do not match")
         if dtstart.timezone() != dtend.timezone():
@@ -488,6 +494,16 @@ class VEvent(Event, VComponentMixin):
         self.toPage(page)
         return page
 
+    def _convertTZ(self):
+        """Will convert UTC datetimes to the current local timezone"""
+        tz = timezone.get_current_timezone()
+        dtstart = self['DTSTART']
+        dtend   = self['DTEND']
+        if dtstart.zone() == "UTC":
+            dtstart.dt = dtstart.dt.astimezone(tz)
+        if dtend.zone() == "UTC":
+            dtend.dt = dtend.dt.astimezone(tz)
+
     @property
     def modifiedDt(self):
         prop = self.get('LAST-MODIFIED') or self.get('DTSTAMP')
@@ -527,8 +543,7 @@ class SimpleVEvent(VEvent):
         assert page.uid == self.get('UID')
         page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
-        # TODO consider an option to convert UTC timezone events into local time
-        dtend    = vDt(self.get('DTEND'))
+        dtend    = self['DTEND']
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))
         page.date       = dtstart.date()
@@ -558,8 +573,7 @@ class MultidayVEvent(VEvent):
         assert page.uid == self.get('UID')
         page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
-        # TODO consider an option to convert UTC timezone events into local time
-        dtend    = vDt(self.get('DTEND'))
+        dtend    = self['DTEND']
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))
         page.date_from  = dtstart.date()
@@ -627,7 +641,7 @@ class RecurringVEvent(VEvent):
         assert page.uid == self.get('UID')
         page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
-        dtend    = vDt(self.get('DTEND'))
+        dtend    = self['DTEND']
         rrule = self['RRULE']
         until = vDt(rrule.get('UNTIL', [None])[0])
         if until:
@@ -734,7 +748,7 @@ class PostponementVEvent(ExceptionVEvent):
         super().toPage(page)
         assert page.uid == self.get('UID')
         dtstart  = self['DTSTART']
-        dtend    = vDt(self.get('DTEND'))
+        dtend    = self['DTEND']
         page.postponement_title = str(self.get('SUMMARY', ""))
         page.details            = str(self.get('DESCRIPTION', ""))
         page.location           = str(self.get('LOCATION', ""))
