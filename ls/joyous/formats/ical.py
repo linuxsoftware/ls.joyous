@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 from collections import namedtuple
+from contextlib import suppress
 from itertools import chain
 import pytz
 import base64
@@ -134,32 +135,45 @@ class VCalendar(Calendar, VComponentMixin):
         self.clear()
         numSuccess = numFail = 0
         for cal in calStream:
-            vmap = {}
-            for props in cal.walk(name="VEVENT"):
-                try:
-                    match = vmap.setdefault(str(props.get('UID')), VMatch())
-                    vevent = self.factory.makeFromProps(props, match.parent)
-                except CalendarTypeError as e:
-                    numFail += 1
-                    #messages.debug(request, str(e))
-                else:
-                    self.add_component(vevent)
-                    match.add(vevent)
-
-            for vmatch in vmap.values():
-                vevent = vmatch.parent
-                if vevent is not None:
-                    try:
-                        event = self.page._getEventFromUid(request, vevent['UID'])
-                    except ObjectDoesNotExist:
-                        numSuccess += self._createEventPage(request, vevent)
-                    else:
-                        if event:
-                            numSuccess += self._updateEventPage(request, vevent, event)
+            tz = timezone.get_current_timezone()
+            zone = cal.get('X-WR-TIMEZONE', None)
+            if zone:
+                with suppress(pytz.exceptions.UnknownTimeZoneError):
+                    tz = pytz.timezone(zone)
+            with timezone.override(tz):
+                result = self._loadEvents(request, cal.walk(name="VEVENT"))
+                numSuccess += result[0]
+                numFail    += result[1]
         if numSuccess:
             messages.success(request, "{} iCal events loaded".format(numSuccess))
         if numFail:
             messages.error(request, "Could not load {} iCal events".format(numFail))
+
+    def _loadEvents(self, request, vevents):
+        numSuccess = numFail = 0
+        vmap = {}
+        for props in vevents:
+            try:
+                match = vmap.setdefault(str(props.get('UID')), VMatch())
+                vevent = self.factory.makeFromProps(props, match.parent)
+            except CalendarTypeError as e:
+                numFail += 1
+                #messages.debug(request, str(e))
+            else:
+                self.add_component(vevent)
+                match.add(vevent)
+
+        for vmatch in vmap.values():
+            vevent = vmatch.parent
+            if vevent is not None:
+                try:
+                    event = self.page._getEventFromUid(request, vevent['UID'])
+                except ObjectDoesNotExist:
+                    numSuccess += self._createEventPage(request, vevent)
+                else:
+                    if event:
+                        numSuccess += self._updateEventPage(request, vevent, event)
+        return numSuccess, numFail
 
     def _updateEventPage(self, request, vevent, event):
         numUpdated = 0
@@ -251,6 +265,7 @@ class vDt(vDDDTypes):
             return self.dt.time()
 
     def datetime(self, timeDefault=dt.time.min):
+        # TODO: Allow 'floating' times?
         tz = timezone.get_current_timezone()
         if type(self.dt) == dt.datetime:
             if timezone.is_aware(self.dt):
@@ -277,6 +292,7 @@ class vDt(vDDDTypes):
                 return pytz.timezone(zone)
             except pytz.exceptions.UnknownTimeZoneError as e:
                 raise CalendarTypeError(str(e)) from e
+        # TODO: Allow 'floating' times?
         return timezone.get_current_timezone()
 
 class vSmart(vText):
@@ -348,7 +364,7 @@ class VMatch:
             self.parent.vchildren.append(component)
         else:
             # I don't know of any iCalendar producer that lists exceptions
-            # before the recurring event, but RFC doesn't seem to say that
+            # before the recurring event, but the RFC doesn't seem to say that
             # it can't happen either.
             self.orphans.append(component)
 
@@ -502,7 +518,8 @@ class SimpleVEvent(VEvent):
         vevent.set('DTEND',       vDatetime(dtend))
         vevent.set('DESCRIPTION', page.details)
         vevent.set('LOCATION',    page.location)
-        # TODO CATEGORY
+        # TODO: Add CATEGORIES page.category
+        # TODO: Add CLASS pages.get_view_restrictions() ? "RESTRICTED" : "PUBLIC"
         return vevent
 
     def toPage(self, page):

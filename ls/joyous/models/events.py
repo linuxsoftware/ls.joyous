@@ -377,7 +377,9 @@ class EventBase(models.Model):
 
     time_from = models.TimeField(_("start time"), null=True, blank=True)
     time_to = models.TimeField(_("end time"), null=True, blank=True)
+
     # No you can't set different timezones for time_from and time_to
+    # TODO: Allow tz to be blank for 'floating' times?
     tz = TimeZoneField(verbose_name=_("time zone"),
                        default=_get_default_timezone)
 
