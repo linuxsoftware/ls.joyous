@@ -319,6 +319,44 @@ class Test(TestCase):
         self.assertEqual(msg.level, messages.ERROR)
         self.assertEqual(msg.message, "Could not load 1 iCal events")
 
+    def testLoadUnknownTZ(self):
+        data  = b"\r\n".join([
+                b"BEGIN:VCALENDAR",
+                b"VERSION:2.0",
+                b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
+                b"CALSCALE:GREGORIAN",
+                b"METHOD:PUBLISH",
+                b"X-WR-CALNAME:Bloor &amp; Spadina",
+                b"X-ORIGINAL-URL:http://bloorneighbours.ca",
+                b"X-WR-CALDESC:Events for Bloor &amp; Spadina",
+                b"X-WR-TIMEZONE:Canada/Toronto",
+                b"BEGIN:VEVENT",
+                b"UID:978-1523093400-1523100600@bloorneighbours.ca",
+                b"DTSTART:20180407T093000",
+                b"DTEND:20180407T113000",
+                b"DTSTAMP:20180402T054745",
+                b"CREATED:20180304T225154Z",
+                b"LAST-MODIFIED:20180304T225154Z",
+                b"SUMMARY:Mini-Fair & Garage Sale",
+                b"DESCRIPTION:",
+                b"END:VEVENT",
+                b"END:VCALENDAR",])
+        vcal = VCalendar(self.calendar)
+        request = self._getRequest()
+        vcal.load(request, data)
+        events = SimpleEventPage.events.child_of(self.calendar)            \
+                                       .filter(date=dt.date(2018,4,7)).all()
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].tz.zone, "Asia/Tokyo")
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 2)
+        self.assertEqual(msgs[0].level, messages.WARNING)
+        self.assertEqual(msgs[0].message, "Unknown time zone Canada/Toronto")
+        self.assertEqual(msgs[1].level, messages.SUCCESS)
+        self.assertEqual(msgs[1].message, "1 iCal events loaded")
+
+
+
 # ------------------------------------------------------------------------------
 class TestUpdate(TestCase):
     @freeze_timetz("2018-02-01 13:00")
