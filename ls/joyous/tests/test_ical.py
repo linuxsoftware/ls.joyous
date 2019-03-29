@@ -104,7 +104,7 @@ END:VCALENDAR""")
         self.assertEqual(event.slug,       "weekly-hack-night")
         self.assertEqual(event.title,      "Weekly Hack Night")
         self.assertEqual(event.details,    "\n".join(["Code for Boston",
-                                                      "Tuesday, July 24 at 7:00 PM", "",
+            "Tuesday, July 24 at 7:00 PM", "",
             "Our weekly work session will be at the Cambridge Innovation Center in Kendall Square"
             ", on the FOURTH FLOOR, in the CAFE. These Hack Nights are our time...", "",
             "https://www.meetup.com/Code-for-Boston/events/249894034/"]))
@@ -367,6 +367,53 @@ END:VCALENDAR
         self.assertEqual(bigThur.time_to,    dt.time(8,30))
         self.assertEqual(bigThur.when,       "Thursday 26th of July at 9am to 8:30pm")
 
+    @freeze_time("2018-02-01")
+    @timezone.override("Pacific/Auckland")
+    def testUtc2Local(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Test Data
+X-WR-TIMEZONE:Australia/Sydney
+X-WR-CALDESC:Sample data for Joyous test_ical unittest
+BEGIN:VEVENT
+DTSTART:20180725T210000Z
+DTEND:20180726T083000Z
+DTSTAMP:20180722T060025Z
+UID:1uas8vo82gvhtn8jpr9nlnrmfk@google.com
+CREATED:20180722T035919Z
+DESCRIPTION:Hounit <b>catlike</b> at ethatial to thin a usistiques onshiend
+  alits mily tente duse prommuniss ind sedships itommunte of perpollood.
+LAST-MODIFIED:20180722T035919Z
+LOCATION:
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Big Thursday
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream, utc2local=True)
+        events = getAllEvents(request, home=self.calendar)
+        self.assertEqual(len(events), 1)
+        bigThur = events[0]
+        self.assertEqual(bigThur.owner,      self.user)
+        self.assertEqual(bigThur.slug,       "big-thursday")
+        self.assertEqual(bigThur.title,      "Big Thursday")
+        self.assertEqual(bigThur.details,
+            "Hounit <b>catlike</b> at ethatial to thin a usistiques onshiend "
+            "alits mily tente duse prommuniss ind sedships itommunte of perpollood.")
+        self.assertEqual(bigThur.tz.zone,    "Australia/Sydney")
+        self.assertEqual(bigThur.date_from,  dt.date(2018,7,26))
+        self.assertEqual(bigThur.time_from,  dt.time(7))
+        self.assertEqual(bigThur.date_to,    dt.date(2018,7,26))
+        self.assertEqual(bigThur.time_to,    dt.time(18,30))
+        self.assertEqual(bigThur.when,       "Thursday 26th of July at 9am to 8:30pm")
+
     def testOutlook(self):
         stream = BytesIO(rb"""
 BEGIN:VCALENDAR
@@ -559,8 +606,7 @@ class TestServe(TestCase):
         self.assertIn(b"URL:http://joy.test/events/mercy-dice-run", response.content)
 
     def testServePage(self):
-        response = self.handler.serve(self.home,
-                                      self._getRequest("/"))
+        response = self.handler.serve(self.home, self._getRequest("/"))
         self.assertIsNone(response)
 
 # ------------------------------------------------------------------------------

@@ -355,8 +355,6 @@ class Test(TestCase):
         self.assertEqual(msgs[1].level, messages.SUCCESS)
         self.assertEqual(msgs[1].message, "1 iCal events loaded")
 
-
-
 # ------------------------------------------------------------------------------
 class TestUpdate(TestCase):
     @freeze_timetz("2018-02-01 13:00")
