@@ -245,7 +245,7 @@ class vDt(vDDDTypes):
             if hasattr(value, 'dt'):
                 value = value.dt
             if type(value) == dt.date and inclusive:
-                value += value.timedelta(days=1)
+                value += dt.timedelta(days=1)
             super().__init__(value)
 
     def __bool__(self):
@@ -291,14 +291,17 @@ class vDt(vDDDTypes):
             return tzinfo.tzname(None)
 
     def timezone(self):
-        zone = self.zone()
-        if zone:
+        tzinfo = self.tzinfo()
+        if hasattr(tzinfo, 'zone'):
             try:
-                return pytz.timezone(zone)
+                # Return the timezone unbound from the datetime
+                return pytz.timezone(tzinfo.zone)
             except pytz.exceptions.UnknownTimeZoneError as e:
                 raise CalendarTypeError(str(e)) from e
-        # TODO: Allow 'floating' times?
-        return timezone.get_current_timezone()
+        elif tzinfo is not None:
+            return tzinfo
+        else:
+            return timezone.get_current_timezone()
 
 class vSmart(vText):
     """Text property that automatically decodes encoded strings"""
@@ -405,11 +408,7 @@ class VEventFactory:
                 dtend = props['DTEND'] = vDt(dtstart.dt + duration.dt)
         else:
             if not dtend:
-                if type(dtstart.dt) == dt.date:
-                    dtend = vDt(dtstart.dt + dt.timedelta(days=1))
-                else:
-                    dtend = dtstart
-                props['DTEND'] = dtend
+                dtend = props['DTEND'] = vDt(dtstart, inclusive=True)
         if type(dtstart.dt) != type(dtend.dt):
             raise CalendarTypeError("DTSTART and DTEND types do not match")
         if dtstart.timezone() != dtend.timezone():

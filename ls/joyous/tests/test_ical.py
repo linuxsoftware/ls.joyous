@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Test ical Format
-# see also test_vevents.py and test_icalendar.py
+# see also test_vevents.py, test_vutils.py and test_vcalendar.py
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
@@ -546,7 +546,7 @@ END:VCALENDAR
         self.assertEqual(event.time_to,    dt.time(10))
 
 # ------------------------------------------------------------------------------
-class TestServe(TestCase):
+class TestExport(TestCase):
     def setUp(self):
         Site.objects.update(hostname="joy.test")
         self.home = Page.objects.get(slug='home')
