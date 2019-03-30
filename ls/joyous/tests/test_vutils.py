@@ -51,7 +51,7 @@ class TestVDt(TestCase):
         self.assertEqual(v.time(), mo.time())
         self.assertEqual(v.datetime(), mo)
         self.assertEqual(v.tzinfo(), mo.tzinfo)
-        self.assertEqual(v.zone(), "UTC+00:00")
+        self.assertEqual(v.zone()[:3], "UTC") # changed in Python 3.6
         self.assertEqual(v.timezone(), dt.timezone.utc)
 
     def testAwareDt(self):
