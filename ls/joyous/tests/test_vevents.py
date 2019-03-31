@@ -12,7 +12,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, CancellationPage)
 from ls.joyous.utils.recurrence import Recurrence
-from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.ical import SimpleVEvent, MultidayVEvent, RecurringVEvent
 from freezegun import freeze_time
 

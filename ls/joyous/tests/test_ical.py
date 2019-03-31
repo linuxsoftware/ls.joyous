@@ -545,6 +545,64 @@ END:VCALENDAR
         self.assertEqual(event.time_from,  dt.time(7))
         self.assertEqual(event.time_to,    dt.time(10))
 
+    def testUntilTZ(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:djm6809@gmail.com
+X-WR-TIMEZONE:Pacific/Auckland
+BEGIN:VTIMEZONE
+TZID:America/New_York
+X-LIC-LOCATION:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=America/New_York:20310101T050000
+DTEND;TZID=America/New_York:20310101T070000
+RRULE:FREQ=DAILY;UNTIL=20310108T045959Z
+DTSTAMP:20190331T203301Z
+UID:566vrur2ldqkvardnrb6tfrbdu@google.com
+CREATED:20190331T200304Z
+DESCRIPTION:New Year resolution
+LAST-MODIFIED:20190331T203219Z
+LOCATION:New York\, NY\, USA
+SEQUENCE:5
+STATUS:CONFIRMED
+SUMMARY:Exercise
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        events = self.calendar.get_children()
+        self.assertEqual(len(events), 1)
+        event = events[0].specific
+
+        self.assertIs(type(event),         RecurringEventPage)
+        self.assertEqual(event.slug,       "exercise")
+        self.assertEqual(event.tz.zone,    "America/New_York")
+        self.assertEqual(event.time_from,  dt.time(5))
+        self.assertEqual(event.time_to,    dt.time(7))
+        self.assertEqual(event.repeat.getCount(), 7)
+        self.assertTrue(event._occursOn(dt.date(2031,1,1)))
+        self.assertFalse(event._occursOn(dt.date(2031,1,8)))
+
 # ------------------------------------------------------------------------------
 class TestExport(TestCase):
     def setUp(self):

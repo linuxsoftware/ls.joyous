@@ -604,7 +604,11 @@ class RecurringVEvent(VEvent):
         vevent.vchildren, exDates = cls.__getExceptions(page)
         if exDates:
             vevent.set('EXDATE', exDates)
-        vevent.set('RRULE', vRecur.from_ical(page.repeat._getRrule()))
+        until = page.repeat.until
+        if until:
+            until = getAwareDatetime(until, dt.time.max, dtend.tzinfo)
+            until = until.astimezone(pytz.utc)
+        vevent.set('RRULE', vRecur.from_ical(page.repeat._getRrule(until)))
         return vevent
 
     @classmethod
@@ -647,9 +651,9 @@ class RecurringVEvent(VEvent):
         dtend    = self['DTEND']
         rrule = self['RRULE']
         until = vDt(rrule.get('UNTIL', [None])[0])
-        # FIXME: UNTIL might be in UTC or some other TZ that's not the DTSTART TZ
         if until:
-            rrule['UNTIL'] = [until.date()]
+            untilDt = until.datetime().astimezone(dtstart.timezone())
+            rrule['UNTIL'] = [untilDt.date()]
         page.details    = str(self.get('DESCRIPTION', ""))
         page.location   = str(self.get('LOCATION', ""))
         page.repeat     = Recurrence(rrule.to_ical().decode(),

@@ -212,6 +212,15 @@ class TestTimeZoneSpan(TestCase):
                  b"END:STANDARD", ])
         self.assertIn(nzst, export)
 
+    # def testOverlapping(self):
+    #     tz = pytz.timezone("Pacific/Auckland")
+    #     vev = Event(Summary = "Fair",
+    #                 dtstart = timezone.make_aware(dt.datetime(2016, 4, 1, 10), tz),
+    #                 dtend   = timezone.make_aware(dt.datetime(2016, 4, 1, 14), tz),
+    #                 rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=MO;UNTIL="))
+    #     span = TimeZoneSpan(vev)
+    #     vev = Event(Summary = "Saturday Brunch",
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

@@ -186,10 +186,10 @@ class Recurrence(rrulebase):
         for occurence in self.rule._iter():
             yield occurence.date()
 
+    # __len__() introduces a large performance penality.
     def getCount(self):
         """
         How many occurrences will be generated.
-        The use of the until keyword together with the count keyword is deprecated.
         """
         return self.rule.count()
 
@@ -201,7 +201,10 @@ class Recurrence(rrulebase):
         retval = dtstart + rrule
         return retval
 
-    def _getRrule(self):
+    def _getRrule(self, untilDt=None):
+        # untilDt is the UTC datetime version of self.until
+        if untilDt and untilDt.utcoffset() != dt.timedelta(0):
+            raise TypeError("untilDt must be a UTC datetime")
         parts = ["FREQ={}".format(self.frequency)]
         if self.interval and self.interval != 1:
             parts.append("INTERVAL={}".format(self.interval))
@@ -209,7 +212,9 @@ class Recurrence(rrulebase):
             parts.append("WKST={!r}".format(self.wkst))
         if self.count:
             parts.append("COUNT={}".format(self.count))
-        if self.until:
+        if untilDt:
+            parts.append("UNTIL={:%Y%m%dT%H%M%SZ}".format(untilDt))
+        elif self.until:
             parts.append("UNTIL={:%Y%m%d}".format(self.until))
         for name, value in [('BYSETPOS',   self.bysetpos),
                             ('BYDAY',      self.byweekday),
