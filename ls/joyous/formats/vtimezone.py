@@ -76,14 +76,24 @@ def create_timezone(tz, first_date=None, last_date=None):
     timezone = icalendar.Timezone()
     timezone.add('TZID', tz)
 
-    dst = {
-        one[2]: 'DST' in two.__repr__()
-        for one, two in iter(tz._tzinfos.items())
-    }
-    bst = {
-        one[2]: 'BST' in two.__repr__()
-        for one, two in iter(tz._tzinfos.items())
-    }
+    # This is not a reliable way of determining if a transition is for
+    # daylight savings.
+    # From 1927 to 1941 New Zealand had GMT+11:30 (NZ Mean Time) as standard
+    # and GMT+12:00 (NZ Summer Time) as daylight savings time.
+    # From 1941 GMT+12:00 (NZ Standard Time) became standard time.
+    # So NZST (NZ Summer/Standard Time) can refer to standard or daylight
+    # savings time.  And this code depends on the random order the _tzinfos
+    # are returned.
+    # dst = {
+    #     one[2]: 'DST' in two.__repr__()
+    #     for one, two in iter(tz._tzinfos.items())
+    # }
+    # bst = {
+    #     one[2]: 'BST' in two.__repr__()
+    #     for one, two in iter(tz._tzinfos.items())
+    # }
+    # ...
+    #   if dst[name] or bst[name]:
 
     # looking for the first and last transition time we need to include
     first_num, last_num = 0, len(tz._utc_transition_times) - 1
@@ -109,7 +119,7 @@ def create_timezone(tz, first_date=None, last_date=None):
                 timezones[name].add('RDATE', ttime)
             continue
 
-        if dst[name] or bst[name]:
+        if tz._transition_info[num][1]:
             subcomp = icalendar.TimezoneDaylight()
         else:
             subcomp = icalendar.TimezoneStandard()

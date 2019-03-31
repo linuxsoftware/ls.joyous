@@ -332,15 +332,19 @@ class TimeZoneSpan:
 
     def add(self, vevent):
         firstDt = vDt(vevent['DTSTART']).datetime()
-        lastDt  = vDt(vevent.get('DTEND')).datetime(dt.time.max)
-        if not lastDt:
-            lastDt = firstDt + dt.timedelta(days=2) # it's a guess
+        lastDt  = vDt(vevent['DTEND']).datetime(dt.time.max)
 
-        # use until if it is available
         rrule = vevent.get('RRULE', {})
-        untilDt = vDt(rrule.get('UNTIL', [None])[0]).datetime(dt.time.max)
-        if untilDt and untilDt > lastDt:
-            lastDt = untilDt
+        if rrule:
+            # use until if it is available
+            untilDt = vDt(rrule.get('UNTIL', [None])[0]).datetime(dt.time.max)
+            if untilDt:
+                lastDt = untilDt
+            else:
+                # pytz.timezones doesn't know any transition dates after 2038
+                # either -- icalendar/src/icalendar/cal.py:526
+                # using replace to keep the tzinfo
+                lastDt = lastDt.replace(year=2038, month=12, day=31)
 
         if self.firstDt is None or firstDt < self.firstDt:
             self.firstDt = firstDt
@@ -643,6 +647,7 @@ class RecurringVEvent(VEvent):
         dtend    = self['DTEND']
         rrule = self['RRULE']
         until = vDt(rrule.get('UNTIL', [None])[0])
+        # FIXME: UNTIL might be in UTC or some other TZ that's not the DTSTART TZ
         if until:
             rrule['UNTIL'] = [until.date()]
         page.details    = str(self.get('DESCRIPTION', ""))
