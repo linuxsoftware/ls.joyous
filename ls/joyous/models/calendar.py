@@ -112,7 +112,7 @@ class CalendarPage(RoutablePageMixin, Page):
         verbose_name = _("calendar page")
         verbose_name_plural = _("calendar pages")
 
-    EventsPerPage = 25
+    EventsPerPage = getattr(settings, "JOYOUS_EVENTS_PER_PAGE", 25)
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage',

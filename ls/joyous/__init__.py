@@ -15,4 +15,5 @@ default_app_config = 'ls.joyous.apps.JoyousAppConfig'
 # settings.JOYOUS_HOLIDAYS = ""
 # settings.JOYOUS_GROUP_SELECTABLE = False
 # settings.JOYOUS_GROUP_MODEL = "joyous.GroupPage"
-# settings.JOYOUS_TIME_INPUT = "12"
+# settings.JOYOUS_TIME_INPUT = "24"
+# settings.JOYOUS_EVENTS_PER_PAGE = 25
