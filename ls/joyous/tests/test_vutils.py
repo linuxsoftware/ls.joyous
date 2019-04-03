@@ -4,13 +4,14 @@
 import sys
 import datetime as dt
 import pytz
-from icalendar import vDatetime
 from django.test import TestCase
 from django.utils import timezone
-from icalendar import vDatetime, vDate, vRecur, vDDDTypes, vText, Event
+from wagtail.core.models import Page
+from icalendar import vDatetime, vDate, vRecur, vDDDTypes, vText
 from ls.joyous.utils.telltime import getLocalDatetime
 from ls.joyous.formats.ical import (vDt, vSmart, TimeZoneSpan, VMatch,
-                                    CalendarTypeError)
+                                    VEventFactory, CalendarTypeError,
+                                    Event, VEvent, SimpleVEvent)
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------
@@ -71,8 +72,9 @@ class TestVDt(TestCase):
         self.assertEqual(v.timezone(), pytz.timezone("Pacific/Chatham"))
 
     def testUnknownTZDt(self):
-        mo = timezone.make_aware(dt.datetime(2013, 4, 25, 6, 0))
-        mo.tzinfo.zone = "Japan/Edo"
+        tz = pytz.FixedOffset(540)
+        tz.zone = "Japan/Edo"
+        mo = timezone.make_aware(dt.datetime(2013, 4, 25, 6, 0), tz)
         v = vDt(mo)
         self.assertTrue(v)
         self.assertEqual(v, mo)
@@ -130,6 +132,16 @@ class TestVSmart(TestCase):
         self.assertEqual(str(v), "ġedæġhwāmlīcan")
 
 # ------------------------------------------------------------------------------
+def addProps(vev, **kwargs):
+    dtProps = {'dtstart', 'dtend', 'dtstamp', 'created', 'last-modified'}
+    for prop, v in kwargs.items():
+        if prop in dtProps:
+            if not hasattr(v, 'dt'):
+                v = vDt(v)
+            vev.add(prop, v)
+        else:
+            vev.add(prop, v)
+
 class TestTimeZoneSpan(TestCase):
     def testEmpty(self):
         span = TimeZoneSpan()
@@ -138,9 +150,12 @@ class TestTimeZoneSpan(TestCase):
 
     def test1LunchTime(self):
         tz = pytz.timezone("Pacific/Auckland")
-        vev = Event(summary = "Friday lunch",
-                    dtstart = timezone.make_aware(dt.datetime(1996, 3, 1, 12), tz),
-                    dtend   = timezone.make_aware(dt.datetime(1996, 3, 1, 13), tz))
+        vev = SimpleVEvent()
+        addProps(vev,
+                 summary = "Friday lunch",
+                 uid = "1800",
+                 dtstart = timezone.make_aware(dt.datetime(1996, 3, 1, 12), tz),
+                 dtend   = timezone.make_aware(dt.datetime(1996, 3, 1, 13), tz))
         span = TimeZoneSpan(vev)
         vtz = span.createVTimeZone(tz)
         self.assertEqual(vtz['TZID'], "Pacific/Auckland")
@@ -164,14 +179,16 @@ class TestTimeZoneSpan(TestCase):
 
     def testLunchTimes(self):
         tz = pytz.timezone("Pacific/Auckland")
-        vev = Event(Summary = "All lunch times",
-                    dtstart = timezone.make_aware(dt.datetime(1996, 3, 1, 12), tz),
-                    dtend   = timezone.make_aware(dt.datetime(1996, 3, 1, 13), tz),
-                    rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR"))
+        vev = SimpleVEvent()
+        addProps(vev, summary = "All lunch times", uid = "999",
+                 dtstart = timezone.make_aware(dt.datetime(1996, 3, 1, 12), tz),
+                 dtend   = timezone.make_aware(dt.datetime(1996, 3, 1, 13), tz),
+                 rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR"))
         span = TimeZoneSpan(vev)
-        vev = Event(Summary = "Saturday Brunch",
-                    dtstart = timezone.make_aware(dt.datetime(2019, 6, 4, 10), tz),
-                    dtend   = timezone.make_aware(dt.datetime(2019, 6, 4, 11, 30), tz))
+        vev = SimpleVEvent()
+        addProps(vev, summary = "Saturday Brunch", uid = "2000",
+                 dtstart = timezone.make_aware(dt.datetime(2019, 6, 4, 10), tz),
+                 dtend   = timezone.make_aware(dt.datetime(2019, 6, 4, 11, 30), tz))
         span.add(vev)
         vtz = span.createVTimeZone(tz)
         self.assertEqual(vtz['TZID'], "Pacific/Auckland")
@@ -212,14 +229,185 @@ class TestTimeZoneSpan(TestCase):
                  b"END:STANDARD", ])
         self.assertIn(nzst, export)
 
-    # def testOverlapping(self):
-    #     tz = pytz.timezone("Pacific/Auckland")
-    #     vev = Event(Summary = "Fair",
-    #                 dtstart = timezone.make_aware(dt.datetime(2016, 4, 1, 10), tz),
-    #                 dtend   = timezone.make_aware(dt.datetime(2016, 4, 1, 14), tz),
-    #                 rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=MO;UNTIL="))
-    #     span = TimeZoneSpan(vev)
-    #     vev = Event(Summary = "Saturday Brunch",
+    def testOverlapping(self):
+        tz = pytz.timezone("Pacific/Auckland")
+        vev = SimpleVEvent()
+        addProps(vev, summary = "Storytelling", uid = "1000",
+                 dtstart = timezone.make_aware(dt.datetime(2016, 4, 5, 10), tz),
+                 dtend   = timezone.make_aware(dt.datetime(2016, 4, 5, 11), tz),
+                 rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=TU;UNTIL=20160519"))
+        span = TimeZoneSpan(vev)
+        vev = SimpleVEvent()
+        addProps(vev, summary = "Parade", uid = "1002",
+                 dtstart = timezone.make_aware(dt.datetime(2016, 4, 5, 9), tz),
+                 dtend   = timezone.make_aware(dt.datetime(2016, 4, 5, 13), tz))
+        span.add(vev)
+        vtz = span.createVTimeZone(tz)
+        self.assertEqual(vtz['TZID'], "Pacific/Auckland")
+        export = vtz.to_ical()
+        nzdt = b"\r\n".join([
+                 b"BEGIN:DAYLIGHT",
+                 b"DTSTART;VALUE=DATE-TIME:20160925T030000",
+                 b"TZNAME:NZDT",
+                 b"TZOFFSETFROM:+1200",
+                 b"TZOFFSETTO:+1300",
+                 b"END:DAYLIGHT", ])
+        self.assertIn(nzdt, export)
+        nzst = b"\r\n".join([
+                 b"BEGIN:STANDARD",
+                 b"DTSTART;VALUE=DATE-TIME:20160403T020000",
+                 b"TZNAME:NZST",
+                 b"TZOFFSETFROM:+1300",
+                 b"TZOFFSETTO:+1200",
+                 b"END:STANDARD", ])
+        self.assertIn(nzst, export)
+
+# ------------------------------------------------------------------------------
+class TestVMatch(TestCase):
+    def testEmpty(self):
+        match = VMatch()
+        self.assertIs(match.parent, None)
+        self.assertEqual(match.orphans, [])
+
+    def testDuplicate(self):
+        match = VMatch()
+        vev1 = SimpleVEvent()
+        addProps(vev1, summary = "Event1", uid = "1234",
+                 dtstart = dt.datetime(2016, 4, 5, 9),
+                 dtend   = dt.datetime(2016, 4, 5, 13))
+        match.add(vev1)
+        vev2 = SimpleVEvent()
+        addProps(vev2, summary = "Event2", uid = "1234",
+                 dtstart = dt.datetime(2016, 4, 5, 9),
+                 dtend   = dt.datetime(2016, 4, 5, 13))
+        with self.assertRaises(VMatch.DuplicateError):
+            match.add(vev2)
+
+# ------------------------------------------------------------------------------
+class TestVEventFactory(TestCase):
+    def setUp(self):
+        self.factory = VEventFactory()
+
+    def testMissingUid(self):
+        props = Event()
+        addProps(props, summary = "Event",
+                 dtstart = dt.datetime(2016, 4, 5, 9),
+                 dtend   = dt.datetime(2016, 4, 5, 13))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "Missing UID")
+
+    def testMissingDtstamp(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart = dt.datetime(2016, 4, 5, 9),
+                 dtend   = dt.datetime(2016, 4, 5, 13))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "Missing DTSTAMP")
+
+    def testMissingDtstart(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtend   = dt.datetime(2016, 4, 5, 13),
+                 dtstamp = dt.datetime(2016, 4, 5, 13))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "Missing DTSTART")
+
+    def testDtendAndDuration(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = dt.datetime(2016, 4, 5, 9),
+                 dtend    = dt.datetime(2016, 4, 5, 13),
+                 dtstamp  = dt.datetime(2016, 4, 5, 13),
+                 duration = dt.timedelta(2))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "Both DURATION and DTEND set")
+
+    def testDtstartDtendTypes(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = dt.datetime(2016, 4, 5, 9),
+                 dtend    = dt.date(2016, 4, 5),
+                 dtstamp  = dt.datetime(2016, 4, 5, 13))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "DTSTART and DTEND types do not match")
+
+    def testDiffTZsDtstartDtEnd(self):
+        tz1 = pytz.timezone("Pacific/Auckland")
+        tz2 = pytz.timezone("Australia/Sydney")
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = timezone.make_aware(dt.datetime(2016, 6, 1, 7), tz1),
+                 dtend    = timezone.make_aware(dt.datetime(2016, 6, 1, 8), tz2),
+                 dtstamp  = timezone.make_aware(dt.datetime(2016, 6, 1, 8), tz2))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "DTSTART.timezone != DTEND.timezone")
+
+    def testMultipleRRules(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = dt.datetime(2016, 4, 5, 9),
+                 dtend    = dt.datetime(2016, 4, 5, 13),
+                 dtstamp  = dt.datetime(2016, 4, 5, 13),
+                 rrule   = vRecur.from_ical("FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR"))
+        props.add('rrule', vRecur.from_ical("FREQ=MONTHLY;WKST=SU;BYDAY=-1SA,-1SU"))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception), "Multiple RRULEs")
+
+    def testDiffTZsDtstartRecurrenceId(self):
+        tz1 = pytz.timezone("Pacific/Auckland")
+        tz2 = pytz.timezone("Australia/Sydney")
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = timezone.make_aware(dt.datetime(2016, 6, 1, 7), tz1),
+                 dtend    = timezone.make_aware(dt.datetime(2016, 6, 1, 10), tz1),
+                 dtstamp  = timezone.make_aware(dt.datetime(2016, 6, 1, 8), tz2))
+        props.add('RECURRENCE-ID', timezone.make_aware(dt.datetime(2016, 6, 1, 8), tz2))
+        with self.assertRaises(CalendarTypeError) as expected:
+            self.factory.makeFromProps(props, None)
+        self.assertEqual(str(expected.exception),
+                         "DTSTART.timezone != RECURRENCE-ID.timezone")
+
+    def testWholeDayEvent(self):
+        props = Event(summary = "Event", uid = "1234")
+        props.add('dtstart', dt.date(2017, 6, 5))
+        props.add('dtend',   dt.date(2017, 6, 6))
+        props.add('dtstamp', vDt(timezone.make_aware(dt.datetime(2016, 6, 7, 8))))
+        vev = self.factory.makeFromProps(props, None)
+        self.assertIs(type(vev), SimpleVEvent)
+
+    def test1hrDuration(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = timezone.make_aware(dt.datetime(2016, 6, 1, 7)),
+                 duration = dt.timedelta(hours=1),
+                 dtstamp  = timezone.make_aware(dt.datetime(2016, 6, 1, 8)))
+        vev = self.factory.makeFromProps(props, None)
+        self.assertIs(type(vev), SimpleVEvent)
+        self.assertEqual(vev['DTSTART'], timezone.make_aware(dt.datetime(2016, 6, 1, 7)))
+        self.assertEqual(vev['DTEND'],   timezone.make_aware(dt.datetime(2016, 6, 1, 8)))
+
+    def testNoDuration(self):
+        props = Event()
+        addProps(props, summary = "Event", uid = "1234",
+                 dtstart  = dt.date(2016, 6, 1),
+                 dtstamp  = timezone.make_aware(dt.datetime(2016, 6, 1, 8)))
+        vev = self.factory.makeFromProps(props, None)
+        self.assertIs(type(vev), SimpleVEvent)
+        self.assertEqual(vev['DTSTART'], dt.date(2016, 6, 1))
+        self.assertEqual(vev['DTEND'],   dt.date(2016, 6, 2))
+
+    def testUnsupportedPageType(self):
+        page = Page(title = "Event", slug = "event")
+        with self.assertRaises(CalendarTypeError) as expected:
+            vev = self.factory.makeFromPage(page)
+        self.assertEqual(str(expected.exception), "Unsupported page type")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

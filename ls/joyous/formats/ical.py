@@ -292,7 +292,7 @@ class vDt(vDDDTypes):
 
     def timezone(self):
         tzinfo = self.tzinfo()
-        if hasattr(tzinfo, 'zone'):
+        if getattr(tzinfo, 'zone', None):
             try:
                 # Return the timezone unbound from the datetime
                 return pytz.timezone(tzinfo.zone)

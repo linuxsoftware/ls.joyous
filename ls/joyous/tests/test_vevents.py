@@ -13,8 +13,16 @@ from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, CancellationPage)
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, SA
-from ls.joyous.formats.ical import SimpleVEvent, MultidayVEvent, RecurringVEvent
+from ls.joyous.formats.ical import (SimpleVEvent, MultidayVEvent, RecurringVEvent,
+                                    VEventFactory, VEvent)
 from freezegun import freeze_time
+
+# ------------------------------------------------------------------------------
+class TestBase(TestCase):
+    def testMakePage(self):
+        vev = VEvent()
+        with self.assertRaises(NotImplementedError):
+            vev.makePage()
 
 # ------------------------------------------------------------------------------
 class TestSimple(TestCase):
@@ -40,7 +48,8 @@ class TestSimple(TestCase):
                                tz = pytz.timezone("Australia/Sydney"))
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = SimpleVEvent.fromPage(page)
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), SimpleVEvent)
         tz = pytz.timezone("Australia/Sydney")
         self.assertEqual(vev['dtstart'].dt,
                          tz.localize(dt.datetime(1987,6,5,11,0)))
@@ -68,7 +77,8 @@ class TestMultiday(TestCase):
                                  tz = pytz.timezone("Pacific/Niue"))
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = MultidayVEvent.fromPage(page)
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), MultidayVEvent)
         tz = pytz.timezone("Pacific/Niue")
         self.assertEqual(vev['dtstart'].dt,
                          tz.localize(dt.datetime(2018,3,16,0,0)))
@@ -103,7 +113,8 @@ class TestRecurring(TestCase):
                                   location  = "4th Floor, 1 Broadway, Cambridge, MA")
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = RecurringVEvent.fromPage(page)
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), RecurringVEvent)
         vev.set('UID', "this-is-not-a-unique-identifier")
         codeForBoston = b"\r\n".join([
                 b"BEGIN:VEVENT",
@@ -152,7 +163,8 @@ class TestRecurring(TestCase):
                                         except_date = dt.date(2018,7,14))
         page.add_child(instance=except2)
         except2.save_revision().publish()
-        vev = RecurringVEvent.fromPage(page)
+        vev = VEventFactory().makeFromPage(except1)
+        self.assertIs(type(vev), RecurringVEvent)
         vev.set('UID', "this-is-not-a-unique-identifier")
         tz = pytz.timezone("Pacific/Auckland")
         exDates = [exDate.dt for exDate in vev['EXDATE'].dts]
