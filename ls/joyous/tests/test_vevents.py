@@ -10,11 +10,12 @@ from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage)
+        RecurringEventPage, CancellationPage, ExtraInfoPage, PostponementPage)
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.ical import (SimpleVEvent, MultidayVEvent, RecurringVEvent,
-                                    VEventFactory, VEvent)
+                                    ExtraInfoVEvent, PostponementVEvent,
+                                    CancellationVEvent, VEventFactory, VEvent)
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------
@@ -106,7 +107,8 @@ class TestRecurring(TestCase):
                                   title = "Code for Boston",
                                   repeat    = Recurrence(dtstart=dt.date(2017,1,1),
                                                          freq=WEEKLY,
-                                                         byweekday=[TU]),
+                                                         byweekday=[TU],
+                                                         until=dt.date(2017,12,26)),
                                   time_from = dt.time(19),
                                   time_to   = dt.time(21,30),
                                   tz = pytz.timezone("US/Eastern"),
@@ -124,7 +126,7 @@ class TestRecurring(TestCase):
                 b"DTSTAMP:20170815T000000Z",
                 b"UID:this-is-not-a-unique-identifier",
                 b"SEQUENCE:1",
-                b"RRULE:FREQ=WEEKLY;BYDAY=TU;WKST=SU",
+                b"RRULE:FREQ=WEEKLY;UNTIL=20171227T045959Z;BYDAY=TU;WKST=SU",
                 b"CREATED:20170815T000000Z",
                 b"DESCRIPTION:",
                 b"LAST-MODIFIED:20170815T000000Z",
@@ -187,6 +189,152 @@ class TestRecurring(TestCase):
                                 b"END:VEVENT",
                                 b""])
         self.assertEqual(vev.to_ical(), sleepIn)
+
+    @freeze_time("2017-05-15")
+    def testExtraInfo(self):
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "code-for-boston",
+                                  title = "Code for Boston",
+                                  repeat    = Recurrence(dtstart=dt.date(2017,1,1),
+                                                         freq=WEEKLY,
+                                                         byweekday=[TU],
+                                                         until=dt.date(2017,12,26)),
+                                  time_from = dt.time(19),
+                                  time_to   = dt.time(21,30),
+                                  tz = pytz.timezone("US/Eastern"),
+                                  location  = "4th Floor, 1 Broadway, Cambridge, MA")
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        info = ExtraInfoPage(owner = self.user,
+                                  slug  = "2017-06-06-extra-info",
+                                  title = "Extra Information for Tuesday 6th of June",
+                                  overrides = page,
+                                  except_date = dt.date(2017,6,6),
+                                  extra_title = "Handling Time Zones with Python")
+        page.add_child(instance=info)
+        info.save_revision().publish()
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), RecurringVEvent)
+        vev.set('UID', "this-is-not-a-unique-identifier")
+        codeForBoston = b"\r\n".join([
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Code for Boston",
+                b"DTSTART;TZID=US/Eastern:20170103T190000",
+                b"DTEND;TZID=US/Eastern:20170103T213000",
+                b"DTSTAMP:20170515T000000Z",
+                b"UID:this-is-not-a-unique-identifier",
+                b"SEQUENCE:1",
+                b"RRULE:FREQ=WEEKLY;UNTIL=20171227T045959Z;BYDAY=TU;WKST=SU",
+                b"CREATED:20170515T000000Z",
+                b"DESCRIPTION:",
+                b"LAST-MODIFIED:20170515T000000Z",
+                b"LOCATION:4th Floor\\, 1 Broadway\\, Cambridge\\, MA",
+                b"URL:http://joy.test/events/code-for-boston/",
+                b"END:VEVENT",
+                b""])
+        self.assertEqual(vev.to_ical(), codeForBoston)
+        self.assertEqual(len(vev.vchildren), 1)
+        vchild = vev.vchildren[0]
+        vchild.set('UID', "this-is-not-a-unique-identifier")
+        self.assertIs(type(vchild), ExtraInfoVEvent)
+        talk = b"\r\n".join([
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Handling Time Zones with Python",
+                b"DTSTART;TZID=US/Eastern:20170606T190000",
+                b"DTEND;TZID=US/Eastern:20170606T213000",
+                b"DTSTAMP:20170515T000000Z",
+                b"UID:this-is-not-a-unique-identifier",
+                b"RECURRENCE-ID;TZID=US/Eastern:20170606T190000",
+                b"SEQUENCE:1",
+                b"CREATED:20170515T000000Z",
+                b"DESCRIPTION:",
+                b"LAST-MODIFIED:20170515T000000Z",
+                b"LOCATION:4th Floor\\, 1 Broadway\\, Cambridge\\, MA",
+                b"URL:http://joy.test/events/code-for-boston/2017-06-06-extra-info/" ,
+                b"END:VEVENT",
+                b""])
+        self.assertEqual(vchild.to_ical(), talk)
+
+    @freeze_time("2017-05-15")
+    def testPostponement(self):
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "code-for-boston",
+                                  title = "Code for Boston",
+                                  repeat    = Recurrence(dtstart=dt.date(2017,1,1),
+                                                         freq=WEEKLY,
+                                                         byweekday=[TU],
+                                                         until=dt.date(2017,12,26)),
+                                  time_from = dt.time(19),
+                                  time_to   = dt.time(21,30),
+                                  tz = pytz.timezone("US/Eastern"),
+                                  location  = "4th Floor, 1 Broadway, Cambridge, MA")
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        post = PostponementPage(owner = self.user,
+                                slug  = "2017-06-13-postponement",
+                                title = "Postponement for Tuesday 13th of June",
+                                postponement_title = "Code for Boston (on Weds)",
+                                overrides = page,
+                                except_date = dt.date(2017,6,13),
+                                date = dt.date(2017,6,14)
+                                )
+        page.add_child(instance=post)
+        post.save_revision().publish()
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), RecurringVEvent)
+        self.assertEqual(len(vev.vchildren), 1)
+        vchild = vev.vchildren[0]
+        vchild.set('UID', "this-is-not-a-unique-identifier")
+        self.assertIs(type(vchild), PostponementVEvent)
+        talk = b"\r\n".join([
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Code for Boston (on Weds)",
+                b"DTSTART;TZID=US/Eastern:20170614T000000",
+                b"DTEND;TZID=US/Eastern:20170614T235959",
+                b"DTSTAMP:20170515T000000Z",
+                b"UID:this-is-not-a-unique-identifier",
+                b"RECURRENCE-ID;TZID=US/Eastern:20170613T190000",
+                b"SEQUENCE:1",
+                b"CREATED:20170515T000000Z",
+                b"DESCRIPTION:",
+                b"LAST-MODIFIED:20170515T000000Z",
+                b"LOCATION:",
+                b"URL:http://joy.test/events/code-for-boston/2017-06-13-postponement/",
+                b"END:VEVENT",
+                b""])
+        self.assertEqual(vchild.to_ical(), talk)
+
+    @freeze_time("2017-05-15")
+    def testCancellation(self):
+        # NOTE:
+        # Cancellations are represented by EXDATE in VEVENT not as their own
+        # VEVENT instance.  Yes, this means the cancellation_title and
+        # cancellation_details are lost.
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "sleep",
+                                  title = "Sleep In",
+                                  repeat    = Recurrence(dtstart=dt.date(2018,5,1),
+                                                         freq=MONTHLY,
+                                                         byweekday=[SA(+2)]),
+                                  time_from = dt.time(7),
+                                  time_to   = dt.time(10,30),
+                                  tz = pytz.timezone("Pacific/Auckland"),
+                                  details = "<p>zzzZZZZZZZZZ</p>",
+                                  location  = "Bed")
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        except1 = CancellationPage(owner = self.user,
+                                        slug  = "2018-06-09-cancellation",
+                                        title = "Cancellation for Saturday 9th of June",
+                                        cancellation_title = "Get up early",
+                                        overrides = page,
+                                        except_date = dt.date(2018,6,9))
+        page.add_child(instance=except1)
+        except1.save_revision().publish()
+        vexcept = CancellationVEvent.fromPage(except1)
+        self.assertEqual(vexcept['SUMMARY'], "Get up early")
+        self.assertEqual(vexcept['DESCRIPTION'], "")
+        self.assertEqual(vexcept.to_ical(), b"\r\n")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
