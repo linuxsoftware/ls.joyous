@@ -14,7 +14,7 @@ from django.utils import timezone
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage)
+        RecurringEventPage, CancellationPage, MultidayRecurringEventPage)
 from ls.joyous.models import getAllEvents
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
@@ -602,6 +602,63 @@ END:VCALENDAR""")
         self.assertEqual(event.repeat.getCount(), 7)
         self.assertTrue(event._occursOn(dt.date(2031,1,1)))
         self.assertFalse(event._occursOn(dt.date(2031,1,8)))
+
+    def testMultidayRecurringEvent(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//linuxsoftware.nz//NONSGML Joyous v0.8//EN
+BEGIN:VEVENT
+SUMMARY:Bought from a Rubber Man
+DTSTART;TZID=Pacific/Auckland:20190402T160000
+DTEND;TZID=Pacific/Auckland:20190404T180000
+DTSTAMP:20190405T054311Z
+UID:e6936872-f15c-4c47-92f2-3559a6610c78
+SEQUENCE:1
+RRULE:FREQ=WEEKLY;BYDAY=TU;WKST=SU
+CREATED:20190405T054255Z
+DESCRIPTION:<p></p>
+LAST-MODIFIED:20190405T054255Z
+LOCATION:
+URL:http://localhost/calendar/bought-rubber-man/
+END:VEVENT
+BEGIN:VTIMEZONE
+TZID:Pacific/Auckland
+BEGIN:DAYLIGHT
+DTSTART;VALUE=DATE-TIME:20180930T030000
+RDATE:20190929T030000,20200927T030000,20210926T030000,20220925T030000,2023
+ 0924T030000,20240929T030000,20250928T030000,20260927T030000,20270926T03000
+ 0,20280924T030000,20290930T030000,20300929T030000,20310928T030000,20320926
+ T030000,20330925T030000,20340924T030000,20350930T030000,20360928T030000,20
+ 370927T030000
+TZNAME:NZDT
+TZOFFSETFROM:+1200
+TZOFFSETTO:+1300
+END:DAYLIGHT
+BEGIN:STANDARD
+DTSTART;VALUE=DATE-TIME:20190407T020000
+RDATE:20200405T020000,20210404T020000,20220403T020000,20230402T020000,2024
+ 0407T020000,20250406T020000,20260405T020000,20270404T020000,20280402T02000
+ 0,20290401T020000,20300407T020000,20310406T020000,20320404T020000,20330403
+ T020000,20340402T020000,20350401T020000,20360406T020000,20370405T020000
+TZNAME:NZST
+TZOFFSETFROM:+1300
+TZOFFSETTO:+1200
+END:STANDARD
+END:VTIMEZONE
+END:VCALENDAR""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        events = self.calendar.get_children()
+        self.assertEqual(len(events), 1)
+        event = events[0].specific
+
+        self.assertIs(type(event),         MultidayRecurringEventPage)
+        self.assertEqual(event.title,      "Bought from a Rubber Man")
+        self.assertEqual(event.tz.zone,    "Pacific/Auckland")
+        self.assertEqual(event.num_days,   3)
+        self.assertEqual(event.time_from,  dt.time(16))
+        self.assertEqual(event.time_to,    dt.time(18))
 
 # ------------------------------------------------------------------------------
 class TestExport(TestCase):

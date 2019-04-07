@@ -16,8 +16,8 @@ from django.http import HttpResponse
 from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
-        EventExceptionBase, ExtraInfoPage, CancellationPage, PostponementPage,
-        EventBase, CalendarPage)
+        MultidayRecurringEventPage, EventExceptionBase, ExtraInfoPage,
+        CancellationPage, PostponementPage, EventBase, CalendarPage)
 from ..utils.recurrence import Recurrence
 from ..utils.telltime import getAwareDatetime, getLocalDatetime
 from .vtimezone import create_timezone
@@ -424,7 +424,10 @@ class VEventFactory:
             if type(rrule) == list:
                 # TODO support multiple RRULEs?
                 raise CalendarTypeError("Multiple RRULEs")
-            return RecurringVEvent.fromProps(props)
+            if (dtstart.date() != dtend.date(inclusive=True)):
+                return MultidayRecurringVEvent.fromProps(props)
+            else:
+                return RecurringVEvent.fromProps(props)
 
         recurrenceId = props.get('RECURRENCE-ID')
         if recurrenceId is not None:
@@ -451,6 +454,9 @@ class VEventFactory:
 
         elif isinstance(page, MultidayEventPage):
             return MultidayVEvent.fromPage(page)
+
+        elif isinstance(page, MultidayRecurringEventPage):
+            return MultidayRecurringVEvent.fromPage(page)
 
         elif isinstance(page, RecurringEventPage):
             return RecurringVEvent.fromPage(page)
@@ -658,9 +664,14 @@ class RecurringVEvent(VEvent):
         page.location   = str(self.get('LOCATION', ""))
         page.repeat     = Recurrence(rrule.to_ical().decode(),
                                      dtstart=dtstart.date())
+        page.num_days   = (dtend.date() - dtstart.date()).days + 1
         page.time_from  = dtstart.time()
         page.time_to    = dtend.time()
         page.tz         = dtstart.timezone()
+
+# ------------------------------------------------------------------------------
+class MultidayRecurringVEvent(RecurringVEvent):
+    Page = MultidayRecurringEventPage
 
 # ------------------------------------------------------------------------------
 class ExceptionVEvent(VEvent):

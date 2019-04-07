@@ -10,12 +10,13 @@ from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage, ExtraInfoPage, PostponementPage)
+        RecurringEventPage, MultidayRecurringEventPage,
+        CancellationPage, ExtraInfoPage, PostponementPage)
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.ical import (SimpleVEvent, MultidayVEvent, RecurringVEvent,
-                                    ExtraInfoVEvent, PostponementVEvent,
-                                    CancellationVEvent, VEventFactory, VEvent)
+        MultidayRecurringVEvent, ExtraInfoVEvent, PostponementVEvent,
+        CancellationVEvent, VEventFactory, VEvent)
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ class TestSimple(TestCase):
         vev = VEventFactory().makeFromPage(page)
         self.assertIs(type(vev), SimpleVEvent)
         tz = pytz.timezone("Australia/Sydney")
-        self.assertEqual(vev['dtstart'].dt,
+        self.assertEqual(vev['DTSTART'].dt,
                          tz.localize(dt.datetime(1987,6,5,11,0)))
 
 # ------------------------------------------------------------------------------
@@ -81,9 +82,9 @@ class TestMultiday(TestCase):
         vev = VEventFactory().makeFromPage(page)
         self.assertIs(type(vev), MultidayVEvent)
         tz = pytz.timezone("Pacific/Niue")
-        self.assertEqual(vev['dtstart'].dt,
+        self.assertEqual(vev['DTSTART'].dt,
                          tz.localize(dt.datetime(2018,3,16,0,0)))
-        self.assertEqual(vev['dtend'].dt,
+        self.assertEqual(vev['DTEND'].dt,
                          tz.localize(dt.datetime(2018,3,20,23,59,59,999999)))
 
 # ------------------------------------------------------------------------------
@@ -152,17 +153,17 @@ class TestRecurring(TestCase):
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
         except1 = CancellationPage(owner = self.user,
-                                        slug  = "2018-06-09-cancellation",
-                                        title = "Cancellation for Saturday 9th of June",
-                                        overrides = page,
-                                        except_date = dt.date(2018,6,9))
+                                   slug  = "2018-06-09-cancellation",
+                                   title = "Cancellation for Saturday 9th of June",
+                                   overrides = page,
+                                   except_date = dt.date(2018,6,9))
         page.add_child(instance=except1)
         except1.save_revision().publish()
         except2 = CancellationPage(owner = self.user,
-                                        slug  = "2018-07-14-cancellation",
-                                        title = "Cancellation for Saturday 14th of July",
-                                        overrides = page,
-                                        except_date = dt.date(2018,7,14))
+                                   slug  = "2018-07-14-cancellation",
+                                   title = "Cancellation for Saturday 14th of July",
+                                   overrides = page,
+                                   except_date = dt.date(2018,7,14))
         page.add_child(instance=except2)
         except2.save_revision().publish()
         vev = VEventFactory().makeFromPage(except1)
@@ -206,11 +207,11 @@ class TestRecurring(TestCase):
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
         info = ExtraInfoPage(owner = self.user,
-                                  slug  = "2017-06-06-extra-info",
-                                  title = "Extra Information for Tuesday 6th of June",
-                                  overrides = page,
-                                  except_date = dt.date(2017,6,6),
-                                  extra_title = "Handling Time Zones with Python")
+                             slug  = "2017-06-06-extra-info",
+                             title = "Extra Information for Tuesday 6th of June",
+                             overrides = page,
+                             except_date = dt.date(2017,6,6),
+                             extra_title = "Handling Time Zones with Python")
         page.add_child(instance=info)
         info.save_revision().publish()
         vev = VEventFactory().makeFromPage(page)
@@ -324,17 +325,55 @@ class TestRecurring(TestCase):
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
         except1 = CancellationPage(owner = self.user,
-                                        slug  = "2018-06-09-cancellation",
-                                        title = "Cancellation for Saturday 9th of June",
-                                        cancellation_title = "Get up early",
-                                        overrides = page,
-                                        except_date = dt.date(2018,6,9))
+                                   slug  = "2018-06-09-cancellation",
+                                   title = "Cancellation for Saturday 9th of June",
+                                   cancellation_title = "Get up early",
+                                   overrides = page,
+                                   except_date = dt.date(2018,6,9))
         page.add_child(instance=except1)
         except1.save_revision().publish()
         vexcept = CancellationVEvent.fromPage(except1)
         self.assertEqual(vexcept['SUMMARY'], "Get up early")
         self.assertEqual(vexcept['DESCRIPTION'], "")
         self.assertEqual(vexcept.to_ical(), b"\r\n")
+
+# ------------------------------------------------------------------------------
+class TestMultidayRecurring(TestCase):
+    def setUp(self):
+        site = Site.objects.get(is_default_site=True)
+        site.hostname = "joy.test"
+        site.save()
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+
+    @freeze_time("2017-08-15")
+    def testFromPage(self):
+        page = MultidayRecurringEventPage(owner = self.user,
+                                  slug   = "bought-from-rubber-man",
+                                  title  = "Bought from a Rubber Man",
+                                  repeat = Recurrence(dtstart=dt.date(2019,4,2),
+                                                      freq=WEEKLY,
+                                                      byweekday=[TU]),
+                                  num_days  = 3,
+                                  time_from = dt.time(16),
+                                  time_to   = dt.time(18),
+                                  tz = pytz.timezone("Pacific/Auckland"))
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        vev = VEventFactory().makeFromPage(page)
+        self.assertIs(type(vev), MultidayRecurringVEvent)
+        tz = pytz.timezone("Pacific/Auckland")
+        self.assertEqual(vev['DTSTART'].dt,
+                         tz.localize(dt.datetime(2019,4,2,16,0)))
+        self.assertEqual(vev['DTEND'].dt,
+                         tz.localize(dt.datetime(2019,4,4,18,0)))
+        self.assertEqual(vev['RRULE']['FREQ'],  ["WEEKLY"])
+        self.assertEqual(vev['RRULE']['BYDAY'], ["TU"])
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
