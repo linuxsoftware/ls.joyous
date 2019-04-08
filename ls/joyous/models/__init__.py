@@ -7,7 +7,9 @@ from .events import MultidayRecurringEventPage
 from .events import EventExceptionBase
 from .events import ExtraInfoPage
 from .events import CancellationPage
+from .events import RescheduleEventBase
 from .events import PostponementPage
+from .events import RescheduleMultidayEventPage
 
 from .events import getAllEventsByDay
 from .events import getAllEventsByWeek

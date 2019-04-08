@@ -27,6 +27,7 @@ def identifyExpectantParent(sender, **kwargs):
             page.date               = page.except_date + dt.timedelta(days=1)
             page.details            = parent.details
             page.image              = parent.image
+            page.num_days           = parent.num_days
             page.time_from          = parent.time_from
             page.time_to            = parent.time_to
             page.location           = parent.location

@@ -1,0 +1,26 @@
+{% extends "joyous/joyous_base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block content %}
+{% with overrides=page.overrides %}
+  <div class="content">
+    <div class="event clearfix">
+      {% if page.status %}
+      <div class="event-status">
+        {{ page.status_text }}
+      </div>
+      {% endif %}
+      {# postponement_title is required #}
+      <h1 class="event-heading">{{ page.postponement_title }}</h1>
+      <div class="event-image">
+        {% image page.image width-350 %}
+      </div>
+      {% include "joyous/includes/who_when_where.html" with event=page %}
+      <div class="event-postponement-details">
+        {{ page.details|richtext }}
+      </div> 
+    </div>
+    {% include "joyous/includes/event_overrides.html" %}
+  </div>
+{% endwith %}
+{% endblock %}

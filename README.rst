@@ -13,8 +13,7 @@ based recurring events with cancellations and postponements; iCal import and exp
 
 Documentation
 -------------
-
-The documentaion for using and developing with Joyous can be found at 
+The documentation for using and developing with Joyous can be found at 
 https://joyous.readthedocs.io.
 
 Demo

@@ -755,7 +755,6 @@ class PostponementVEvent(ExceptionVEvent):
         vevent = super().fromPage(page)
         dtstart = getAwareDatetime(page.date, page.time_from, page.tz, dt.time.min)
         dtend   = getAwareDatetime(page.date, page.time_to, page.tz, dt.time.max)
-        vevent.set('UID',         page.uid)
         vevent.set('SUMMARY',     page.postponement_title)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
@@ -765,7 +764,6 @@ class PostponementVEvent(ExceptionVEvent):
 
     def toPage(self, page):
         super().toPage(page)
-        assert page.uid == self.get('UID')
         dtstart  = self['DTSTART']
         dtend    = self['DTEND']
         page.postponement_title = str(self.get('SUMMARY', ""))
@@ -776,8 +774,6 @@ class PostponementVEvent(ExceptionVEvent):
         page.time_to            = dtend.time()
 
     def makePage(self, **kwargs):
-        if 'uid' not in kwargs:
-            kwargs['uid'] = self.get('UID')
         return super().makePage(**kwargs)
 
 # ------------------------------------------------------------------------------

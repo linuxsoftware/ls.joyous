@@ -354,6 +354,8 @@ class EventPageForm(WagtailAdminPageForm):
         if startTime > endTime:
             self.add_error('time_to', "Event cannot end before it starts")
 
+# Cannot serialize: functools._lru_cache_wrapper object
+# There are some values Django cannot serialize into migration files.
 def _get_default_timezone():
     return timezone.get_default_timezone()
 
@@ -363,7 +365,8 @@ class EventBase(models.Model):
         # type to another might be a lot easier?
         abstract = True
 
-    uid = models.CharField(max_length=255, db_index=True, editable=False, default=uuid4)
+    uid = models.CharField(max_length=255, db_index=True, editable=False,
+                           default=uuid4)
     category = models.ForeignKey(EventCategory,
                                  related_name="+",
                                  verbose_name=_("category"),
@@ -779,7 +782,7 @@ class RecurringEventQuerySet(EventQuerySet):
 
                             for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
                                 dayNum = pageOrd - fromOrd
-                                if 1 <= dayNum <= toOrd - fromOrd:
+                                if 0 <= dayNum <= toOrd - fromOrd:
                                     cont = evods[dayNum].continuing_events
                                     cont.append(thisEvent)
                 yield from evods
@@ -1158,9 +1161,13 @@ class RecurringEventPage(Page, EventBase):
 # ------------------------------------------------------------------------------
 class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
     """a proxy of RecurringEventPage that exposes the hidden num_days field"""
-    class Meta:
+    class Meta(ProxyPageMixin.Meta):
         verbose_name = _("multiday recurring event page")
         verbose_name_plural = _("multiday recurring event pages")
+
+    subpage_types = ['joyous.ExtraInfoPage',
+                     'joyous.CancellationPage',
+                     'joyous.RescheduleMultidayEventPage']
 
     content_panels = RecurringEventPage.content_panels0 + [
         FieldPanel('num_days'),
@@ -1197,15 +1204,16 @@ class EventExceptionBase(models.Model):
     # child is saved and added.  (NB: is published version of parent)
     overrides = models.ForeignKey('joyous.RecurringEventPage',
                                   null=True, blank=False,
-                                  # can't set to CASCADE, so go with SET_NULL
                                   related_name='+',
                                   verbose_name=_("overrides"),
+                                  # can't set to CASCADE, so go with SET_NULL
                                   on_delete=models.SET_NULL)
     overrides.help_text = _("The recurring event that we are updating.")
     except_date = models.DateField(_("For Date"))
     except_date.help_text = _("For this date")
 
     # Original properties
+    num_days    = property(attrgetter("overrides.num_days"))
     time_from   = property(attrgetter("overrides.time_from"))
     time_to     = property(attrgetter("overrides.time_to"))
     tz          = property(attrgetter("overrides.tz"))
@@ -1234,7 +1242,10 @@ class EventExceptionBase(models.Model):
         """
         A string describing when the event occurs (in the local time zone).
         """
-        return EventBase._getLocalWhen(self, self.except_date)
+        dateTo = None
+        if self.num_days > 1:
+            dateTo = self.except_date + dt.timedelta(days=self.num_days - 1)
+        return EventBase._getLocalWhen(self, self.except_date, dateTo)
 
     @property
     def at(self):
@@ -1269,7 +1280,6 @@ class EventExceptionBase(models.Model):
         else:
             return all(restriction.accept_request(request)
                        for restriction in restrictions)
-
 
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):
@@ -1334,9 +1344,12 @@ class ExtraInfoPage(Page, EventExceptionBase):
         The current status of the event (started, finished or pending).
         """
         myNow = timezone.localtime(timezone=self.tz)
-        if getAwareDatetime(self.except_date, self.time_to, self.tz) < myNow:
+        fromDt = getAwareDatetime(self.except_date, self.time_from, self.tz)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        toDt = getAwareDatetime(self.except_date + daysDelta, self.time_to, self.tz)
+        if toDt < myNow:
             return "finished"
-        elif getAwareDatetime(self.except_date, self.time_from, self.tz) < myNow:
+        elif fromDt < myNow:
             return "started"
 
     @property
@@ -1460,18 +1473,25 @@ class PostponementQuerySet(EventQuerySet):
                 evods = [EventsOnDay(dt.date.fromordinal(ord), [], [])
                          for ord in range(fromOrd, toOrd+1)]
                 for page in super().__iter__():
+                    thisEvent = ThisEvent(page.postponement_title, page)
                     pageFromDate = getLocalDate(page.date,
                                                 page.time_from, page.tz)
-                    pageToDate   = getLocalDate(page.date,
-                                                page.time_to, page.tz)
-                    dayNum = pageFromDate.toordinal() - fromOrd
-                    thisEvent = ThisEvent(page.postponement_title, page)
+                    pageFromOrd = pageFromDate.toordinal()
+                    daysDelta = dt.timedelta(days=page.num_days - 1)
+                    pageToDate = getLocalDate(page.date + daysDelta,
+                                              page.time_to, page.tz)
+                    pageToOrd = pageToDate.toordinal()
+
+                    dayNum = pageFromOrd - fromOrd
                     if 0 <= dayNum <= toOrd - fromOrd:
                         evods[dayNum].days_events.append(thisEvent)
-                    if pageFromDate != pageToDate:
-                        if 0 <= dayNum+1 <= toOrd - fromOrd:
-                            evods[dayNum+1].continuing_events.append(thisEvent)
+
+                    for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
+                        dayNum = pageOrd - fromOrd
+                        if 0 <= dayNum <= toOrd - fromOrd:
+                            evods[dayNum].continuing_events.append(thisEvent)
                 yield from evods
+
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
@@ -1484,15 +1504,31 @@ class PostponementPageForm(EventExceptionPageForm):
         EventPageForm._checkStartBeforeEnd(self, cleaned_data)
         return cleaned_data
 
-class PostponementPage(EventBase, CancellationPage):
+class RescheduleEventBase(EventBase):
+    """
+    This class exists just so that the class attributes defined here are
+    picked up before the instance properties from EventExceptionBase.
+    """
+    class Meta:
+        abstract = True
+
+    num_days = models.IntegerField(_("number of days"), default=1,
+                                   validators=[MinValueValidator(1),
+                                               MaxValueValidator(99)])
+    # Original properties
+    tz          = property(attrgetter("overrides.tz"))
+    group       = property(attrgetter("overrides.group"))
+    uid         = property(attrgetter("overrides.uid"))
+    group_page  = None
+
+class PostponementPage(RescheduleEventBase, CancellationPage):
     class Meta:
         verbose_name = _("postponement")
         verbose_name_plural = _("postponements")
         default_manager_name = "objects"
 
     events = EventManager.from_queryset(PostponementQuerySet)()
-    parent_page_types = ["joyous.RecurringEventPage",
-                         "joyous.MultidayRecurringEventPage"]
+    parent_page_types = ["joyous.RecurringEventPage"]
     subpage_types = []
     base_form_class = PostponementPageForm
     slugName = "postponement"
@@ -1504,39 +1540,31 @@ class PostponementPage(EventBase, CancellationPage):
     search_fields = Page.search_fields + [
         index.SearchField('postponement_title'),
     ]
-    content_panels = [
-        PageChooserPanel('overrides'),
-        ExceptionDatePanel('except_date'),
-        MultiFieldPanel([
+
+    cancellation_panel = MultiFieldPanel([
             FieldPanel('cancellation_title', classname="full title"),
             FieldPanel('cancellation_details', classname="full")],
-            heading=_("Cancellation")),
-        MultiFieldPanel([
+            heading=_("Cancellation"))
+    postponement_panel0 = [
             FieldPanel('postponement_title', classname="full title"),
             ImageChooserPanel('image'),
-            FieldPanel('date'),
+            FieldPanel('date')]
+    postponement_panel1 = [
             TimePanel('time_from'),
             TimePanel('time_to'),
             FieldPanel('details', classname="full"),
             MapFieldPanel('location'),
-            FieldPanel('website')],
-            heading=_("Postponed to")),
+            FieldPanel('website')]
+    postponement_panel = MultiFieldPanel(
+            postponement_panel0 + postponement_panel1,
+            heading=_("Postponed to"))
+    content_panels = [
+        PageChooserPanel('overrides'),
+        ExceptionDatePanel('except_date'),
+        cancellation_panel,
+        postponement_panel,
     ]
     promote_panels = []
-
-    @property
-    def tz(self):
-        """
-        The time zone for the event.  Uses the overridden time zone.
-        """
-        return self.overrides.tz
-
-    @property
-    def group(self):
-        """
-        The group this event belongs to.  Uses the overridden group.
-        """
-        return self.overrides.group
 
     @property
     def status(self):
@@ -1544,9 +1572,12 @@ class PostponementPage(EventBase, CancellationPage):
         The current status of the postponement (started, finished or pending).
         """
         myNow = timezone.localtime(timezone=self.tz)
-        if getAwareDatetime(self.date, self.time_to, self.tz) < myNow:
+        fromDt = getAwareDatetime(self.date, self.time_from, self.tz)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        toDt = getAwareDatetime(self.date + daysDelta, self.time_to, self.tz)
+        if toDt < myNow:
             return "finished"
-        elif getAwareDatetime(self.date, self.time_from, self.tz) < myNow:
+        elif fromDt < myNow:
             return "started"
 
     @property
@@ -1554,7 +1585,10 @@ class PostponementPage(EventBase, CancellationPage):
         """
         A string describing when the postponement occurs (in the local time zone).
         """
-        return self._getLocalWhen(self.date)
+        dateTo = None
+        if self.num_days > 1:
+            dateTo = self.date + dt.timedelta(days=self.num_days - 1)
+        return self._getLocalWhen(self.date, dateTo)
 
     @property
     def postponed_from_when(self):
@@ -1565,9 +1599,15 @@ class PostponementPage(EventBase, CancellationPage):
         originalFromDt = dt.datetime.combine(self.except_date,
                                              timeFrom(self.overrides.time_from))
         changedFromDt = dt.datetime.combine(self.date, timeFrom(self.time_from))
+        originalDaysDelta = dt.timedelta(days=self.overrides.num_days - 1)
+        originalToDt = getAwareDatetime(self.except_date + originalDaysDelta,
+                                        self.overrides.time_to, self.tz)
+        changedDaysDelta = dt.timedelta(days=self.num_days - 1)
+        changedToDt = getAwareDatetime(self.except_date + changedDaysDelta,
+                                        self.time_to, self.tz)
         if originalFromDt < changedFromDt:
             return _("Postponed from {when}").format(when=when)
-        elif originalFromDt > changedFromDt or self.overrides.time_to != self.time_to:
+        elif originalFromDt > changedFromDt or originalToDt != changedToDt:
             return _("Rescheduled from {when}").format(when=when)
         else:
             return None
@@ -1606,6 +1646,27 @@ class PostponementPage(EventBase, CancellationPage):
         Datetime that the postponement starts (in the local time zone).
         """
         return getLocalDatetime(self.date, self.time_from, self.tz)
+
+# ------------------------------------------------------------------------------
+class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
+    """a proxy of PostponementPage that exposes the hidden num_days field"""
+    class Meta(ProxyPageMixin.Meta):
+        verbose_name = _("postponement")
+        verbose_name_plural = _("postponements")
+
+    parent_page_types = ["joyous.MultidayRecurringEventPage"]
+
+    postponement_panel = MultiFieldPanel(
+            PostponementPage.postponement_panel0 +
+            [FieldPanel('num_days')]+
+            PostponementPage.postponement_panel1,
+            heading=_("Postponed to"))
+    content_panels = [
+        PageChooserPanel('overrides'),
+        ExceptionDatePanel('except_date'),
+        PostponementPage.cancellation_panel,
+        postponement_panel,
+    ]
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

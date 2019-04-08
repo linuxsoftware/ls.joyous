@@ -207,6 +207,25 @@ Events
     .. autoattribute:: status
     .. autoattribute:: status_text
 
+.. autoclass:: RescheduleEventBase
+    :show-inheritance:
+
+    .. attribute:: num_days
+
+        The number of days an occurence lasts for.
+
+    .. attribute:: tz
+
+        Shortcut for overrides.tz.
+
+    .. attribute:: group
+
+        Shortcut for overrides.group.
+
+    .. attribute:: uid
+
+        Shortcut for overrides.uid.
+
 .. autoclass:: PostponementPage
     :show-inheritance:
 
@@ -218,8 +237,6 @@ Events
 
         The date that the event was postponed to.
 
-    .. autoattribute:: tz
-    .. autoattribute:: group
     .. autoattribute:: status
     .. autoattribute:: when
     .. autoattribute:: postponed_from_when
@@ -228,3 +245,7 @@ Events
     .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
+
+.. autoclass:: RescheduleMultidayEventPage
+    :show-inheritance:
+
