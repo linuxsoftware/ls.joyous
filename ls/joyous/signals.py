@@ -22,9 +22,10 @@ def identifyExpectantParent(sender, **kwargs):
         page.except_date = parent.next_date
 
         if isinstance(page, PostponementPage):
+            if page.except_date:
+                page.date           = page.except_date + dt.timedelta(days=1)
             page.postponement_title = parent.title
             page.category           = parent.category
-            page.date               = page.except_date + dt.timedelta(days=1)
             page.details            = parent.details
             page.image              = parent.image
             page.num_days           = parent.num_days

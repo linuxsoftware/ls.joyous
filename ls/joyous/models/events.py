@@ -15,6 +15,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.query import ModelIterable
+from django.forms import widgets
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -506,6 +507,7 @@ class EventBase(models.Model):
                 timeTo = None
 
         if dateFrom == dateTo:
+            # FIXME I18n
             retval = "{} {}".format(dateFormat(dateFrom),
                                     timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
@@ -809,6 +811,33 @@ class RecurringEventQuerySet(EventQuerySet):
         qs._iterable_class = ByDayIterable
         return qs
 
+# Panel trickery needed as editing proxy models doesn't work yet :-(
+class HiddenNumDaysPanel(FieldPanel):
+    class Widget(widgets.NumberInput):
+        def value_from_datadict(self, data, files, name):
+            # validation doesn't like num_days disappearing
+            return data.get(name, "1")
+    widget = Widget
+
+    def __init__(self, field_name="num_days", *args, **kwargs):
+        super().__init__(field_name, *args, **kwargs)
+
+    def render_as_object(self):
+        return super().render_as_object() if self._show() else ""
+
+    def render_as_field(self):
+        return super().render_as_field() if self._show() else ""
+
+    def _show(self):
+        page = getattr(self, 'instance', None)
+        if isinstance(page, (MultidayRecurringEventPage,
+                             RescheduleMultidayEventPage)):
+            retval = True
+        else:
+            numDays = getattr(page, 'num_days', 0)
+            retval = numDays > 1
+        return retval
+
 class RecurringEventPage(Page, EventBase):
     events = EventManager.from_queryset(RecurringEventQuerySet)()
 
@@ -847,7 +876,7 @@ class RecurringEventPage(Page, EventBase):
         TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
-    content_panels = content_panels0 + content_panels1
+    content_panels = content_panels0 + [HiddenNumDaysPanel()] + content_panels1
 
     @property
     def next_date(self):
@@ -949,14 +978,27 @@ class RecurringEventPage(Page, EventBase):
         """
         offset   = 0
         timeFrom = None
+        dateFrom = None
         timeTo   = None
+        dateTo   = None
         fromDt   = self._getFromDt()
         if fromDt is not None:
             offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
-            timeFrom = getLocalTime(fromDt.date(), self.time_from, self.tz)
-            timeTo = getLocalTime(fromDt.date(), self.time_to, self.tz)
-        retval = "{} {}".format(self.repeat._getWhen(offset, self.num_days),
-                                timeFormat(timeFrom, timeTo, gettext("at ")))
+            dateFrom, timeFrom = getLocalDateAndTime(fromDt.date(), self.time_from,
+                                                     self.tz, dt.time.min)
+            daysDelta = dt.timedelta(days=self.num_days - 1)
+            dateTo, timeTo = getLocalDateAndTime(fromDt.date() + daysDelta,
+                                                 self.time_to, self.tz)
+        if dateFrom == dateTo:
+            # FIXME I18n
+            retval = "{} {}".format(self.repeat._getWhen(offset),
+                                    timeFormat(timeFrom, timeTo, gettext("at ")))
+        else:
+            localNumDays = (dateTo - dateFrom).days + 1
+            retval = "{} {}".format(self.repeat._getWhen(offset, localNumDays),
+                                    timeFormat(timeFrom, timeTo,
+                                               prefix=gettext("starting at "),
+                                               infix=gettext("finishing at")))
         return retval.strip()
 
     @property
@@ -1242,10 +1284,7 @@ class EventExceptionBase(models.Model):
         """
         A string describing when the event occurs (in the local time zone).
         """
-        dateTo = None
-        if self.num_days > 1:
-            dateTo = self.except_date + dt.timedelta(days=self.num_days - 1)
-        return EventBase._getLocalWhen(self, self.except_date, dateTo)
+        return self._getLocalWhen(self.except_date, self.num_days)
 
     @property
     def at(self):
@@ -1253,6 +1292,35 @@ class EventExceptionBase(models.Model):
         A string describing what time the event starts (in the local time zone).
         """
         return timeFormat(self._getFromTime())
+
+    def _getLocalWhen(self, date_from, num_days=1):
+        """
+        Returns a string describing when the event occurs (in the local time zone).
+        """
+        dateFrom, timeFrom = getLocalDateAndTime(date_from, self.time_from,
+                                                 self.tz, dt.time.min)
+        if num_days > 1 or self.time_to is not None:
+            daysDelta = dt.timedelta(days=self.num_days - 1)
+            dateTo, timeTo = getLocalDateAndTime(date_from + daysDelta,
+                                                 self.time_to, self.tz)
+        else:
+            dateTo = dateFrom
+            timeTo = None
+
+        if dateFrom == dateTo:
+            # FIXME I18n
+            retval = "{} {}".format(dateFormat(dateFrom),
+                                    timeFormat(timeFrom, timeTo, gettext("at ")))
+        else:
+            # Friday the 10th of April for 3 days at 1pm to 10am
+            localNumDays = (dateTo - dateFrom).days + 1
+            retval = "{} for {} days {}".format(dateFormat(dateFrom),
+                                                localNumDays,
+                                                timeFormat(timeFrom,
+                                                           prefix=gettext("starting at ")))
+            retval = "{} {}".format(retval.strip(),
+                                    timeFormat(timeTo, prefix=gettext("finishing at ")))
+        return retval.strip()
 
     def _getFromTime(self, atDate=None):
         """
@@ -1556,7 +1624,7 @@ class PostponementPage(RescheduleEventBase, CancellationPage):
             MapFieldPanel('location'),
             FieldPanel('website')]
     postponement_panel = MultiFieldPanel(
-            postponement_panel0 + postponement_panel1,
+            postponement_panel0 + [HiddenNumDaysPanel()] + postponement_panel1,
             heading=_("Postponed to"))
     content_panels = [
         PageChooserPanel('overrides'),
@@ -1585,10 +1653,7 @@ class PostponementPage(RescheduleEventBase, CancellationPage):
         """
         A string describing when the postponement occurs (in the local time zone).
         """
-        dateTo = None
-        if self.num_days > 1:
-            dateTo = self.date + dt.timedelta(days=self.num_days - 1)
-        return self._getLocalWhen(self.date, dateTo)
+        return EventExceptionBase._getLocalWhen(self, self.date, self.num_days)
 
     @property
     def postponed_from_when(self):

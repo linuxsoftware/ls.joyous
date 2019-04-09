@@ -162,8 +162,8 @@ class TestMultiday(TestCase):
 
     def testWhen(self):
         self.assertEqual(self.postponement.when,
-                         "Tuesday 9th of January 1990 at 1pm to "
-                         "Thursday 11th of January 1990 at 7:30pm")
+                         "Tuesday 9th of January 1990 for 3 days "
+                         "starting at 1pm finishing at 7:30pm")
 
 # ------------------------------------------------------------------------------
 class TestTZ(TestCase):

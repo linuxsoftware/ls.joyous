@@ -68,7 +68,9 @@ class Test(TestCase):
             self.assertEqual(self.event.status_text, "")
 
     def testWhen(self):
-        self.assertEqual(self.event.when, "The first Friday of August for 3 days at 6pm to 4:30pm")
+        self.assertEqual(self.event.when,
+                         "The first Friday of August for 3 days "
+                         "starting at 6pm finishing at 4:30pm")
 
     def testAt(self):
         self.assertEqual(self.event.at.strip(), "6pm")
