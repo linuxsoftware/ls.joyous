@@ -937,15 +937,11 @@ class RecurringEventPage(Page, EventBase):
         """
         myNow = timezone.localtime(timezone=self.tz)
         daysDelta = dt.timedelta(days=self.num_days - 1)
-        if self.repeat.until:
-            untilDt = getAwareDatetime(self.repeat.until + daysDelta,
-                                       self.time_to, self.tz)
-            if untilDt < myNow:
-                return "finished"
+        # NB: postponements can be created after the until date
+        #     so ignore that
         todayStart = getAwareDatetime(myNow.date(), dt.time.min, self.tz)
         eventStart, event = self.__afterOrPostponedTo(todayStart - daysDelta)
         if eventStart is None:
-            # the last occurences must have been cancelled
             return "finished"
         eventFinish = getAwareDatetime(eventStart.date() + daysDelta,
                                        event.time_to, self.tz)
