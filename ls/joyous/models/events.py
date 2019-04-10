@@ -90,17 +90,22 @@ def getGroupUpcomingEvents(request, group):
     Return all the upcoming events that are assigned to the specified group.
     """
     # Get events that are a child of a group page, or a postponement or extra
-    # info a child of the recurring event child of the group (using descendant_of)
-    qrys = [SimpleEventPage.events(request).upcoming().child_of(group).this(),
-            MultidayEventPage.events(request).upcoming().child_of(group).this(),
-            RecurringEventPage.events(request).upcoming().child_of(group).this(),
-            PostponementPage.events(request).upcoming()
-                                         .descendant_of(group).this(),
-            ExtraInfoPage.events(request).exclude(extra_title="").upcoming()
-                                         .descendant_of(group).this()]
+    # info a child of the recurring event child of the group
+    rrEvents = RecurringEventPage.events(request).exclude(group_page=group) \
+                                        .upcoming().child_of(group).this()
+    qrys = [SimpleEventPage.events(request).exclude(group_page=group)
+                                        .upcoming().child_of(group).this(),
+            MultidayEventPage.events(request).exclude(group_page=group)
+                                        .upcoming().child_of(group).this(),
+            rrEvents]
+    for rrEvent in rrEvents:
+        qrys += [PostponementPage.events(request).child_of(rrEvent.page)
+                                         .upcoming().this(),
+                 ExtraInfoPage.events(request).exclude(extra_title="")
+                                 .child_of(rrEvent.page).upcoming().this()]
 
     # Get events that are linked to a group page, or a postponement or extra
-    # info a child of the recurring event linked to a group (the long way)
+    # info a child of the recurring event linked to a group
     rrEvents = group.recurringeventpage_set(manager='events').auth(request)  \
                                                         .upcoming().this()
     qrys += [group.simpleeventpage_set(manager='events').auth(request)
@@ -110,7 +115,7 @@ def getGroupUpcomingEvents(request, group):
              rrEvents]
     for rrEvent in rrEvents:
         qrys += [PostponementPage.events(request).child_of(rrEvent.page)
-                                                        .upcoming().this(),
+                                                       .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
     events = sorted(chain.from_iterable(qrys),

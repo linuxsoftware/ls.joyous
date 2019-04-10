@@ -182,6 +182,45 @@ class Test(TestCase):
         self.assertEqual(events[0].title, "Gap Analysis")
         self.assertEqual(events[1].title, "Planning to Plan")
 
+    def testGetGroupUpcomingEventsDupGroup(self):
+        meeting = RecurringEventPage(owner = self.user,
+                                     slug  = "plan-plan",
+                                     title = "Planning to Plan",
+                                     repeat    = Recurrence(dtstart=dt.date(2018,5,2),
+                                                            freq=WEEKLY,
+                                                            byweekday=[WE]),
+                                     time_from = dt.time(18,30),
+                                     time_to   = dt.time(20),
+                                     group_page = self.group)
+        self.group.add_child(instance=meeting)
+        events = getGroupUpcomingEvents(self.request, self.group)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].title, "Planning to Plan")
+        self.assertEqual(events[0].page.group, self.group)
+
+    def testGetGroupUpcomingEvents2Groups(self):
+        rival = GroupPage(slug = "initrode", title = "Initrode Corporation")
+        self.home.add_child(instance=rival)
+        meeting = RecurringEventPage(owner = self.user,
+                                     slug  = "plan-plan",
+                                     title = "Planning to Plan",
+                                     repeat    = Recurrence(dtstart=dt.date(2018,5,2),
+                                                            freq=WEEKLY,
+                                                            byweekday=[WE]),
+                                     time_from = dt.time(18,30),
+                                     time_to   = dt.time(20),
+                                     group_page = rival)
+        self.group.add_child(instance=meeting)
+        events = getGroupUpcomingEvents(self.request, rival)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].title, "Planning to Plan")
+        # being a child of self.group trumps having group_page set
+        self.assertEqual(events[0].page.group, self.group)
+        events = getGroupUpcomingEvents(self.request, self.group)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].title, "Planning to Plan")
+        self.assertEqual(events[0].page.group, self.group)
+
     def testGetEventFromUid(self):
         event = getEventFromUid(self.request, "29daefed-fed1-4e47-9408-43ec9b06a06d")
         self.assertEqual(event.title, "Pet Show")
