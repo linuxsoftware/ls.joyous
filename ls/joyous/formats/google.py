@@ -89,7 +89,7 @@ class RecurringGEvent(GEvent):
         gevent.set('dates', vPeriod((dtstart, dtend)).to_ical().decode())
         if page.tz != pytz.utc:
             gevent.set('ctz', page.tz.zone)
-        gevent.set('recur', "RRULE:"+ page.repeat._getRrule())
+        gevent.set('recur', "RRULE:" + page.repeat._getRrule())
         # TODO: try and confirm...
         # Google doesn't accept EXDATE or RDATE here :-(
         return gevent
