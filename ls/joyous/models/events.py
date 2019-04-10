@@ -813,11 +813,10 @@ class RecurringEventQuerySet(EventQuerySet):
 
 # Panel trickery needed as editing proxy models doesn't work yet :-(
 class HiddenNumDaysPanel(FieldPanel):
-    class Widget(widgets.NumberInput):
+    class widget(widgets.NumberInput):
         def value_from_datadict(self, data, files, name):
             # validation doesn't like num_days disappearing
             return data.get(name, "1")
-    widget = Widget
 
     def __init__(self, field_name="num_days", *args, **kwargs):
         super().__init__(field_name, *args, **kwargs)

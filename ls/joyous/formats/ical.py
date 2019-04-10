@@ -17,7 +17,8 @@ from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         MultidayRecurringEventPage, EventExceptionBase, ExtraInfoPage,
-        CancellationPage, PostponementPage, EventBase, CalendarPage)
+        CancellationPage, PostponementPage, RescheduleMultidayEventPage,
+        EventBase, CalendarPage)
 from ..utils.recurrence import Recurrence
 from ..utils.telltime import getAwareDatetime, getLocalDatetime
 from .vtimezone import create_timezone
@@ -419,12 +420,13 @@ class VEventFactory:
             # Yes it is valid, but Joyous does not support it
             raise CalendarTypeError("DTSTART.timezone != DTEND.timezone")
 
+        numDays = (dtend.date(inclusive=True) - dtstart.date()).days + 1
         rrule = props.get('RRULE')
         if rrule is not None:
             if type(rrule) == list:
                 # TODO support multiple RRULEs?
                 raise CalendarTypeError("Multiple RRULEs")
-            if (dtstart.date() != dtend.date(inclusive=True)):
+            if numDays > 1:
                 return MultidayRecurringVEvent.fromProps(props)
             else:
                 return RecurringVEvent.fromProps(props)
@@ -436,12 +438,18 @@ class VEventFactory:
                 raise CalendarTypeError("DTSTART.timezone != RECURRENCE-ID.timezone")
 
             if (parent and recurrenceId == dtstart and
+                parent.numDays == numDays and
                 parent['DTEND'].time() == dtend.time() and
                 (parent['SUMMARY'] != props['SUMMARY'] or
                  parent['DESCRIPTION'] != props['DESCRIPTION'] != "")):
                 return ExtraInfoVEvent.fromProps(props)
             else:
-                return PostponementVEvent.fromProps(props)
+                if numDays > 1:
+                    return RescheduleMultidayVEvent.fromProps(props)
+                elif parent and parent.numDays > 1:
+                    return RescheduleMultidayVEvent.fromProps(props)
+                else:
+                    return PostponementVEvent.fromProps(props)
 
         if (dtstart.date() != dtend.date(inclusive=True)):
             return MultidayVEvent.fromProps(props)
@@ -527,6 +535,12 @@ class VEvent(Event, VComponentMixin):
         retval = {exDate for vddd in exDates for exDate in vddd.dts
                   if type(exDate.dt) == dtType}
         return list(retval)
+
+    @property
+    def numDays(self):
+        dtstart = self['DTSTART']
+        dtend   = self['DTEND']
+        return (dtend.date(inclusive=True) - dtstart.date()).days + 1
 
 # ------------------------------------------------------------------------------
 class SimpleVEvent(VEvent):
@@ -681,12 +695,13 @@ class ExceptionVEvent(VEvent):
     @classmethod
     def fromPage(cls, page):
         vevent = super().fromPage(page)
+        daysDelta = dt.timedelta(days=page.num_days - 1)
         exceptDt = getAwareDatetime(page.except_date, page.overrides.time_from,
                                     page.tz, dt.time.min)
-        dtstart  = getAwareDatetime(page.except_date, page.time_from, page.tz,
-                                    dt.time.min)
-        dtend    = getAwareDatetime(page.except_date, page.time_to, page.tz,
-                                    dt.time.max)
+        dtstart  = getAwareDatetime(page.except_date, page.time_from,
+                                    page.tz, dt.time.min)
+        dtend    = getAwareDatetime(page.except_date + daysDelta, page.time_to,
+                                    page.tz, dt.time.max)
         vevent.set('UID',           page.overrides.uid)
         vevent.set('RECURRENCE-ID', vDatetime(exceptDt))
         vevent.set('DTSTART',       vDatetime(dtstart))
@@ -753,8 +768,11 @@ class PostponementVEvent(ExceptionVEvent):
     @classmethod
     def fromPage(cls, page):
         vevent = super().fromPage(page)
-        dtstart = getAwareDatetime(page.date, page.time_from, page.tz, dt.time.min)
-        dtend   = getAwareDatetime(page.date, page.time_to, page.tz, dt.time.max)
+        daysDelta = dt.timedelta(days=page.num_days - 1)
+        dtstart = getAwareDatetime(page.date, page.time_from,
+                                   page.tz, dt.time.min)
+        dtend   = getAwareDatetime(page.date + daysDelta, page.time_to,
+                                   page.tz, dt.time.max)
         vevent.set('SUMMARY',     page.postponement_title)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
@@ -775,6 +793,10 @@ class PostponementVEvent(ExceptionVEvent):
 
     def makePage(self, **kwargs):
         return super().makePage(**kwargs)
+
+# ------------------------------------------------------------------------------
+class RescheduleMultidayVEvent(PostponementVEvent):
+    Page = RescheduleMultidayEventPage
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
