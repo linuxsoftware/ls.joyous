@@ -1719,7 +1719,7 @@ class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
 
     postponement_panel = MultiFieldPanel(
             PostponementPage.postponement_panel0 +
-            [FieldPanel('num_days')]+
+            [FieldPanel('num_days')] +
             PostponementPage.postponement_panel1,
             heading=_("Postponed to"))
     content_panels = [
