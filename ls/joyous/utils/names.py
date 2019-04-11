@@ -12,7 +12,10 @@ class _Names(tuple):
     moment, when they are accessed.
     """
     def __getitem__(self, i):
-        return str(super().__getitem__(i))
+        item = super().__getitem__(i)
+        if isinstance(i, slice):
+            return item
+        return str(item)
 
 # ------------------------------------------------------------------------------
 #: Names of days of the week, from Monday to Sunday
@@ -46,7 +49,7 @@ MONTH_NAMES = _Names(dates.MONTHS.get(k,"") for k in range(13))
 WRAPPED_MONTH_NAMES = _Names(dates.MONTHS[k%12+1] for k in range(11,25))
 
 #: Abbreviations of the months, with Jan at index 1
-MONTH_ABBRS = _Names(dates.MONTHS_3.get(k, "") for k in range(13))
+MONTH_ABBRS = _Names(dates.MONTHS_AP.get(k, "") for k in range(13))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

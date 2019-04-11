@@ -97,7 +97,7 @@ class CalendarPageForm(WagtailAdminPageForm):
 DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
                 "MM":    r"(1[012]|0?[1-9])",
                 #"Mon":   r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)",
-                "Mon":   r"({})".format("|".join(m.lower() for m in MONTH_ABBRS)),
+                "Mon":   r"({})".format("|".join(m.lower()[:3] for m in MONTH_ABBRS[1:])),
                 "DD":    r"(3[01]|[12]\d|0?[1-9])",
                 "WW":    r"(5[0-3]|[1-4]\d|0?[1-9])"}
 
