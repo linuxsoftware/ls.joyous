@@ -1,6 +1,6 @@
-=========================
-Wagtail 0.8 release notes - IN DEVELOPMENT
-=========================
+========================
+Joyous 0.8 release notes
+========================
 
 .. contents::
     :local:
@@ -33,5 +33,28 @@ Joyous no longer needs a customised base.html with "global_css" and
 the HTML required for popups on the calendar pages are generated dynamically
 by Javascript.
 
+iCal
+~~~~
+ * Export RRULE UNTIL dates as UTC datetimes / use timezone upon import
+ * Define timezones transistions until 2038 if no other end date is available
+ * Add an option to convert UTC timezone events into local time
+ * Use X-WR-TIMEZONE if given as the current timezone during an import
+ * MultidayRecurringEventPage import/export
+ * RescheduleMultidayEventPage import/export
+
+Other features
+~~~~~~~~~~~~~~
+ * Add JOYOUS_EVENTS_PER_PAGE setting
+ * Switch to "rescheduled from" not "postponed from" if the postponement is earlier than the original event
+ * Create RescheduleMultidayEventPage exception type for MultidayRecurringEventPage
+
+Bug fixes
+~~~~~~~~~
+ * Handle creating a postponement for a finished recurring event
+ * Postponements can be created after the until date so ignore that for working out the status of a recurring event
+ * A datetime may have a tzinfo of None
+ * Fix double inclusion of group events
+ * Exceptions of MultidayRecurringEventPage now display the number of days
+ * Non-reversible reg-exp portion: '(?i'" exception (Dylan Ferris)
 
 

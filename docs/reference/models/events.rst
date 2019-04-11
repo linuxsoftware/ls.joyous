@@ -191,7 +191,6 @@ Events
     .. autoattribute:: status_text
     .. autoattribute:: _upcoming_datetime_from
     .. autoattribute:: _past_datetime_from
-    .. autoattribute:: _first_datetime_from
 
 .. autoclass:: CancellationPage
     :show-inheritance:
