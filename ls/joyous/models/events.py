@@ -686,7 +686,6 @@ class MultidayEventPageForm(EventPageForm):
         elif startDate == endDate:
             super()._checkStartBeforeEnd(cleaned_data)
 
-
 class MultidayEventPage(Page, EventBase):
     events = EventManager.from_queryset(MultidayEventQuerySet)()
 
@@ -841,6 +840,12 @@ class HiddenNumDaysPanel(FieldPanel):
             retval = numDays > 1
         return retval
 
+class RecurringEventPageForm(EventPageForm):
+    def _checkStartBeforeEnd(self, cleaned_data):
+        numDays = cleaned_data.get('num_days', 1)
+        if numDays == 1:
+            super()._checkStartBeforeEnd(cleaned_data)
+
 class RecurringEventPage(Page, EventBase):
     events = EventManager.from_queryset(RecurringEventQuerySet)()
 
@@ -856,7 +861,7 @@ class RecurringEventPage(Page, EventBase):
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
                      'joyous.PostponementPage']
-    base_form_class = EventPageForm
+    base_form_class = RecurringEventPageForm
 
     # FIXME So that Fred can't cancel Barney's event
     # owner_subpages_only = True
@@ -1560,7 +1565,7 @@ class PostponementPageForm(EventExceptionPageForm):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
         self._checkSlugAvailable(cleaned_data, "cancellation")
-        EventPageForm._checkStartBeforeEnd(self, cleaned_data)
+        RecurringEventPageForm._checkStartBeforeEnd(self, cleaned_data)
         return cleaned_data
 
 class RescheduleEventBase(EventBase):
