@@ -1,0 +1,15 @@
+========================
+Joyous 0.9 release notes - IN DEVELOPMENT
+========================
+
+.. contents::
+    :local:
+    :depth: 1
+
+
+What's new
+==========
+
+CSS
+~~~
+joyous.css is complicated and carries a lot of style that the user may not want. I want to strip it down to the bare structural basics that will display elements in appropriate places, but without pushing colour or font choices. The stripped out presentation styles can go into new theme CSS files which the user can optionally choose to import if they wish.  This change will change/break the appearance of old sites!
