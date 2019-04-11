@@ -54,8 +54,7 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None):
             MultidayEventPage.events(request).byDay(fromDate, toDate),
             RecurringEventPage.events(request).byDay(fromDate, toDate),
             PostponementPage.events(request).byDay(fromDate, toDate)]
-    # FIXME where is ExtraInfoPage? does RecurringEventPage.byDay return it?
-    # if so add a comment saying that
+    # Cancellations and ExtraInfo pages are returned by RecurringEventPage.byDay
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     evods = _getEventsByDay(fromDate, qrys)
@@ -150,7 +149,7 @@ def getEventFromUid(request, uid):
         events.append(MultidayEventPage.objects.get(uid=uid))
     with suppress(ObjectDoesNotExist):
         events.append(RecurringEventPage.objects.get(uid=uid))
-    # FIXME where is ExtraInfoPage?
+    # Exceptions do not have uids and are not returned by this function
 
     if len(events) == 1:
         if events[0].isAuthorized(request):
@@ -169,7 +168,7 @@ def getAllEvents(request, *, home=None):
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
             RecurringEventPage.events(request).all()]
-    # FIXME where is ExtraInfoPage?
+    # Does not return exceptions
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -512,15 +511,15 @@ class EventBase(models.Model):
                 timeTo = None
 
         if dateFrom == dateTo:
-            # FIXME I18n
-            retval = "{} {}".format(dateFormat(dateFrom),
-                                    timeFormat(timeFrom, timeTo, gettext("at ")))
+            retval = _("{date} {atTime}").format(date=dateFormat(dateFrom),
+                        atTime=timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
-            retval = "{} {}".format(dateFormat(dateFrom),
-                                    timeFormat(timeFrom, prefix=gettext("at ")))
-            retval = "{} to {} {}".format(retval.strip(),
-                                          dateFormat(dateTo),
-                                          timeFormat(timeTo, prefix=gettext("at ")))
+            retval = _("{date} {atTime}").format(date=dateFormat(dateFrom),
+                        atTime=timeFormat(timeFrom, prefix=gettext("at ")))
+            retval = _("{dateTimeFrom} to {dateTo} {atTimeTo}").format(
+                        dateTimeFrom=retval.strip(),
+                        dateTo=dateFormat(dateTo),
+                        atTimeTo=timeFormat(timeTo, prefix=gettext("at ")))
         return retval.strip()
 
     def _getFromTime(self, atDate=None):
@@ -990,13 +989,14 @@ class RecurringEventPage(Page, EventBase):
             dateTo, timeTo = getLocalDateAndTime(fromDt.date() + daysDelta,
                                                  self.time_to, self.tz)
         if dateFrom == dateTo:
-            # FIXME I18n
-            retval = "{} {}".format(self.repeat._getWhen(offset),
-                                    timeFormat(timeFrom, timeTo, gettext("at ")))
+            retval = _("{repeat} {atTime}").format(
+                    repeat=self.repeat._getWhen(offset),
+                    atTime=timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
             localNumDays = (dateTo - dateFrom).days + 1
-            retval = "{} {}".format(self.repeat._getWhen(offset, localNumDays),
-                                    timeFormat(timeFrom, timeTo,
+            retval = _("{repeat} {startFinishTime}").format(
+                    repeat=self.repeat._getWhen(offset, localNumDays),
+                    startFinishTime=timeFormat(timeFrom, timeTo,
                                                prefix=gettext("starting at "),
                                                infix=gettext("finishing at")))
         return retval.strip()
@@ -1308,18 +1308,19 @@ class EventExceptionBase(models.Model):
             timeTo = None
 
         if dateFrom == dateTo:
-            # FIXME I18n
-            retval = "{} {}".format(dateFormat(dateFrom),
-                                    timeFormat(timeFrom, timeTo, gettext("at ")))
+            retval = _("{date} {atTime}").format(
+                    date=dateFormat(dateFrom),
+                    atTime=timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
             # Friday the 10th of April for 3 days at 1pm to 10am
             localNumDays = (dateTo - dateFrom).days + 1
-            retval = "{} for {} days {}".format(dateFormat(dateFrom),
-                                                localNumDays,
-                                                timeFormat(timeFrom,
-                                                           prefix=gettext("starting at ")))
-            retval = "{} {}".format(retval.strip(),
-                                    timeFormat(timeTo, prefix=gettext("finishing at ")))
+            retval = _("{date} for {n} days {startTime}").format(
+                    date=dateFormat(dateFrom),
+                    n=localNumDays,
+                    startTime=timeFormat(timeFrom, prefix=gettext("starting at ")))
+            retval = _("{dateAndStartTime} {finishTime}").format(
+                    dateAndStartTime=retval.strip(),
+                    finishTime=timeFormat(timeTo, prefix=gettext("finishing at ")))
         return retval.strip()
 
     def _getFromTime(self, atDate=None):
@@ -1443,16 +1444,6 @@ class ExtraInfoPage(Page, EventExceptionBase):
         """
         return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
 
-#FIXME: is this really needed? if so why is it not in Cancellation too? investigate ical
-    @property
-    def _first_datetime_from(self):
-        """
-        The datetime this event first started in the local time zone, or None if
-        it never did.
-        """
-        return self.__checkFromDt(lambda _:True)
-
-#FIXME: is this really needed?
     def __checkFromDt(self, predicate):
         if not self.overrides._occursOn(self.except_date):
             return None

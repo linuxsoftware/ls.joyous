@@ -6,6 +6,7 @@ import django
 from django.conf import settings
 from django.test.utils import get_runner
 
+
 def run():
     verbosity = 1
     if "-v" in sys.argv or "--verbose" in sys.argv:

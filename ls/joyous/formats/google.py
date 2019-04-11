@@ -17,7 +17,6 @@ class GoogleCalendarHandler:
     def serve(self, page, request, *args, **kwargs):
         gevent = self._makeFromPage(page)
         if gevent:
-            # TODO 302 or 303???
             return HttpResponseRedirect(gevent.url)
 
     def _makeFromPage(self, page):
