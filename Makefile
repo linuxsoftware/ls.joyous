@@ -45,7 +45,7 @@ html:
 	python -m webbrowser docs/build/html/index.html
 
 publish:
-	rm dist/* && python setup.py sdist && twine upload dist/* && echo 'Success! Go to https://pypi.python.org/pypi/ls.joyous and check that all is well.'
+	rm -f dist/* && python setup.py sdist && twine upload dist/* && echo 'Success! Go to https://pypi.python.org/pypi/ls.joyous and check that all is well.'
 	python -m webbrowser https://pypi.python.org/pypi/ls.joyous
 
 purge:
