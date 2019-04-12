@@ -22,7 +22,7 @@ elif __name__ == "builtins":
     from ls.joyous.utils.recurrence import *
     from ls.joyous.utils import manythings, telltime
     from ls.joyous.formats import ical
-    L=list
+    L = list
     sys.displayhook = pprint.pprint
     sys.__interactivehook__()
     timezone.activate("Pacific/Auckland")
