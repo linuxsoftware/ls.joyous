@@ -45,7 +45,7 @@ An example might be a boat cruise which departs on a certain date and then retur
 
 RecurringEventPage
 ------------------
-A recurring event has multiple occurences repeating by a certain rule.
+A recurring event has multiple occurrences repeating by a certain rule.
 
 The recurrence rule is somewhat based upon RFC5545 RRules.  Events can occur daily, weekly, monthly, or yearly intervals, by weekday, monthday, and month.
 
@@ -57,18 +57,18 @@ This is like a recurring event, but each recurrence may last for multiple days.
 
 ExtraInformation
 ----------------
-An ``ExtraInformationPage`` holds some extra details for a certain occurence of a
+An ``ExtraInformationPage`` holds some extra details for a certain occurrence of a
 recurring event.
 
 Cancellation
 ------------
-A ``CancellationPage`` removes a certain occurence of a recurring event.  If given
-a cancellation_title this will appear in place of the occurence, but if not
-the occurence is just quietly removed.
+A ``CancellationPage`` removes a certain occurrence of a recurring event.  If given
+a cancellation_title this will appear in place of the occurrence, but if not
+the occurrence is just quietly removed.
 
 Postponement
 ------------
-A ``PostponementPage`` both removes an occurence and adds a replacement event.
+A ``PostponementPage`` both removes an occurrence and adds a replacement event.
 It is a bit like a combined ``CancellationPage`` and ``SimpleEventPage`` in
 one.
 
@@ -84,7 +84,7 @@ But you might not consider the party as *really* being on January 1.  (After all
 When a Postponement is not a postponement
 -----------------------------------------
 The ``PostponementPage`` was named with the intention that it would be used
-for when an occurence of a recurring event had to be postponed until a later
+for when an occurrence of a recurring event had to be postponed until a later
 time.  But it could also be used to move the occurrence to start at an earlier
 time, finish at a different time, or change some other field.
 

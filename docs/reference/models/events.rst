@@ -139,7 +139,7 @@ Events
 
     .. attribute:: num_days
 
-        The number of days an occurence lasts for.
+        The number of days an occurrence lasts for.
 
 .. autoclass:: EventExceptionBase
     :show-inheritance:
@@ -181,7 +181,7 @@ Events
 
     .. attribute:: extra_title
 
-        A more specific title for this occurence (optional).
+        A more specific title for this occurrence (optional).
 
     .. attribute:: extra_information
 
@@ -211,7 +211,7 @@ Events
 
     .. attribute:: num_days
 
-        The number of days an occurence lasts for.
+        The number of days an occurrence lasts for.
 
     .. attribute:: tz
 

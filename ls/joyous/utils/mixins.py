@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 # ------------------------------------------------------------------------------
 class ProxyPageMixin:
     """
-    Adding this mixin allows inheritence without needing a new table.  The
+    Adding this mixin allows inheritance without needing a new table.  The
     proxy model has its own content type which allows it to be selected as a
     separate page type in the Wagtail admin interface.  No change is made to
     the manager, but peers() will return a queryset of others of the same type.

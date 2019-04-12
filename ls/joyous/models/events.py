@@ -1015,7 +1015,7 @@ class RecurringEventPage(Page, EventBase):
 
     def _getFromTime(self, atDate=None):
         """
-        What was the time of this event?  Due to timezones that depends what
+        What was the time of this event?  Due to time zones that depends what
         day we are talking about.  If no day is given, assume today.
         """
         if atDate is None:
@@ -1207,7 +1207,9 @@ class RecurringEventPage(Page, EventBase):
 
 # ------------------------------------------------------------------------------
 class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
-    """a proxy of RecurringEventPage that exposes the hidden num_days field"""
+    """
+    A proxy of RecurringEventPage that exposes the hidden num_days field.
+    """
     class Meta(ProxyPageMixin.Meta):
         verbose_name = _("multiday recurring event page")
         verbose_name_plural = _("multiday recurring event pages")
@@ -1431,7 +1433,13 @@ class ExtraInfoPage(Page, EventExceptionBase):
         """
         A text description of the current status of the event.
         """
-        return EventBase.status_text.fget(self)
+        status = self.status
+        if status == "finished":
+            return _("This event has finished.")
+        elif status == "started":
+            return _("This event has started.")
+        else:
+            return ""
 
     @property
     def _upcoming_datetime_from(self):
@@ -1565,8 +1573,16 @@ class PostponementPageForm(EventExceptionPageForm):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
         self._checkSlugAvailable(cleaned_data, "cancellation")
-        RecurringEventPageForm._checkStartBeforeEnd(self, cleaned_data)
+        numDays = cleaned_data.get('num_days', 1)
+        if numDays == 1:
+            self._checkStartBeforeEnd(cleaned_data)
         return cleaned_data
+
+    def _checkStartBeforeEnd(self, cleaned_data):
+        startTime = timeFrom(cleaned_data.get('time_from'))
+        endTime   = timeTo(cleaned_data.get('time_to'))
+        if startTime > endTime:
+            self.add_error('time_to', "Event cannot end before it starts")
 
 class RescheduleEventBase(EventBase):
     """
@@ -1710,7 +1726,9 @@ class PostponementPage(RescheduleEventBase, CancellationPage):
 
 # ------------------------------------------------------------------------------
 class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
-    """a proxy of PostponementPage that exposes the hidden num_days field"""
+    """
+    A proxy of PostponementPage that exposes the hidden num_days field.
+    """
     class Meta(ProxyPageMixin.Meta):
         verbose_name = _("postponement")
         verbose_name_plural = _("postponements")
