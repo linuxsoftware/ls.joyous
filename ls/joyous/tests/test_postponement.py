@@ -57,7 +57,7 @@ class Test(TestCase):
         self.assertEqual(evod.date, dt.date(1990,10,10))
         self.assertEqual(len(evod.days_events), 1)
         self.assertEqual(len(evod.continuing_events), 0)
-        title, page = evod.days_events[0]
+        title, page, url = evod.days_events[0]
         self.assertEqual(title, "Meeting Postponed")
         self.assertIs(type(page), CancellationPage)
         self.assertIs(type(page.postponementpage), PostponementPage)
@@ -69,7 +69,7 @@ class Test(TestCase):
         self.assertEqual(evod.date, dt.date(1990,10,11))
         self.assertEqual(len(evod.days_events), 1)
         self.assertEqual(len(evod.continuing_events), 0)
-        title, page = evod.days_events[0]
+        title, page, url = evod.days_events[0]
         self.assertEqual(title, "A Meeting")
         self.assertIs(type(page), PostponementPage)
 
@@ -210,14 +210,14 @@ class TestTZ(TestCase):
         self.assertEqual(evod0.date, dt.date(1990,10,11))
         self.assertEqual(len(evod0.days_events), 1)
         self.assertEqual(len(evod0.continuing_events), 0)
-        title, page = evod0.days_events[0]
+        title, page, url = evod0.days_events[0]
         self.assertEqual(title, "Delayed Meeting")
         self.assertIs(type(page), PostponementPage)
         evod1 = events[11]
         self.assertEqual(evod1.date, dt.date(1990,10,12))
         self.assertEqual(len(evod1.days_events), 0)
         self.assertEqual(len(evod1.continuing_events), 1)
-        title, page = evod1.continuing_events[0]
+        title, page, url = evod1.continuing_events[0]
         self.assertEqual(title, "Delayed Meeting")
         self.assertIs(type(page), PostponementPage)
 

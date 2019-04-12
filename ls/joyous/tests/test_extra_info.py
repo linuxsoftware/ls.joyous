@@ -50,7 +50,7 @@ class Test(TestCase):
         self.assertEqual(len(evod.all_events), 1)
         self.assertEqual(len(evod.days_events), 1)
         self.assertEqual(len(evod.continuing_events), 0)
-        title, page = evod.days_events[0]
+        title, page, url = evod.days_events[0]
         self.assertEqual(title, "System Demo")
         self.assertIs(type(page), ExtraInfoPage)
 

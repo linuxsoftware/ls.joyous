@@ -16,6 +16,8 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import ModelIterable
 from django.forms import widgets
+from django.shortcuts import render
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -28,6 +30,7 @@ from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
         PageChooserPanel)
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images import get_image_model_string
+from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
 from ..holidays.parser import parseHolidays
@@ -142,6 +145,7 @@ def getEventFromUid(request, uid):
     (returns None if we have no authority, raises ObjectDoesNotExist if it is
     not found).
     """
+    # TODO should this return a ThisEvent?!?!
     events = []
     with suppress(ObjectDoesNotExist):
         events.append(SimpleEventPage.objects.get(uid=uid))
@@ -165,6 +169,7 @@ def getAllEvents(request, *, home=None):
     """
     Return all the events (under home if given).
     """
+    # TODO should this return ThisEvents?!?!
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
             RecurringEventPage.events(request).all()]
@@ -218,7 +223,7 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
 # ------------------------------------------------------------------------------
 # Helper types and constants
 # ------------------------------------------------------------------------------
-ThisEvent = namedtuple("ThisEvent", "title page")
+ThisEvent = namedtuple("ThisEvent", "title page url")
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
@@ -304,10 +309,11 @@ class EventQuerySet(PageQuerySet):
         return predicate
 
     def this(self):
+        request = self.request
         class ThisEventIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    yield ThisEvent(page.title, page)
+                    yield ThisEvent(page.title, page, page.get_url(request))
         qs = self._clone()
         qs._iterable_class = ThisEventIterable
         return qs
@@ -554,6 +560,7 @@ class SimpleEventQuerySet(EventQuerySet):
         return qs.filter(date__lte = todayUtc() + _1day)
 
     def byDay(self, fromDate, toDate):
+        request = self.request
         fromOrd = fromDate.toordinal()
         toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
@@ -566,7 +573,8 @@ class SimpleEventQuerySet(EventQuerySet):
                     pageToDate   = getLocalDate(page.date,
                                                 page.time_to, page.tz)
                     dayNum = pageFromDate.toordinal() - fromOrd
-                    thisEvent = ThisEvent(page.title, page)
+                    thisEvent = ThisEvent(page.title, page,
+                                          page.get_url(request))
                     if 0 <= dayNum <= toOrd - fromOrd:
                         evods[dayNum].days_events.append(thisEvent)
                     if pageFromDate != pageToDate:
@@ -651,6 +659,7 @@ class MultidayEventQuerySet(EventQuerySet):
         return qs.filter(date_from__lte = todayUtc() + _1day)
 
     def byDay(self, fromDate, toDate):
+        request = self.request
         fromOrd = fromDate.toordinal()
         toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
@@ -666,10 +675,12 @@ class MultidayEventQuerySet(EventQuerySet):
                                                     page.time_from, page.tz)
                         pageToDate   = getLocalDate(page.date_to,
                                                     page.time_to, page.tz)
+                        url = page.get_url(request)
                         if pageFromDate == day:
-                            days_events.append(ThisEvent(page.title, page))
+                            days_events.append(ThisEvent(page.title, page, url))
                         elif pageFromDate < day <= pageToDate:
-                            continuing_events.append(ThisEvent(page.title, page))
+                            continuing_events.append(ThisEvent(page.title,
+                                                               page, url))
                     evods.append(EventsOnDay(day, days_events, continuing_events))
                 yield from evods
         qs = self._clone()
@@ -771,7 +782,8 @@ class RecurringEventQuerySet(EventQuerySet):
                             if exception.title:
                                 thisEvent = exception
                         else:
-                            thisEvent = ThisEvent(page.title, page)
+                            url = page.get_url(request)
+                            thisEvent = ThisEvent(page.title, page, url)
                         if thisEvent:
                             pageFromDate = getLocalDate(occurence,
                                                         page.time_from, page.tz)
@@ -799,15 +811,23 @@ class RecurringEventQuerySet(EventQuerySet):
                                      .filter(except_date__range=dateRange):
                     title = extraInfo.extra_title or page.title
                     exceptDate = extraInfo.except_date
-                    exceptions[exceptDate] = ThisEvent(title, extraInfo)
+                    url = extraInfo.get_url(request)
+                    exceptions[exceptDate] = ThisEvent(title, extraInfo, url)
                 for cancellation in CancellationPage.events.child_of(page)   \
                                      .filter(except_date__range=dateRange):
+                    url = cancellation.get_url(request)
+                    if hasattr(cancellation, "postponementpage"):
+                        if url[-1] != '/':
+                            url += "/from"
+                        else:
+                            url += "from/"
                     if cancellation.isAuthorized(request):
                         title = cancellation.cancellation_title
                     else:
                         title = None
+                        url = None
                     exceptDate = cancellation.except_date
-                    exceptions[exceptDate] = ThisEvent(title, cancellation)
+                    exceptions[exceptDate] = ThisEvent(title, cancellation, url)
                 return exceptions
 
         qs = self._clone()
@@ -1049,6 +1069,7 @@ class RecurringEventPage(Page, EventBase):
             else:
                 retval.append(cancellation)
         retval.sort(key=attrgetter('except_date'))
+        # notice these are events not ThisEvents
         return retval
 
     def _nextOn(self, request):
@@ -1360,10 +1381,12 @@ class EventExceptionBase(models.Model):
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):
     def this(self):
+        request = self.request
         class ThisExtraInfoIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    yield ThisEvent(page.extra_title, page)
+                    yield ThisEvent(page.extra_title, page,
+                                    page.get_url(request))
         qs = self._clone()
         qs._iterable_class = ThisExtraInfoIterable
         return qs
@@ -1529,15 +1552,18 @@ class PostponementQuerySet(EventQuerySet):
         return qs.filter(date__lte = todayUtc() + _1day)
 
     def this(self):
+        request = self.request
         class ThisPostponementIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    yield ThisEvent(page.postponement_title, page)
+                    yield ThisEvent(page.postponement_title,
+                                    page, page.get_url(request))
         qs = self._clone()
         qs._iterable_class = ThisPostponementIterable
         return qs
 
     def byDay(self, fromDate, toDate):
+        request = self.request
         fromOrd = fromDate.toordinal()
         toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
@@ -1545,7 +1571,8 @@ class PostponementQuerySet(EventQuerySet):
                 evods = [EventsOnDay(dt.date.fromordinal(ord), [], [])
                          for ord in range(fromOrd, toOrd+1)]
                 for page in super().__iter__():
-                    thisEvent = ThisEvent(page.postponement_title, page)
+                    thisEvent = ThisEvent(page.postponement_title,
+                                          page, page.get_url(request))
                     pageFromDate = getLocalDate(page.date,
                                                 page.time_from, page.tz)
                     pageFromOrd = pageFromDate.toordinal()
@@ -1601,7 +1628,7 @@ class RescheduleEventBase(EventBase):
     uid         = property(attrgetter("overrides.uid"))
     group_page  = None
 
-class PostponementPage(RescheduleEventBase, CancellationPage):
+class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage):
     class Meta:
         verbose_name = _("postponement")
         verbose_name_plural = _("postponements")
@@ -1645,6 +1672,13 @@ class PostponementPage(RescheduleEventBase, CancellationPage):
         postponement_panel,
     ]
     promote_panels = []
+
+    # TODO Consider changing to a TemplateResponse
+    # https://stackoverflow.com/questions/38838601
+    @route(r"^from/$")
+    def serveCancellation(self, request):
+        return render(request, "joyous/postponement_page_from.html",
+                       self.get_context(request))
 
     @property
     def status(self):

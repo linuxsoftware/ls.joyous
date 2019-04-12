@@ -9,6 +9,7 @@ from django.db import models
 from django.http import Http404
 from django import forms
 from django.shortcuts import render, redirect
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
@@ -192,6 +193,8 @@ class CalendarPage(RoutablePageMixin, Page):
             nextMonth = 1
             nextMonthYear += 1
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/calendar_month.html",
                       {'self':         self,
                        'page':         self,
@@ -256,6 +259,8 @@ class CalendarPage(RoutablePageMixin, Page):
             nextWeek = 1
             nextWeekYear += 1
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/calendar_week.html",
                       {'self':         self,
                        'page':         self,
@@ -300,6 +305,8 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/calendar_list_day.html",
                       {'self':         self,
                        'page':         self,
@@ -334,6 +341,8 @@ class CalendarPage(RoutablePageMixin, Page):
         except EmptyPage:
             eventsPage = paginator.page(paginator.num_pages)
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/calendar_list_upcoming.html",
                       {'self':         self,
                        'page':         self,
@@ -363,6 +372,8 @@ class CalendarPage(RoutablePageMixin, Page):
         except EmptyPage:
             eventsPage = paginator.page(paginator.num_pages)
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/calendar_list_past.html",
                       {'self':         self,
                        'page':         self,
@@ -384,6 +395,8 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
 
+        # TODO Consider changing to a TemplateResponse
+        # https://stackoverflow.com/questions/38838601
         return render(request, "joyous/includes/minicalendar.html",
                       {'self':         self,
                        'page':         self,

@@ -15,13 +15,13 @@
   {% endif %}
 
   <div class="days-events">
-    {% for title, event in evod.continuing_events %}
-      <a href="{% pageurl event %}" class="event event-continues">
+    {% for title, event, url in evod.continuing_events %}
+    <a href="{{ url }}" class="event event-continues">
         <span class="event-title">{{title}} {%trans "cont." %}</span>
       </a>
     {% endfor %}
-    {% for title, event in evod.days_events %}
-      <a href="{% pageurl event %}" class="event">
+    {% for title, event, url in evod.days_events %}
+    <a href="{{ url }}" class="event">
         <span class="event-time">{{event.at}}</span><span class="event-title">{{title}}</span>
       </a>
     {% endfor %}

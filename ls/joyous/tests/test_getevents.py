@@ -144,7 +144,7 @@ class Test(TestCase):
         self.calendar.add_child(instance=futureEvent)
         events = getAllUpcomingEvents(self.request, home=self.home)
         self.assertEqual(len(events), 1)
-        title, event = events[0]
+        title, event, url = events[0]
         self.assertEqual(title, "Tomorrow's Event")
         self.assertEqual(event.slug, "tomorrow")
         events0 = getAllUpcomingEvents(self.request)

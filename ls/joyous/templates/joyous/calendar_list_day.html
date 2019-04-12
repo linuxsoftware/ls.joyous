@@ -19,7 +19,7 @@
       {% endblock cal_options %}
 
       <div class="events-on-day events-on-day-detailed">
-        {% for title, event in events.all_events %}
+        {% for title, event, url in events.all_events %}
           {% include "joyous/includes/event_item.html" %}
         {% endfor %}
       </div>
