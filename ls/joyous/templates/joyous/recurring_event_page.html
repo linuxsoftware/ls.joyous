@@ -1,13 +1,7 @@
-{% extends "joyous/joyous_base.html" %}
+{% extends "joyous/event_base.html" %}
 {% load joyous_tags %}
 
-{% block content %}
-  <div class="content">
-    <div class="event clearfix">
-      {% include "joyous/includes/event_details.html" with event=page %}
-    </div>
-
-    {% future_exceptions %}
-    {% include "joyous/includes/event_export.html" %}
-  </div>
+{% block event_footer %}
+  {% future_exceptions %}
+  {{ block.super }}
 {% endblock %}

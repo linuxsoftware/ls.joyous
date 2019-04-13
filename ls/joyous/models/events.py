@@ -224,6 +224,14 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
 # Helper types and constants
 # ------------------------------------------------------------------------------
 ThisEvent = namedtuple("ThisEvent", "title page url")
+#TODO??
+#class ThisEvent(namedtuple("ThisEvent", "title page url")):
+#    def __new__(cls, page, request=None, title=None, url=None):
+#        if title is None:
+#            title = page.title
+#        if url is None:
+#            url = page.get_url(request)
+#        super().__new__(cls, title, page, url)
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
@@ -675,12 +683,12 @@ class MultidayEventQuerySet(EventQuerySet):
                                                     page.time_from, page.tz)
                         pageToDate   = getLocalDate(page.date_to,
                                                     page.time_to, page.tz)
-                        url = page.get_url(request)
+                        thisEvent = ThisEvent(page.title, page,
+                                              page.get_url(request))
                         if pageFromDate == day:
-                            days_events.append(ThisEvent(page.title, page, url))
+                            days_events.append(thisEvent)
                         elif pageFromDate < day <= pageToDate:
-                            continuing_events.append(ThisEvent(page.title,
-                                                               page, url))
+                            continuing_events.append(thisEvent)
                     evods.append(EventsOnDay(day, days_events, continuing_events))
                 yield from evods
         qs = self._clone()
@@ -782,8 +790,8 @@ class RecurringEventQuerySet(EventQuerySet):
                             if exception.title:
                                 thisEvent = exception
                         else:
-                            url = page.get_url(request)
-                            thisEvent = ThisEvent(page.title, page, url)
+                            thisEvent = ThisEvent(page.title, page,
+                                                  page.get_url(request))
                         if thisEvent:
                             pageFromDate = getLocalDate(occurence,
                                                         page.time_from, page.tz)
@@ -811,8 +819,8 @@ class RecurringEventQuerySet(EventQuerySet):
                                      .filter(except_date__range=dateRange):
                     title = extraInfo.extra_title or page.title
                     exceptDate = extraInfo.except_date
-                    url = extraInfo.get_url(request)
-                    exceptions[exceptDate] = ThisEvent(title, extraInfo, url)
+                    exceptions[exceptDate] = ThisEvent(title, extraInfo,
+                                                       extraInfo.get_url(request))
                 for cancellation in CancellationPage.events.child_of(page)   \
                                      .filter(except_date__range=dateRange):
                     url = cancellation.get_url(request)
@@ -1321,6 +1329,11 @@ class EventExceptionBase(models.Model):
         """
         return timeFormat(self._getFromTime())
 
+    def get_context(self, request, *args, **kwargs):
+        retval = super().get_context(request, *args, **kwargs)
+        retval['overrides'] = self.overrides
+        return retval
+
     def _getLocalWhen(self, date_from, num_days=1):
         """
         Returns a string describing when the event occurs (in the local time zone).
@@ -1628,6 +1641,11 @@ class RescheduleEventBase(EventBase):
     uid         = property(attrgetter("overrides.uid"))
     group_page  = None
 
+    def get_context(self, request, *args, **kwargs):
+        retval = super().get_context(request, *args, **kwargs)
+        retval['overrides'] = self.overrides
+        return retval
+
 class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage):
     class Meta:
         verbose_name = _("postponement")
@@ -1706,7 +1724,16 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         """
         A string describing when the event was postponed from (in the local time zone).
         """
-        when = self.cancellationpage.when
+        what = self.what
+        if what:
+            return _("{what} from {when}").format(what=what,
+                                                  when=self.cancellationpage.when)
+
+    @property
+    def what(self):
+        """
+        Return a postponed or a rescheduled string
+        """
         originalFromDt = dt.datetime.combine(self.except_date,
                                              timeFrom(self.overrides.time_from))
         changedFromDt = dt.datetime.combine(self.date, timeFrom(self.time_from))
@@ -1717,9 +1744,9 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         changedToDt = getAwareDatetime(self.except_date + changedDaysDelta,
                                         self.time_to, self.tz)
         if originalFromDt < changedFromDt:
-            return _("Postponed from {when}").format(when=when)
+            return _("Postponed")
         elif originalFromDt > changedFromDt or originalToDt != changedToDt:
-            return _("Rescheduled from {when}").format(when=when)
+            return _("Rescheduled")
         else:
             return None
 

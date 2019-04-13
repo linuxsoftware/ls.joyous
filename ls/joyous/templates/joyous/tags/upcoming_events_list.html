@@ -1,3 +1,4 @@
+{# used by group_upcoming_events #}
 {% load wagtailcore_tags i18n %}
 {% if events %}
     <h3>{% trans "Events" %}</h3>
@@ -5,7 +6,8 @@
       {% for title, event, url in events %}
       <div class="event-item clearfix">
           <div class="event-item-title"><a href="{{ url }}">{{ title }}</a></div>
-        {% include "joyous/includes/when_where.html" %}
+        {% include "joyous/includes/when.html" %}
+        {% include "joyous/includes/where.html" %}
       </div>
       {% endfor %}
     </div>

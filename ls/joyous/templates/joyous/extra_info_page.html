@@ -1,32 +1,19 @@
-{% extends "joyous/joyous_base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% extends "joyous/exception_base.html" %}
+{% load wagtailcore_tags %}
 
-{% block content %}
-{% with overrides=page.overrides %}
-  <div class="content">
-    <div class="event clearfix">
-      {% if page.status %}
-      <div class="event-status">
-        {{ page.status_text }}
-      </div>
-      {% endif %}
-      {% if page.extra_title %}
-        <h1 class="event-heading">{{ page.extra_title }}</h1>
-      {% else %}
-        <h1 class="event-heading">{{ overrides.title }}</h1>
-      {% endif %}
-      <div class="event-image">
-        {% image overrides.image width-350 %}
-      </div>
-      {% include "joyous/includes/who_when_where.html" with event=page %}
-      <div class="event-extra-info">
-        {{ page.extra_information|richtext }}
-      </div> 
-      <div class="event-details">
-        {{ overrides.details|richtext }}
-      </div> 
-    </div>
-    {% include "joyous/includes/event_overrides.html" %}
-  </div>
-{% endwith %}
-{% endblock %}
+{% block event_title %}
+{% if page.extra_title %}
+  <h1 class="event-heading">{{ page.extra_title }}</h1>
+{% else %}
+  <h1 class="event-heading">{{ overrides.title }}</h1>
+{% endif %}
+{% endblock event_title %}
+
+{% block event_details %}
+<div class="event-extra-info">
+  {{ page.extra_information|richtext }}
+</div>
+<div class="event-details">
+  {{ overrides.details|richtext }}
+</div>
+{% endblock event_details %}

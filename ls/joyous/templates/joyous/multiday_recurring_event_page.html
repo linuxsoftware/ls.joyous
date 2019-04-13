@@ -1,13 +1,1 @@
-{% extends "joyous/joyous_base.html" %}
-{% load joyous_tags %}
-
-{% block content %}
-  <div class="content">
-    <div class="event clearfix">
-      {% include "joyous/includes/event_details.html" with event=page %}
-    </div>
-
-    {% future_exceptions %}
-    {% include "joyous/includes/event_export.html" %}
-  </div>
-{% endblock %}
+{% extends "joyous/recurring_event_page.html" %}
