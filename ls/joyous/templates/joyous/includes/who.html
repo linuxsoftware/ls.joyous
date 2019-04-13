@@ -1,0 +1,6 @@
+{% load wagtailcore_tags %}
+{% if event.group %}
+<div class="event-group-page">
+  <a href="{% pageurl event.group %}">{{ event.group.title }}</a>
+</div>
+{% endif %}

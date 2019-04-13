@@ -1,0 +1,17 @@
+{% load wagtailcore_tags joyous_tags i18n %}
+<div class="event-when">
+  {{ event.when }}
+</div>
+{% with event_from_when=event.postponed_from_when %}
+{% if event_from_when %}
+<div class="event-postponed-from">
+    {{ event_from_when }}
+</div>
+{% endif %}
+{% endwith %}
+{% next_on event as event_next_on %}
+{% if event_next_on %}
+<div class="event-next-on">
+  {% blocktrans %}Next on {{ event_next_on }}{% endblocktrans %}
+</div>
+{% endif %}

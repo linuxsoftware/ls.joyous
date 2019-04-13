@@ -1,0 +1,33 @@
+{% extends "joyous/exception_base.html" %}
+{% load wagtailcore_tags i18n %}
+
+{% block event_status %}
+<div class="event-status">
+  {% blocktrans with what=page.what|lower %}This event has been {{ what }}.</a>{% endblocktrans %}
+  {{ page.status_text }}
+</div>
+{% endblock event_status %}
+
+{% block event_title %}
+{% if page.cancellation_title %}
+  <h1 class="event-heading">{{ page.cancellation_title }}</h1>
+{% else %}
+  <h1 class="event-heading">{{ overrides.title }}</h1>
+{% endif %}
+{% endblock event_title %}
+
+{% block event_when %}
+<div class="event-when">
+  {{ page.cancellationpage.when }}
+</div>
+<div class="event-postponed-to">
+  {% pageurl page as postponement_url %}
+  {% blocktrans with what=page.what postponed_to=page.when %}{{ what }} to <a href="{{ postponement_url }}" >{{ postponed_to }}</a>{% endblocktrans %}
+</div>
+{% endblock event_when %}
+
+{% block event_details %}
+<div class="event-cancellation-details">
+  {{ page.cancellation_details|richtext }}
+</div> 
+{% endblock event_details %}

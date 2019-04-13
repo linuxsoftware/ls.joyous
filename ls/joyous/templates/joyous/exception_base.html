@@ -1,0 +1,14 @@
+{% extends "joyous/event_base.html" %}
+{% load wagtailcore_tags wagtailimages_tags i18n %}
+
+{% block event_image %}
+<div class="event-image">
+  {% image overrides.image width-350 %}
+</div>
+{% endblock event_image %}
+
+{% block event_footer %}
+<div class="event-overrides event-index">
+  <a class="item" href="{% pageurl overrides %}">{% trans "See also <strong>other occurrences</strong> of this event." %}</a>
+</div>
+{% endblock event_footer %}
