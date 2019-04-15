@@ -252,6 +252,25 @@ class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     def holiday(self):
         return self.holidays.get(self.date)
 
+class EventsByDayList(list):
+    def __init__(self, fromDate, toDate):
+        self.fromOrd = fromDate.toordinal()
+        self.toOrd   = toDate.toordinal()
+        super().__init__(EventsOnDay(dt.date.fromordinal(ord), [], [])
+                         for ord in range(self.fromOrd, self.toOrd+1))
+
+    def add(self, thisEvent, pageFromDate, pageToDate):
+        pageFromOrd = pageFromDate.toordinal()
+        pageToOrd   = pageToDate.toordinal()
+        dayNum = pageFromOrd - self.fromOrd
+        if 0 <= dayNum <= self.toOrd - self.fromOrd:
+            self[dayNum].days_events.append(thisEvent)
+
+        for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
+            dayNum = pageOrd - self.fromOrd
+            if 0 <= dayNum <= self.toOrd - self.fromOrd:
+                self[dayNum].continuing_events.append(thisEvent)
+
 _1day  = dt.timedelta(days=1)
 _2days = dt.timedelta(days=2)
 
@@ -569,26 +588,19 @@ class SimpleEventQuerySet(EventQuerySet):
 
     def byDay(self, fromDate, toDate):
         request = self.request
-        fromOrd = fromDate.toordinal()
-        toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
             def __iter__(self):
-                evods = [EventsOnDay(dt.date.fromordinal(ord), [], [])
-                         for ord in range(fromOrd, toOrd+1)]
+                evods = EventsByDayList(fromDate, toDate)
                 for page in super().__iter__():
                     pageFromDate = getLocalDate(page.date,
                                                 page.time_from, page.tz)
                     pageToDate   = getLocalDate(page.date,
                                                 page.time_to, page.tz)
-                    dayNum = pageFromDate.toordinal() - fromOrd
                     thisEvent = ThisEvent(page.title, page,
                                           page.get_url(request))
-                    if 0 <= dayNum <= toOrd - fromOrd:
-                        evods[dayNum].days_events.append(thisEvent)
-                    if pageFromDate != pageToDate:
-                        if 0 <= dayNum+1 <= toOrd - fromOrd:
-                            evods[dayNum+1].continuing_events.append(thisEvent)
+                    evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
+
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _2days, toDate + _2days))
@@ -668,29 +680,19 @@ class MultidayEventQuerySet(EventQuerySet):
 
     def byDay(self, fromDate, toDate):
         request = self.request
-        fromOrd = fromDate.toordinal()
-        toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
             def __iter__(self):
-                evods = []
-                days = [dt.date.fromordinal(ord)
-                        for ord in range(fromOrd, toOrd+1)]
-                for day in days:
-                    days_events = []
-                    continuing_events = []
-                    for page in super().__iter__():
-                        pageFromDate = getLocalDate(page.date_from,
-                                                    page.time_from, page.tz)
-                        pageToDate   = getLocalDate(page.date_to,
-                                                    page.time_to, page.tz)
-                        thisEvent = ThisEvent(page.title, page,
-                                              page.get_url(request))
-                        if pageFromDate == day:
-                            days_events.append(thisEvent)
-                        elif pageFromDate < day <= pageToDate:
-                            continuing_events.append(thisEvent)
-                    evods.append(EventsOnDay(day, days_events, continuing_events))
+                evods = EventsByDayList(fromDate, toDate)
+                for page in super().__iter__():
+                    pageFromDate = getLocalDate(page.date_from,
+                                                page.time_from, page.tz)
+                    pageToDate   = getLocalDate(page.date_to,
+                                                page.time_to, page.tz)
+                    thisEvent = ThisEvent(page.title, page,
+                                          page.get_url(request))
+                    evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
+
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs.filter(date_to__gte   = fromDate - _2days)   \
@@ -774,12 +776,10 @@ class MultidayEventPage(Page, EventBase):
 class RecurringEventQuerySet(EventQuerySet):
     def byDay(self, fromDate, toDate):
         request = self.request
-        fromOrd = fromDate.toordinal()
-        toOrd   = toDate.toordinal()
+
         class ByDayIterable(ModelIterable):
             def __iter__(self):
-                evods = [EventsOnDay(dt.date.fromordinal(ord), [], [])
-                         for ord in range(fromOrd, toOrd+1)]
+                evods = EventsByDayList(fromDate, toDate)
                 for page in super().__iter__():
                     exceptions = self.__getExceptionsFor(page)
                     for occurence in page.repeat.between(fromDate - _2days,
@@ -795,21 +795,10 @@ class RecurringEventQuerySet(EventQuerySet):
                         if thisEvent:
                             pageFromDate = getLocalDate(occurence,
                                                         page.time_from, page.tz)
-                            pageFromOrd = pageFromDate.toordinal()
                             daysDelta = dt.timedelta(days=page.num_days - 1)
                             pageToDate = getLocalDate(occurence + daysDelta,
                                                       page.time_to, page.tz)
-                            pageToOrd = pageToDate.toordinal()
-
-                            dayNum = pageFromOrd - fromOrd
-                            if 0 <= dayNum <= toOrd - fromOrd:
-                                evods[dayNum].days_events.append(thisEvent)
-
-                            for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
-                                dayNum = pageOrd - fromOrd
-                                if 0 <= dayNum <= toOrd - fromOrd:
-                                    cont = evods[dayNum].continuing_events
-                                    cont.append(thisEvent)
+                            evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
 
             def __getExceptionsFor(self, page):
@@ -1577,31 +1566,18 @@ class PostponementQuerySet(EventQuerySet):
 
     def byDay(self, fromDate, toDate):
         request = self.request
-        fromOrd = fromDate.toordinal()
-        toOrd   = toDate.toordinal()
         class ByDayIterable(ModelIterable):
             def __iter__(self):
-                evods = [EventsOnDay(dt.date.fromordinal(ord), [], [])
-                         for ord in range(fromOrd, toOrd+1)]
+                evods = EventsByDayList(fromDate, toDate)
                 for page in super().__iter__():
                     thisEvent = ThisEvent(page.postponement_title,
                                           page, page.get_url(request))
                     pageFromDate = getLocalDate(page.date,
                                                 page.time_from, page.tz)
-                    pageFromOrd = pageFromDate.toordinal()
                     daysDelta = dt.timedelta(days=page.num_days - 1)
                     pageToDate = getLocalDate(page.date + daysDelta,
                                               page.time_to, page.tz)
-                    pageToOrd = pageToDate.toordinal()
-
-                    dayNum = pageFromOrd - fromOrd
-                    if 0 <= dayNum <= toOrd - fromOrd:
-                        evods[dayNum].days_events.append(thisEvent)
-
-                    for pageOrd in range(pageFromOrd + 1, pageToOrd + 1):
-                        dayNum = pageOrd - fromOrd
-                        if 0 <= dayNum <= toOrd - fromOrd:
-                            evods[dayNum].continuing_events.append(thisEvent)
+                    evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
 
         qs = self._clone()
