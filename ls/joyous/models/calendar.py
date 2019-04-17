@@ -19,6 +19,7 @@ from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
+from .. import __version__
 from ..edit_handlers import ConcealedPanel
 from ..utils.names import WEEKDAY_NAMES, MONTH_NAMES, MONTH_ABBRS
 from ..utils.weeks import week_info, gregorian_to_week_date, num_weeks_in_year
@@ -198,6 +199,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/calendar_month.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'year':         year,
                        'month':        month,
                        'today':        today,
@@ -264,6 +266,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/calendar_week.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'year':         year,
                        'week':         week,
                        'today':        today,
@@ -310,6 +313,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/calendar_list_day.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'year':         year,
                        'month':        month,
                        'dom':          dom,
@@ -346,6 +350,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/calendar_list_upcoming.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'today':        today,
                        'weeklyUrl':    weeklyUrl,
                        'monthlyUrl':   monthlyUrl,
@@ -377,6 +382,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/calendar_list_past.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'today':        today,
                        'weeklyUrl':    weeklyUrl,
                        'monthlyUrl':   monthlyUrl,
@@ -400,6 +406,7 @@ class CalendarPage(RoutablePageMixin, Page):
         return render(request, "joyous/includes/minicalendar.html",
                       {'self':         self,
                        'page':         self,
+                       'version':      __version__,
                        'today':        today,
                        'year':         year,
                        'month':        month,
