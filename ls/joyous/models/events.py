@@ -224,14 +224,6 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
 # Helper types and constants
 # ------------------------------------------------------------------------------
 ThisEvent = namedtuple("ThisEvent", "title page url")
-#TODO??
-#class ThisEvent(namedtuple("ThisEvent", "title page url")):
-#    def __new__(cls, page, request=None, title=None, url=None):
-#        if title is None:
-#            title = page.title
-#        if url is None:
-#            url = page.get_url(request)
-#        super().__new__(cls, title, page, url)
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))

@@ -88,7 +88,9 @@ class VCalendar(Calendar, VComponentMixin):
                 tzs.setdefault(event.tz, TimeZoneSpan()).add(vevent)
         for tz, vspan in tzs.items():
             vtz = vspan.createVTimeZone(tz)
-            vcal.add_component(vtz)
+            # Put timezones up top. The RFC doesn't require this, but everyone
+            # else seems to.
+            vcal.subcomponents.insert(0, vtz)
         return vcal
 
     @classmethod
