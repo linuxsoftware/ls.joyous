@@ -78,19 +78,21 @@ class VCalendar(Calendar, VComponentMixin):
     @classmethod
     def _fromCalendarPage(cls, page, request):
         vcal = cls(page)
+        vevents = []
         tzs = {}
         for event in page._getAllEvents(request):
             vevent = cls.factory.makeFromPage(event)
-            vcal.add_component(vevent)
+            vevents.append(vevent)
             for vchild in vevent.vchildren:
-                vcal.add_component(vchild)
+                vevents.append(vchild)
             if event.tz and event.tz is not pytz.utc:
                 tzs.setdefault(event.tz, TimeZoneSpan()).add(vevent)
         for tz, vspan in tzs.items():
             vtz = vspan.createVTimeZone(tz)
             # Put timezones up top. The RFC doesn't require this, but everyone
             # else seems to.
-            vcal.subcomponents.insert(0, vtz)
+            vcal.add_component(vtz)
+        vcal.subcomponents.extend(vevents)
         return vcal
 
     @classmethod
