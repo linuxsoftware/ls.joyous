@@ -597,7 +597,7 @@ class SimpleEventQuerySet(EventQuerySet):
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _2days, toDate + _2days))
 
-class SimpleEventPage(Page, EventBase):
+class SimpleEventPage(EventBase, Page):
     events = EventManager.from_queryset(SimpleEventQuerySet)()
 
     class Meta:
@@ -699,7 +699,7 @@ class MultidayEventPageForm(EventPageForm):
         elif startDate == endDate:
             super()._checkStartBeforeEnd(cleaned_data)
 
-class MultidayEventPage(Page, EventBase):
+class MultidayEventPage(EventBase, Page):
     events = EventManager.from_queryset(MultidayEventQuerySet)()
 
     class Meta:
@@ -855,7 +855,7 @@ class RecurringEventPageForm(EventPageForm):
         if numDays == 1:
             super()._checkStartBeforeEnd(cleaned_data)
 
-class RecurringEventPage(Page, EventBase):
+class RecurringEventPage(EventBase, Page):
     events = EventManager.from_queryset(RecurringEventQuerySet)()
 
     class Meta:
@@ -1394,7 +1394,7 @@ class ExtraInfoPageForm(EventExceptionPageForm):
         self._checkSlugAvailable(cleaned_data)
         return cleaned_data
 
-class ExtraInfoPage(Page, EventExceptionBase):
+class ExtraInfoPage(EventExceptionBase, Page):
     class Meta:
         verbose_name = _("extra event information")
         verbose_name_plural = _("extra event information")
@@ -1488,7 +1488,7 @@ class CancellationPageForm(EventExceptionPageForm):
         self._checkSlugAvailable(cleaned_data, "postponement")
         return cleaned_data
 
-class CancellationPage(Page, EventExceptionBase):
+class CancellationPage(EventExceptionBase, Page):
     class Meta:
         verbose_name = _("cancellation")
         verbose_name_plural = _("cancellations")

@@ -14,9 +14,9 @@ from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         CancellationPage, ExtraInfoPage, PostponementPage)
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, TU, SA
-from ls.joyous.formats.ical import (SimpleVEvent, MultidayVEvent, RecurringVEvent,
-        MultidayRecurringVEvent, ExtraInfoVEvent, PostponementVEvent,
-        CancellationVEvent, VEventFactory, VEvent)
+from ls.joyous.formats.ical import (SimpleVEvent, MultidayVEvent,
+        RecurringVEvent, MultidayRecurringVEvent, ExtraInfoVEvent,
+        PostponementVEvent, CancellationVEvent, VEventFactory, VEvent)
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------

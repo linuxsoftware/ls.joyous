@@ -13,10 +13,9 @@ from wagtail.core.models import Site, Page
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
-                              CancellationPage, PostponementPage, ExtraInfoPage,
-                              GroupPage)
-from ls.joyous.formats.ical import (CalendarTypeError, CalendarNotInitializedError,
-                                    VCalendar)
+        CancellationPage, PostponementPage, ExtraInfoPage, GroupPage)
+from ls.joyous.formats.ical import (CalendarTypeError,
+        CalendarNotInitializedError, VCalendar)
 from freezegun import freeze_time
 from .testutils import datetimetz, freeze_timetz, getPage
 

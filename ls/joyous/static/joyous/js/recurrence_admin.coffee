@@ -1,6 +1,7 @@
 #---------------------------------------------------------------------------
 # Recurrence Widget
 #---------------------------------------------------------------------------
+$ = @$ ? django.jQuery
 
 class RecurrenceWidget
     constructor: (widgetId) ->
@@ -151,6 +152,7 @@ class RecurrenceWidget
         return
 
 @initRecurrenceWidget = (id) ->
+
     widget = new RecurrenceWidget(id)
     widget.enable()
     return
