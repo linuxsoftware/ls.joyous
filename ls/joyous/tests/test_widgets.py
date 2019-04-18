@@ -4,6 +4,7 @@
 import sys
 import datetime as dt
 from django.test import TestCase
+from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import YEARLY, WEEKLY, MONTHLY
 from ls.joyous.utils.recurrence import MO, TU, WE, TH, FR, SA, SU
@@ -116,6 +117,9 @@ class TestRecurrenceWidget(TestCase):
 
 # ------------------------------------------------------------------------------
 class TestTime12hrInput(TestCase):
+    def setUp(self):
+        self.newTime = AdminTimeInput().attrs.get('autocomplete', "new-time")
+
     def testNullValue(self):
         widget = Time12hrInput()
         self.assertEqual(widget.value_from_datadict({}, {}, 'time'), None)
@@ -124,44 +128,44 @@ class TestTime12hrInput(TestCase):
         widget = Time12hrInput()
         out = widget.render('time', None, {'id': "time_id"})
         self.assertHTMLEqual(out, """
-<input type="text" name="time" id="time_id" autocomplete="off">
+<input type="text" name="time" id="time_id" autocomplete="{0.newTime}">
 <script>
-$(function() {
+$(function() {{
     initTime12hrChooser("time_id");
-});
-</script>""")
+}});
+</script>""".format(self))
 
     def testRenderValues(self):
         attrs = {'id': "time_id"}
         widget = Time12hrInput()
         out = widget.render('time', dt.time(10,15,54,89123), attrs)
         self.assertHTMLEqual(out, """
-<input type="text" name="time" id="time_id" autocomplete="off" value="10:15am">
+<input type="text" name="time" id="time_id" autocomplete="{0.newTime}" value="10:15am">
 <script>
-$(function() {
+$(function() {{
     initTime12hrChooser("time_id");
-});
-</script>""")
+}});
+</script>""".format(self))
         out = widget.render('time', dt.time(12,51,34,89123), attrs)
         self.assertHTMLEqual(out, """
-<input type="text" name="time" id="time_id" autocomplete="off" value="12:51pm">
+<input type="text" name="time" id="time_id" autocomplete="{0.newTime}" value="12:51pm">
 <script>
-$(function() {
+$(function() {{
     initTime12hrChooser("time_id");
-});
-</script>""")
+}});
+</script>""".format(self))
 
     def testRenderFromString(self):
         attrs = {'id': "time_id"}
         widget = Time12hrInput()
         out = widget.render('time', "1pm", attrs)
         self.assertHTMLEqual(out, """
-<input type="text" name="time" id="time_id" autocomplete="off" value="1pm">
+<input type="text" name="time" id="time_id" autocomplete="{0.newTime}" value="1pm">
 <script>
-$(function() {
+$(function() {{
     initTime12hrChooser("time_id");
-});
-</script>""")
+}});
+</script>""".format(self))
 
     def testMedia(self):
         widget = Time12hrInput()
@@ -170,6 +174,9 @@ $(function() {
 
 # ------------------------------------------------------------------------------
 class TestExceptionDateInput(TestCase):
+    def setUp(self):
+        self.newDate = AdminDateInput().attrs.get('autocomplete', "new-date")
+
     def testNullValue(self):
         widget = ExceptionDateInput()
         self.assertEqual(widget.value_from_datadict({}, {}, 'xdate'), None)
@@ -179,7 +186,7 @@ class TestExceptionDateInput(TestCase):
         out = widget.render('xdate', None, {'id': "id_xdate"})
         lines = [line for line in out.split("\n") if line]
         self.assertHTMLEqual(lines[0], """
-<input type="text" name="xdate" id="id_xdate" autocomplete="off">""")
+<input type="text" name="xdate" id="id_xdate" autocomplete="{0.newDate}">""".format(self))
         self.assertIn('<script>initExceptionDateChooser("id_xdate", null, ', lines[1]);
         self.assertIn('"dayOfWeekStart": 0', lines[1])
         self.assertIn('"format": "Y-m-d"', lines[1])

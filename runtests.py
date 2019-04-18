@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-from coverage import Coverage
 import django
 from django.conf import settings
 from django.test.utils import get_runner
@@ -25,17 +24,18 @@ def run():
     return failures
 
 def coverage():
-    if "--coverage" in sys.argv:
-        cover = Coverage(source=["ls.joyous"], omit=["*/tests*"])
-        cover.start()
-        failures = run()
-        cover.stop()
-        cover.save()
-        cover.html_report()
-    else:
-        failures = run()
+    from coverage import Coverage
+    cover = Coverage(source=["ls.joyous"], omit=["*/tests*"])
+    cover.start()
+    failures = run()
+    cover.stop()
+    cover.save()
+    cover.html_report()
     return failures
 
 if __name__ == "__main__":
-    failures = coverage()
+    if "--coverage" in sys.argv:
+        failures = coverage()
+    else:
+        failures = run()
     sys.exit(bool(failures))

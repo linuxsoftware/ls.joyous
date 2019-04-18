@@ -45,10 +45,12 @@ class CalendarPageForm(WagtailAdminPageForm):
                 if not page:
                     return False
                 hasReq = hasattr(page, '__joyous_edit_request')
+                if not hasReq:
+                    return False
                 # only a user with edit and publishing rights should be able
                 # to import iCalendar files
                 perms = page.permissions_for_user(self.request.user)
-                return hasReq and perms.can_publish() and perms.can_edit()
+                return perms.can_publish() and perms.can_edit()
 
         # TODO support multiple formats?
         cls.importHandler = handler

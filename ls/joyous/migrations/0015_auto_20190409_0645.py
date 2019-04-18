@@ -3,6 +3,7 @@
 import django.core.validators
 from django.db import migrations, models
 import ls.joyous.utils.mixins
+from contextlib import suppress
 
 
 class Migration(migrations.Migration):
@@ -13,6 +14,11 @@ class Migration(migrations.Migration):
         ('wagtailforms', '0003_capitalizeverbose'),
         ('joyous', '0014_auto_20190328_0652'),
     ]
+    with suppress(ImportError):
+        __import__("django.contrib.auth.migrations."
+                   "0011_update_proxy_permissions")
+        dependencies.append(('auth', '0011_update_proxy_permissions'))
+
 
     operations = [
         migrations.CreateModel(
