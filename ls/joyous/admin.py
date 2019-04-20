@@ -5,16 +5,11 @@ from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RescheduleMultidayEventPage, GroupPage,
         CalendarPage, GeneralCalendarPage, SpecificCalendarPage)
 
-# Register your models here.
-admin.site.register(SimpleEventPage)
-admin.site.register(MultidayEventPage)
-admin.site.register(RecurringEventPage)
-admin.site.register(CancellationPage)
-admin.site.register(ExtraInfoPage)
-admin.site.register(PostponementPage)
 admin.site.register(CalendarPage)
+admin.site.register(SimpleEventPage, date_hierarchy = 'date')
+admin.site.register(MultidayEventPage, date_hierarchy = 'date_from')
+admin.site.register(RecurringEventPage)
+admin.site.register(CancellationPage, date_hierarchy = 'except_date')
+admin.site.register(ExtraInfoPage, date_hierarchy = 'except_date')
+admin.site.register(PostponementPage, date_hierarchy = 'except_date')
 admin.site.register(GroupPage)
-
-
-
-
