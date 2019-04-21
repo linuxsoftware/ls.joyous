@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
+from unittest.mock import Mock
 from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from django.utils import translation
@@ -16,7 +17,8 @@ class Test(TestCase):
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         calendar = CalendarPage(owner  = self.user,
                                 slug  = "events",
-                                title = "Events")
+                                title = "Events",
+                                default_view = "L")
         Page.objects.get(slug='home').add_child(instance=calendar)
         calendar.save_revision().publish()
         event = SimpleEventPage(owner = self.user,
@@ -79,6 +81,13 @@ class Test(TestCase):
         self.assertEqual(len(select(".upcoming-events")), 1)
         self.assertEqual(len(select(".upcoming-events .event-item")), 0)
 
+    def testUpcomingEventsInvalidPage(self):
+        response = self.client.get("/events/upcoming/?page=99")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(select(".upcoming-events")), 1)
+        self.assertEqual(len(select(".upcoming-events .event-item")), 0)
+
     def testPastEvents(self):
         response = self.client.get("/events/past/")
         select = response.soup.select
@@ -92,6 +101,19 @@ class Test(TestCase):
         when = events[0].select(".event-when")[0]
         self.assertEqual(when.string.strip(),
                          "Sunday 5th of June 2011 at 9:30am to 11am")
+
+    def testRouteDefault(self):
+        response = self.client.get("/events/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(select(".upcoming-events")), 1)
+        response = self.client.get("/events/?view=weekly")
+        self.assertEqual(response.status_code, 200)
+        select = response.soup.select
+        self.assertEqual(len(select(".week-name")), 1)
+        response = self.client.get("/events/?view=monthly")
+        select = response.soup.select
+        self.assertEqual(len(select(".month-name")), 1)
 
     def testMiniMonthView(self):
         response = self.client.get("/events/mini/2011/06/")
@@ -196,6 +218,7 @@ class Test(TestCase):
         response = self.client.get("/events/2100/W1/")
         self.assertEqual(response.status_code, 404)
 
+
 # ------------------------------------------------------------------------------
 class TestFrançais(TestCase):
     def setUp(self):
@@ -233,6 +256,8 @@ class TestFrançais(TestCase):
         self.assertEqual(holidays[0].h4.string.strip(), "12 Mar")
         self.assertEqual(holidays[0].div.string.strip(),
                          "Taranaki Anniversary Day")
+
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

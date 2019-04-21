@@ -1,6 +1,8 @@
 Out of the box
 ==============
 
+.. ootb-tutorial:
+
 This tutorial covers what it is like to install a Joyous calendar, with no
 configuration or customisations, on a fresh Wagtail site.
  
@@ -17,8 +19,8 @@ configuration or customisations, on a fresh Wagtail site.
 
        $ pip install joyous
 
-2.  Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS setting in
-    mysite/mysite/settings/base.py
+2.  Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS setting
+    in mysite/mysite/settings/base.py.
 
     .. code-block:: python
 
@@ -37,7 +39,7 @@ configuration or customisations, on a fresh Wagtail site.
         $ ./manage.py collectstatic --no-input
 
 
-4.  Now you have added the ls.joyous application to your project, start your server
+4.  Now you have added the ls.joyous application to your project, start your server.
 
     .. code-block:: console
 
