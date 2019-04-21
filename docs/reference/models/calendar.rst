@@ -1,5 +1,6 @@
 Calendar
 --------
+
 .. automodule:: ls.joyous.models
 .. autoclass:: CalendarPage
     :show-inheritance:
@@ -24,6 +25,9 @@ Calendar
     .. automethod:: serveUpcoming
     .. automethod:: servePast
     .. automethod:: serveMiniMonth
+
+    .. automethod:: can_create_at
+    .. automethod:: _allowAnotherAt
     .. automethod:: peers
 
     .. automethod:: _getEventsOnDay
@@ -38,6 +42,7 @@ Calendar
 .. autoclass:: SpecificCalendarPage
     :show-inheritance:
 
+    .. automethod:: _allowAnotherAt
     .. automethod:: _getEventsOnDay
     .. automethod:: _getEventsByDay
     .. automethod:: _getEventsByWeek
@@ -49,6 +54,7 @@ Calendar
 .. autoclass:: GeneralCalendarPage
     :show-inheritance:
 
+    .. automethod:: _allowAnotherAt
     .. automethod:: _getEventsOnDay
     .. automethod:: _getEventsByDay
     .. automethod:: _getEventsByWeek

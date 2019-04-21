@@ -74,7 +74,7 @@ configuration or customisations, on a fresh Wagtail site.
 
 8.  To add an event to the calendar, add it as a child-page.
     You have the choice of four types
-    (We can simplify this - covered elsewhere).
+    (We can simplify this - covered in :doc:`keeping_things_simple`).
 
         * ``Event page``
         * ``Multiday event page``
@@ -83,8 +83,7 @@ configuration or customisations, on a fresh Wagtail site.
 
 9.  Choose Event page.  Add a ``Title``, ``Date`` and some ``Details``.  
     The ``Time zone`` will default to your current time zone which is
-    set in your Wagtail Account settings.  (More about editing events
-    is covered elsewhere.)
+    set in your Wagtail Account settings.
 
 ::
         

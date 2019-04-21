@@ -1700,7 +1700,8 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
     @property
     def what(self):
         """
-        Return a postponed or a rescheduled string
+        May return a 'postponed' or 'rescheduled' string depending what
+        the start and finish time of the event has been changed to.
         """
         originalFromDt = dt.datetime.combine(self.except_date,
                                              timeFrom(self.overrides.time_from))

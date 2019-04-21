@@ -3,7 +3,7 @@ Reference
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
 
     models/index
     templatetags

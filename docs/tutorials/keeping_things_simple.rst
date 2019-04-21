@@ -53,7 +53,7 @@ In this example we will create a calendar for the gigs our band is playing.
 
 
 5.  Select Home | Add child page, and add a ``Calendar page``.  
-    (Or if you already have select Edit for it.)
+    (Or if you already have, select Edit for it.)
 
 6.  Give the calendar a suitable ``Title`` etc.
 
@@ -72,7 +72,7 @@ In this example we will create a calendar for the gigs our band is playing.
    .. figure:: ../_static/img/tutorials/kts/event_page_new.png
       :alt: NEW Event page
 
-10.  Add a ``Title``, ``Date`` and some ``Details``.  
+10. Add a ``Title``, ``Date`` and some ``Details``.  
     Notice how the user is not prompted for the fields 
     Category, TZ, Group page, or Website due to the call to
     ``removeContentPanels`` in gigs/models.py.

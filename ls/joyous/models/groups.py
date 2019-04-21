@@ -28,7 +28,7 @@ def get_group_model():
     """
     Get the group model from the ``JOYOUS_GROUP_MODEL`` setting.
     Useful for developers that need the group model.
-    Defaults to the standard :class:`~joyous.Group` model
+    Defaults to the standard :class:`ls.joyous.models.GroupPage` model
     if no custom model is defined.
     """
     from django.apps import apps

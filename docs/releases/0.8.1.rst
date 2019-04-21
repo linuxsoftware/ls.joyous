@@ -4,7 +4,7 @@ Joyous 0.8.1 release notes
 
 .. contents::
     :local:
-    :depth: 1
+    :depth: 3
 
 
 What's new

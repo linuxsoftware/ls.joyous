@@ -1,10 +1,10 @@
 ==========================
-Joyous 0.8.1 release notes - IN DEVELOPMENT
+Joyous 0.8.2 release notes - IN DEVELOPMENT
 ==========================
 
 .. contents::
     :local:
-    :depth: 1
+    :depth: 3
 
 
 What's new
@@ -17,14 +17,14 @@ Wagtail 2.5
 Other features
 ~~~~~~~~~~~~~~
  * Show cancellation details for postponement page in /from/ view.
- * Restructured templates to use more inheritance and less inclusion.
- * Refactor ByDayIterables using EventsByDayList.
  * Include version number in calendar table tag.
  * Add django admin interface.
+ * Restructured templates to use more inheritance and less inclusion.
+ * Refactor ByDayIterables using EventsByDayList.
 
 Bug fixes
 ~~~~~~~~~
  * |version| macro isn't working with ReadTheDocs, so hardcoded it.
- * Fix cancellation display - inherit from EventExceptionBase before Page
+ * Fix display of Cancellations
 
 

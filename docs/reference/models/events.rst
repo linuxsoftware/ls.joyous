@@ -1,5 +1,6 @@
 Events
 ------
+
 .. automodule:: ls.joyous.models
 
 .. autofunction:: getAllEventsByDay
@@ -117,6 +118,10 @@ Events
 
         The recurrence rule of when the event occurs.
 
+    .. attribute:: num_days
+
+        The number of days an occurrence lasts for.
+
     .. autoattribute:: next_date
     .. autoattribute:: _upcoming_datetime_from
     .. autoattribute:: prev_date
@@ -136,10 +141,6 @@ Events
 
 .. autoclass:: MultidayRecurringEventPage
     :show-inheritance:
-
-    .. attribute:: num_days
-
-        The number of days an occurrence lasts for.
 
 .. autoclass:: EventExceptionBase
     :show-inheritance:
@@ -239,6 +240,7 @@ Events
     .. autoattribute:: status
     .. autoattribute:: when
     .. autoattribute:: postponed_from_when
+    .. autoattribute:: what
     .. autoattribute:: postponed_from
     .. autoattribute:: postponed_to
     .. autoattribute:: at

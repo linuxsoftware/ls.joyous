@@ -4,7 +4,7 @@ Joyous 0.9 release notes - IN DEVELOPMENT
 
 .. contents::
     :local:
-    :depth: 1
+    :depth: 3
 
 
 What's new
