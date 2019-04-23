@@ -231,5 +231,12 @@ intersphinx_mapping = {
     'dateutil': ('https://dateutil.readthedocs.io/en/stable', None),
     }
 
-#def setup(app):
+def setup(app):
 #    app.add_stylesheet('css/custom.css')
+
+    # Add the Django setting construct
+    app.add_crossref_type(
+        directivename = "setting",
+        rolename = "setting",
+        indextemplate = "pair: %s; setting",
+    )

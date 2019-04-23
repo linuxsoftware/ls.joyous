@@ -7,6 +7,10 @@ Views
 Users can display the calendar in a Monthly, Weekly, or List View. 
 (The default view is set in the Settings tab.)
 
+The first day of the week used, Sunday or Monday, depends upon your Django
+:doc:`format localization <django:topics/i18n/formatting>` or
+:setting:`django:FIRST_DAY_OF_WEEK` setting.
+
 There are actually multiple list views
 
 * All upcoming events

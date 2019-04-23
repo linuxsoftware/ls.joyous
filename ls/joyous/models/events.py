@@ -990,10 +990,7 @@ class RecurringEventPage(EventBase, Page):
         A string describing when the event occurs (in the local time zone).
         """
         offset   = 0
-        timeFrom = None
-        dateFrom = None
-        timeTo   = None
-        dateTo   = None
+        timeFrom = dateFrom = timeTo = dateTo = None
         fromDt   = self._getFromDt()
         if fromDt is not None:
             offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
