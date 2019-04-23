@@ -9,8 +9,10 @@ from .models import RecurringEventPage, PostponementPage
 
 # ------------------------------------------------------------------------------
 # Recieve Signals
-# TODO: Maybe change to @hooks.register('after_create_page')
-# as it is documented and init_new_page is not?
+# The hook 'before_create_page' occurs too early, the page is not yet created
+# so can't be modified.  The hook 'after_create_page' occurs too late, it's run
+# after the form is POSTed.  
+# Setting self.initial in EventExceptionPageForm.__init__ might work.
 @receiver(init_new_page)
 def identifyExpectantParent(sender, **kwargs):
     page = kwargs.get('page')
