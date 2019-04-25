@@ -56,7 +56,7 @@ RecurringEventPage
 A recurring event has multiple occurrences repeating by a certain rule.
 See :class:`RecurringEventPage <ls.joyous.models.RecurringEventPage>`.
 
-The recurrence rule is somewhat based upon RFC5545 RRules.  Events can occur daily, weekly, monthly, or yearly intervals, by weekday, monthday, and month.  See :class:`Recurrence <ls.joyous.utils.recurrence.Recurrence>`.
+The recurrence rule is somewhat based upon `RFC 5545 <https://tools.ietf.org/html/rfc5545>`_. RRules.  Events can occur daily, weekly, monthly, or yearly intervals, by weekday, monthday, and month.  See :class:`Recurrence <ls.joyous.utils.recurrence.Recurrence>`.
 
 A RecurringEventPage can have child pages of its own which specify exceptions to the rule.
 See :ref:`CancellationPage`, :ref:`PostponementPage`, and :ref:`ExtraInfoPage` below for more details.

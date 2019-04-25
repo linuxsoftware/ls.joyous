@@ -25,7 +25,7 @@ def run():
 
 def coverage():
     from coverage import Coverage
-    cover = Coverage(source=["ls.joyous"], omit=["*/tests*"])
+    cover = Coverage()
     cover.start()
     failures = run()
     cover.stop()

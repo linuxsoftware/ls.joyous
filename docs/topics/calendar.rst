@@ -60,12 +60,17 @@ GeneralCalendarPage
 Displays all the events in the database ignoring site boundaries.
 See :class:`GeneralCalendarPage <ls.joyous.models.GeneralCalendarPage>`.
 
+GeneralCalendarPage is disabled by default.  Use ``GeneralCalendarPage.is_creatable = True`` to enable it.
+
+
 .. _SpecificCalendarPage:
 
 SpecificCalendarPage 
 --------------------
 Displays only those events which are children of itself.
 See :class:`SpecificCalendarPage <ls.joyous.models.SpecificCalendarPage>`.
+
+SpecificCalendarPage is disabled by default.  Use ``SpecificCalendarPage.is_creatable = True`` to enable it.
 
 Derive your own
 ----------------

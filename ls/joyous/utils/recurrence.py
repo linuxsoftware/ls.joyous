@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Recurrence
 # ------------------------------------------------------------------------------
-# Somewhat based upon RFC5545 RRules, implemented using dateutil.rrule
+# Somewhat based upon RFC 5545 RRules, implemented using dateutil.rrule
 # Does not support timezones ... and probably never will
 # Does not support a frequency of by hour, by minute or by second
 #
@@ -68,7 +68,7 @@ MO, TU, WE, TH, FR, SA, SU = EVERYWEEKDAY = map(Weekday, range(7))
 class Recurrence(rrulebase):
     """
     Implementation of the recurrence rules somewhat based upon
-    `RFC5545 <https://tools.ietf.org/html/rfc5545>`_ RRules,
+    `RFC 5545 <https://tools.ietf.org/html/rfc5545>`_ RRules,
     implemented using dateutil.rrule.
 
     Does not support timezones ... and probably never will.

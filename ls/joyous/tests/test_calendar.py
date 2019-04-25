@@ -303,6 +303,7 @@ class TestFrançais(TestCase):
 # ------------------------------------------------------------------------------
 class TestSpecificCalendar(TestCase):
     def setUp(self):
+        SpecificCalendarPage.is_creatable = True
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         self.request = RequestFactory().get("/test")
         self.request.user = self.user
@@ -394,6 +395,7 @@ class TestSpecificCalendar(TestCase):
 # ------------------------------------------------------------------------------
 class TestGeneralCalendar(TestCase):
     def setUp(self):
+        GeneralCalendarPage.is_creatable = True
         self.user = User.objects.create_user('i', 'i@j.test', 's3(r3t')
         self.request = RequestFactory().get("/test")
         self.request.user = self.user

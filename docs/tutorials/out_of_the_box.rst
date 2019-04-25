@@ -70,7 +70,8 @@ configuration or customisations, on a fresh Wagtail site.
 .. note::
     There can only be one CalendarPage per Wagtail site, so if you wish to 
     repeat step 5 you will have to delete this one first.  
-    (See ``SpecificCalendarPage`` if you do want multiple calendars.)
+    (See :ref:`SpecificCalendarPage` if you do want multiple calendars.)
+
 
 8.  To add an event to the calendar, add it as a child-page.
     You have the choice of four types
