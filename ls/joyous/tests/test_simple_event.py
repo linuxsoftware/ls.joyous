@@ -291,6 +291,7 @@ class TestQuerySet(TestCase):
                                            page = bee)
         self.assertEqual(list(SimpleEventPage.events.all()),
                          [self.event, bee])
+        self.assertFalse(bee.isAuthorized(None))
         request = RequestFactory().get("/test")
         request.user = AnonymousUser()
         request.session = {}

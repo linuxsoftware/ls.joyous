@@ -566,6 +566,7 @@ def removeContentPanels(remove):
     SimpleEventPage._removeContentPanels(remove)
     MultidayEventPage._removeContentPanels(remove)
     RecurringEventPage._removeContentPanels(remove)
+    MultidayRecurringEventPage._removeContentPanels(remove)
     PostponementPage._removeContentPanels(remove)
 
 # ------------------------------------------------------------------------------
