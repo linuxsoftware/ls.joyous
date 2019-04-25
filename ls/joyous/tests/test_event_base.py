@@ -18,14 +18,14 @@ from .testutils import datetimetz, freeze_timetz
 class Test(TestCase):
     def testRemoveContentPanels(self):
         removeContentPanels(["tz", "location"])
-        removeContentPanels(["website"])
+        removeContentPanels("website")
 
         for cls in (SimpleEventPage, MultidayEventPage, RecurringEventPage,
                     MultidayRecurringEventPage, PostponementPage):
             with self.subTest(classname = cls.__name__):
-                self.assertFalse(any(panel for panel in cls.content_panels if
-                                     getattr(panel, "field_name", None) in
-                                                 ("tz", "location", "website")))
+                self.assertFalse([panel for panel in cls.content_panels
+                                  if getattr(panel, "field_name", None) in
+                                                 ("tz", "location", "website")])
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
