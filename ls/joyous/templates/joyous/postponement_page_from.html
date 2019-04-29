@@ -6,7 +6,7 @@
 {% if page.status %}
   {{ page.status_text }}
 {% else %}
-  {% blocktrans with what=page.what|lower %}This event has been {{ what }}.</a>{% endblocktrans %}
+  {% blocktrans with what=page.what|lower %}This event has been {{ what }}.{% endblocktrans %}
 {% endif %}
 </div>
 {% endblock event_status %}
@@ -25,7 +25,7 @@
 </div>
 <div class="event-postponed-to">
   {% pageurl page as postponement_url %}
-  {% blocktrans with what=page.what postponed_to=page.when %}{{ what }} to <a href="{{ postponement_url }}" >{{ postponed_to }}</a>{% endblocktrans %}
+  {% blocktrans with what=page.what postponed_to=page.when %}{{ what }} to <a class="inline-link" href="{{ postponement_url }}" >{{ postponed_to }}</a>{% endblocktrans %}
 </div>
 {% endblock event_when %}
 
