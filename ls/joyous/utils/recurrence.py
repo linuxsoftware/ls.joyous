@@ -297,7 +297,7 @@ class Recurrence(rrulebase):
                         of = " "+_("of {months}").format(months=hrJoin(months))
                 else:
                     d += offset
-                retval = _("The {ordinal} day").format(ordinal=toOrdinal(d))
+                retval = _("{theOrdinal} day").format(theOrdinal=toTheOrdinal(d))
             retval += of
             if self.interval >= 2:
                 if self.freq == MONTHLY:

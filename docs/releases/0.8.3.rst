@@ -1,0 +1,22 @@
+========================
+Joyous 0.8.3 release notes - IN DEVELOPMENT
+========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+Other features
+~~~~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Upgrade considerations
+======================
+

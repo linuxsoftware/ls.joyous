@@ -12,7 +12,7 @@ Install the package.
 
     $ pip install ls.joyous
 
-Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS
+Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS.
 
 .. code-block:: python
 
@@ -22,6 +22,13 @@ Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS
         'wagtail.contrib.modeladmin',
         ...
     ]
+
+Run migrations and collectstatic.
+
+.. code-block:: console
+
+    $ ./manage.py migrate
+    $ ./manage.py collectstatic --no-input
 
 .. _compatibility:
 
