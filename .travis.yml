@@ -14,17 +14,6 @@ python:
   - "3.6"
   - "3.7"
 
-# matrix:
-#   include:
-#     - python: 3.7
-#       dist: xenial
-#       sudo: required
-#       env: WAGTAIL_VERSION=2.3
-#     - python: 3.7
-#       dist: xenial
-#       sudo: required
-#       env: WAGTAIL_VERSION=2.4
-
 install:
   - pip install -r requirements.txt
   - pip install wagtail==$WAGTAIL_VERSION

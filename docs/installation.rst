@@ -34,14 +34,17 @@ Joyous version 0.8.2 is known to work with the following versions of Wagtail, Dj
 =======   ======   =======
 Wagtail   Django   Python
 =======   ======   =======
-2.3       2.1.7    3.5.6
-2.3       2.1.7    3.6.3
-2.3       2.1.7    3.7.1
+2.3       2.1.8    3.5.6
+2.3       2.1.8    3.6.7
+2.3       2.1.8    3.7.1
 2.4       2.1.5    3.5.4
-2.4       2.1.7    3.5.6
-2.4       2.1.7    3.6.3
-2.4       2.1.7    3.7.1
+2.4       2.1.8    3.5.6
+2.4       2.1.8    3.6.7
+2.4       2.1.8    3.7.1
 2.5       2.2      3.5.4
+2.5       2.2      3.5.6
+2.5       2.2      3.6.7
+2.5       2.2      3.7.1
 =======   ======   =======
 
 Other versions may work - YMMV.  Django 2.1 is a definite minimum requirement.
