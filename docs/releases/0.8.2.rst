@@ -50,3 +50,22 @@ When unpacking the tuple you will have to include this field too, e.g.
 
         {% for title, page, url in evod.days_events %}
 
+
+auth.0011_update_proxy_permissions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You might see an error running the auth.0011_update_proxy_permissions migration something like...
+
+    .. code-block:: console
+
+         django.db.utils.IntegrityError: duplicate key value violates unique constraint "idx_18141_auth_permission_content_type_id_01ab375a_uniq"
+         DETAIL: Key (content_type_id, codename)=(42, add_specificcalendarpage) already exists
+
+This is a `known issue <https://code.djangoproject.com/ticket/30351>`_.
+There is a fix coming for this in Django, hopefully in 2.2.1.
+Until then the migration can fairly safely be faked when the error occurs.
+
+    .. code-block:: console
+
+        $ ./manage.py migrate --fake auth 0011_update_proxy_permissions 
+        $ ./manage.py migrate
+
