@@ -51,13 +51,13 @@ class Weekday(rrweekday):
         if not self.n:
             return localWeekday
         else:
-            ordinal = toOrdinal(self.n)
+            theOrdinal = toTheOrdinal(self.n, inTitleCase=False)
             if offset < 0:
-                return _("{localWeekday} before the "
-                         "{ordinal} {weekday}").format(**locals())
+                return _("{localWeekday} before "
+                         "{theOrdinal} {weekday}").format(**locals())
             else:
-                return _("{localWeekday} after the "
-                         "{ordinal} {weekday}").format(**locals())
+                return _("{localWeekday} after "
+                         "{theOrdinal} {weekday}").format(**locals())
 
     def _getPluralWhen(self, offset):
         return self._getWhen(offset, WEEKDAY_NAMES_PLURAL)
@@ -297,7 +297,9 @@ class Recurrence(rrulebase):
                         of = " "+_("of {months}").format(months=hrJoin(months))
                 else:
                     d += offset
-                retval = _("{theOrdinal} day").format(theOrdinal=toTheOrdinal(d))
+                theOrdinal = toTheOrdinal(d, inTitleCase=False)
+                TheOrdinal = theOrdinal[0].upper() + theOrdinal[1:]
+                retval = _("{TheOrdinal} day").format(TheOrdinal=TheOrdinal)
             retval += of
             if self.interval >= 2:
                 if self.freq == MONTHLY:
