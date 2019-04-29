@@ -3,8 +3,11 @@
 
 {% block event_status %}
 <div class="event-status">
-  {% blocktrans with what=page.what|lower %}This event has been {{ what }}.</a>{% endblocktrans %}
+{% if page.status %}
   {{ page.status_text }}
+{% else %}
+  {% blocktrans with what=page.what|lower %}This event has been {{ what }}.</a>{% endblocktrans %}
+{% endif %}
 </div>
 {% endblock event_status %}
 
