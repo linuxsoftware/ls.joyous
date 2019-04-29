@@ -87,6 +87,9 @@ class ConcealedPanel(MultiFieldPanel):
 
     def on_instance_bound(self):
         super().on_instance_bound()
+        if not self.request:
+            # wait for the request to be set, it will eventually be
+            return
         if self._show():
             self.heading   = self._heading
             self.help_text = self._help_text
