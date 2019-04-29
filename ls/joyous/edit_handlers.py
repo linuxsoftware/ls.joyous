@@ -18,14 +18,18 @@ class ExceptionDatePanel(FieldPanel):
 
     def on_instance_bound(self):
         super().on_instance_bound()
-        if self.instance.overrides is not None:
-            widget = self.bound_field.field.widget
-            widget.overrides_repeat = self.instance.overrides_repeat
-            tz = timezone._get_timezone_name(self.instance.tz)
-            if tz != timezone.get_current_timezone_name():
-                self.exceptionTZ = tz
-            else:
-                self.exceptionTZ = None
+        if not self.form:
+            # wait for the form to be set, it will eventually be
+            return
+        if not self.instance.overrides:
+            return
+        widget = self.form[self.field_name].field.widget
+        widget.overrides_repeat = self.instance.overrides_repeat
+        tz = timezone._get_timezone_name(self.instance.tz)
+        if tz != timezone.get_current_timezone_name():
+            self.exceptionTZ = tz
+        else:
+            self.exceptionTZ = None
 
 # ------------------------------------------------------------------------------
 def _add12hrFormats():
