@@ -29,7 +29,7 @@ Compatibility
 -------------
 I am aiming to support the latest releases of Wagtail and Django. Older versions may be dropped without much notice. Let me know if that is a problem for you.
 
-Joyous version 0.8 is known to work with the following versions of Wagtail, Django and Python.
+Joyous version 0.8.2 is known to work with the following versions of Wagtail, Django and Python.
 
 =======   ======   =======
 Wagtail   Django   Python
@@ -41,6 +41,7 @@ Wagtail   Django   Python
 2.4       2.1.7    3.5.6
 2.4       2.1.7    3.6.3
 2.4       2.1.7    3.7.1
+2.5       2.2      3.5.4
 =======   ======   =======
 
 Other versions may work - YMMV.  Django 2.1 is a definite minimum requirement.

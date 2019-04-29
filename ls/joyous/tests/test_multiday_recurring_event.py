@@ -5,7 +5,7 @@ import sys
 import datetime as dt
 import pytz
 import calendar
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
@@ -13,7 +13,7 @@ from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, YEARLY
 from ls.joyous.utils.recurrence import SA, TU, TH, FR
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import MultidayRecurringEventPage
+from ls.joyous.models.events import MultidayRecurringEventPage, ExtraInfoPage
 from .testutils import datetimetz, freeze_timetz
 
 # ------------------------------------------------------------------------------
@@ -78,6 +78,26 @@ class Test(TestCase):
     @freeze_timetz("2035-04-03 10:00:00")
     def testPrevDate(self):
         self.assertEqual(self.event.prev_date, dt.date(2034, 8, 4))
+
+    @freeze_timetz("2018-04-03 10:00:00")
+    def testFutureExceptions(self):
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        info2018 = ExtraInfoPage(owner = self.user,
+                                 slug  = "2018-08-03-extra-info",
+                                 title = "Extra-Info for Friday 3rd of August",
+                                 overrides = self.event,
+                                 except_date = dt.date(2018, 8, 3),
+                                 extra_title = "Team Retreat 2018",
+                                 extra_information = "Weekend at Bernie's")
+        self.event.add_child(instance=info2018)
+        exceptions = self.event._futureExceptions(request)
+        self.assertEqual(len(exceptions), 1)
+        info = exceptions[0]
+        self.assertEqual(info.slug, "2018-08-03-extra-info")
+        self.assertEqual(info.extra_title, "Team Retreat 2018")
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

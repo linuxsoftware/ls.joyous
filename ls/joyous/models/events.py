@@ -52,6 +52,12 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None):
     """
     Return all the events (under home if given) for the dates given, grouped by
     day.
+
+    :param request: Django request object
+    :param fromDate: starting date (inclusive)
+    :param toDate: finish date (inclusive)
+    :param home: only include events that are under this page (if given)
+    :rtype: list of :class:`EventsOnDay <ls.joyous.models.events.EventsOnDay>` objects
     """
     qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
             MultidayEventPage.events(request).byDay(fromDate, toDate),
@@ -67,6 +73,15 @@ def getAllEventsByWeek(request, year, month, *, home=None):
     """
     Return all the events (under home if given) for the given month, grouped by
     week.
+
+    :param request: Django request object
+    :param year: the year
+    :type year: int
+    :param month: the month
+    :type month: int
+    :param home: only include events that are under this page (if given)
+    :returns: a list of sublists (one for each week) each of 7 elements which are either None for days outside of the month, or the events on the day.
+    :rtype: list of lists of None or :class:`EventsOnDay <ls.joyous.models.events.EventsOnDay>` objects
     """
     return _getEventsByWeek(year, month,
                             partial(getAllEventsByDay, request, home=home))
@@ -74,6 +89,10 @@ def getAllEventsByWeek(request, year, month, *, home=None):
 def getAllUpcomingEvents(request, *, home=None):
     """
     Return all the upcoming events (under home if given).
+
+    :param request: Django request object
+    :param home: only include events that are under this page (if given)
+    :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
@@ -90,6 +109,10 @@ def getAllUpcomingEvents(request, *, home=None):
 def getGroupUpcomingEvents(request, group):
     """
     Return all the upcoming events that are assigned to the specified group.
+
+    :param request: Django request object
+    :param group: for this group page
+    :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     # Get events that are a child of a group page, or a postponement or extra
     # info a child of the recurring event child of the group
@@ -127,6 +150,10 @@ def getGroupUpcomingEvents(request, group):
 def getAllPastEvents(request, *, home=None):
     """
     Return all the past events (under home if given).
+
+    :param request: Django request object
+    :param home: only include events that are under this page (if given)
+    :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),
@@ -144,8 +171,11 @@ def getEventFromUid(request, uid):
     Get the event by its UID
     (returns None if we have no authority, raises ObjectDoesNotExist if it is
     not found).
+
+    :param request: Django request object
+    :param uid: iCal unique identifier
+    :rtype: list of event pages
     """
-    # TODO should this return a ThisEvent?!?!
     events = []
     with suppress(ObjectDoesNotExist):
         events.append(SimpleEventPage.objects.get(uid=uid))
@@ -168,8 +198,11 @@ def getEventFromUid(request, uid):
 def getAllEvents(request, *, home=None):
     """
     Return all the events (under home if given).
+
+    :param request: Django request object
+    :param home: only include events that are under this page (if given)
+    :rtype: list of event pages
     """
-    # TODO should this return ThisEvents?!?!
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
             RecurringEventPage.events(request).all()]
@@ -226,22 +259,40 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
 ThisEvent = namedtuple("ThisEvent", "title page url")
 
 class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
+    """
+    The events that occur on a certain day.  Both events that start on that day
+    and events that are still continuing.
+    """
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
 
     @property
     def all_events(self):
+        """
+        All the events that occur on this day,
+        ``days_events + continuing_events``.
+        """
         return self.days_events + self.continuing_events
 
     @property
     def preview(self):
+        """
+        A short description of some of the events on this day
+        (limited to 100 characters).
+        """
         return ", ".join(event.title for event in self.all_events)[:100]
 
     @property
     def weekday(self):
+        """
+        The weekday abbreviation for this days (e.g. "mon").
+        """
         return calendar.day_abbr[self.date.weekday()].lower()
 
     @property
     def holiday(self):
+        """
+        The names of any holidays on this day.
+        """
         return self.holidays.get(self.date)
 
 class EventsByDayList(list):

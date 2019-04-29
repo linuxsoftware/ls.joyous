@@ -17,6 +17,31 @@ Events
 
 .. autofunction:: getAllEvents
 
+.. automodule:: ls.joyous.models.events
+
+.. autoclass:: EventsOnDay
+
+    .. attribute:: date
+
+    .. attribute:: days_events
+
+        The events that start on this day
+
+        :rtype: list of the namedtuple ThisEvent (title, page, url)
+
+    .. attribute:: continuing_events
+
+        The events that are still continuing on this day
+
+        :rtype: list of the namedtuple ThisEvent (title, page, url)
+
+    .. autoattribute:: all_events
+    .. autoattribute:: preview
+    .. autoattribute:: weekday
+    .. autoattribute:: holiday
+
+.. automodule:: ls.joyous.models
+
 .. autoclass:: EventCategory
     :show-inheritance:
 
