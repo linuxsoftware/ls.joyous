@@ -511,7 +511,7 @@ msgstr "benutze erweiterte Einstellungen"
 
 #: templates/joyous/widgets/recurrence_widget.html:43 widgets.py:61
 msgid "Every"
-msgstr "jede(n)"
+msgstr "alle"
 
 #: templates/joyous/widgets/recurrence_widget.html:47
 msgid "Day(s)"
@@ -530,7 +530,6 @@ msgid "Year(s)"
 msgstr "Jahr(e)"
 
 #: templates/joyous/widgets/recurrence_widget.html:57
-#, fuzzy
 msgid "On Days"
 msgstr "an den Tagen"
 
@@ -589,23 +588,23 @@ msgstr "der vorletzte"
 
 #: utils/manythings.py:50
 msgid "the first"
-msgstr "der erste"
+msgstr "ersten"
 
 #: utils/manythings.py:52
 msgid "the second"
-msgstr "der zweite"
+msgstr "zweiten"
 
 #: utils/manythings.py:54
 msgid "the third"
-msgstr "der dritte"
+msgstr "dritten"
 
 #: utils/manythings.py:56
 msgid "the fourth"
-msgstr "der vierte"
+msgstr "vierten"
 
 #: utils/manythings.py:58
 msgid "the fifth"
-msgstr "der fünfte"
+msgstr "fünften"
 
 #: utils/manythings.py:61
 msgid "the"
