@@ -2,52 +2,54 @@
 {% load static wagtailcore_tags %}
 
 {% block content %}
-  <div class="content">
-    <div class="page-heading">
-      <h2>{{ page.title }}</h2>
-    </div>
-    <div class="content-inner">
-      {{ page.intro|richtext }}
-
-      {% block cal_options %}
-      <div class="calendar-options clearfix">
-        {% block events_view %}
-        <div class="events-view">
-        </div>
-        {% endblock events_view %}
-      </div>
-      {% endblock cal_options %}
-      <table class="calendar" data-version="{{ version }}">
-        <thead>
-          {% block cal_heading %}
-          <tr class="heading">
-          </tr>
-          {% endblock cal_heading %}
-          {% block day_heading %}
-          <tr>
-            {% for dow in weekdayAbbr %}
-            <th class="{{dow|lower}}">{{dow}}</th>
-            {% endfor %}
-          </tr>
-          {% endblock day_heading %}
-        </thead>
-        {% block cal_body %}
-        <tbody>
-          {% for week in events %}
-          <tr>
-            {% for evod in week %}
-              <td class="noday">&nbsp;</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </tbody>
-        {% endblock cal_body %}
-      </table>
-      {% include "joyous/includes/calendar_export.html" %}
-    </div>
+<div class="content">
+  <div class="page-heading">
+    <h2>{{ page.title }}</h2>
   </div>
+  <div class="content-inner">
+    {{ page.intro|richtext }}
+
+    {% block cal_options %}
+    <div class="calendar-options clearfix">
+      {% block events_view %}
+      <div class="events-view">
+      </div>
+      {% endblock events_view %}
+    </div>
+    {% endblock cal_options %}
+    <table class="calendar" data-version="{{ version }}">
+      <thead>
+        {% block cal_heading %}
+        <tr class="heading">
+        </tr>
+        {% endblock cal_heading %}
+        {% block day_heading %}
+        <tr>
+          {% for dow in weekdayAbbr %}
+          <th class="{{dow|lower}}">{{dow}}</th>
+          {% endfor %}
+        </tr>
+        {% endblock day_heading %}
+      </thead>
+      {% block cal_body %}
+      <tbody>
+        {% for week in events %}
+        <tr>
+          {% for evod in week %}
+            <td class="noday">&nbsp;</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% endblock cal_body %}
+    </table>
+    {% block cal_footer %}
+    {% include "joyous/includes/calendar_export.html" %}
+    {% endblock cal_footer %}
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-  <script type="text/javascript" src="{% static 'joyous/js/calendar.js' %}"></script>
+<script type="text/javascript" src="{% static 'joyous/js/calendar.js' %}"></script>
 {% endblock %}

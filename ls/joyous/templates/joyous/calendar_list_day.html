@@ -18,11 +18,13 @@
       </div>
       {% endblock cal_options %}
 
+      {% block events_list %}
       <div class="events-on-day events-on-day-detailed">
         {% for title, event, url in events.all_events %}
           {% include "joyous/includes/event_item.html" %}
         {% endfor %}
       </div>
+      {% endblock events_list %}
     </div>
     {% include "joyous/includes/calendar_export.html" %}
   </div>

@@ -1,4 +1,5 @@
 {% load wagtailcore_tags joyous_tags i18n %}
+{% block calendar_week_day %}
 {% if evod %}
 <td class="{{ evod.weekday }} day{% if evod.date == today %} today{% elif evod.date == yesterday %} yesterday{% elif evod.date == lastweek %} lastweek{% endif %}">
   {% if evod.holiday %}
@@ -14,6 +15,7 @@
   </div>
   {% endif %}
 
+  {% block days_events %}
   <div class="days-events">
     {% for title, event, url in evod.continuing_events %}
       <a href="{{ url }}" class="event event-continues">
@@ -26,7 +28,9 @@
       </a>
     {% endfor %}
   </div>
+  {% endblock days_events %}
 </td>
 {% else %}
 <td class="noday">&nbsp;</td>
 {% endif %}
+{% endblock calendar_week_day %}

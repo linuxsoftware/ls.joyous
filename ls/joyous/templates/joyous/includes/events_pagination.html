@@ -1,5 +1,6 @@
 {% load wagtailcore_tags %}
 
+{% block events_pagination %}
 {% if events.has_other_pages %}
   <ul class="events-pagination">
     {% if events.has_previous %}
@@ -21,3 +22,4 @@
     {% endif %}
   </ul>
 {% endif %}
+{% endblock events_pagination %}
