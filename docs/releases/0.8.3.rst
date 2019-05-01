@@ -20,7 +20,7 @@ Other features
      * Templates now have more block definitions available to override.
      * serve functions now return a :class:`TemplateResponse <django:django.template.response.TemplateResponse>`.
      * also, the ``Calendar._getExtraContext`` function can be overridden to add context.
-
+ * Raise PermissionDenied from getEventFromUid if we don't have authority.
 
 Bug fixes
 ~~~~~~~~~
