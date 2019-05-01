@@ -7,7 +7,8 @@ import pytz
 import calendar
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import (MultipleObjectsReturned, ObjectDoesNotExist,
+                                    PermissionDenied)
 from django.utils import timezone
 from wagtail.core.models import Site, Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
@@ -234,8 +235,8 @@ class Test(TestCase):
             getEventFromUid(self.request, "d12971fb-e694-4a04-aba2-fb1a4a7166b9")
 
     def testAuthGetEventFromUid(self):
-        event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
-        self.assertIsNone(event)
+        with self.assertRaises(PermissionDenied):
+            event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
         self.request.user.groups.set([self.friends])
         event = getEventFromUid(self.request, "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
         self.assertIsNotNone(event.title)

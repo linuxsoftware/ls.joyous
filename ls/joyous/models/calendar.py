@@ -475,7 +475,7 @@ class CalendarPage(RoutablePageMixin, Page):
 
     def _getEventFromUid(self, request, uid):
         """Try and find an event with the given UID in this site."""
-        event = getEventFromUid(request, uid) # might raise ObjectDoesNotExist
+        event = getEventFromUid(request, uid) # might raise exception
         home = request.site.root_page
         if event.get_ancestors().filter(id=home.id).exists():
             # only return event if it is in the same site
@@ -526,7 +526,7 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getEventFromUid(self, request, uid):
         """Try and find a child event with the given UID."""
-        event = getEventFromUid(request, uid)
+        event = getEventFromUid(request, uid) # might raise exception
         if event.get_ancestors().filter(id=self.id).exists():
             # only return event if it is a descendant
             return event
@@ -575,7 +575,7 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getEventFromUid(self, request, uid):
         """Try and find an event with the given UID."""
-        return getEventFromUid(request, uid)
+        return getEventFromUid(request, uid) # might raise exception
 
     def _getAllEvents(self, request):
         """Return all the events."""

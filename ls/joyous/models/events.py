@@ -10,7 +10,7 @@ from itertools import chain, groupby
 from operator import attrgetter
 from uuid import uuid4
 from django.conf import settings
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Q
@@ -168,8 +168,8 @@ def getAllPastEvents(request, *, home=None):
 def getEventFromUid(request, uid):
     """
     Get the event by its UID
-    (returns None if we have no authority, raises ObjectDoesNotExist if it is
-    not found).
+    (raises PermissionDenied if we have no authority, ObjectDoesNotExist if it
+    is not found).
 
     :param request: Django request object
     :param uid: iCal unique identifier
@@ -188,7 +188,7 @@ def getEventFromUid(request, uid):
         if events[0].isAuthorized(request):
             return events[0]
         else:
-            return None
+            raise PermissionDenied("No authority for uid={}".format(uid))
     elif len(events) == 0:
         raise ObjectDoesNotExist("No event with uid={}".format(uid))
     else:

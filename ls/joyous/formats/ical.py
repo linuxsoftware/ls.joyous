@@ -11,7 +11,7 @@ import quopri
 from icalendar import Calendar, Event
 from icalendar import vDatetime, vRecur, vDDDTypes, vText
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import HttpResponse
 from django.utils import timezone
 from ls.joyous import __version__
@@ -178,11 +178,13 @@ class VCalendar(Calendar, VComponentMixin):
             if vevent is not None:
                 try:
                     event = self.page._getEventFromUid(request, vevent['UID'])
+                except PermissionDenied:
+                    # No authority
+                    pass
                 except ObjectDoesNotExist:
                     numSuccess += self._createEventPage(request, vevent)
                 else:
-                    if event:
-                        numSuccess += self._updateEventPage(request, vevent, event)
+                    numSuccess += self._updateEventPage(request, vevent, event)
         return numSuccess, numFail
 
     def _updateEventPage(self, request, vevent, event):
