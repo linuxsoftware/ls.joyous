@@ -16,11 +16,15 @@ Translations
 
 Other features
 ~~~~~~~~~~~~~~
- * Templates now have more block definitions available to override.
+ * Thanks to @Jean-Zombie for suggestions on making Calendar templates easier to customize:
+     * Templates now have more block definitions available to override.
+     * serve functions now return a :class:`TemplateResponse <django:django.template.response.TemplateResponse>`.
+     * also, the ``Calendar._getExtraContext`` function can be overridden to add context.
 
 
 Bug fixes
 ~~~~~~~~~
+ * Use toTheOrdinal where appropriate
 
 Upgrade considerations
 ======================

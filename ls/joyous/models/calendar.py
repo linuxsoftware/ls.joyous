@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.http import Http404
 from django import forms
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -196,27 +196,28 @@ class CalendarPage(RoutablePageMixin, Page):
             nextMonth = 1
             nextMonthYear += 1
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/calendar_month.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'year':         year,
-                       'month':        month,
-                       'today':        today,
-                       'yesterday':    today - dt.timedelta(1),
-                       'lastweek':     today - dt.timedelta(7),
-                       'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
-                       'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
-                       'prevYearUrl':  myUrl(year - 1, month),
-                       'nextYearUrl':  myUrl(year + 1, month),
-                       'weeklyUrl':    weeklyUrl,
-                       'listUrl':      listUrl,
-                       'thisMonthUrl': myUrl(today.year, today.month),
-                       'monthName':    MONTH_NAMES[month],
-                       'weekdayAbbr':  weekday_abbr,
-                       'events':       self._getEventsByWeek(request, year, month)})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'year':         year,
+                   'month':        month,
+                   'today':        today,
+                   'yesterday':    today - dt.timedelta(1),
+                   'lastweek':     today - dt.timedelta(7),
+                   'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
+                   'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
+                   'prevYearUrl':  myUrl(year - 1, month),
+                   'nextYearUrl':  myUrl(year + 1, month),
+                   'weeklyUrl':    weeklyUrl,
+                   'listUrl':      listUrl,
+                   'thisMonthUrl': myUrl(today.year, today.month),
+                   'monthName':    MONTH_NAMES[month],
+                   'weekdayAbbr':  weekday_abbr,
+                   'events':       self._getEventsByWeek(request, year, month)}
+        context.update(self._getExtraContext("month"))
+        return TemplateResponse(request,
+                                "joyous/calendar_month.html",
+                                context)
 
     @route(r"^week/$")
     @route(r"^{YYYY}/W{WW}/$".format(**DatePictures))
@@ -263,26 +264,27 @@ class CalendarPage(RoutablePageMixin, Page):
             nextWeek = 1
             nextWeekYear += 1
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/calendar_week.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'year':         year,
-                       'week':         week,
-                       'today':        today,
-                       'yesterday':    today - dt.timedelta(1),
-                       'prevWeekUrl':  myUrl(prevWeekYear, prevWeek),
-                       'nextWeekUrl':  myUrl(nextWeekYear, nextWeek),
-                       'prevYearUrl':  myUrl(year - 1, week),
-                       'nextYearUrl':  myUrl(year + 1, week),
-                       'thisWeekUrl':  myUrl(thisYear, thisWeekNum),
-                       'monthlyUrl':   monthlyUrl,
-                       'listUrl':      listUrl,
-                       'weekName':     _("Week {weekNum}").format(weekNum=week),
-                       'weekdayAbbr':  weekday_abbr,
-                       'events':       [eventsInWeek]})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'year':         year,
+                   'week':         week,
+                   'today':        today,
+                   'yesterday':    today - dt.timedelta(1),
+                   'prevWeekUrl':  myUrl(prevWeekYear, prevWeek),
+                   'nextWeekUrl':  myUrl(nextWeekYear, nextWeek),
+                   'prevYearUrl':  myUrl(year - 1, week),
+                   'nextYearUrl':  myUrl(year + 1, week),
+                   'thisWeekUrl':  myUrl(thisYear, thisWeekNum),
+                   'monthlyUrl':   monthlyUrl,
+                   'listUrl':      listUrl,
+                   'weekName':     _("Week {weekNum}").format(weekNum=week),
+                   'weekdayAbbr':  weekday_abbr,
+                   'events':       [eventsInWeek]}
+        context.update(self._getExtraContext("week"))
+        return TemplateResponse(request,
+                                "joyous/calendar_week.html",
+                                context)
 
     @route(r"^day/$")
     @route(r"^{YYYY}/{MM}/{DD}/$".format(**DatePictures))
@@ -310,22 +312,23 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/calendar_list_day.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'year':         year,
-                       'month':        month,
-                       'dom':          dom,
-                       'day':          day,
-                       'monthlyUrl':   monthlyUrl,
-                       'weeklyUrl':    weeklyUrl,
-                       'listUrl':      listUrl,
-                       'monthName':    MONTH_NAMES[month],
-                       'weekdayName':  WEEKDAY_NAMES[day.weekday()],
-                       'events':       eventsOnDay})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'year':         year,
+                   'month':        month,
+                   'dom':          dom,
+                   'day':          day,
+                   'monthlyUrl':   monthlyUrl,
+                   'weeklyUrl':    weeklyUrl,
+                   'listUrl':      listUrl,
+                   'monthName':    MONTH_NAMES[month],
+                   'weekdayName':  WEEKDAY_NAMES[day.weekday()],
+                   'events':       eventsOnDay}
+        context.update(self._getExtraContext("day"))
+        return TemplateResponse(request,
+                                "joyous/calendar_list_day.html",
+                                context)
 
     @route(r"^upcoming/$")
     def serveUpcoming(self, request):
@@ -347,17 +350,18 @@ class CalendarPage(RoutablePageMixin, Page):
         except EmptyPage:
             eventsPage = paginator.page(paginator.num_pages)
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/calendar_list_upcoming.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'today':        today,
-                       'weeklyUrl':    weeklyUrl,
-                       'monthlyUrl':   monthlyUrl,
-                       'listUrl':      listUrl,
-                       'events':       eventsPage})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'today':        today,
+                   'weeklyUrl':    weeklyUrl,
+                   'monthlyUrl':   monthlyUrl,
+                   'listUrl':      listUrl,
+                   'events':       eventsPage}
+        context.update(self._getExtraContext("upcoming"))
+        return TemplateResponse(request,
+                                "joyous/calendar_list_upcoming.html",
+                                context)
 
     @route(r"^past/$")
     def servePast(self, request):
@@ -379,17 +383,18 @@ class CalendarPage(RoutablePageMixin, Page):
         except EmptyPage:
             eventsPage = paginator.page(paginator.num_pages)
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/calendar_list_past.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'today':        today,
-                       'weeklyUrl':    weeklyUrl,
-                       'monthlyUrl':   monthlyUrl,
-                       'listUrl':      listUrl,
-                       'events':       eventsPage})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'today':        today,
+                   'weeklyUrl':    weeklyUrl,
+                   'monthlyUrl':   monthlyUrl,
+                   'listUrl':      listUrl,
+                   'events':       eventsPage}
+        context.update(self._getExtraContext("past"))
+        return TemplateResponse(request,
+                                "joyous/calendar_list_past.html",
+                                context)
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
@@ -403,19 +408,20 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
 
-        # TODO Consider changing to a TemplateResponse
-        # https://stackoverflow.com/questions/38838601
-        return render(request, "joyous/includes/minicalendar.html",
-                      {'self':         self,
-                       'page':         self,
-                       'version':      __version__,
-                       'today':        today,
-                       'year':         year,
-                       'month':        month,
-                       'calendarUrl':  self.get_url(request),
-                       'monthName':    MONTH_NAMES[month],
-                       'weekdayInfo':  zip(weekday_abbr, weekday_name),
-                       'events':       self._getEventsByWeek(request, year, month)})
+        context = {'self':         self,
+                   'page':         self,
+                   'version':      __version__,
+                   'today':        today,
+                   'year':         year,
+                   'month':        month,
+                   'calendarUrl':  self.get_url(request),
+                   'monthName':    MONTH_NAMES[month],
+                   'weekdayInfo':  zip(weekday_abbr, weekday_name),
+                   'events':       self._getEventsByWeek(request, year, month)}
+        context.update(self._getExtraContext("mini"))
+        return TemplateResponse(request,
+                                "joyous/includes/minicalendar.html",
+                                context)
 
     @classmethod
     def can_create_at(cls, parent):
@@ -434,6 +440,9 @@ class CalendarPage(RoutablePageMixin, Page):
         """Return others of the same concrete type."""
         contentType = ContentType.objects.get_for_model(cls)
         return cls.objects.filter(content_type=contentType)
+
+    def _getExtraContext(self, route):
+        return {}
 
     def _getEventsOnDay(self, request, day):
         """Return all the events in this site for a given day."""

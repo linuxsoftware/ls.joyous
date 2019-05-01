@@ -16,7 +16,6 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.query import ModelIterable
 from django.forms import widgets
-from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -1708,12 +1707,11 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
     ]
     promote_panels = []
 
-    # TODO Consider changing to a TemplateResponse
-    # https://stackoverflow.com/questions/38838601
     @route(r"^from/$")
     def serveCancellation(self, request):
-        return render(request, "joyous/postponement_page_from.html",
-                       self.get_context(request))
+        return TemplateResponse(request,
+                                "joyous/postponement_page_from.html",
+                                self.get_context(request))
 
     @property
     def status(self):
