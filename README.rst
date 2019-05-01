@@ -25,7 +25,15 @@ Getting Help
 Please report bugs or ask questions using the `Issue Tracker <http://github.com/linuxsoftware/ls.joyous/issues>`_.
 
 Thanks To
--------------
+---------
+
+Contributors
+~~~~~~~~~~~~
+* @acerix
+* @Jean-Zombie
+
+Tools
+~~~~~
 `Sauce Labs <https://saucelabs.com>`_ for their cross-browser testing platform.
 
 .. image:: /docs/powered-by-sauce-labs.png

@@ -10,8 +10,13 @@ Joyous 0.8.3 release notes - IN DEVELOPMENT
 What's new
 ==========
 
+Translations
+~~~~~~~~~~~~
+ * Thanks to @Jean-Zombie for the new German translation.
+
 Other features
 ~~~~~~~~~~~~~~
+ * Templates now have more block definitions available to override.
 
 
 Bug fixes
