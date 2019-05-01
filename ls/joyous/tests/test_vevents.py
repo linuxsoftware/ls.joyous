@@ -183,10 +183,11 @@ class TestRecurring(TestCase):
                                 b"RRULE:FREQ=MONTHLY;BYDAY=+2SA;WKST=SU",
                                 b"EXDATE;TZID=Pacific/Auckland:20180609T070000,20180714T070000",
                                 b"CREATED:20180510T000000Z",
-                                b"DESCRIPTION:<p>zzzZZZZZZZZZ</p>",
+                                b"DESCRIPTION:zzzZZZZZZZZZ",
                                 b"LAST-MODIFIED:20180510T000000Z",
                                 b"LOCATION:Bed",
                                 b"URL:http://joy.test/events/sleep/",
+                                b"X-ALT-DESC;FMTTYPE=text/html:<p>zzzZZZZZZZZZ</p>",
                                 b"END:VEVENT",
                                 b""])
         self.assertEqual(vev.to_ical(), sleepIn)

@@ -13,6 +13,7 @@ from icalendar import vDatetime, vRecur, vDDDTypes, vText
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import HttpResponse
+from django.utils import html
 from django.utils import timezone
 from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
@@ -527,6 +528,20 @@ class VEvent(Event, VComponentMixin):
         if dtend.zone() == "UTC":
             dtend.dt = dtend.dt.astimezone(tz)
 
+    def _getDesc(self):
+        altDesc = self.get('X-ALT-DESC')
+        if altDesc and altDesc.params.get('FMTTYPE', "").lower() == "text/html":
+            retval = str(altDesc)
+        else:
+            retval = str(self.get('DESCRIPTION', ""))
+        return retval
+
+    def _setDesc(self, desc):
+        plainDesc = html.strip_tags(desc)
+        if desc != plainDesc:
+            self.set('X-ALT-DESC', desc, parameters={'FMTTYPE': "text/html"})
+        self.set('DESCRIPTION', plainDesc)
+
     @property
     def modifiedDt(self):
         prop = self.get('LAST-MODIFIED') or self.get('DTSTAMP')
@@ -561,7 +576,7 @@ class SimpleVEvent(VEvent):
         vevent.set('UID',         page.uid)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
-        vevent.set('DESCRIPTION', page.details)
+        vevent._setDesc(page.details)
         vevent.set('LOCATION',    page.location)
         # TODO: Add CATEGORIES page.category
         # TODO: Add CLASS pages.get_view_restrictions() ? "RESTRICTED" : "PUBLIC"
@@ -573,7 +588,7 @@ class SimpleVEvent(VEvent):
         page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
         dtend    = self['DTEND']
-        page.details    = str(self.get('DESCRIPTION', ""))
+        page.details    = self._getDesc()
         page.location   = str(self.get('LOCATION', ""))
         page.date       = dtstart.date()
         page.time_from  = dtstart.time()
@@ -593,7 +608,7 @@ class MultidayVEvent(VEvent):
         vevent.set('UID',         page.uid)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
-        vevent.set('DESCRIPTION', page.details)
+        vevent._setDesc(page.details)
         vevent.set('LOCATION',    page.location)
         return vevent
 
@@ -603,7 +618,7 @@ class MultidayVEvent(VEvent):
         page.title = str(self.get('SUMMARY', "")) or page.uid[:16]
         dtstart  = self['DTSTART']
         dtend    = self['DTEND']
-        page.details    = str(self.get('DESCRIPTION', ""))
+        page.details    = self._getDesc()
         page.location   = str(self.get('LOCATION', ""))
         page.date_from  = dtstart.date()
         page.time_from  = dtstart.time()
@@ -625,7 +640,7 @@ class RecurringVEvent(VEvent):
         vevent.set('UID',         page.uid)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
-        vevent.set('DESCRIPTION', page.details)
+        vevent._setDesc(page.details)
         vevent.set('LOCATION',    page.location)
         vevent.vchildren, exDates = cls.__getExceptions(page)
         if exDates:
@@ -680,7 +695,7 @@ class RecurringVEvent(VEvent):
         if until:
             untilDt = until.datetime().astimezone(dtstart.timezone())
             rrule['UNTIL'] = [untilDt.date()]
-        page.details    = str(self.get('DESCRIPTION', ""))
+        page.details    = self._getDesc()
         page.location   = str(self.get('LOCATION', ""))
         page.repeat     = Recurrence(rrule.to_ical().decode(),
                                      dtstart=dtstart.date())
@@ -728,13 +743,13 @@ class ExtraInfoVEvent(ExceptionVEvent):
     def fromPage(cls, page):
         vevent = super().fromPage(page)
         vevent.set('SUMMARY',       page.extra_title or page.overrides.title)
-        vevent.set('DESCRIPTION',   page.extra_information)
+        vevent._setDesc(page.extra_information)
         return vevent
 
     def toPage(self, page):
         super().toPage(page)
         page.extra_title       = str(self.get('SUMMARY', ""))
-        page.extra_information = str(self.get('DESCRIPTION', ""))
+        page.extra_information = self._getDesc()
 
 # ------------------------------------------------------------------------------
 class CancellationVEvent(ExceptionVEvent):
@@ -759,13 +774,13 @@ class CancellationVEvent(ExceptionVEvent):
     def fromPage(cls, page):
         vevent = super().fromPage(page)
         vevent.set('SUMMARY',       page.cancellation_title)
-        vevent.set('DESCRIPTION',   page.cancellation_details)
+        vevent._setDesc(page.cancellation_details)
         return vevent
 
     def toPage(self, page):
         super().toPage(page)
         page.cancellation_title   = str(self.get('SUMMARY', ""))
-        page.cancellation_details = str(self.get('DESCRIPTION', ""))
+        page.cancellation_details = self._getDesc()
 
 # ------------------------------------------------------------------------------
 class PostponementVEvent(ExceptionVEvent):
@@ -782,7 +797,7 @@ class PostponementVEvent(ExceptionVEvent):
         vevent.set('SUMMARY',     page.postponement_title)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
-        vevent.set('DESCRIPTION', page.details)
+        vevent._setDesc(page.details)
         vevent.set('LOCATION',    page.location)
         return vevent
 
@@ -791,7 +806,7 @@ class PostponementVEvent(ExceptionVEvent):
         dtstart  = self['DTSTART']
         dtend    = self['DTEND']
         page.postponement_title = str(self.get('SUMMARY', ""))
-        page.details            = str(self.get('DESCRIPTION', ""))
+        page.details            = self._getDesc()
         page.location           = str(self.get('LOCATION', ""))
         page.date               = dtstart.date()
         page.time_from          = dtstart.time()
