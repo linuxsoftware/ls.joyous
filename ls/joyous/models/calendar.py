@@ -112,6 +112,8 @@ EVENTS_VIEW_CHOICES = [('L', _("List View")),
 # ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page):
     """CalendarPage displays all the events which are in the same site."""
+    max_count = 1
+
     class Meta:
         verbose_name = _("calendar page")
         verbose_name_plural = _("calendar pages")
@@ -491,6 +493,8 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
     """
     SpecificCalendarPage displays only the events which are its children
     """
+    max_count = None
+
     class Meta(ProxyPageMixin.Meta):
         verbose_name = _("specific calendar page")
         verbose_name_plural = _("specific calendar pages")
