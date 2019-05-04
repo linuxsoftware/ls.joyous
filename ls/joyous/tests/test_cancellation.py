@@ -30,8 +30,6 @@ class Test(TestCase):
                                         time_to   = dt.time(15,30))
         self.calendar.add_child(instance=self.event)
         self.cancellation = CancellationPage(owner = self.user,
-                                             slug  = "1989-02-01-cancellation",
-                                             title = "Cancellation for Wednesday 1st of February",
                                              overrides = self.event,
                                              except_date = dt.date(1989,2,1),
                                              cancellation_title   = "Meeting Cancelled",
@@ -42,8 +40,6 @@ class Test(TestCase):
 
     def testGetEventsByDay(self):
         hiddenCancellation = CancellationPage(owner = self.user,
-                                              slug  = "1989-02-13-cancellation",
-                                              title = "Cancellation for Monday 13th of February",
                                               overrides = self.event,
                                               except_date = dt.date(1989,2,13))
         self.event.add_child(instance=hiddenCancellation)
@@ -61,6 +57,10 @@ class Test(TestCase):
         self.assertEqual(evod2.date, dt.date(1989,2,13))
         self.assertEqual(len(evod2.days_events), 0)
         self.assertEqual(len(evod2.continuing_events), 0)
+
+    def testOccursOn(self):
+        self.assertIs(self.event._occursOn(dt.date(1989, 2, 1)), False)
+        self.assertIs(self.event._occursOn(dt.date(1989, 2, 3)), True)
 
     def testUnexplainedCancellation(self):
         self._cancel_1999_02_08()
@@ -93,8 +93,6 @@ class Test(TestCase):
 
     def _cancel_1999_02_08(self):
         cancellation = CancellationPage(owner = self.user,
-                                        slug  = "1999-02-08-cancellation",
-                                        title = "Cancellation for Monday 8th of February",
                                         overrides = self.event,
                                         except_date = dt.date(1999, 2, 8),
                                         cancellation_title   = "Restructure Pending",
@@ -114,8 +112,6 @@ class Test(TestCase):
         myday = now.date() + dt.timedelta(1)
         friday = myday + dt.timedelta(days=(4-myday.weekday())%7)
         futureCan = CancellationPage(owner = self.user,
-                                     slug  = "fri-cancellation",
-                                     title = "Cancellation for Friday",
                                      overrides = self.event,
                                      except_date = friday,
                                      cancellation_title   = "",

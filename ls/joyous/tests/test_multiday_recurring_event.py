@@ -67,6 +67,28 @@ class Test(TestCase):
         with freeze_timetz("2014-08-03 17:00:00"):
             self.assertEqual(self.event.status_text, "")
 
+    def testNextOn(self):
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        oldEvent = MultidayRecurringEventPage(
+                               owner = self.user,
+                               slug  = "same-old-thing",
+                               title = "Same Ol'",
+                               repeat = Recurrence(dtstart=dt.date(1971,1,1),
+                                                   until=dt.date(1982,1,1),
+                                                   freq=WEEKLY,
+                                                   byweekday=SA(1)),
+                               num_days  = 2)
+        self.calendar.add_child(instance=oldEvent)
+        oldEvent.save_revision().publish()
+        with freeze_timetz("1974-08-01 17:00:00"):
+            self.assertEqual(oldEvent.next_date, dt.date(1974, 8, 3))
+            self.assertEqual(oldEvent._nextOn(request), "Saturday 3rd of August ")
+        with freeze_timetz("1982-01-01 17:00:00"):
+            self.assertIsNone(oldEvent.next_date)
+            self.assertEqual(oldEvent._nextOn(request), None)
+
     def testWhen(self):
         self.assertEqual(self.event.when,
                          "The first Friday of August for 3 days "
@@ -85,8 +107,6 @@ class Test(TestCase):
         request.user = self.user
         request.session = {}
         info2018 = ExtraInfoPage(owner = self.user,
-                                 slug  = "2018-08-03-extra-info",
-                                 title = "Extra-Info for Friday 3rd of August",
                                  overrides = self.event,
                                  except_date = dt.date(2018, 8, 3),
                                  extra_title = "Team Retreat 2018",

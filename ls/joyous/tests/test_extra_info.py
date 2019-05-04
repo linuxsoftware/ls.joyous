@@ -32,8 +32,6 @@ class Test(TestCase):
                                         time_to   = dt.time(15,30))
         self.calendar.add_child(instance=self.event)
         self.info = ExtraInfoPage(owner = self.user,
-                                  slug  = "1988-11-11-extra-info",
-                                  title = "Extra Information for Friday 11th of November",
                                   overrides = self.event,
                                   except_date = dt.date(1988,11,11),
                                   extra_title = "System Demo",

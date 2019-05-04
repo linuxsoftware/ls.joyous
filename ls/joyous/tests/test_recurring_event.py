@@ -5,7 +5,7 @@ import sys
 import datetime as dt
 import pytz
 import calendar
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
@@ -13,7 +13,8 @@ from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY
 from ls.joyous.utils.recurrence import TU, TH, SA, SU, EVERYWEEKDAY
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage, CancellationPage
+from ls.joyous.models.events import (RecurringEventPage, CancellationPage,
+                                     PostponementPage)
 from .testutils import datetimetz, freeze_timetz
 
 # ------------------------------------------------------------------------------
@@ -108,18 +109,43 @@ class Test(TestCase):
                                                        until=dt.date(2008,5,9),
                                                        freq=WEEKLY,
                                                        byweekday=[SA,SU]),
-                                      time_from = dt.time(8),
-                                      time_to   = dt.time(9))
+                                   time_from = dt.time(8),
+                                   time_to   = dt.time(9))
         self.calendar.add_child(instance=event)
         cancellation = CancellationPage(owner = self.user,
-                                        slug  = "2008-05-04-cancellation",
-                                        title = "Cancellation for Sunday 4th of May",
                                         overrides = event,
                                         except_date = dt.date(2008, 5, 4),
                                         cancellation_title   = "Fire in the kitchen",
                                         cancellation_details = "The bacon fat is burning")
         event.add_child(instance=cancellation)
         self.assertEqual(event.status, "finished")
+
+    @freeze_timetz("2008-05-04 12:00")
+    def testPostponementOccurenceLast(self):
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "breakfast3",
+                                   title = "Breakfast-in-bed",
+                                   repeat = Recurrence(dtstart=dt.date(2008,2,1),
+                                                       until=dt.date(2008,5,9),
+                                                       freq=WEEKLY,
+                                                       byweekday=[SA,SU]),
+                                   time_from = dt.time(8),
+                                   time_to   = dt.time(9))
+        self.calendar.add_child(instance=event)
+        postponement = PostponementPage(owner = self.user,
+                                        overrides = event,
+                                        except_date = dt.date(2008, 5, 3),
+                                        postponement_title = "Breakfast in Bed owed from May",
+                                        date      = dt.date(2008, 5, 24),
+                                        time_from = dt.time(8),
+                                        time_to   = dt.time(9))
+        event.add_child(instance=postponement)
+        self.assertIsNone(event.status)
+        self.assertEqual(event._nextOn(request),
+                         '<a class="inline-link" href="/events/breakfast3/2008-05-03-postponement/">Saturday 24th of May at 8am</a>')
 
     def testWhen(self):
         self.assertEqual(self.event.when, "The first Tuesday of the month at 6:30pm to 8pm")
