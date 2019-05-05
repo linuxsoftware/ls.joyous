@@ -5,11 +5,13 @@ import sys
 import datetime as dt
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import translation
 from django.utils import timezone
 from wagtail.core.models import Page
+from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
-from ls.joyous.models.events import ExtraInfoPage
+from ls.joyous.models.events import ExtraInfoPage, ExtraInfoPageForm
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import datetimetz
 
@@ -85,6 +87,90 @@ class Test(TestCase):
 
     def testGroup(self):
         self.assertIsNone(self.info.group)
+
+# ------------------------------------------------------------------------------
+class TestPageForm(TestCase):
+    Form = ExtraInfoPage.get_edit_handler().get_form_class()
+
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "test-meeting",
+                                        title     = "Test Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(1988,1,1),
+                                                               freq=WEEKLY,
+                                                               byweekday=[MO,WE,FR]),
+                                        time_from = dt.time(13),
+                                        time_to   = dt.time(15,30))
+        self.calendar.add_child(instance=self.event)
+        self.info = ExtraInfoPage(owner = self.user,
+                                  overrides = self.event,
+                                  except_date = dt.date(1999,1,5),
+                                  extra_title = "Fri-day",
+                                  extra_information = "Special Friday")
+        self.event.add_child(instance=self.info)
+        self.info.save_revision().publish()
+
+    def testExceptionAlreadyExists(self):
+        page = ExtraInfoPage(owner=self.user)
+        form = self.Form({'overrides':         self.event,
+                          'except_date':       "1999-01-05",
+                          'extra_title':       "It's Friday",
+                          'extra_information': rich_text("Special Special Friday")},
+                          instance=page,
+                          parent_page=self.event)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors,
+                             {'except_date': ['That date already has extra information']})
+
+# ------------------------------------------------------------------------------
+class TestPageFormDeutsche(TestCase):
+    Form = ExtraInfoPage.get_edit_handler().get_form_class()
+
+    def setUp(self):
+        translation.activate('de')
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "ereignisse",
+                                     title = "Ereignisse")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "meeting",
+                                        title     = "Testen Sie Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(1988,1,1),
+                                                               freq=WEEKLY,
+                                                               byweekday=[MO,WE,FR]),
+                                        time_from = dt.time(13),
+                                        time_to   = dt.time(15,30))
+        self.calendar.add_child(instance=self.event)
+        self.info = ExtraInfoPage(owner = self.user,
+                                  overrides = self.event,
+                                  except_date = dt.date(1999,1,5),
+                                  extra_title = "Freitag",
+                                  extra_information = "Besonderer Freitag")
+        self.event.add_child(instance=self.info)
+        self.info.save_revision().publish()
+
+    def tearDown(self):
+        translation.deactivate()
+
+    def testExceptionAlreadyExists(self):
+        page = ExtraInfoPage(owner=self.user)
+        form = self.Form({'overrides':         self.event,
+                          'except_date':       "1999-01-05",
+                          'extra_title':       "Es ist Freitag",
+                          'extra_information': rich_text("Besonderer spezieller Freitag")},
+                          instance=page,
+                          parent_page=self.event)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors,
+                             {'except_date': ['Dieses Datum enthält bereits zusätzliche information']})
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

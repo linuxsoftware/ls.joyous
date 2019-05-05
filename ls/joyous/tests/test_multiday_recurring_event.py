@@ -118,6 +118,16 @@ class Test(TestCase):
         self.assertEqual(info.slug, "2018-08-03-extra-info")
         self.assertEqual(info.extra_title, "Team Retreat 2018")
 
+    @freeze_timetz("2018-08-04 02:00:00")
+    def testPastExcludeExtraInfo(self):
+        info2018 = ExtraInfoPage(owner = self.user,
+                                 overrides = self.event,
+                                 except_date = dt.date(2018, 8, 3),
+                                 extra_title = "Team Retreat 2018",
+                                 extra_information = "Weekend at Bernie's")
+        self.event.add_child(instance=info2018)
+        before = self.event._past_datetime_from
+        self.assertEqual(before, datetimetz(2017, 8, 4, 18))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

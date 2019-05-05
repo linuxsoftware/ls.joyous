@@ -139,7 +139,7 @@ class Test(TestCase):
     def testGroup(self):
         self.assertIsNone(self.event.group)
 
-
+# ------------------------------------------------------------------------------
 class TestTZ(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
@@ -192,7 +192,7 @@ class TestTZ(TestCase):
         self.assertEqual(when.time(), dt.time.max)
         self.assertEqual(when.date(), dt.date(2018,3,17))
 
-
+# ------------------------------------------------------------------------------
 class TestPageForm(TestCase):
     Form = MultidayEventPage.get_edit_handler().get_form_class()
 
@@ -233,7 +233,6 @@ class TestPageForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form.errors,
                              {'date_to': ["Event cannot end before it starts"]})
-
 
     def testEndTimeBeforeStartTime(self):
         form = self.Form({'slug':      "AB",

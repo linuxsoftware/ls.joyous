@@ -432,7 +432,7 @@ class EventPageForm(WagtailAdminPageForm):
         startTime = timeFrom(cleaned_data.get('time_from'))
         endTime   = timeTo(cleaned_data.get('time_to'))
         if startTime > endTime:
-            self.add_error('time_to', "Event cannot end before it starts")
+            self.add_error('time_to', _("Event cannot end before it starts"))
 
 # Cannot serialize: functools._lru_cache_wrapper object
 # There are some values Django cannot serialize into migration files.
@@ -986,6 +986,8 @@ class RecurringEventPage(EventBase, Page):
         prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
                                     excludeCancellations=True,
                                     excludeExtraInfo=True)
+        # Exclude extra info pages as this is used for sorting and the extra
+        # info pages sit alongside
         return prevDt
 
     @property
@@ -1299,7 +1301,7 @@ class EventExceptionPageForm(WagtailAdminPageForm):
         slug = "{}-{}".format(exceptDate, slugName)
         if not Page._slug_is_available(slug, self.parent_page, self.instance):
             self.add_error('except_date',
-                           'That date already has {}'.format(description))
+                           _("That date already has") + " " + description.lower())
 
 class EventExceptionBase(models.Model):
     class Meta:
@@ -1404,7 +1406,7 @@ class EventExceptionBase(models.Model):
         Apply fixups that need to happen before per-field validation occurs.
         Sets the page's title.
         """
-        name = getattr(self, 'name', self.slugName.title())
+        name = self.slugName.title()
         self.title = "{} for {}".format(name, dateFormat(self.except_date))
         self.slug = "{}-{}".format(self.except_date, self.slugName)
         super().full_clean(*args, **kwargs)
@@ -1434,8 +1436,7 @@ class ExtraInfoQuerySet(EventExceptionQuerySet):
         return qs
 
 class ExtraInfoPageForm(EventExceptionPageForm):
-    name        = _("Extra Information")
-    description = name.lower()
+    description = _("Extra Information")
 
     def clean(self):
         cleaned_data = super().clean()
@@ -1530,6 +1531,8 @@ class ExtraInfoPage(EventExceptionBase, Page):
 
 # ------------------------------------------------------------------------------
 class CancellationPageForm(EventExceptionPageForm):
+    description = _("a cancellation")
+
     def clean(self):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
@@ -1625,6 +1628,8 @@ class PostponementQuerySet(EventQuerySet):
         return qs.filter(date__range=(fromDate - _1day, toDate + _1day))
 
 class PostponementPageForm(EventExceptionPageForm):
+    description = _("a postponement")
+
     def clean(self):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
@@ -1638,7 +1643,7 @@ class PostponementPageForm(EventExceptionPageForm):
         startTime = timeFrom(cleaned_data.get('time_from'))
         endTime   = timeTo(cleaned_data.get('time_to'))
         if startTime > endTime:
-            self.add_error('time_to', "Event cannot end before it starts")
+            self.add_error('time_to', _("Event cannot end before it starts"))
 
 class RescheduleEventBase(EventBase):
     """
