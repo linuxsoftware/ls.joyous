@@ -38,7 +38,7 @@ i18n:
 	cd ls/joyous && django-admin makemessages --all
 
 l10n:
-	cd ls/joyous django-admin compilemessages
+	cd ls/joyous && django-admin compilemessages
 
 html:
 	$(MAKE) --directory=docs html

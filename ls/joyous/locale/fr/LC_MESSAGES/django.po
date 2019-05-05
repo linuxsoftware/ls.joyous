@@ -665,13 +665,13 @@ msgstr "{ordinal} {weekday}"
 #, fuzzy, python-brace-format
 #| msgid "{localWeekday} before the {ordinal} {weekday}"
 msgid "{localWeekday} before {theOrdinal} {weekday}"
-msgstr "{localWeekday} avant le {ordinal} {weekday}"
+msgstr "{localWeekday} avant {theOrdinal} {weekday}"
 
 #: utils/recurrence.py:59
 #, fuzzy, python-brace-format
 #| msgid "{localWeekday} after the {ordinal} {weekday}"
 msgid "{localWeekday} after {theOrdinal} {weekday}"
-msgstr "{localWeekday} après le {ordinal} {weekday}"
+msgstr "{localWeekday} après {theOrdinal} {weekday}"
 
 #: utils/recurrence.py:237
 #, python-brace-format
