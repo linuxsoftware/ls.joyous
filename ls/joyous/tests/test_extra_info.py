@@ -13,7 +13,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import ExtraInfoPage, ExtraInfoPageForm
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
-from .testutils import datetimetz
+from .testutils import datetimetz, freeze_timetz
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -61,8 +61,6 @@ class Test(TestCase):
         myday = now.date() + dt.timedelta(days=1)
         friday = myday + dt.timedelta(days=(4-myday.weekday())%7)
         futureInfo = ExtraInfoPage(owner = self.user,
-                                   slug  = "fri-extra-info",
-                                   title = "Extra Information for Friday",
                                    overrides = self.event,
                                    except_date = friday,
                                    extra_title = "It's Friday",
@@ -70,6 +68,11 @@ class Test(TestCase):
         self.event.add_child(instance=futureInfo)
         self.assertIsNone(futureInfo.status)
         self.assertEqual(futureInfo.status_text, "")
+
+    @freeze_timetz("1988-11-11 14:00:00")
+    def testStatusStarted(self):
+        self.assertEqual(self.info.status, "started")
+        self.assertEqual(self.info.status_text, "This event has started.")
 
     def testWhen(self):
         self.assertEqual(self.info.when, "Friday 11th of November 1988 at 1pm to 3:30pm")
@@ -80,13 +83,24 @@ class Test(TestCase):
     def testUpcomingDt(self):
         self.assertIsNone(self.info._upcoming_datetime_from)
 
-
     def testPastDt(self):
         self.assertEqual(self.info._past_datetime_from,
                          datetimetz(1988,11,11,13,0))
 
+    def testNeverOccursOn(self):
+        info = ExtraInfoPage(owner = self.user,
+                             overrides = self.event,
+                             except_date = dt.date(1988,3,1),
+                             extra_title = "Tuesday",
+                             extra_information = "Standard")
+        self.event.add_child(instance=info)
+        self.assertIsNone(info._past_datetime_from)
+
     def testGroup(self):
         self.assertIsNone(self.info.group)
+
+    def testOverridesRepeat(self):
+        self.assertEqual(self.info.overrides_repeat, self.event.repeat)
 
 # ------------------------------------------------------------------------------
 class TestPageForm(TestCase):

@@ -123,8 +123,35 @@ class Test(TestCase):
     def testWhen(self):
         self.assertEqual(self.cancellation.when, "Wednesday 1st of February 1989 at 1pm to 3:30pm")
 
+    def testWhenEver(self):
+        event = RecurringEventPage(slug      = "XYZ",
+                                   title     = "Xylophone yacht zombies",
+                                   repeat    = Recurrence(dtstart=dt.date(1989,1,1),
+                                                          freq=WEEKLY,
+                                                          byweekday=[FR]),
+                                   time_from = dt.time(19))
+        self.calendar.add_child(instance=event)
+        cancellation = CancellationPage(owner = self.user,
+                                        overrides = event,
+                                        except_date = dt.date(1989,3,10),
+                                        cancellation_title = "Cancelled")
+        event.add_child(instance=cancellation)
+        cancellation.save_revision().publish()
+        self.assertEqual(cancellation.when, "Friday 10th of March 1989 at 7pm")
+
     def testAt(self):
         self.assertEqual(self.cancellation.at.strip(), "1pm")
+
+    def testGroup(self):
+        self.assertIsNone(self.cancellation.group)
+
+    def testOverridesRepeat(self):
+        self.assertEqual(self.cancellation.overrides_repeat, self.event.repeat)
+
+    def testGetContext(self):
+        request = RequestFactory().get("/test")
+        context = self.cancellation.get_context(request)
+        self.assertIn('overrides', context)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
