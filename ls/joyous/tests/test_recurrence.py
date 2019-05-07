@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
-# Test Recurrence
-# ------------------------------------------------------------------------------
 import sys
 import datetime as dt
+from dateutil.rrule import rrule
 from django.test import TestCase
 from ls.joyous.utils.recurrence import Recurrence, Weekday
 from ls.joyous.utils.recurrence import MO, TU, WE, TH, FR, SA, SU
 from ls.joyous.utils.recurrence import YEARLY, MONTHLY, WEEKLY, DAILY
+from .testutils import datetimetz
 
 # ------------------------------------------------------------------------------
 class TestWeekday(TestCase):
@@ -34,13 +34,33 @@ class TestWeekday(TestCase):
 
 # ------------------------------------------------------------------------------
 class TestRecurrence(TestCase):
+    def testInitStr(self):
+        with self.assertRaises(ValueError):
+            Recurrence("DTSTART:19970902T090000\n"
+                       "RRULE:FREQ=DAILY;INTERVAL=3\n"
+                       "RRULE:FREQ=DAILY;INTERVAL=4")
+
+    def testInitRecurrence(self):
+        rr1 = Recurrence(dtstart=dt.date(2009, 1, 1),
+                         freq=WEEKLY,
+                         byweekday=[MO,TU,WE,TH,FR])
+        rr2 = Recurrence(rr1)
+        self.assertEqual(rr2.freq, WEEKLY)
+
+    def testInitRrule(self):
+        rr1 = rrule(dtstart=dt.date(2009, 1, 1),
+                    freq=WEEKLY,
+                    byweekday=[MO,TU,WE,TH,FR])
+        rr2 = Recurrence(rr1)
+        self.assertEqual(rr2.freq, WEEKLY)
+
     def testRepr(self):
         rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=WEEKLY,
                         count=9,
                         byweekday=[MO,TU,WE,TH,FR])
         self.assertEqual(repr(rr),
-                        "DTSTART:20090101\n" \
+                        "DTSTART:20090101\n"
                         "RRULE:FREQ=WEEKLY;WKST=SU;COUNT=9;BYDAY=MO,TU,WE,TH,FR")
         self.assertEqual(rr.count, rr.getCount())
         rr = Recurrence(dtstart=dt.date(2011, 1, 1),
@@ -48,7 +68,7 @@ class TestRecurrence(TestCase):
                         interval=2,
                         until=dt.date(2011,1,11))
         self.assertEqual(repr(rr),
-                        "DTSTART:20110101\n" \
+                        "DTSTART:20110101\n"
                         "RRULE:FREQ=DAILY;INTERVAL=2;WKST=SU;UNTIL=20110111")
         rr = Recurrence(dtstart=dt.date(2012, 1, 1),
                         freq=YEARLY,
@@ -56,19 +76,19 @@ class TestRecurrence(TestCase):
                         byweekday=range(7),
                         until=dt.date(2012,1,31))
         self.assertEqual(repr(rr),
-                        "DTSTART:20120101\n" \
-                        "RRULE:FREQ=YEARLY;WKST=SU;UNTIL=20120131;" \
+                        "DTSTART:20120101\n"
+                        "RRULE:FREQ=YEARLY;WKST=SU;UNTIL=20120131;"
                         "BYDAY=MO,TU,WE,TH,FR,SA,SU;BYMONTH=1,2")
         rr = Recurrence(dtstart=dt.date(2015, 10, 1),
                         freq=MONTHLY,
                         bymonth=range(1,12),
                         byweekday=[(SU(-1))])
         self.assertEqual(repr(rr),
-                        "DTSTART:20151001\n" \
+                        "DTSTART:20151001\n"
                         "RRULE:FREQ=MONTHLY;WKST=SU;BYDAY=-1SU;BYMONTH=1,2,3,4,5,6,7,8,9,10,11")
 
     def testParse(self):
-        rr = Recurrence("DTSTART:20090101\n" \
+        rr = Recurrence("DTSTART:20090101\n"
                         "RRULE:FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR;COUNT=9")
         self.assertEqual(rr.dtstart, dt.date(2009, 1, 1))
         self.assertEqual(rr.count, 9)
@@ -92,6 +112,23 @@ class TestRecurrence(TestCase):
                         count=9,
                         byweekday=[MO,WE,FR])
         self.assertEqual(rr._getWhen(1), "Tuesdays, Thursdays and Saturdays")
+
+    def testFrequency(self):
+        rr = Recurrence(freq=10)
+        self.assertEqual(rr.frequency, "unsupported_frequency_10")
+
+    def testGetRrule(self):
+        rr = Recurrence(dtstart=dt.date(2011, 1, 1),
+                        freq=DAILY,
+                        interval=2,
+                        until=dt.date(2011,1,11))
+        self.assertEqual(rr._getRrule(),
+                        "FREQ=DAILY;INTERVAL=2;WKST=SU;UNTIL=20110111")
+        with self.assertRaises(TypeError):
+            rr._getRrule(untilDt=dt.datetime(2011,1,11))
+        self.assertEqual(rr._getRrule(untilDt=dt.datetime(2011,1,11,23,59,59,
+                                                          tzinfo=dt.timezone.utc)),
+                        "FREQ=DAILY;INTERVAL=2;WKST=SU;UNTIL=20110111T235959Z")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
