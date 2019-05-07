@@ -1,6 +1,6 @@
-========================
-Joyous 0.8.3 release notes - IN DEVELOPMENT
-========================
+==========================
+Joyous 0.8.3 release notes
+==========================
 
 .. contents::
     :local:
