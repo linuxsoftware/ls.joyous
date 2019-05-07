@@ -260,7 +260,6 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2100/W1/")
         self.assertEqual(response.status_code, 404)
 
-
 # ------------------------------------------------------------------------------
 class TestFrançais(TestCase):
     def setUp(self):
@@ -298,7 +297,6 @@ class TestFrançais(TestCase):
         self.assertEqual(holidays[0].h4.string.strip(), "12 Mar")
         self.assertEqual(holidays[0].div.string.strip(),
                          "Taranaki Anniversary Day")
-
 
 # ------------------------------------------------------------------------------
 class TestSpecificCalendar(TestCase):
@@ -390,7 +388,6 @@ class TestSpecificCalendar(TestCase):
         events = self.calendar2._getAllEvents(self.request)
         self.assertEqual(len(events), 1)
         self.assertEqual(events[0].title, "Tree Planting")
-
 
 # ------------------------------------------------------------------------------
 class TestGeneralCalendar(TestCase):
@@ -485,7 +482,6 @@ class TestGeneralCalendar(TestCase):
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].title, "Planning to Plan")
         self.assertEqual(events[1].title, "BBQ")
-
 
 # ------------------------------------------------------------------------------
 class TestMultiCalendarCreate(TestCase):

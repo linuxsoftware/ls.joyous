@@ -1634,15 +1634,14 @@ class PostponementPageForm(EventExceptionPageForm):
         cleaned_data = super().clean()
         self._checkSlugAvailable(cleaned_data)
         self._checkSlugAvailable(cleaned_data, "cancellation")
-        numDays = cleaned_data.get('num_days', 1)
-        if numDays == 1:
-            self._checkStartBeforeEnd(cleaned_data)
+        self._checkStartBeforeEnd(cleaned_data)
         return cleaned_data
 
     def _checkStartBeforeEnd(self, cleaned_data):
+        numDays   = cleaned_data.get('num_days', 1)
         startTime = timeFrom(cleaned_data.get('time_from'))
         endTime   = timeTo(cleaned_data.get('time_to'))
-        if startTime > endTime:
+        if numDays == 1 and startTime > endTime:
             self.add_error('time_to', _("Event cannot end before it starts"))
 
 class RescheduleEventBase(EventBase):
@@ -1661,11 +1660,7 @@ class RescheduleEventBase(EventBase):
     group       = property(attrgetter("overrides.group"))
     uid         = property(attrgetter("overrides.uid"))
     group_page  = None
-
-    def get_context(self, request, *args, **kwargs):
-        retval = super().get_context(request, *args, **kwargs)
-        retval['overrides'] = self.overrides
-        return retval
+    get_context = EventExceptionBase.get_context
 
 class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage):
     class Meta:

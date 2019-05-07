@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
-from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, YEARLY
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY
 from ls.joyous.utils.recurrence import SA, TU, TH, FR
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import MultidayRecurringEventPage, ExtraInfoPage

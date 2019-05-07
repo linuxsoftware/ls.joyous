@@ -3,16 +3,18 @@
 # ------------------------------------------------------------------------------
 import sys
 import pytz
-from freezegun import freeze_time
 import datetime as dt
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
+from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
+from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models import (GeneralCalendarPage, RecurringEventPage,
         MultidayRecurringEventPage, CancellationPage, PostponementPage,
         RescheduleMultidayEventPage)
-from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, TU, WE, FR
+from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, TU, WE, FR
+from .testutils import freeze_timetz, getPage
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -93,10 +95,46 @@ class Test(TestCase):
         self.assertIsNone(futureEvent.status)
         self.assertEqual(futureEvent.status_text, "")
 
+    @freeze_timetz("1990-10-11 16:29:00")
+    def testStatusStarted(self):
+        self.assertEqual(self.postponement.status, "started")
+        self.assertEqual(self.postponement.status_text, "This event has started.")
+
     def testWhen(self):
         self.assertEqual(self.postponement.when, "Thursday 11th of October 1990 at 1pm to 4:30pm")
 
-    @freeze_time("2017-05-01")
+    def testWhatPostponed(self):
+        self.assertEqual(self.postponement.what, "Postponed")
+
+    def testWhatRescheduled(self):
+        reschedule = PostponementPage(owner = self.user,
+                                      overrides = self.event,
+                                      except_date = dt.date(1991, 1, 7),
+                                      date        = dt.date(1991, 1, 6),
+                                      postponement_title = "Rescheduled")
+        self.event.add_child(instance=reschedule)
+        self.assertEqual(reschedule.what, "Rescheduled")
+
+    def testWhatSameTime(self):
+        change = PostponementPage(owner = self.user,
+                                  overrides = self.event,
+                                  except_date = dt.date(1991, 1, 7),
+                                  date        = dt.date(1991, 1, 7),
+                                  time_from   = dt.time(13,30),
+                                  time_to     = dt.time(16),
+                                  postponement_title = "Small Change")
+        self.event.add_child(instance=change)
+        self.assertIsNone(change.what)
+
+    def testPostponedFrom(self):
+        self.assertEqual(self.postponement.postponed_from,
+                         "Wednesday 10th of October 1990")
+
+    def testPostponedTo(self):
+        self.assertEqual(self.postponement.postponed_to,
+                         "Thursday 11th of October 1990")
+
+    @freeze_timetz("2017-05-01")
     def testAt(self):
         self.assertEqual(self.postponement.at.strip(), "1pm")
         nextDate = self.event.next_date
@@ -126,14 +164,26 @@ class Test(TestCase):
         self.assertEqual(parts[4], "at")
         self.assertEqual(parts[5], "8:30am")
 
+    def testCancellationView(self):
+        response = self.client.get("/events/test-meeting/1990-10-10-postponement/from/")
+        select = response.soup.select
+        self.assertEqual(response.status_code, 200)
+        title = select('h1.event-heading')[0]
+        self.assertEqual(title.string.strip(), "Meeting Postponed")
+        details = select('.event-cancellation-details .rich-text')[0]
+        self.assertEqual(details.string.strip(),
+                         "The meeting has been postponed until tomorrow")
+        toLink = select('.event-postponed-to a')[0]
+        self.assertEqual(toLink.string.strip(),
+                         "Thursday 11th of October 1990 at 1pm to 4:30pm")
+        self.assertEqual(toLink['href'],
+                         "/events/test-meeting/1990-10-10-postponement/")
+
 # ------------------------------------------------------------------------------
 class TestMultiday(TestCase):
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('j', 'j@joy.test', 's3(r3t')
-        self.request = RequestFactory().get("/test")
-        self.request.user = self.user
-        self.request.session = {}
         self.calendar = GeneralCalendarPage(owner = self.user,
                                             slug  = "events",
                                             title = "Events")
@@ -220,6 +270,60 @@ class TestTZ(TestCase):
         title, page, url = evod1.continuing_events[0]
         self.assertEqual(title, "Delayed Meeting")
         self.assertIs(type(page), PostponementPage)
+
+# ------------------------------------------------------------------------------
+class TestPageForm(TestCase):
+    Form = PostponementPage.get_edit_handler().get_form_class()
+
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')
+        self.calendar = GeneralCalendarPage(owner = self.user,
+                                            slug  = "events",
+                                            title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "committee-meeting",
+                                        title     = "Committee Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(2017,1,1),
+                                                               freq=MONTHLY,
+                                                               byweekday=[MO(1), MO(3)]),
+                                        time_from = dt.time(13),
+                                        time_to   = dt.time(15,30))
+        self.calendar.add_child(instance=self.event)
+
+    def testValidEndTimeBeforeStartTime(self):
+        page = PostponementPage(owner=self.user)
+        form = self.Form({'overrides':    self.event,
+                          'except_date':  "2017-02-06",
+                          'date':         "2017-02-07",
+                          'time_from':    "13:00:00",
+                          'time_to':      "16:00:00",
+                          'cancellation_title': "Meeting postponed",
+                          'cancellation_details': 
+                                  rich_text("The meeting has been postponed until tomorrow"),
+                          'postponement_title': "Committee Meeting"},
+                          instance=page,
+                          parent_page=self.event)
+        self.assertTrue(form.is_valid())
+        self.assertDictEqual(form.errors, {})
+
+    def testEndTimeBeforeStartTime(self):
+        page = PostponementPage(owner=self.user)
+        form = self.Form({'overrides':    self.event,
+                          'except_date':  "2017-02-06",
+                          'date':         "2017-02-07",
+                          'time_from':    "13:00:00",
+                          'time_to':      "04:00:00",
+                          'cancellation_title': "Meeting postponed",
+                          'cancellation_details': 
+                                  rich_text("The meeting has been postponed until tomorrow"),
+                          'postponement_title': "Committee Meeting"},
+                          instance=page,
+                          parent_page=self.event)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors,
+                             {'time_to': ['Event cannot end before it starts']})
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
