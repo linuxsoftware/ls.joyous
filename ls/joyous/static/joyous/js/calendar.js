@@ -18,39 +18,39 @@
     };
 
     EventsCalendar.prototype._enablePopup = function() {
-      if ($("#calendar-overlay").length === 0) {
-        $("<div id=\"calendar-overlay\"></div>\n<div class=\"day-popup-outer\">\n  <div id=\"read-more-events\" class=\"calendar day-popup\">\n    <a class=\"close\" href=\"#\">×</a>\n    <div class=\"day-title\"></div>\n    <div class=\"days-events\"></div>\n  </div>\n</div>").appendTo("body");
+      if ($("#joyous-overlay").length === 0) {
+        $("<div id=\"joyous-overlay\" class=\"joy-overlay\"></div>\n<div class=\"joy-popup joy-popup__outer\">\n  <div id=\"joyous-more-events\" class=\"calendar joy-popup__content\">\n    <a class=\"joy-popup__close\" href=\"#\">×</a>\n    <div class=\"joy-cal__day-title\"></div>\n    <div class=\"joy-days-events\"></div>\n  </div>\n</div>").appendTo("body");
       }
-      $("#calendar-overlay, .day-popup-outer, .day-popup .close").click(function() {
-        $("#calendar-overlay, .day-popup-outer").hide();
+      $(".joy-overlay, .joy-popup__outer, .joy-popup__close").click(function() {
+        $(".joy-overlay, .joy-popup__outer").hide();
         return false;
       });
-      return $(".day-popup").click(function(event) {
+      return $(".joy-popup__content").click(function(event) {
         return event.stopPropagation();
       });
     };
 
     EventsCalendar.prototype._handleResize = function() {
-      if ($("tbody").hasClass("monthly-view")) {
+      if ($(".joy-cal--monthly").length > 0) {
         this._adjustDays();
       }
-      return this._linkReadMore();
+      this._linkReadMore();
     };
 
     EventsCalendar.prototype._adjustDays = function() {
       var eventsHeight, height, width;
-      width = $("tbody.monthly-view td.day .day-title").first().outerWidth();
-      height = $("tbody.monthly-view td.day .day-title").first().outerHeight();
-      eventsHeight = (width - height - 1) * 0.71;
-      $("tbody.monthly-view .days-events").outerHeight(eventsHeight);
+      width = $(".joy-cal--monthly .joy-cal__day").first().outerWidth();
+      height = $(".joy-cal--monthly .joy-cal__date").first().outerHeight();
+      eventsHeight = (width - height) * 0.71;
+      $(".joy-cal--monthly .joy-days-events").outerHeight(eventsHeight);
     };
 
     EventsCalendar.prototype._linkReadMore = function() {
-      $(".days-events").each((function(_this) {
+      $(".joy-days-events").each((function(_this) {
         return function(index, element) {
           var day;
-          day = $(element).closest("td.day");
-          day.find("a.read-more").remove();
+          day = $(element).closest(".joy-cal__day");
+          day.find(".joy-cal__read-more").remove();
           if (element.offsetHeight < element.scrollHeight || element.offsetWidth < element.scrollWidth) {
             _this._addReadMoreLink(day);
           }
@@ -60,16 +60,16 @@
 
     EventsCalendar.prototype._addReadMoreLink = function(day) {
       var link;
-      link = $("<a>").attr('href', 'javascript:void 0').attr('title', "Show all of this day's events").addClass("read-more").text("+");
+      link = $("<a>").attr('href', 'javascript:void 0').attr('title', "Show all of this day's events").addClass("joy-cal__read-more").text("+");
       link.click(function(ev) {
         var events, title, y;
-        title = day.find(".day-title").clone();
-        $("#read-more-events .day-title").replaceWith(title);
-        events = day.find(".days-events").clone().height('auto');
-        $("#read-more-events .days-events").replaceWith(events);
+        title = day.find(".joy-cal__day-title").clone();
+        $("#joyous-more-events .joy-cal__day-title").replaceWith(title);
+        events = day.find(".joy-days-events").clone().height('auto');
+        $("#joyous-more-events .joy-days-events").replaceWith(events);
         y = Math.max(ev.pageY - 100, $(window).scrollTop());
-        $(".day-popup-outer").css('top', y);
-        $("#calendar-overlay, .day-popup-outer").show();
+        $(".joy-popup__outer").css('top', y);
+        $("#joyous-overlay, .joy-popup__outer").show();
         return false;
       });
       day.append(link);

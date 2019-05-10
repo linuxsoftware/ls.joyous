@@ -1,0 +1,180 @@
+==========================
+Joyous 0.9.0 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+CSS
+~~~
+joyous.css has been stripped down to the bare structural basics that will display elements in appropriate places, but without pushing colour or font choices. New theme CSS files are available which the user can optionally choose to import if they wish.  Added a new setting ``JOYOUS_CSS_THEME`` to make it easy to include a theme CSS file without needing to override the joyous_base.html file.
+
+Add the following to your settings file (e.g. mysite/mysite/settings/base.py) to continue with the previous default appearance.
+
+    .. code-block:: python
+
+        JOYOUS_CSS_THEME = "/static/joyous/css/joyous_coast_theme.css"
+
+Available themes:
+ * ``joyous_coast_theme.css``: Greys and gold.
+ * ``joyous_forest_theme.css``: Greens.
+ * ``joyous_stellar_theme.css``: A dark background theme.
+
+All Joyous CSS classes now begin with the prefix ``joy-`` and try to follow the BEM protocol of ``block__element--modifier``. 
+
+Other features
+~~~~~~~~~~~~~~
+ * Restructured templates to use more inheritance and less inclusion.
+
+Bug fixes
+~~~~~~~~~
+ * Fix bug when num_days differs from event to occurrence
+
+
+Upgrade considerations
+======================
+
+CSS
+~~~
+There has been substantial changes to the CSS classes.  This table shows some of them.
+
+===========================================  =======================================
+#calendar-overlay                            .joy-overlay
+.day-popup-outer                             .joy-popup__outer
+.day-popup                                   .joy-popup__content
+.day-popup .close                            .joy-popup__close
+.events-view                                 .joyous-view-choices
+.events-view .together                       .joyous-view-choices__link
+table.calendar                               .joy-cal
+.calendar thead                              .joy-cal__head
+.calendar thead tr.heading th                .joy-cal__heading
+.calendar thead tr th                        .joy-cal__weekday
+.calendar .month-heading                     .joy-cal__period-heading
+.calendar .month-heading a                   .joy-cal__period-ctrl
+.calendar .month-heading .month-name         .joy-cal__month-name
+.calendar .week-heading                      .joy-cal__period-heading
+.calendar .week-heading a                    .joy-cal__period-ctrl
+.calendar .week-heading .week-name           .joy-cal__week-name
+.calendar .year-heading                      .joy-cal__period-heading
+.calendar .year-heading a                    .joy-cal__period-ctrl
+.calendar .year-heading .year-number         .joy-cal__year-number
+.calendar tbody                              .joy-cal__body
+.calendar tbody tr                           .joy-cal__week
+.calendar tbody tr td                        .joy-cal__day
+.calendar tbody tr td.noday                  .joy-cal__no-day
+.calendar tbody tr td.today                  .joy-cal__day--today
+.calendar tbody tr td.yesterday              .joy-cal__day--yesterday
+.calendar tbody tr td.lastweek               .joy-cal__day--lastweek
+.calendar th.sun                             .joy-cal__weekday--sun
+.calendar .sun h4                            .joy-cal__date--sun
+.calendar .holiday h4                        .joy-cal__date--holiday
+.calendar .day-title                         .joy-cal__day-title
+.calendar .day-title .holiday-name           .joy-cal__holiday-name
+.calendar td.day a.read-more                 .joy-cal__read-more
+.minicalendar                                .joy-minical
+.minicalendar thead                          .joy-minical__head
+.minicalendar thead tr.heading th            .joy-minical__heading
+.minicalendar thead .month-heading           .joy-minical__month-heading
+.minicalendar thead .month-name              .joy-minical__month-name
+.minicalendar thead .year-number             .joy-minical__year-number
+.minicalendar thead .month-nav               .joy-minical__month-nav
+a.minicalPrev                                .joy-minical-prev
+a.minicalNext                                .joy-minical-next
+.minicalendar thead tr th                    .joy-minical__weekday
+.minicalendar tbody tr td                    .joy-minical__day 
+.calendar tbody tr td.noday                  .joy-minical__no-day
+.minicalendar tbody tr td .day-title         .joy-minical__day-title
+.minicalendar tbody tr td.today .day-title   .joy-minical__day-title--today
+.minicalendar .holiday                       .joy-minical__date--holiday,
+.minicalendar .sun                           .joy-minical__date--sun
+.days-events .event                          .joy-days-events__event
+.days-events .event-continues                .joy-days-events__event--continues
+.days-events .event-time                     .joy-days-events__event-time
+.days-events .event-title                    .joy-days-events__event-title
+.upcoming-events                             .joy-cal-list
+.past-events                                 .joy-cal-list
+.events-on-day                               .joy-cal-list
+.event-item                                  .joy-ev-item
+.event-title                                 .joy-title--item
+.event-image                                 .joy-img-link
+.event-image                                 .joy-img
+.event-group-page                            .joy-ev-who
+.event-when                                  .joy-ev-when
+.event-postponed-from                        .joy-ev-from-when
+.event-postponed-to                          .joy-ev-to-when
+.event-next-on                               .joy-ev-next-on
+.event-location                              .joy-ev-where
+.event-location .gmap                        .joy-ev-where__map-link
+.event-website                               .joy-ev-website
+.event-website a                             .joy-ev-website__link
+.event-extra-info                            .joy-ev-extra
+.event-status                                .joy-ev-status
+.event-export                                .joy-export
+.upcoming-events                             .joy-grp-list
+.event-item-title                            .joy-title--item
+.event-index                                 .joy-ev-related
+.event-index .item                           .joy-ev-related__item
+.event-index a                               .joy-ev-related__link
+.event-index a strong                        .joy-ev-related__overrides strong
+.events-this-week                            .joy-this-week
+.events-this-week h3                         .joy-this-week__title
+.events-this-week .events                    .joy-this-week__events
+.events-this-week .day                       .joy-this-week__day
+.events-this-week .day.in-past               .joy-this-week__day--in-past
+.events-this-week .day.today                 .joy-this-week__day--today
+.events-this-week .event-day                 .joy-this-week__day-title
+.events-this-week .event-day h4              .joy-this-week__weekday
+.events-this-week .calendar-link             .joy-this-week__cal-link
+.events-this-week .days-events .holiday      .joy-this-week__holiday-name
+.events-this-week .days-events               .joy-this-week__days-events
+.events-this-week .days-events .event        .joy-days-events__event
+.events-pagination                           .joy-pg
+.events-pagination li                        .joy-pg__page
+.events-pagination li > a                    .joy-pg__ctrl
+.events-pagination li.disabled > a           .joy-pg__ctrl--disabled
+.events-pagination li > a                    .joy-pg__num
+.events-pagination li > span                 .joy-pg__num
+.events-pagination li.active > a             .joy-pg__num--active
+.events-pagination li.active > span          .joy-pg__num--active
+.event-details                               .joy-ev-details
+.events-on-day-detailed                      ---
+.upcoming-events-detailed                    ---
+.together                                    ---
+.content-inner                               ---
+.calendar-options                            ---
+.ev-recurrence-fields                        .joy-rr
+.ev-advanced-monthly-repeat                  .joy-rr__advanced-monthly-repeat
+.ev-advanced-repeat                          .joy-rr__advanced-repeat
+.ev-advanced-weekly-repeat                   .joy-rr__advanced-weekly-repeat
+.ev-advanced-yearly-repeat                   .joy-rr__advanced-yearly-repeat
+.ev-day-choice                               .joy-rr__day-choice
+.ev-days-input                               .joy-rr__days-input
+.ev-short-input                              .joy-rr__short-input
+.ev-months-input                             .joy-rr__months-input
+.ev-freq-choice                              .joy-rr__freq-choice
+.ev-half-field                               .joy-rr__half-field
+.ev-double-field                             .joy-rr__double-field
+.ev-ical-value                               .joy-rr__ical-value
+.ev-interval-num                             .joy-rr__interval-num
+.ev-interval-units-days                      .joy-rr__interval-units-days
+.ev-interval-units-months                    .joy-rr__interval-units-months
+.ev-interval-units-weeks                     .joy-rr__interval-units-weeks
+.ev-interval-units-years                     .joy-rr__interval-units-years
+.ev-months                                   .joy-rr__months
+.ev-ord-choice                               .joy-rr__ord-choice
+.ev-primary                                  .joy-rr__primary
+.ev-secondary                                .joy-rr__secondary
+.ev-show-advanced                            .joy-rr__show-advanced
+.ev-show-advanced-cbx                        .joy-rr__show-advanced-cbx
+.ev-simple-repeat                            .joy-rr__simple-repeat
+.ev-start-date                               .joy-rr__start-date
+.ev-until-date                               .joy-rr__until-date
+.ev-weekdays                                 .joy-rr__weekdays
+===========================================  =======================================
+
+

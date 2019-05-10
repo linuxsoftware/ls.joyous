@@ -1,0 +1,42 @@
+{% extends "joyous/calendar_base.html" %}
+{% load static wagtailcore_tags i18n %}
+
+{% block cal_events %}
+<table class="joy-cal {% block cal_view_class %}{% endblock %}" data-version="{{ version }}">
+  {% block cal_thead %}
+  <thead class="joy-cal__head">
+    {% block cal_heading %}
+    {% endblock cal_heading %}
+    {% block cal_weekday %}<tr class="joy-cal__weekdays">
+    {% for dow in weekdayAbbr %}  <th class="joy-cal__weekday joy-cal__weekday--{{dow|lower}}">{{dow}}</th>
+    {% endfor %}</tr>
+    {% endblock cal_weekday %}
+  </thead>
+  {% endblock cal_thead %}
+  {% block cal_tbody %}
+  <tbody class="joy-cal__body">
+    {% for week in events %}{% block cal_week %}<tr class="joy-cal__week">
+      {% for evod in week %}{% block cal_day %}{% if evod %}
+      <td class="joy-cal__day {% if evod.date == today %} joy-cal__day--today{% elif evod.date == yesterday %} joy-cal__day--yesterday{% elif evod.date == lastweek %} joy-cal__day--lastweek{% endif %}{% if evod.date.day == 1 %} joy-cal__day--first{% elif evod.date == lastDay %} joy-cal__day--last{% endif %}">  {% block cal_day_title %}{% endblock cal_day_title %}
+        {% block days_events %}<div class="joy-days-events">{% for title, event, url in evod.continuing_events %}
+          <a href="{{ url }}" class="joy-days-events__event joy-days-events__event--continues">
+            <span class="joy-days-events__event-title">{{title}} {%trans "cont." %}</span>
+          </a>
+        {% endfor %}{% for title, event, url in evod.days_events %}
+          <a href="{{ url }}" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">{{event.at}}</span><span class="joy-days-events__event-title">{{ title }}</span>
+          </a>
+        {% endfor %}</div>{% endblock days_events %}
+      </td>
+      {% else %}<td class="joy-cal__no-day">&nbsp;</td>
+      {% endif %}{% endblock cal_day %}{% endfor %}
+    </tr>{% endblock cal_week %}
+    {% endfor %}
+  </tbody>
+  {% endblock cal_tbody %}
+</table>
+{% endblock cal_events %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'joyous/js/calendar.js' %}"></script>
+{% endblock %}

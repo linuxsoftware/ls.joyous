@@ -1,30 +1,17 @@
 {% load wagtailcore_tags wagtailimages_tags %}
 
-{% block event_item %}
-<div class="event-item clearfix">
-  {% block event_title %}
-  <a class="event-title" href="{{ url }}">{{ title }}</a>
-  {% endblock event_title %}
-  {% block event_image %}
-  {% if event.image %}
-  <div class="event-image">
-      <a class="img-link" href="{{ url }}">{% image event.image width-250 %}</a>
+<div class="joy-ev-item">
+  <div class="joy-title joy-title--item">
+    <h3><a class="joy-title__link" href="{{ url }}">{{ title }}</a></h3>
   </div>
+  {% if event.image %}
+  <a class="joy-img-link joy-field" 
+     href="{{ url }}">{% image event.image width-250 class="joy-img-link__img" %}</a>
   {% endif %}
-  {% endblock event_image %}
-  {% block event_who %}
   {% include "joyous/includes/who.html" %}
-  {% endblock event_who %}
-  {% block event_when %}
   {% include "joyous/includes/when.html" %}
-  {% endblock event_when %}
-  {% block event_where %}
   {% include "joyous/includes/where.html" %}
-  {% endblock event_where %}
-  {% block event_details %}
-  <div class="event-details">
+  <div class="joy-ev-details joy-field">
     {{ event.details|richtext|truncatewords_html:150 }}
   </div>
-  {% endblock event_details %}
 </div>   
-{% endblock event_item %}

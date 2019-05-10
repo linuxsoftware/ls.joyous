@@ -7,32 +7,30 @@ class @MiniCalendar
         return
 
     enable: () ->
-        $("a.minicalPrev").click =>
+        $(".joy-minical__prev").click =>
             @month--
             if @month == 0
                 @month = 12
                 @year--
-            minicalUrl = "#{@calendarUrl}mini/#{@year}/#{@month}"
+            minicalUrl = "#{@calendarUrl}mini/#{@year}/#{@month}/"
             $.get(minicalUrl, @_replace.bind(@))
-
-        $("a.minicalNext").click =>
+            return
+        $(".joy-minical__next").click =>
             @month++
             if @month == 13
                 @month = 1
                 @year++
-            minicalUrl = "#{@calendarUrl}mini/#{@year}/#{@month}"
+            minicalUrl = "#{@calendarUrl}mini/#{@year}/#{@month}/"
             $.get(minicalUrl, @_replace.bind(@))
+            return
         return
 
     _replace: (data) ->
-        # is this is more secure than $(data) ???
         data = $("<div>").append($.parseHTML($.trim(data)))
-
-        heading = $("table.minicalendar thead .month-heading")
-        heading.find(".month-name").replaceWith(data.find(".month-name"))
-        heading.find(".year-number").replaceWith(data.find(".year-number"))
-        tbody = $("table.minicalendar tbody")
-        tbody.replaceWith(data.find("tbody"))
-
-
-
+        month = $(".joy-minical__month-name")
+        month.replaceWith(data.find(".joy-minical__month-name"))
+        year = $(".joy-minical__year-number")
+        year.replaceWith(data.find(".joy-minical__year-number"))
+        tbody = $(".joy-minical__body")
+        tbody.replaceWith(data.find(".joy-minical__body"))
+        return

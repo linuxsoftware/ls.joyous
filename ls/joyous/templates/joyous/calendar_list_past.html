@@ -1,33 +1,14 @@
-{% extends "joyous/joyous_base.html" %}
+{% extends "joyous/calendar_list_base.html" %}
 {% load wagtailcore_tags i18n %}
 
-{% block content %}
-  <div class="content">
-    <div class="page-heading">
-      <h2>{{ page.title }}</h2>
-    </div>
-    <div class="content-inner">
-      {{ page.intro|richtext }}
+{% block view_choices %}
+{% include "joyous/includes/events_view_choices.html" with listLink=_("Upcoming Events") %}
+{% endblock view_choices %}
 
-      {% block cal_options %}
-      <div class="calendar-options clearfix">
-        {% block events_view %}
-        {% include "joyous/includes/events_view_choices.html" with listLink=_("Upcoming Events") %}
-        {% endblock events_view %}
-        <h3>{% trans "Past Events" %}</h3>
-      </div>
-      {% endblock cal_options %}
+{% block cal_view_class %}joy-cal-list--past{% endblock %}
 
-      {% block events_list %}
-      <div class="past-events past-events-detailed">
-        {% for title, event, url in events %}
-          {% include "joyous/includes/event_item.html" %}
-        {% endfor %}
-      </div>
-      {% endblock events_list %}
-
-      {% include "joyous/includes/events_pagination.html" %}
-    </div>
-    {% include "joyous/includes/calendar_export.html" %}
-  </div>
-{% endblock %}
+{% block cal_subtitle %}
+<div class="joy-title joy-title--list">
+  <h2>{% trans "Past Events" %}</h2>
+</div>
+{% endblock cal_subtitle %}

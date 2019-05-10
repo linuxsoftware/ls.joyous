@@ -67,6 +67,11 @@ class GroupPage(Page):
         FieldPanel('content', classname="full"),
         ]
 
+    def get_context(self, request, *args, **kwargs):
+        retval = super().get_context(request, *args, **kwargs)
+        retval['themeCSS'] = getattr(settings, "JOYOUS_THEME_CSS", "")
+        return retval
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

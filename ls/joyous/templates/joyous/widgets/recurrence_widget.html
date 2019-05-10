@@ -1,12 +1,12 @@
 {% load wagtailadmin_tags i18n %}
 
-<div id="{{ widget.attrs.id }}" class="ev-recurrence-fields">
-  <ul class="fields ev-simple-repeat">
+<div id="{{ widget.attrs.id }}" class="joy-rr">
+  <ul class="fields joy-rr__simple-repeat">
     <li>
       <div class="field date_field admin_date_input">
         <label>{% trans "From Date" %}</label>
         <div class="field-content">
-          <div class="input ev-start-date">
+          <div class="input joy-rr__start-date">
             {% with widget=widget.subwidgets.0 %}{% include widget.template_name %}{% endwith %}
           </div>
         </div>
@@ -16,7 +16,7 @@
       <div class="field typed_choice_field">
         <label>{% trans "Frequency" %}</label>
         <div class="field-content">
-          <div class="input ev-freq-choice">
+          <div class="input joy-rr__freq-choice">
             {% with widget=widget.subwidgets.1 %}{% include widget.template_name %}{% endwith %}
             <span></span>
           </div>
@@ -27,93 +27,93 @@
       <div class="date_field admin_date_input">
         <label>{% trans "Until Date" %}</label>
         <div class="field-content">
-          <div class="input ev-until-date">
+          <div class="input joy-rr__until-date">
             {% with widget=widget.subwidgets.5 %}{% include widget.template_name %}{% endwith %}
           </div>
         </div>
       </div>
     </li>
   </ul>
-  <div class="ev-show-advanced">
-    <label ><input class="ev-show-advanced-cbx" type="checkbox">{% trans "Use Advanced Options" %}</label>
+  <div class="joy-rr__show-advanced">
+    <label ><input class="joy-rr__show-advanced-cbx" type="checkbox">{% trans "Use Advanced Options" %}</label>
   </div>
-  <ul class="fields ev-advanced-repeat">
+  <ul class="fields joy-rr__advanced-repeat">
     <li>
       <div class="number_input">
         <label>{% trans "Every" %}</label>
         <div class="field-content">
-          <div class="ev-short-input input ev-interval-num">
+          <div class="joy-rr__short-input input joy-rr__interval-num">
             {% with widget=widget.subwidgets.2 %}{% include widget.template_name %}{% endwith %}
-            <span class="ev-interval-units-days"> {% trans "Day(s)" %}</span>
-            <span class="ev-interval-units-weeks"> {% trans "Week(s)" %}</span>
-            <span class="ev-interval-units-months"> {% trans "Month(s)" %}</span>
-            <span class="ev-interval-units-years"> {% trans "Year(s)" %}</span>
+            <span class="joy-rr__interval-units-days"> {% trans "Day(s)" %}</span>
+            <span class="joy-rr__interval-units-weeks"> {% trans "Week(s)" %}</span>
+            <span class="joy-rr__interval-units-months"> {% trans "Month(s)" %}</span>
+            <span class="joy-rr__interval-units-years"> {% trans "Year(s)" %}</span>
           </div>
         </div>
       </div>
     </li>
-    <li class="ev-advanced-weekly-repeat">
+    <li class="joy-rr__advanced-weekly-repeat">
       <div class="">
         <label>{% trans "On Days" %}</label>
         <div class="field-content">
-          <div class="ev-days-input input ev-weekdays">
+          <div class="joy-rr__days-input input joy-rr__weekdays">
             {% with widget=widget.subwidgets.3 %}{% include widget.template_name %}{% endwith %}
           </div>
         </div>
       </div>
     </li>
-    <li class="ev-advanced-monthly-repeat">
-      <div class="ev-double-field ev-primary">
+    <li class="joy-rr__advanced-monthly-repeat">
+      <div class="joy-rr__double-field joy-rr__primary">
         <label>{% trans "On" %} </label>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-ord-choice">
+            <div class="input joy-rr__ord-choice">
               {% with widget=widget.subwidgets.6 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
           </div>
         </div>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-day-choice">
+            <div class="input joy-rr__day-choice">
               {% with widget=widget.subwidgets.7 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
           </div>
         </div>
       </div>
-      <div class="ev-double-field ev-secondary">
+      <div class="joy-rr__double-field joy-rr__secondary">
         <label>{% trans "And" %} </label>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-ord-choice">
+            <div class="input joy-rr__ord-choice">
               {% with widget=widget.subwidgets.8 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
           </div>
         </div>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-day-choice">
+            <div class="input joy-rr__day-choice">
               {% with widget=widget.subwidgets.9 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
           </div>
         </div>
       </div>
-      <div class="ev-double-field ev-secondary">
+      <div class="joy-rr__double-field joy-rr__secondary">
         <label>{% trans "And" %} </label>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-ord-choice">
+            <div class="input joy-rr__ord-choice">
               {% with widget=widget.subwidgets.10 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
           </div>
         </div>
-        <div class="ev-half-field typed_choice_field">
+        <div class="joy-rr__half-field typed_choice_field">
           <div class="field-content">
-            <div class="input ev-day-choice">
+            <div class="input joy-rr__day-choice">
               {% with widget=widget.subwidgets.11 %}{% include widget.template_name %}{% endwith %}
               <span></span>
             </div>
@@ -121,18 +121,18 @@
         </div>
       </div>
     </li>
-    <li class="ev-advanced-yearly-repeat">
+    <li class="joy-rr__advanced-yearly-repeat">
       <div class="">
         <label>{% trans "Of" %}</label>
         <div class="field-content">
-          <div class="ev-months-input input ev-months">
+          <div class="joy-rr__months-input input joy-rr__months">
             {% with widget=widget.subwidgets.12 %}{% include widget.template_name %}{% endwith %}
           </div>
         </div>
       </div>
     </li>
   </ul>
-  <div class="ev-ical-value">
+  <div class="joy-rr__ical-value">
     {{ widget.value_r }}
     <br/>
     {{ widget.value_s }}

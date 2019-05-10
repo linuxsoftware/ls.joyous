@@ -167,12 +167,12 @@ class Test(TestCase):
         response = self.client.get("/events/test-meeting/1990-10-10-postponement/from/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        title = select('h1.event-heading')[0]
+        title = select('.joy-title h1')[0]
         self.assertEqual(title.string.strip(), "Meeting Postponed")
-        details = select('.event-cancellation-details .rich-text')[0]
+        details = select('.joy-ev-details .rich-text')[0]
         self.assertEqual(details.string.strip(),
                          "The meeting has been postponed until tomorrow")
-        toLink = select('.event-postponed-to a')[0]
+        toLink = select('.joy-ev-to-when a')[0]
         self.assertEqual(toLink.string.strip(),
                          "Thursday 11th of October 1990 at 1pm to 4:30pm")
         self.assertEqual(toLink['href'],

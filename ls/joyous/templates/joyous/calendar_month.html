@@ -1,45 +1,34 @@
-{% extends "joyous/calendar_base.html" %}
+{% extends "joyous/calendar_table_base.html" %}
 {% load wagtailcore_tags i18n %}
 
-{% block events_view %}
+{% block view_choices %}
 {% include "joyous/includes/events_view_choices.html" with monthlyUrl=thisMonthUrl monthlyLink=_("This Month") %}
-{% endblock events_view %}
+{% endblock view_choices %}
+
+{% block cal_view_class %}joy-cal--monthly{% endblock %}
 
 {% block cal_heading %}
-<tr class="heading">
-  <th colspan="7" class="month">
-    <span class="month-heading">
-      {% if prevMonthUrl %}
-      <a title="{% trans 'Previous month' %}" rel="nofollow" href="{{ prevMonthUrl }}">&lt;</a>
-      {% endif %}
-      <div class="month-name">{{ monthName }}</div>
-      {% if nextMonthUrl %}
-      <a title="{% trans 'Next month' %}" rel="nofollow" href="{{ nextMonthUrl }}">&gt;</a>
-      {% endif %}
-    </span>
-    <span class="year-heading">
-      {% if prevYearUrl %}
-      <a title="{% trans 'Previous year' %}" rel="nofollow" href="{{ prevYearUrl }}">&lt;</a>
-      {% endif %}
-      <div class="year-number">{{ year }}</div>
-      {% if nextYearUrl %}
-      <a title="{% trans 'Next year' %}" rel="nofollow" href="{{ nextYearUrl }}">&gt;</a>
-      {% endif %}
-    </span>
-  </th>
-</tr>
+    <tr class="joy-cal__headings">
+      <th colspan="7" class="joy-cal__heading">
+        <span class="joy-cal__period-heading">
+          {% if prevMonthUrl %}<a class="joy-cal__period-ctrl" title="{% trans 'Previous month' %}" rel="nofollow" href="{{ prevMonthUrl }}">&lt;</a>{% endif %}
+          <div class="joy-cal__month-name">{{ monthName }}</div>
+          {% if nextMonthUrl %}<a class="joy-cal__period-ctrl" title="{% trans 'Next month' %}" rel="nofollow" href="{{ nextMonthUrl }}">&gt;</a>{% endif %}
+        </span>
+        <span class="joy-cal__period-heading">
+          {% if prevYearUrl %}<a class="joy-cal__period-ctrl" title="{% trans 'Previous year' %}" rel="nofollow" href="{{ prevYearUrl }}">&lt;</a>{% endif %}
+          <div class="joy-cal__year-number">{{ year }}</div>
+          {% if nextYearUrl %}<a class="joy-cal__period-ctrl" title="{% trans 'Next year' %}" rel="nofollow" href="{{ nextYearUrl }}">&gt;</a>{% endif %}
+        </span>
+      </th>
+    </tr>
 {% endblock cal_heading %}
 
-{% block cal_body %}
-<tbody class="monthly-view">
-  {% for week in events %}
-  {% block cal_week %}
-  <tr>
-    {% for evod in week %}
-      {% include "joyous/includes/calendar_month_day.html" %}
-    {% endfor %}
-  </tr>
-  {% endblock cal_week %}
-  {% endfor %}
-</tbody>
-{% endblock cal_body %}
+{% block cal_day_title %}
+        <div class="joy-cal__day-title">{% if evod.holiday %}
+          <div class="joy-cal__date joy-cal__date--{{ evod.weekday }} joy-cal__date--holiday">{{ evod.date.day }}</div>
+          <div class="joy-cal__holiday-name">{{ evod.holiday }}</div>
+        {% else %}
+          <div class="joy-cal__date joy-cal__date--{{ evod.weekday }}">{{ evod.date.day }}</div>
+        {% endif %}</div>
+{% endblock cal_day_title %}

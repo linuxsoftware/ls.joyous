@@ -42,15 +42,15 @@ class TestCalendar(TestCase):
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(select('thead a')), 4)
-        self.assertEqual(len(select("table.calendar thead tr th.sun")), 1)
-        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(len(select(".joy-cal__weekday--sun")), 1)
+        month = select("tr.joy-cal__headings th.joy-cal__heading .joy-cal__month-name")[0]
         self.assertEqual(month.string.strip(), "March")
         self.assertEqual(len(select("tbody tr")), 5)
         self.assertEqual(len(select("tbody td")), 35)
-        self.assertEqual(len(select("tbody td.day")), 31)
-        self.assertEqual(len(select("tbody td.noday")), 4)
+        self.assertEqual(len(select("tbody td.joy-cal__day")), 31)
+        self.assertEqual(len(select("tbody td.joy-cal__no-day")), 4)
         holidayNames = [holiday.string.strip() for holiday in
-                        select("tbody td.day .holiday .holiday-name")]
+                        select("tbody td.joy-cal__day .joy-cal__holiday-name")]
         self.assertEqual(holidayNames,
                          ["Taranaki Anniversary Day", "Otago Anniversary Day"])
 
@@ -58,8 +58,8 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2012/Apr/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select("table.calendar thead tr th.sun")), 1)
-        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(len(select(".joy-cal__weekday--sun")), 1)
+        month = select(".joy-cal__month-name")[0]
         self.assertEqual(month.string.strip(), "April")
 
     def testWeekView(self):
@@ -67,13 +67,14 @@ class TestCalendar(TestCase):
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(select('thead a')), 4)
-        self.assertEqual(len(select("table.calendar thead tr th.sun")), 1)
+        self.assertEqual(len(select(".joy-cal__weekday--sun")), 1)
         self.assertEqual(len(select("tbody tr")), 1)
-        self.assertEqual(len(select("tbody td.day")), 7)
-        holidays = select("tbody td.day .holiday")
-        self.assertEqual(len(holidays), 1)
-        self.assertEqual(holidays[0].h4.string.strip(), "12 Mar")
-        self.assertEqual(holidays[0].div.string.strip(),
+        self.assertEqual(len(select(".joy-cal__day")), 7)
+        holidayDates = select(".joy-cal__date--holiday")
+        self.assertEqual(len(holidayDates), 1)
+        self.assertEqual(holidayDates[0].string.strip(), "12 Mar")
+        holidayNames = select(".joy-cal__holiday-name")
+        self.assertEqual(holidayNames[0].string.strip(),
                          "Taranaki Anniversary Day")
 
     def testDayWithOneEvent(self):
@@ -102,10 +103,10 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2011/6/8/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".events-on-day")), 1)
-        events = select(".events-on-day .event-item")
+        self.assertEqual(len(select(".joy-cal-list")), 1)
+        events = select(".joy-ev-item")
         self.assertEqual(len(events), 2)
-        title = events[0].select("a.event-title")[0]
+        title = events[0].select("a.joy-title__link")[0]
         self.assertEqual(title.string.strip(), "We remember")
         self.assertEqual(title['href'], "/events/memory/")
 
@@ -113,27 +114,27 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/upcoming/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".upcoming-events")), 1)
-        self.assertEqual(len(select(".upcoming-events .event-item")), 0)
+        self.assertEqual(len(select(".joy-cal-list--upcoming")), 1)
+        self.assertEqual(len(select(".joy-cal-list--upcoming .joy-ev-item")), 0)
 
     def testUpcomingEventsInvalidPage(self):
         response = self.client.get("/events/upcoming/?page=99")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".upcoming-events")), 1)
-        self.assertEqual(len(select(".upcoming-events .event-item")), 0)
+        self.assertEqual(len(select(".joy-cal-list--upcoming")), 1)
+        self.assertEqual(len(select(".joy-cal-list--upcoming .joy-ev-item")), 0)
 
     def testPastEvents(self):
         response = self.client.get("/events/past/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".past-events")), 1)
-        events = select(".past-events .event-item")
+        self.assertEqual(len(select(".joy-cal-list--past")), 1)
+        events = select(".joy-cal-list--past .joy-ev-item")
         self.assertEqual(len(events), 1)
-        title = events[0].select("a.event-title")[0]
+        title = events[0].select("a.joy-title__link")[0]
         self.assertEqual(title.string.strip(), "Tree Planting")
         self.assertEqual(title['href'], "/events/tree-planting/")
-        when = events[0].select(".event-when")[0]
+        when = events[0].select(".joy-ev-when")[0]
         self.assertEqual(when.string.strip(),
                          "Sunday 5th of June 2011 at 9:30am to 11am")
 
@@ -141,21 +142,21 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/past/?page=99")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".past-events")), 1)
-        self.assertEqual(len(select(".past-events .event-item")), 1)
+        self.assertEqual(len(select(".joy-cal-list--past")), 1)
+        self.assertEqual(len(select(".joy-cal-list--past .joy-ev-item")), 1)
 
     def testRouteDefault(self):
         response = self.client.get("/events/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select(".upcoming-events")), 1)
+        self.assertEqual(len(select(".joy-cal-list--upcoming")), 1)
         response = self.client.get("/events/?view=weekly")
         self.assertEqual(response.status_code, 200)
         select = response.soup.select
-        self.assertEqual(len(select(".week-name")), 1)
+        self.assertEqual(len(select(".joy-cal__week-name")), 1)
         response = self.client.get("/events/?view=monthly")
         select = response.soup.select
-        self.assertEqual(len(select(".month-name")), 1)
+        self.assertEqual(len(select(".joy-cal__month-name")), 1)
 
     def testMiniMonthView(self):
         response = self.client.get("/events/mini/2011/06/")
@@ -166,14 +167,14 @@ class TestCalendar(TestCase):
                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(select("table.minicalendar thead tr th.sun")), 1)
-        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(len(select("table.joy-minical thead tr .joy-minical__weekday--sun")), 1)
+        month = select("tr th .joy-minical__month-name")[0]
         self.assertEqual(month.string.strip(), "June")
         self.assertEqual(len(select("tbody tr")), 5)
         self.assertEqual(len(select("tbody td")), 35)
-        self.assertEqual(len(select("tbody td.day")), 30)
-        self.assertEqual(len(select("tbody td.noday")), 5)
-        event = select("tbody td.day a.event")[0]
+        self.assertEqual(len(select("tbody td.joy-minical__day")), 30)
+        self.assertEqual(len(select("tbody td.joy-minical__no-day")), 5)
+        event = select("tbody td.joy-minical__day a.joy-minical__date--event-link")[0]
         self.assertEqual(event.string.strip(), "5")
         self.assertEqual(event['href'], "/events/2011/06/05/")
         self.assertEqual(event['title'], "Tree Planting")
@@ -211,7 +212,7 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/1900/W1/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        links0 = select('.calendar-options .events-view a')
+        links0 = select('.joy-view-choices a')
         self.assertEqual(len(links0), 3)
         self.assertEqual(links0[0].get_text(), "List View")
         self.assertEqual(links0[1].get_text(), "This Week")
@@ -228,7 +229,7 @@ class TestCalendar(TestCase):
         response = self.client.get("/events/2099/W52/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        links0 = select('.calendar-options .events-view a')
+        links0 = select('.joy-view-choices a')
         self.assertEqual(len(links0), 3)
         self.assertEqual(links0[0].get_text(), "List View")
         self.assertEqual(links0[1].get_text(), "This Week")
@@ -286,16 +287,16 @@ class TestFrançais(TestCase):
         response = self.client.get("/calendrier/2012/03/")
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
-        month = select("tr.heading th.month .month-name")[0]
+        month = select(".joy-cal__month-name")[0]
         self.assertEqual(month.string.strip(), "Mars")
 
     def testWeekView(self):
         response = self.client.get("/calendrier/2012/W11/")
         select = response.soup.select
-        self.assertEqual(response.status_code, 200)
-        holidays = select("tbody td.day .holiday")
-        self.assertEqual(holidays[0].h4.string.strip(), "12 Mar")
-        self.assertEqual(holidays[0].div.string.strip(),
+        holidayDate = select(".joy-cal__date--holiday")
+        self.assertEqual(holidayDate[0].string.strip(), "12 Mar")
+        holidayName = select(".joy-cal__holiday-name")
+        self.assertEqual(holidayName[0].string.strip(),
                          "Taranaki Anniversary Day")
 
 # ------------------------------------------------------------------------------

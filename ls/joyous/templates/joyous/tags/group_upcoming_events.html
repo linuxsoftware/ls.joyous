@@ -1,0 +1,20 @@
+{# used by group_upcoming_events #}
+{% load wagtailcore_tags i18n %}
+{% if events %}
+    <div class="joy-title joy-title--list">
+      <h2>{% trans "Events" %}</h2>
+    </div>
+    <div class="joy-grp-list">
+      {% for title, event, url in events %}
+        {% block event_item %}
+        <div class="joy-ev-item">
+        {% block event_title %}<div class="joy-title joy-title--item">
+          <h3><a class="joy-title__link" href="{{ url }}">{{ title }}</a></h3>
+        </div>{% endblock event_title %}
+        {% include "joyous/includes/when.html" %}
+        {% include "joyous/includes/where.html" %}
+        </div>   
+        {% endblock event_item %}
+      {% endfor %}
+    </div>
+{% endif %}

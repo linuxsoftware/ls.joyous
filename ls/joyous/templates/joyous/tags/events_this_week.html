@@ -1,38 +1,36 @@
 {% load wagtailcore_tags joyous_tags i18n %}
-
-<div class="events-this-week">
-  <h3>{% trans "This Week" %}</h3>
-  <div class="events">
-    {% for evod in events %}
-      <div class="day{% if evod.date < today %} in-past{% elif evod.date == today %} today{% endif %}">
-        <div class="event-day" {% if evod.date == today %}title={% trans "Today" %}{% endif %}>
-            <h4>{{evod.date|date:"l"}}</h4>
-            {{evod.date|date:"jS M"}}
+  <div class="joy-this-week">
+    {% block this_title %}<h2 class="joy-this-week__title">{% trans "This Week" %}</h2>{% endblock this_title %}
+    {% block this_week %}<div class="joy-this-week__events">
+      {% for evod in events %}
+      {% block this_day %}<div class="joy-this-week__day{% if evod.date < today %} joy-this-week__day--in-past{% elif evod.date == today %} joy-this-week__day--today{% endif %}">
+        <div class="joy-this-week__day-title" {% if evod.date == today %}title={% trans "Today" %}{% endif %}>
+            <h4  class="joy-this-week__weekday">{{evod.date|date:"l"}}</h4>
+            <div class="joy-this-week__date">{{evod.date|date:"jS M"}}</div>
         </div>
-        <div class="days-events">
+        {% block days_events %}<div class="joy-this-week__days-events joy-days-events">
           {% if evod.holiday %}
-            <div class="holiday">
-              {{ evod.holiday }}
-            </div>
+          <div class="joy-this-week__holiday-name">
+            {{ evod.holiday }}
+          </div>
           {% endif %}
           {% for title, event, url in evod.continuing_events %}
-            <a href="{{ url }}" class="event event-continues">
-                {{title}} {% trans "cont." %}
-            </a>
+          <a href="{{ url }}" class="joy-days-events__event joy-days-events__event--continues">
+            <span class="joy-days-events__event-text">{{title}} {%trans "cont." %}</span>
+          </a>
           {% endfor %}
           {% for title, event, url in evod.days_events %}
-            <a href="{{ url }}" class="event">
-              {{event.at}}
-              {{title}}
-            </a>
+          <a href="{{ url }}" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">{{event.at}}</span><span class="joy-days-events__event-text">{{ title }}</span>
+          </a>
           {% endfor %}
-        </div>
-      </div>
-    {% endfor %}
+        </div>{% endblock days_events %}
+      </div>{% endblock this_day %}
+      {% endfor %}
+    </div>{% endblock this_week %}
+    {% block this_footer %}{% if calendarUrl %}
+    <div class="joy-this-week__cal-link">
+      <a href="{{ calendarUrl }}">{{ calendarName }}</a>
+    </div>
+    {% endif %}{% endblock this_footer %}
   </div>
-  {% if calendarUrl %}
-  <div class="calendar-link">
-    <a href="{{ calendarUrl }}">{{ calendarName }}</a>
-  </div>
-  {% endif %}
-</div>

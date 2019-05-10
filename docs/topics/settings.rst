@@ -6,3 +6,4 @@ Settings
 *  ``JOYOUS_GROUP_MODEL``: To swap out the group model		
 *  ``JOYOUS_TIME_INPUT``: Prompt for 12 or 24 hour times
 *  ``JOYOUS_EVENTS_PER_PAGE``: Page limit for a list of events
+*  ``JOYOUS_CSS_THEME``: Path of a theme CSS file to include.

@@ -1,55 +1,25 @@
 {% extends "joyous/joyous_base.html" %}
-{% load static wagtailcore_tags %}
+{% load static wagtailcore_tags i18n %}
 
 {% block content %}
 <div class="content">
-  <div class="page-heading">
-    <h2>{{ page.title }}</h2>
+  <div class="joy-title joy-title--page">
+    <h1>{{ page.title }}</h1>
   </div>
-  <div class="content-inner">
-    {{ page.intro|richtext }}
-
-    {% block cal_options %}
-    <div class="calendar-options clearfix">
-      {% block events_view %}
-      <div class="events-view">
-      </div>
-      {% endblock events_view %}
-    </div>
-    {% endblock cal_options %}
-    <table class="calendar" data-version="{{ version }}">
-      <thead>
-        {% block cal_heading %}
-        <tr class="heading">
-        </tr>
-        {% endblock cal_heading %}
-        {% block day_heading %}
-        <tr>
-          {% for dow in weekdayAbbr %}
-          <th class="{{dow|lower}}">{{dow}}</th>
-          {% endfor %}
-        </tr>
-        {% endblock day_heading %}
-      </thead>
-      {% block cal_body %}
-      <tbody>
-        {% for week in events %}
-        <tr>
-          {% for evod in week %}
-            <td class="noday">&nbsp;</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-      {% endblock cal_body %}
-    </table>
-    {% block cal_footer %}
-    {% include "joyous/includes/calendar_export.html" %}
-    {% endblock cal_footer %}
-  </div>
+  {% block cal_all %}
+  {% block cal_intro %}
+  {{ page.intro|richtext }}
+  {% endblock cal_intro %}
+  {% block view_choices %}
+  {% endblock view_choices %}
+  {% block cal_subtitle %}
+  {% endblock cal_subtitle %}
+  {% block cal_events %}
+  <div data-version="{{ version }}"></div>
+  {% endblock cal_events %}
+  {% block cal_footer %}<div class="joy-export">
+    <a href="{{ request.path }}?format=ical">{% trans "Export iCal" %}</a>
+  </div>{% endblock cal_footer %}
+  {% endblock cal_all %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script type="text/javascript" src="{% static 'joyous/js/calendar.js' %}"></script>
 {% endblock %}

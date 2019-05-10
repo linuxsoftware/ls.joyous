@@ -3,12 +3,10 @@
 
 {% block content %}
 <div class="content">
-  <div class="page-heading">
-    <h2>{{ page.title }}</h2>
+  <div class="joy-title joy-title--page">
+    <h1>{{ page.title }}</h1>
   </div>
-  <div class="content-inner">
-    {{ page.content|richtext }}
-    {% group_upcoming_events %}
-  </div>
+  {{ page.content|richtext }}
+  {% group_upcoming_events %}
 </div>
 {% endblock %}

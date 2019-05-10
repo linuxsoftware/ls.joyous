@@ -2,6 +2,7 @@
 # Joyous calendar models
 # ------------------------------------------------------------------------------
 import datetime as dt
+import calendar
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.contenttypes.models import ContentType
@@ -174,6 +175,7 @@ class CalendarPage(RoutablePageMixin, Page):
         if month is None: month = today.month
         year = int(year)
         month = int(month)
+        lastDay = dt.date(year, month, calendar.monthrange(year, month)[1])
 
         if year == today.year and month == today.month:
             weekNum = gregorian_to_week_date(today)[1]
@@ -195,28 +197,26 @@ class CalendarPage(RoutablePageMixin, Page):
             nextMonth = 1
             nextMonthYear += 1
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'year':         year,
-                   'month':        month,
-                   'today':        today,
-                   'yesterday':    today - dt.timedelta(1),
-                   'lastweek':     today - dt.timedelta(7),
-                   'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
-                   'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
-                   'prevYearUrl':  myUrl(year - 1, month),
-                   'nextYearUrl':  myUrl(year + 1, month),
-                   'weeklyUrl':    weeklyUrl,
-                   'listUrl':      listUrl,
-                   'thisMonthUrl': myUrl(today.year, today.month),
-                   'monthName':    MONTH_NAMES[month],
-                   'weekdayAbbr':  weekday_abbr,
-                   'events':       self._getEventsByWeek(request, year, month)}
-        context.update(self._getExtraContext("month"))
+        cxt = self._getContext()
+        cxt.update({'year':         year,
+                    'month':        month,
+                    'yesterday':    today - dt.timedelta(1),
+                    'lastweek':     today - dt.timedelta(7),
+                    'lastDay':      lastDay,
+                    'prevMonthUrl': myUrl(prevMonthYear, prevMonth),
+                    'nextMonthUrl': myUrl(nextMonthYear, nextMonth),
+                    'prevYearUrl':  myUrl(year - 1, month),
+                    'nextYearUrl':  myUrl(year + 1, month),
+                    'weeklyUrl':    weeklyUrl,
+                    'listUrl':      listUrl,
+                    'thisMonthUrl': myUrl(today.year, today.month),
+                    'monthName':    MONTH_NAMES[month],
+                    'weekdayAbbr':  weekday_abbr,
+                    'events':       self._getEventsByWeek(request, year, month)})
+        cxt.update(self._getExtraContext("month"))
         return TemplateResponse(request,
                                 "joyous/calendar_month.html",
-                                context)
+                                cxt)
 
     @route(r"^week/$")
     @route(r"^{YYYY}/W{WW}/$".format(**DatePictures))
@@ -263,27 +263,24 @@ class CalendarPage(RoutablePageMixin, Page):
             nextWeek = 1
             nextWeekYear += 1
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'year':         year,
-                   'week':         week,
-                   'today':        today,
-                   'yesterday':    today - dt.timedelta(1),
-                   'prevWeekUrl':  myUrl(prevWeekYear, prevWeek),
-                   'nextWeekUrl':  myUrl(nextWeekYear, nextWeek),
-                   'prevYearUrl':  myUrl(year - 1, week),
-                   'nextYearUrl':  myUrl(year + 1, week),
-                   'thisWeekUrl':  myUrl(thisYear, thisWeekNum),
-                   'monthlyUrl':   monthlyUrl,
-                   'listUrl':      listUrl,
-                   'weekName':     _("Week {weekNum}").format(weekNum=week),
-                   'weekdayAbbr':  weekday_abbr,
-                   'events':       [eventsInWeek]}
-        context.update(self._getExtraContext("week"))
+        cxt = self._getContext()
+        cxt.update({'year':         year,
+                    'week':         week,
+                    'yesterday':    today - dt.timedelta(1),
+                    'prevWeekUrl':  myUrl(prevWeekYear, prevWeek),
+                    'nextWeekUrl':  myUrl(nextWeekYear, nextWeek),
+                    'prevYearUrl':  myUrl(year - 1, week),
+                    'nextYearUrl':  myUrl(year + 1, week),
+                    'thisWeekUrl':  myUrl(thisYear, thisWeekNum),
+                    'monthlyUrl':   monthlyUrl,
+                    'listUrl':      listUrl,
+                    'weekName':     _("Week {weekNum}").format(weekNum=week),
+                    'weekdayAbbr':  weekday_abbr,
+                    'events':       [eventsInWeek]})
+        cxt.update(self._getExtraContext("week"))
         return TemplateResponse(request,
                                 "joyous/calendar_week.html",
-                                context)
+                                cxt)
 
     @route(r"^day/$")
     @route(r"^{YYYY}/{MM}/{DD}/$".format(**DatePictures))
@@ -312,23 +309,21 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'year':         year,
-                   'month':        month,
-                   'dom':          dom,
-                   'day':          day,
-                   'monthlyUrl':   monthlyUrl,
-                   'weeklyUrl':    weeklyUrl,
-                   'listUrl':      listUrl,
-                   'monthName':    MONTH_NAMES[month],
-                   'weekdayName':  WEEKDAY_NAMES[day.weekday()],
-                   'events':       eventsPage}
-        context.update(self._getExtraContext("day"))
+        cxt = self._getContext()
+        cxt.update({'year':         year,
+                    'month':        month,
+                    'dom':          dom,
+                    'day':          day,
+                    'monthlyUrl':   monthlyUrl,
+                    'weeklyUrl':    weeklyUrl,
+                    'listUrl':      listUrl,
+                    'monthName':    MONTH_NAMES[month],
+                    'weekdayName':  WEEKDAY_NAMES[day.weekday()],
+                    'events':       eventsPage})
+        cxt.update(self._getExtraContext("day"))
         return TemplateResponse(request,
                                 "joyous/calendar_list_day.html",
-                                context)
+                                cxt)
 
     @route(r"^upcoming/$")
     def serveUpcoming(self, request):
@@ -344,18 +339,15 @@ class CalendarPage(RoutablePageMixin, Page):
         upcomingEvents = self._getUpcomingEvents(request)
         eventsPage = self._paginate(request, upcomingEvents)
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'today':        today,
-                   'weeklyUrl':    weeklyUrl,
-                   'monthlyUrl':   monthlyUrl,
-                   'listUrl':      listUrl,
-                   'events':       eventsPage}
-        context.update(self._getExtraContext("upcoming"))
+        cxt = self._getContext()
+        cxt.update({'weeklyUrl':    weeklyUrl,
+                    'monthlyUrl':   monthlyUrl,
+                    'listUrl':      listUrl,
+                    'events':       eventsPage})
+        cxt.update(self._getExtraContext("upcoming"))
         return TemplateResponse(request,
                                 "joyous/calendar_list_upcoming.html",
-                                context)
+                                cxt)
 
     @route(r"^past/$")
     def servePast(self, request):
@@ -371,18 +363,15 @@ class CalendarPage(RoutablePageMixin, Page):
         pastEvents = self._getPastEvents(request)
         eventsPage = self._paginate(request, pastEvents)
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'today':        today,
-                   'weeklyUrl':    weeklyUrl,
-                   'monthlyUrl':   monthlyUrl,
-                   'listUrl':      listUrl,
-                   'events':       eventsPage}
-        context.update(self._getExtraContext("past"))
+        cxt = self._getContext()
+        cxt.update({'weeklyUrl':    weeklyUrl,
+                    'monthlyUrl':   monthlyUrl,
+                    'listUrl':      listUrl,
+                    'events':       eventsPage})
+        cxt.update(self._getExtraContext("past"))
         return TemplateResponse(request,
                                 "joyous/calendar_list_past.html",
-                                context)
+                                cxt)
 
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
@@ -396,20 +385,17 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
 
-        context = {'self':         self,
-                   'page':         self,
-                   'version':      __version__,
-                   'today':        today,
-                   'year':         year,
-                   'month':        month,
-                   'calendarUrl':  self.get_url(request),
-                   'monthName':    MONTH_NAMES[month],
-                   'weekdayInfo':  zip(weekday_abbr, weekday_name),
-                   'events':       self._getEventsByWeek(request, year, month)}
-        context.update(self._getExtraContext("mini"))
+        cxt = self._getContext()
+        cxt.update({'year':         year,
+                    'month':        month,
+                    'calendarUrl':  self.get_url(request),
+                    'monthName':    MONTH_NAMES[month],
+                    'weekdayInfo':  zip(weekday_abbr, weekday_name),
+                    'events':       self._getEventsByWeek(request, year, month)})
+        cxt.update(self._getExtraContext("mini"))
         return TemplateResponse(request,
                                 "joyous/includes/minicalendar.html",
-                                context)
+                                cxt)
 
     @classmethod
     def can_create_at(cls, parent):
@@ -428,6 +414,14 @@ class CalendarPage(RoutablePageMixin, Page):
         """Return others of the same concrete type."""
         contentType = ContentType.objects.get_for_model(cls)
         return cls.objects.filter(content_type=contentType)
+
+    def _getContext(self):
+        retval = {'self':     self,
+                  'page':     self,
+                  'version':  __version__,
+                  'themeCSS': getattr(settings, "JOYOUS_THEME_CSS", ""),
+                  'today':    timezone.localdate()}
+        return retval
 
     def _getExtraContext(self, route):
         return {}

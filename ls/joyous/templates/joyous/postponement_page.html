@@ -2,14 +2,14 @@
 {% load wagtailimages_tags %}
 
 {% block event_title %}
-<div class="event-heading">
-  {# postponement_title is required #}
-  <h1>{{ page.postponement_title }}</h1>
-</div>
+  <div class="joy-title joy-title--page">
+    {# postponement_title is required #}
+    <h1>{{ page.postponement_title }}</h1>
+  </div>
 {% endblock %}
 
 {% block event_image %}
-<div class="event-image">
-  {% image page.image width-350 %}
-</div>
+  <div class="event-image">
+    {% image page.image width-350 %}
+  </div>
 {% endblock event_image %}

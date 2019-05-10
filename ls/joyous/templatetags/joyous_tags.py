@@ -4,6 +4,7 @@
 import datetime as dt
 import calendar
 from django import template
+from django.utils import timezone
 from ..utils.telltime import timeFormat, dateFormat
 from ..models import getAllEventsByDay
 from ..models import getAllUpcomingEvents
@@ -26,7 +27,7 @@ def events_this_week(context):
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
     calName = cal.title if cal else None
-    today = dt.date.today()
+    today = timezone.localdate()
     beginOrd = today.toordinal()
     if today.weekday() != 6:
         # Start week with Monday, unless today is Sunday
@@ -50,7 +51,7 @@ def minicalendar(context):
     """
     Displays a little ajax version of the calendar.
     """
-    today = dt.date.today()
+    today = timezone.localdate()
     request = context['request']
     home = request.site.root_page
     cal = CalendarPage.objects.live().descendant_of(home).first()
@@ -89,7 +90,7 @@ def subsite_upcoming_events(context):
     return {'request': request,
             'events':  getAllUpcomingEvents(request, home=home)}
 
-@register.inclusion_tag("joyous/tags/upcoming_events_list.html",
+@register.inclusion_tag("joyous/tags/group_upcoming_events.html",
                         takes_context=True)
 def group_upcoming_events(context, group=None):
     """
@@ -138,8 +139,6 @@ def next_on(context, rrevent=None):
 
 @register.inclusion_tag("joyous/tags/location_gmap.html",
                         takes_context=True)
-# TODO: Could make this a simple_tag, but would then need to
-# watch out for unsafe HTML
 def location_gmap(context, location):
     """Display a link to Google maps iff we are using WagtailGMaps"""
     gmapq = None

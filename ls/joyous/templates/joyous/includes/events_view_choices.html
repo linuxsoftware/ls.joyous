@@ -1,17 +1,11 @@
 {% load wagtailcore_tags i18n %}
-<div class="events-view">
-  {% if 'L' in page.view_choices %}
-  <a class="together list"
+<div class="joy-view-choices">
+  {% if 'L' in page.view_choices %}<a class="joy-view-choices__link"
      href="{{ listUrl }}">{{ listLink|default:_("List View") }}</a>
-  {% if page.view_choices|length > 1 %} | {% endif %}
-  {% endif %}
-  {% if 'W' in page.view_choices %}
-  <a class="together weekly"
+  {% if page.view_choices|length > 1 %} | {% endif %}{% endif %}
+  {% if 'W' in page.view_choices %}<a class="joy-view-choices__link"
      href="{{ weeklyUrl }}">{{ weeklyLink|default:_("Weekly View") }}</a>
-  {% if 'M' in page.view_choices %} | {% endif %}
-  {% endif %}
-  {% if 'M' in page.view_choices %}
-  <a class="together monthly"
-     href="{{ monthlyUrl }}">{{ monthlyLink|default:_("Monthly View") }}</a>
-  {% endif %}
+  {% if 'M' in page.view_choices %} | {% endif %}{% endif %}
+  {% if 'M' in page.view_choices %}<a class="joy-view-choices__link"
+     href="{{ monthlyUrl }}">{{ monthlyLink|default:_("Monthly View") }}</a> {% endif %}
 </div>

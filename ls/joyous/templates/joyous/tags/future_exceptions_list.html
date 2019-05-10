@@ -1,20 +1,20 @@
 {% load wagtailcore_tags i18n %}
 {% if exceptions %}
-<div class="event-index">
+<div class="joy-ev-related">
   {% for exception in exceptions %}
-  <a class="item" href="{% pageurl exception %}">
-    <strong>{{ exception.local_title }}</strong>
+  <div class="joy-ev-related__item">
+    <a class="joy-ev-related__link" href="{% pageurl exception %}">{{ exception.local_title }}</a>
     {% if exception.postponement_title %}
     {% if exception.cancellation_title %}
-    <p class="item-text">{{ exception.cancellation_title }} {% trans "on" %} {{ exception.postponed_from }}</p>
+    <div class="joy-field">{{ exception.cancellation_title }} {% trans "on" %} {{ exception.postponed_from }}</div>
     {% endif %}
-    <p class="item-text">{{ exception.postponement_title }} {% trans "on" %} {{ exception.postponed_to }}</p>
+    <div class="joy-field">{{ exception.postponement_title }} {% trans "on" %} {{ exception.postponed_to }}</div>
     {% elif exception.cancellation_title %}
-    <p class="item-text">{{ exception.cancellation_title }}</p>
+    <div class="joy-field">{{ exception.cancellation_title }}</div>
     {% elif exception.extra_title %}
-    <p class="item-text">{{ exception.extra_title }}</p>
+    <div class="joy-field">{{ exception.extra_title }}</div>
     {% endif %}
-  </a>
+  </div>
   {% endfor %}
 </div>
 {% endif %}

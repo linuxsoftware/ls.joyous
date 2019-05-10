@@ -12,30 +12,30 @@ class RecurrenceWidget
 
     _init: () ->
         showAdvanced = @_hasAdvanced()
-        @our(".ev-show-advanced-cbx").prop("checked", showAdvanced)
-        @our(".ev-advanced-repeat").toggle(showAdvanced)
-        freq = @our(".ev-freq-choice > select").val()
+        @our(".joy-rr__show-advanced-cbx").prop("checked", showAdvanced)
+        @our(".joy-rr__advanced-repeat").toggle(showAdvanced)
+        freq = @our(".joy-rr__freq-choice > select").val()
         @_freqChanged(freq)
         @_primaryOrdDayChanged()
         return
 
     _hasAdvanced: () ->
-        interval = @our(".ev-interval-num > input").val()
+        interval = @our(".joy-rr__interval-num > input").val()
         if interval and parseInt(interval, 10) > 1
             return true
 
-        weekdaysTicked = @our(".ev-weekdays :checkbox:checked").map ->
+        weekdaysTicked = @our(".joy-rr__weekdays :checkbox:checked").map ->
             return this.value
         .get()
         if weekdaysTicked.length > 1
             return true
-        dtstart = new Date(@our(".ev-start-date > input").val())
+        dtstart = new Date(@our(".joy-rr__start-date > input").val())
         weekday = (dtstart.getDay() + 6) % 7  # convert from Sun=0 to Mon=0
         if weekdaysTicked.length == 1 and parseInt(weekdaysTicked[0], 10) != weekday
             return true
 
         month = dtstart.getMonth() + 1
-        monthsTicked = @our(".ev-months :checkbox:checked").map ->
+        monthsTicked = @our(".joy-rr__months :checkbox:checked").map ->
             return this.value
         .get()
         if monthsTicked.length > 1
@@ -43,28 +43,28 @@ class RecurrenceWidget
         if monthsTicked.length == 1 and parseInt(monthsTicked[0], 10) != month
             return true
 
-        ordChoice = @our(".ev-primary .ev-ord-choice > select").val()
+        ordChoice = @our(".joy-rr__primary .joy-rr__ord-choice > select").val()
         if parseInt(ordChoice, 10) != 101
             return true
-        dayChoice = @our(".ev-primary .ev-day-choice > select").val()
+        dayChoice = @our(".joy-rr__primary .joy-rr__day-choice > select").val()
         if parseInt(dayChoice, 10) != 200
             return true
-        secondaryOrdDaySet = $(".ev-secondary select").is ->
+        secondaryOrdDaySet = $(".joy-rr__secondary select").is ->
             return $(this).val() != ""
         if secondaryOrdDaySet
             return true
         return false
 
     _clearAdvanced: () ->
-        @our(".ev-interval-num > input").val(1)
-        @our(".ev-weekdays :checkbox").prop("checked", false)
-        @our(".ev-months :checkbox").prop("checked", false)
-        dtstart = new Date(@our(".ev-start-date > input").val())
+        @our(".joy-rr__interval-num > input").val(1)
+        @our(".joy-rr__weekdays :checkbox").prop("checked", false)
+        @our(".joy-rr__months :checkbox").prop("checked", false)
+        dtstart = new Date(@our(".joy-rr__start-date > input").val())
         weekday = (dtstart.getDay() + 6) % 7  # convert from Sun=0 to Mon=0
-        @our(".ev-weekdays :checkbox[value=#{weekday}]").prop("checked", true)
-        @our(".ev-primary .ev-ord-choice > select").val(101)
-        @our(".ev-primary .ev-day-choice > select").val(200)
-        @our(".ev-secondary select").val("").prop('disabled', true)
+        @our(".joy-rr__weekdays :checkbox[value=#{weekday}]").prop("checked", true)
+        @our(".joy-rr__primary .joy-rr__ord-choice > select").val(101)
+        @our(".joy-rr__primary .joy-rr__day-choice > select").val(200)
+        @our(".joy-rr__secondary select").val("").prop('disabled', true)
         return
 
     enable: () ->
@@ -76,57 +76,57 @@ class RecurrenceWidget
         return
 
     _enableShowAdvanced: () ->
-        @our(".ev-show-advanced-cbx").click (ev) =>
+        @our(".joy-rr__show-advanced-cbx").click (ev) =>
             if $(ev.target).prop("checked")
-                @our(".ev-advanced-repeat").show()
+                @our(".joy-rr__advanced-repeat").show()
             else
-                @our(".ev-advanced-repeat").hide()
+                @our(".joy-rr__advanced-repeat").hide()
                 @_clearAdvanced()
             return true
         return
 
     _enableStartDateChange: () ->
-        @our(".ev-start-date > input, .ev-").change (ev) =>
-            showAdvanced = @our(".ev-show-advanced-cbx").prop("checked")
+        @our(".joy-rr__start-date > input").change (ev) =>
+            showAdvanced = @our(".joy-rr__show-advanced-cbx").prop("checked")
             if not showAdvanced
                 @_clearAdvanced()
             return false
         return
 
     _enableFreqChange: () ->
-        @our(".ev-freq-choice > select").change (ev) =>
+        @our(".joy-rr__freq-choice > select").change (ev) =>
             @_freqChanged($(ev.target).val())
             @_clearAdvanced()
             return false
         return
 
     _enableSecondaryOrdDayClear: () ->
-        @our(".ev-secondary .ev-ord-choice > select").change (ev) =>
+        @our(".joy-rr__secondary .joy-rr__ord-choice > select").change (ev) =>
             if $(ev.target).find("option:selected").val() == ""
-                row = $(ev.target).closest(".ev-double-field")
-                row.find(".ev-day-choice > select").val("")
+                row = $(ev.target).closest(".joy-rr__double-field")
+                row.find(".joy-rr__day-choice > select").val("")
             return false
-        @our(".ev-secondary .ev-day-choice > select").change (ev) =>
+        @our(".joy-rr__secondary .joy-rr__day-choice > select").change (ev) =>
             if $(ev.target).find("option:selected").val() == ""
-                row = $(ev.target).closest(".ev-double-field")
-                row.find(".ev-ord-choice > select").val("")
+                row = $(ev.target).closest(".joy-rr__double-field")
+                row.find(".joy-rr__ord-choice > select").val("")
             return false
         return
 
     _enablePrimaryOrdDayChange: () ->
-        @our(".ev-primary select").change (ev) =>
+        @our(".joy-rr__primary select").change (ev) =>
             @_primaryOrdDayChanged()
             return false
         return
 
     _primaryOrdDayChanged: () ->
-        ord = @our(".ev-primary .ev-ord-choice option:selected").val()
-        day = @our(".ev-primary .ev-day-choice option:selected").val()
+        ord = @our(".joy-rr__primary .joy-rr__ord-choice option:selected").val()
+        day = @our(".joy-rr__primary .joy-rr__day-choice option:selected").val()
         if -1 <= parseInt(ord, 10) <= 5 and 0 <= parseInt(day, 10) <= 6
             # enable and clauses
-            @our(".ev-secondary select").prop('disabled', false)
+            @our(".joy-rr__secondary select").prop('disabled', false)
         else
-            @our(".ev-secondary select").val("").prop('disabled', true)
+            @our(".joy-rr__secondary select").val("").prop('disabled', true)
 
         return
 
@@ -142,13 +142,13 @@ class RecurrenceWidget
                 visible = [false, true,  false]
             when 0
                 visible = [false, true, true]
-        @our(".ev-advanced-weekly-repeat").toggle(visible[0])
-        @our(".ev-advanced-monthly-repeat").toggle(visible[1])
-        @our(".ev-advanced-yearly-repeat").toggle(visible[2])
-        @our(".ev-interval-units-days").toggle(frequency==3)
-        @our(".ev-interval-units-weeks").toggle(frequency==2)
-        @our(".ev-interval-units-months").toggle(frequency==1)
-        @our(".ev-interval-units-years").toggle(frequency==0)
+        @our(".joy-rr__advanced-weekly-repeat").toggle(visible[0])
+        @our(".joy-rr__advanced-monthly-repeat").toggle(visible[1])
+        @our(".joy-rr__advanced-yearly-repeat").toggle(visible[2])
+        @our(".joy-rr__interval-units-days").toggle(frequency==3)
+        @our(".joy-rr__interval-units-weeks").toggle(frequency==2)
+        @our(".joy-rr__interval-units-months").toggle(frequency==1)
+        @our(".joy-rr__interval-units-years").toggle(frequency==0)
         return
 
 @initRecurrenceWidget = (id) ->

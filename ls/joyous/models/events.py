@@ -569,6 +569,11 @@ class EventBase(models.Model):
             return all(restriction.accept_request(request)
                        for restriction in restrictions)
 
+    def get_context(self, request, *args, **kwargs):
+        retval = super().get_context(request, *args, **kwargs)
+        retval['themeCSS'] = getattr(settings, "JOYOUS_THEME_CSS", "")
+        return retval
+
     def _getLocalWhen(self, date_from, date_to=None):
         """
         Returns a string describing when the event occurs (in the local time zone).
@@ -1011,6 +1016,8 @@ class RecurringEventPage(EventBase, Page):
         #     so ignore that
         todayStart = getAwareDatetime(myNow.date(), dt.time.min, self.tz)
         eventStart, event = self.__afterOrPostponedTo(todayStart - myDaysDelta)
+        # Will miss any postponements that started more than myDaysDelta ago
+        # which might still be active if their num_days is longer than that.
         if eventStart is None:
             return "finished"
         eventDaysDelta = dt.timedelta(days=event.num_days - 1)
@@ -1364,6 +1371,7 @@ class EventExceptionBase(models.Model):
     def get_context(self, request, *args, **kwargs):
         retval = super().get_context(request, *args, **kwargs)
         retval['overrides'] = self.overrides
+        retval['themeCSS'] = getattr(settings, "JOYOUS_THEME_CSS", "")
         return retval
 
     def _getLocalWhen(self, date_from, num_days=1):

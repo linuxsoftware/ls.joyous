@@ -1,9 +1,9 @@
 {# used by subsite_upcoming_events #}
 {% load wagtailcore_tags %}
 {% if events %}
-    <div class="upcoming-events upcoming-events-detailed">
+    <div class="joy-cal-list joy-cal-list--upcoming">
       {% for title, event, url in events %}
-        {% include "joyous/includes/event_item.html" %}
+        {% block event_item %}{% include "joyous/includes/event_item.html" %}{% endblock event_item %}
       {% endfor %}
     </div>
 {% endif %}

@@ -1,37 +1,45 @@
 {% load wagtailcore_tags joyous_tags i18n %}
-<table class="minicalendar">
-  <thead>
-    <tr class="heading">
-      <th colspan="7" class="month">
-        <span class="month-heading">
-          <div class="month-name">{{ monthName }}</div>
-          <div class="year-number">{{ year }}</div>
+<table class="joy-minical">
+
+  <thead class="joy-minical__head">
+    <tr class="joy-minical__headings">
+      <th colspan="7" class="joy-minical__heading">
+        <span class="joy-minical__month-heading">
+          <div class="joy-minical__month-name">{{ monthName }}</div>
+          <div class="joy-minical__year-number">{{ year }}</div>
         </span>
-        {% if calendarUrl %}
-        <span class="month-nav">
-          <a class="minicalPrev" title="{% trans 'Previous month' %}" href="javascript:void(0)">&lt;</a>
-          <a class="minicalNext" title="{% trans 'Next month' %}" href="javascript:void(0)">&gt;</a>
-        </span>
-        {% endif %}
+        {% if calendarUrl %}<span class="joy-minical__month-nav">
+          <a class="joy-minical__prev" title="{% trans 'Previous month' %}" href="javascript:void(0)">&lt;</a>
+          <a class="joy-minical__next" title="{% trans 'Next month' %}" href="javascript:void(0)">&gt;</a>
+        </span>{% endif %}
       </th>
     </tr>
-    {% block day_heading %}
-    <tr>
-      {% for dow, dowName in weekdayInfo %}
-      <th title="{{dowName}}" class="{{dow|lower}}">{{dowName|slice:":1"}}</th>
-      {% endfor %}
-    </tr>
-    {% endblock day_heading %}
+    <tr class="joy-minical__weekdays">
+    {% for dow, dowName in weekdayInfo %}  <th title="{{dowName}}" class="joy-minical__weekday joy-minical__weekday--{{dow|lower}}">{{dowName|slice:":1"}}</th>
+    {% endfor %}</tr>
   </thead>
-  {% block minical_body %}
-  <tbody>
+
+  <tbody class="joy-minical__body">
     {% for week in events %}
-    <tr>
-      {% for evod in week %}
-        {% include "joyous/includes/minicalendar_day.html" %}
-      {% endfor %}
+    <tr class="joy-minical__week">
+      {% for evod in week %}{% if evod %}
+      <td class="joy-minical__day" {% if evod.holiday %} title="{{ evod.holiday }}"{% endif %}>
+        <div class="joy-minical__day-title{% if evod.date == today %} joy-minical__day-title--today{% endif %}">
+          {% if evod.all_events %}{% if calendarUrl %}
+          <a class="joy-minical__date joy-minical__date--event-link joy-minical__date--{{ evod.weekday }}{{ evod.holiday|yesno:' joy-minical__date--holiday,,' }}"
+             title="{{ evod.preview }}" href="{{ calendarUrl }}{{ evod.date|date:"Y/m/d/" }}">{{ evod.date.day }}</a>
+          {% else %}
+          <span class="joy-minical__date joy-minical__date--event joy-minical__date--{{ evod.weekday }}{{ evod.holiday|yesno:' joy-minical__date--holiday,,' }}"
+             title="{{ evod.preview }}">{{ evod.date.day }}</span>
+          {% endif %}{% else %}
+          <span class="joy-minical__date joy-minical__date--{{ evod.weekday }}{{ evod.holiday|yesno:' joy-minical__date--holiday,,' }}">{{ evod.date.day }}</span>
+          {% endif %}
+        </div>
+      </td>
+      {% else %}<td class="joy-minical__no-day">&nbsp;</td>
+      {% endif %}{% endfor %}
     </tr>
     {% endfor %}
   </tbody>
-  {% endblock minical_body %}
+
 </table>

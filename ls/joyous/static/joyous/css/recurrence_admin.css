@@ -2,12 +2,12 @@
 /* Recurring events admin style */
 /*-----------------------------------------------------------------------*/
 
-.ev-advanced-repeat,
-.ev-advanced-monthly-repeat,
-.ev-advanced-yearly-repeat {
+.joy-rr__advanced-repeat,
+.joy-rr__advanced-monthly-repeat,
+.joy-rr__advanced-yearly-repeat {
     display:                 none;
 }
-.ev-show-advanced label {
+.joy-rr__show-advanced label {
     display:                 block;
     text-align:              right;
     width:                   100%;
@@ -15,32 +15,32 @@
     font-weight:             normal;
     color:                   #43b1b0;
 }
-.ev-short-input input {
+.joy-rr__short-input input {
     width:                   10em;
 }
-.ev-short-input .interval-units-days,
-.ev-short-input .interval-units-weeks,
-.ev-short-input .interval-units-months,
-.ev-short-input .interval-units-years {
+.joy-rr__short-input .interval-units-days,
+.joy-rr__short-input .interval-units-weeks,
+.joy-rr__short-input .interval-units-months,
+.joy-rr__short-input .interval-units-years {
     padding:                 0 0 0 12px;
     display:                 none;
 }
-.ev-days-input label {
+.joy-rr__days-input label {
     width:                   14%;
 }
 .ev-double-input {
 }
-.ev-half-field {
+.joy-rr__half-field {
     display:                 inline-block;
     width:                   40%;
 }
-.ev-half-field .field-content {
+.joy-rr__half-field .field-content {
     width:                   100%;
 }
-.ev-half-field:last-child {
+.joy-rr__half-field:last-child {
     margin-left:             2.5%;
 }
-.ev-ical-value {
+.joy-rr__ical-value {
     font-size:               10px;
     color:                   #aaa;
 }

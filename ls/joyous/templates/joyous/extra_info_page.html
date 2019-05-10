@@ -2,18 +2,20 @@
 {% load wagtailcore_tags %}
 
 {% block event_title %}
+  <div class="joy-title joy-title--page">
 {% if page.extra_title %}
-  <h1 class="event-heading">{{ page.extra_title }}</h1>
+    <h1>{{ page.extra_title }}</h1>
 {% else %}
-  <h1 class="event-heading">{{ overrides.title }}</h1>
+    <h1>{{ overrides.title }}</h1>
 {% endif %}
+  </div>
 {% endblock event_title %}
 
 {% block event_details %}
-<div class="event-extra-info">
-  {{ page.extra_information|richtext }}
-</div>
-<div class="event-details">
-  {{ overrides.details|richtext }}
-</div>
+  <div class="joy-ev-extra joy-field">
+    {{ page.extra_information|richtext }}
+  </div>
+  <div class="joy-ev-details joy-field">
+    {{ overrides.details|richtext }}
+  </div>
 {% endblock event_details %}

@@ -5,6 +5,7 @@
 
 {% block extra_css %}
   <link rel="stylesheet" type="text/css" href="{% static 'joyous/css/joyous.css' %}">
+  {% if themeCSS %}<link rel="stylesheet" type="text/css" href="{{ themeCSS }}">{% endif %}
 {% endblock %}
 
 {% block content %}

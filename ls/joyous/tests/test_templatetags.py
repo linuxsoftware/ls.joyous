@@ -166,87 +166,94 @@ class TestMultiSite(TestCase):
             "{% events_this_week %}"
         ).render(self._getContext())
         self.assertHTMLEqual(out, """
-<div class="events-this-week">
-  <h3>This Week</h3>
-  <div class="events">
-      <div class="day in-past">
-        <div class="event-day">
-            <h4>Monday</h4> 10th Sep
+  <div class="joy-this-week">
+    <h2 class="joy-this-week__title">This Week</h2>
+    <div class="joy-this-week__events">
+      <div class="joy-this-week__day joy-this-week__day--in-past">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Monday</h4>
+            <div class="joy-this-week__date">10th Sep</div>
         </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
-        </div>
-      </div>
-      <div class="day today">
-        <div class="event-day" title="Today">
-            <h4>Tuesday</h4> 11th Sep
-        </div>
-        <div class="days-events">
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day">
-            <h4>Wednesday</h4> 12th Sep
+      <div class="joy-this-week__day joy-this-week__day--today">
+        <div class="joy-this-week__day-title" title=Today>
+            <h4  class="joy-this-week__weekday">Tuesday</h4>
+            <div class="joy-this-week__date">11th Sep</div>
         </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
+        <div class="joy-this-week__days-events joy-days-events">
         </div>
       </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Thursday</h4> 13th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Wednesday</h4>
+            <div class="joy-this-week__date">12th Sep</div>
         </div>
-        <div class="days-events">
-            <a href="/nova/nova-events/rubbish-blitz/" class="event">
-              12:30pm Rubbish Blitz
-            </a>
-            <a href="/nova/nova-events/executive-meeting/1984-09-13-cancellation/" class="event">
-              1pm Meeting Cancelled
-            </a>
-            <a href="/events/drama-practice/" class="event">
-              5pm Drama Group
-            </a>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Friday</h4> 14th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Thursday</h4>
+            <div class="joy-this-week__date">13th Sep</div>
         </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
-            <a href="/events/public-lecture3/" class="event">
-              7pm The Human Environment
-            </a>
-        </div>
-      </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Saturday</h4> 15th Sep
-        </div>
-        <div class="days-events">
-            <a href="/events/flea-market/" class="event">
-              8am Flea Market
-            </a>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/nova/nova-events/rubbish-blitz/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12:30pm</span><span class="joy-days-events__event-text">Rubbish Blitz</span>
+          </a>
+          <a href="/nova/nova-events/executive-meeting/1984-09-13-cancellation/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">1pm</span><span class="joy-days-events__event-text">Meeting Cancelled</span>
+          </a>
+          <a href="/events/drama-practice/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">5pm</span><span class="joy-days-events__event-text">Drama Group</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Sunday</h4> 16th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Friday</h4>
+            <div class="joy-this-week__date">14th Sep</div>
         </div>
-        <div class="days-events">
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
+          <a href="/events/public-lecture3/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">7pm</span><span class="joy-days-events__event-text">The Human Environment</span>
+          </a>
         </div>
       </div>
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Saturday</h4>
+            <div class="joy-this-week__date">15th Sep</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/events/flea-market/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">8am</span><span class="joy-days-events__event-text">Flea Market</span>
+          </a>
+        </div>
+      </div>
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Sunday</h4>
+            <div class="joy-this-week__date">16th Sep</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+        </div>
+      </div>
+    </div>
+    <div class="joy-this-week__cal-link">
+      <a href="/events/">Events</a>
+    </div>
   </div>
-  <div class="calendar-link">
-    <a href="/events/">Events</a>
-  </div>
-</div>
 """)
 
     @freeze_timetz("1984-09-20 09:00")
@@ -257,66 +264,67 @@ class TestMultiSite(TestCase):
         ).render(self._getContext(hostname="nova.joy.test",
                                   page=getPage("/home/nova/activities/")))
         self.assertHTMLEqual(out, """
-<div class="events-this-week">
-  <h3>This Week</h3>
-  <div class="events">
-      <div class="day in-past">
-        <div class="event-day">
-            <h4>Monday</h4> 17th Sep
+  <div class="joy-this-week">
+    <h2 class="joy-this-week__title">This Week</h2>
+    <div class="joy-this-week__events">
+      <div class="joy-this-week__day joy-this-week__day--in-past">
+        <div class="joy-this-week__day-title" >
+          <h4  class="joy-this-week__weekday">Monday</h4>
+          <div class="joy-this-week__date">17th Sep</div>
         </div>
-        <div class="days-events">
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day joy-this-week__day--in-past">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Tuesday</h4>
+            <div class="joy-this-week__date">18th Sep</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day joy-this-week__day--in-past">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Wednesday</h4>
+            <div class="joy-this-week__date">19th Sep</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day joy-this-week__day--today">
+        <div class="joy-this-week__day-title" title=Today>
+            <h4  class="joy-this-week__weekday">Thursday</h4>
+            <div class="joy-this-week__date">20th Sep</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/nova-events/executive-meeting/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">1pm</span><span class="joy-days-events__event-text">Executive Committee Meeting</span>
+          </a>
         </div>
       </div>
-      <div class="day in-past">
-        <div class="event-day">
-            <h4>Tuesday</h4> 18th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Friday</h4>
+            <div class="joy-this-week__date">21st Sep</div>
         </div>
-        <div class="days-events">
-        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
       </div>
-      <div class="day in-past">
-        <div class="event-day">
-            <h4>Wednesday</h4> 19th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Saturday</h4>
+            <div class="joy-this-week__date">22nd Sep</div>
         </div>
-        <div class="days-events">
-        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
       </div>
-      <div class="day today">
-        <div class="event-day" title="Today">
-            <h4>Thursday</h4> 20th Sep
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Sunday</h4>
+            <div class="joy-this-week__date">23rd Sep</div>
         </div>
-        <div class="days-events">
-            <a href="/nova-events/executive-meeting/" class="event">
-              1pm Executive Committee Meeting
-            </a>
-        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
       </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Friday</h4> 21st Sep
-        </div>
-        <div class="days-events">
-        </div>
-      </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Saturday</h4> 22nd Sep
-        </div>
-        <div class="days-events">
-        </div>
-      </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Sunday</h4> 23rd Sep
-        </div>
-        <div class="days-events">
-        </div>
-      </div>
+    </div>
+    <div class="joy-this-week__cal-link">
+      <a href="/nova-events/">Nova Events</a>
+    </div>
   </div>
-  <div class="calendar-link">
-    <a href="/nova-events/">Nova Events</a>
-  </div>
-</div>
 """)
 
     @freeze_timetz("1984-10-24 10:00")
@@ -328,17 +336,17 @@ class TestMultiSite(TestCase):
         soup = BeautifulSoup(out, "html5lib")
         select = soup.select
         self.assertEqual(len(select('thead a')), 2)
-        self.assertEqual(len(select("table.minicalendar thead tr th.sun")), 1)
-        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(len(select(".joy-minical__weekday--sun")), 1)
+        month = select(".joy-minical__month-name")[0]
         self.assertEqual(month.string.strip(), "October")
-        year = select("tr.heading th.month .year-number")[0]
+        year = select(".joy-minical__year-number")[0]
         self.assertEqual(year.string.strip(), "1984")
         self.assertEqual(len(select("tbody tr")), 5)
         self.assertEqual(len(select("tbody td")), 35)
-        self.assertEqual(len(select("tbody td.day")), 31)
-        self.assertEqual(len(select("tbody td.noday")), 4)
-        self.assertEqual(len(select('tbody td.day a[title="Lunchtime Chess Matches"]')), 12)
-        links = select('tbody td.day a')
+        self.assertEqual(len(select("tbody td.joy-minical__day")), 31)
+        self.assertEqual(len(select("tbody td.joy-minical__no-day")), 4)
+        self.assertEqual(len(select('tbody td.joy-minical__day a[title="Lunchtime Chess Matches"]')), 12)
+        links = select('tbody td.joy-minical__day a')
         self.assertEqual(len(links), 19)
         self.assertEqual(links[0].get_text(), "1")
         self.assertEqual(links[0]['href'], "/events/1984/10/01/")
@@ -360,28 +368,28 @@ class TestMultiSite(TestCase):
             "{% all_upcoming_events %}"
         ).render(self._getContext())
         soup = BeautifulSoup(out, "html5lib")
-        items = soup(class_="event-item")
+        items = soup(class_="joy-ev-item")
         self.assertEqual(len(items), 7)
         chess, novaexec, blitz, drama, lecture, market, chess2 = items
         self.assertEqual(chess.a['href'], "/chess-club/lunchtime-matches/")
-        self.assertEqual(novaexec.find(class_="event-next-on").get_text(strip=True),
+        self.assertEqual(novaexec.find(class_="joy-ev-next-on").get_text(strip=True),
                          "Next on Thursday 6th of September at 1pm")
         self.assertEqual(blitz.a['href'], "/nova/nova-events/rubbish-blitz/")
         self.assertEqual(blitz.a.get_text(strip=True), "Rubbish Blitz")
-        self.assertEqual(blitz.find(class_="event-when").get_text(strip=True),
+        self.assertEqual(blitz.find(class_="joy-ev-when").get_text(strip=True),
                          "Thursday 13th of September at 12:30pm to 5pm")
-        self.assertEqual(drama.find(class_="event-when").get_text(strip=True),
+        self.assertEqual(drama.find(class_="joy-ev-when").get_text(strip=True),
                          "Fortnightly on Thursdays at 5pm")
-        self.assertEqual(drama.find(class_="event-next-on").get_text(strip=True),
+        self.assertEqual(drama.find(class_="joy-ev-next-on").get_text(strip=True),
                          "Next on Thursday 13th of September at 5pm")
-        self.assertEqual(lecture.find(class_="event-when").get_text(strip=True),
+        self.assertEqual(lecture.find(class_="joy-ev-when").get_text(strip=True),
                          "Friday 14th of September at 7pm")
-        self.assertEqual(lecture.find(class_="event-location").get_text(strip=True),
+        self.assertEqual(lecture.find(class_="joy-ev-where").get_text(strip=True),
                          "Lecture Hall C")
         self.assertEqual(market.a['href'], "/events/flea-market/")
         self.assertEqual(market.a.get_text(strip=True), "Flea Market")
         self.assertEqual(chess2.a['href'], "/chess-club/lunchtime-matches/1984-10-03-postponement/")
-        self.assertEqual(chess2.find(class_="event-postponed-from").get_text(strip=True),
+        self.assertEqual(chess2.find(class_="joy-ev-from-when").get_text(strip=True),
                          "Postponed from Wednesday 3rd of October at 12pm to 1pm")
 
     @freeze_timetz("1984-09-01 15:00")
@@ -392,7 +400,7 @@ class TestMultiSite(TestCase):
         ).render(self._getContext(hostname="nova.joy.test",
                                   page=getPage("/home/nova/activities/")))
         soup = BeautifulSoup(out, "html5lib")
-        items = soup(class_="event-item")
+        items = soup(class_="joy-ev-item")
         self.assertEqual(len(items), 2)
         novaexec, blitz = items
         self.assertEqual(novaexec.a.get_text(strip=True),
@@ -406,31 +414,34 @@ class TestMultiSite(TestCase):
             "{% group_upcoming_events %}"
         ).render(self._getContext(page=getPage("/home/chess-club/")))
         self.assertHTMLEqual(out, """
-<h3>Events</h3>
-<div class="upcoming-events">
-  <div class="event-item clearfix">
-    <div class="event-item-title">
-      <a href="/chess-club/lunchtime-matches/">Lunchtime Chess Matches</a>
+    <div class="joy-title joy-title--list">
+      <h2>Events</h2>
     </div>
-    <div class="event-when">
-      Mondays, Wednesdays and Fridays at 12pm to 1pm
+    <div class="joy-grp-list">
+      <div class="joy-ev-item">
+        <div class="joy-title joy-title--item">
+          <h3><a class="joy-title__link" href="/chess-club/lunchtime-matches/">Lunchtime Chess Matches</a></h3>
+        </div>
+        <div class="joy-ev-when joy-field">
+          Mondays, Wednesdays and Fridays at 12pm to 1pm
+        </div>
+        <div class="joy-ev-next-on joy-field">
+          Next on Monday 17th of September at 12pm
+        </div>
+      </div>
+      <div class="joy-ev-item">
+        <div class="joy-title joy-title--item">
+          <h3><a class="joy-title__link" href="/chess-club/lunchtime-matches/1984-10-03-postponement/">Early Morning Matches</a></h3>
+        </div>
+        <div class="joy-ev-when joy-field">
+          Thursday 4th of October at 7:30am to 8:30am
+        </div>
+        <div class="joy-ev-from-when joy-field">
+          Postponed from Wednesday 3rd of October at 12pm to 1pm
+        </div>
+      </div>
     </div>
-    <div class="event-next-on">
-      Next on Monday 17th of September at 12pm
-    </div>
-  </div>
-  <div class="event-item clearfix">
-    <div class="event-item-title">
-      <a href="/chess-club/lunchtime-matches/1984-10-03-postponement/">Early Morning Matches</a>
-    </div>
-    <div class="event-when">
-      Thursday 4th of October at 7:30am to 8:30am
-    </div>
-    <div class="event-postponed-from">
-      Postponed from Wednesday 3rd of October at 12pm to 1pm
-    </div>
-  </div>
-</div>""")
+""")
 
     @freeze_timetz("1984-08-04 10:00")
     def testFutureExceptionsImplicitPage(self):
@@ -440,12 +451,12 @@ class TestMultiSite(TestCase):
         ).render(self._getContext(hostname="nova.joy.test",
                                   page=getPage("/home/nova/nova-events/executive-meeting/")))
         soup = BeautifulSoup(out, "html5lib")
-        items = soup(class_="item")
+        items = soup(class_="joy-ev-related__item")
         self.assertEqual(len(items), 1)
         cancellation = items[0]
-        self.assertEqual(cancellation['href'],
+        self.assertEqual(cancellation.a['href'],
                          "/nova-events/executive-meeting/1984-09-13-cancellation/")
-        self.assertEqual(cancellation.find(class_="item-text").get_text(strip=True),
+        self.assertEqual(cancellation.find(class_="joy-field").get_text(strip=True),
                          "Meeting Cancelled")
 
     @freeze_timetz("1984-09-15 13:00")
@@ -455,16 +466,16 @@ class TestMultiSite(TestCase):
             "{% future_exceptions kasparov %}"
         ).render(self._getContext(kasparov=getPage("/home/chess-club/lunchtime-matches/")))
         soup = BeautifulSoup(out, "html5lib")
-        items = soup(class_="item")
+        items = soup(class_="joy-ev-related__item")
         self.assertEqual(len(items), 2)
         cancellation, postponement = items
-        self.assertEqual(cancellation['href'],
+        self.assertEqual(cancellation.a['href'],
                          "/chess-club/lunchtime-matches/1984-10-01-cancellation/")
-        self.assertEqual(cancellation.find(class_="item-text").get_text(strip=True),
+        self.assertEqual(cancellation.find(class_="joy-field").get_text(strip=True),
                          "No Chess Club Today")
-        self.assertEqual(postponement['href'],
+        self.assertEqual(postponement.a['href'],
                          "/chess-club/lunchtime-matches/1984-10-03-postponement/")
-        self.assertEqual(postponement.find(class_="item-text").get_text(strip=True),
+        self.assertEqual(postponement.find(class_="joy-field").get_text(strip=True),
                          "Early Morning Matches on Thursday 4th of October")
 
 # ------------------------------------------------------------------------------
@@ -497,69 +508,72 @@ class TestNoCalendar(TestCase):
             "{% events_this_week %}"
         ).render(Context({'request': self.request}))
         self.assertHTMLEqual(out, """
-<div class="events-this-week">
-  <h3>This Week</h3>
-  <div class="events">
-      <div class="day today">
-        <div class="event-day" title="Today">
-            <h4>Sunday</h4> 16th Aug
+  <div class="joy-this-week">
+    <h2 class="joy-this-week__title">This Week</h2>
+    <div class="joy-this-week__events">
+      <div class="joy-this-week__day joy-this-week__day--today">
+        <div class="joy-this-week__day-title" title=Today>
+          <h4  class="joy-this-week__weekday">Sunday</h4>
+          <div class="joy-this-week__date">16th Aug</div>
         </div>
-        <div class="days-events">
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+          <h4  class="joy-this-week__weekday">Monday</h4>
+          <div class="joy-this-week__date">17th Aug</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day">
-            <h4>Monday</h4> 17th Aug
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+          <h4  class="joy-this-week__weekday">Tuesday</h4>
+          <div class="joy-this-week__date">18th Aug</div>
         </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Wednesday</h4>
+            <div class="joy-this-week__date">19th Aug</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day">
-            <h4>Tuesday</h4> 18th Aug
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Thursday</h4>
+            <div class="joy-this-week__date">20th Aug</div>
         </div>
-        <div class="days-events">
+        <div class="joy-this-week__days-events joy-days-events"></div>
+      </div>
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Friday</h4>
+            <div class="joy-this-week__date">21st Aug</div>
+        </div>
+        <div class="joy-this-week__days-events joy-days-events">
+          <a href="/chess-club/lunchtime-matches/" class="joy-days-events__event">
+            <span class="joy-days-events__event-time">12pm</span><span class="joy-days-events__event-text">Lunchtime Chess Matches</span>
+          </a>
         </div>
       </div>
-      <div class="day">
-        <div class="event-day">
-            <h4>Wednesday</h4> 19th Aug
+      <div class="joy-this-week__day">
+        <div class="joy-this-week__day-title" >
+            <h4  class="joy-this-week__weekday">Saturday</h4>
+            <div class="joy-this-week__date">22nd Aug</div>
         </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
-        </div>
+        <div class="joy-this-week__days-events joy-days-events"></div>
       </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Thursday</h4> 20th Aug
-        </div>
-        <div class="days-events">
-        </div>
-      </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Friday</h4> 21st Aug
-        </div>
-        <div class="days-events">
-            <a href="/chess-club/lunchtime-matches/" class="event">
-              12pm Lunchtime Chess Matches
-            </a>
-        </div>
-      </div>
-      <div class="day">
-        <div class="event-day" >
-            <h4>Saturday</h4> 22nd Aug
-        </div>
-        <div class="days-events">
-        </div>
-      </div>
+    </div>
   </div>
-</div>
 """)
 
     @freeze_timetz("1984-10-24 10:00")
@@ -571,16 +585,16 @@ class TestNoCalendar(TestCase):
         soup = BeautifulSoup(out, "html5lib")
         select = soup.select
         self.assertEqual(len(select('thead a')), 0)
-        self.assertEqual(len(select("table.minicalendar thead tr th.sun")), 1)
-        month = select("tr.heading th.month .month-name")[0]
+        self.assertEqual(len(select(".joy-minical__weekday--sun")), 1)
+        month = select(".joy-minical__month-name")[0]
         self.assertEqual(month.string.strip(), "October")
-        year = select("tr.heading th.month .year-number")[0]
+        year = select(".joy-minical__year-number")[0]
         self.assertEqual(year.string.strip(), "1984")
         self.assertEqual(len(select("tbody tr")), 5)
         self.assertEqual(len(select("tbody td")), 35)
-        self.assertEqual(len(select("tbody td.day")), 31)
-        self.assertEqual(len(select("tbody td.noday")), 4)
-        self.assertEqual(len(select('tbody td.day span.event')), 14)
+        self.assertEqual(len(select("tbody td.joy-minical__day")), 31)
+        self.assertEqual(len(select(".joy-minical__no-day")), 4)
+        self.assertEqual(len(select('.joy-minical__date--event')), 14)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
