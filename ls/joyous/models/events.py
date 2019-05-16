@@ -1006,14 +1006,15 @@ class RecurringEventPage(EventBase, Page):
         The current status of the event (started, finished or pending).
         """
         myNow = timezone.localtime(timezone=self.tz)
-        daysDelta = dt.timedelta(days=self.num_days - 1)
+        myDaysDelta = dt.timedelta(days=self.num_days - 1)
         # NB: postponements can be created after the until date
         #     so ignore that
         todayStart = getAwareDatetime(myNow.date(), dt.time.min, self.tz)
-        eventStart, event = self.__afterOrPostponedTo(todayStart - daysDelta)
+        eventStart, event = self.__afterOrPostponedTo(todayStart - myDaysDelta)
         if eventStart is None:
             return "finished"
-        eventFinish = getAwareDatetime(eventStart.date() + daysDelta,
+        eventDaysDelta = dt.timedelta(days=event.num_days - 1)
+        eventFinish = getAwareDatetime(eventStart.date() + eventDaysDelta,
                                        event.time_to, self.tz)
         if event.time_from is None:
             eventStart += _1day
