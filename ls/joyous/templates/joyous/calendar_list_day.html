@@ -20,7 +20,7 @@
 
       {% block events_list %}
       <div class="events-on-day events-on-day-detailed">
-        {% for title, event, url in events.all_events %}
+        {% for title, event, url in events %}
           {% include "joyous/includes/event_item.html" %}
         {% endfor %}
       </div>

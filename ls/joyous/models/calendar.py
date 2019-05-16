@@ -12,7 +12,6 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
@@ -300,10 +299,11 @@ class CalendarPage(RoutablePageMixin, Page):
         dom = int(dom)
         day = dt.date(year, month, dom)
 
-        eventsOnDay = self._getEventsOnDay(request, day)
-        if len(eventsOnDay.all_events) == 1:
-            event = eventsOnDay.all_events[0].page
+        daysEvents = self._getEventsOnDay(request, day).all_events
+        if len(daysEvents) == 1:
+            event = daysEvents[0].page
             return redirect(event.get_url(request))
+        eventsPage = self._paginate(request, daysEvents)
 
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[year, month])
@@ -324,7 +324,7 @@ class CalendarPage(RoutablePageMixin, Page):
                    'listUrl':      listUrl,
                    'monthName':    MONTH_NAMES[month],
                    'weekdayName':  WEEKDAY_NAMES[day.weekday()],
-                   'events':       eventsOnDay}
+                   'events':       eventsPage}
         context.update(self._getExtraContext("day"))
         return TemplateResponse(request,
                                 "joyous/calendar_list_day.html",
@@ -342,13 +342,7 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('servePast')
         upcomingEvents = self._getUpcomingEvents(request)
-        paginator = Paginator(upcomingEvents, self.EventsPerPage)
-        try:
-            eventsPage = paginator.page(request.GET.get('page'))
-        except PageNotAnInteger:
-            eventsPage = paginator.page(1)
-        except EmptyPage:
-            eventsPage = paginator.page(paginator.num_pages)
+        eventsPage = self._paginate(request, upcomingEvents)
 
         context = {'self':         self,
                    'page':         self,
@@ -375,13 +369,7 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[today.year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
         pastEvents = self._getPastEvents(request)
-        paginator = Paginator(pastEvents, self.EventsPerPage)
-        try:
-            eventsPage = paginator.page(request.GET.get('page'))
-        except PageNotAnInteger:
-            eventsPage = paginator.page(1)
-        except EmptyPage:
-            eventsPage = paginator.page(paginator.num_pages)
+        eventsPage = self._paginate(request, pastEvents)
 
         context = {'self':         self,
                    'page':         self,
@@ -485,6 +473,16 @@ class CalendarPage(RoutablePageMixin, Page):
         """Return all the events in this site."""
         home = request.site.root_page
         return getAllEvents(request, home=home)
+
+    def _paginate(self, request, events):
+        paginator = Paginator(events, self.EventsPerPage)
+        try:
+            eventsPage = paginator.page(request.GET.get('page'))
+        except PageNotAnInteger:
+            eventsPage = paginator.page(1)
+        except EmptyPage:
+            eventsPage = paginator.page(paginator.num_pages)
+        return eventsPage
 
 # ------------------------------------------------------------------------------
 class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
