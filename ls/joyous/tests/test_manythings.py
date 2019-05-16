@@ -74,10 +74,10 @@ class  TestFrançais(TestCase):
 
     def testToOrdinalNum(self):
         self.assertEqual(toOrdinal(6), "6me")
-        self.assertEqual(toOrdinal(11), "11er")
+        self.assertEqual(toOrdinal(11), "11me")
         self.assertEqual(toOrdinal(12), "12me")
         self.assertEqual(toOrdinal(13), "13me")
-        self.assertEqual(toOrdinal(21), "21er")
+        self.assertEqual(toOrdinal(21), "21me")
         self.assertEqual(toOrdinal(102), "102me")
         self.assertEqual(toOrdinal(6543), "6543me")
 
@@ -91,12 +91,12 @@ class  TestFrançais(TestCase):
         self.assertEqual(toTheOrdinal(4), "Le Quatrième")
         self.assertEqual(toTheOrdinal(5), "Le Cinquième")
 
-    def testToOrdinalNum(self):
+    def testToTheOrdinalNum(self):
         self.assertEqual(toTheOrdinal(6), "La 6me")
-        self.assertEqual(toTheOrdinal(11), "La 11er")
+        self.assertEqual(toTheOrdinal(11), "La 11me")
         self.assertEqual(toTheOrdinal(12), "La 12me")
         self.assertEqual(toTheOrdinal(13), "La 13me")
-        self.assertEqual(toTheOrdinal(21), "La 21er")
+        self.assertEqual(toTheOrdinal(21), "La 21me")
         self.assertEqual(toTheOrdinal(102), "La 102me")
         self.assertEqual(toTheOrdinal(6543), "La 6543me")
 
