@@ -18,9 +18,10 @@ from django.db.models.query import ModelIterable
 from django.forms import widgets
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils import translation
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_noop
 from timezone_field import TimeZoneField
 from wagtail.core.query import PageQuerySet
 from wagtail.core.models import Page, PageManager, PageViewRestriction
@@ -1416,8 +1417,11 @@ class EventExceptionBase(models.Model):
         Sets the page's title.
         """
         name = self.slugName.title()
-        self.title = "{} for {}".format(name, dateFormat(self.except_date))
-        self.slug = "{}-{}".format(self.except_date, self.slugName)
+        # generate the title and slug in English
+        # the translation of the title will happen in the property local_title
+        with translation.override("en"):
+            self.title = "{} for {}".format(name, dateFormat(self.except_date))
+            self.slug = "{}-{}".format(self.except_date, self.slugName)
         super().full_clean(*args, **kwargs)
 
     def isAuthorized(self, request):
@@ -1464,6 +1468,7 @@ class ExtraInfoPage(EventExceptionBase, Page):
     subpage_types = []
     base_form_class = ExtraInfoPageForm
     slugName    = "extra-info"
+    gettext_noop("Extra-Info")
 
     extra_title = models.CharField(_("title"), max_length=255, blank=True)
     extra_title.help_text = _("A more specific title for this occurence (optional)")
@@ -1559,6 +1564,7 @@ class CancellationPage(EventExceptionBase, Page):
     subpage_types = []
     base_form_class = CancellationPageForm
     slugName = "cancellation"
+    gettext_noop("Cancellation")
 
     cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
     cancellation_title.help_text = _("Show in place of cancelled event "
@@ -1682,6 +1688,7 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
     subpage_types = []
     base_form_class = PostponementPageForm
     slugName = "postponement"
+    gettext_noop("Postponement")
 
     postponement_title = models.CharField(_("title"), max_length=255)
     postponement_title.help_text = _("The title for the postponed event")

@@ -34,6 +34,7 @@ Other features
 Bug fixes
 ~~~~~~~~~
  * Fix bug when num_days differs from event to occurrence
+ * Make sure we have translations for the names used in exception page titles.  Always generate the title and slug in English, then translate in the property local_title.
 
 
 Upgrade considerations
