@@ -18,17 +18,10 @@
 .joy-rr__short-input input {
     width:                   10em;
 }
-.joy-rr__short-input .interval-units-days,
-.joy-rr__short-input .interval-units-weeks,
-.joy-rr__short-input .interval-units-months,
-.joy-rr__short-input .interval-units-years {
-    padding:                 0 0 0 12px;
-    display:                 none;
-}
 .joy-rr__days-input label {
     width:                   14%;
 }
-.ev-double-input {
+.joy-rr__double-input {
 }
 .joy-rr__half-field {
     display:                 inline-block;
