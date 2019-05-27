@@ -203,7 +203,6 @@ a.joy-popup__close {
     font-size:             12px;
     line-height:           12px;
     border-collapse:       collapse;
-    box-shadow:            1px 1px 5px 1px rgba(100, 100, 100, 0.2);
 }
 
 .joy-minical__heading {
