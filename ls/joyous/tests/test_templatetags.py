@@ -250,8 +250,8 @@ class TestMultiSite(TestCase):
         </div>
       </div>
     </div>
-    <div class="joy-this-week__cal-link">
-      <a href="/events/">Events</a>
+    <div class="joy-this-week__cal">
+      <a class="joy-this-week__cal-link" href="/events/">Events</a>
     </div>
   </div>
 """)
@@ -321,8 +321,8 @@ class TestMultiSite(TestCase):
         <div class="joy-this-week__days-events joy-days-events"></div>
       </div>
     </div>
-    <div class="joy-this-week__cal-link">
-      <a href="/nova-events/">Nova Events</a>
+    <div class="joy-this-week__cal">
+      <a class="joy-this-week__cal-link" href="/nova-events/">Nova Events</a>
     </div>
   </div>
 """)
