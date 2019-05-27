@@ -335,7 +335,7 @@ class Recurrence(rrulebase):
                 months = [WRAPPED_MONTH_NAMES[m+1] for m in self.bymonth]
                 of = " "+_("of {months}").format(months=hrJoin(months))
 
-        elif 0 < d + offset < 28:
+        elif 0 < d + offset <= 28:
             # adjust within the month
             d += offset
 
