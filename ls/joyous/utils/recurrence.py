@@ -301,8 +301,8 @@ class Recurrence(rrulebase):
             # elif offset > 0 and max(self.bymonthday) < 26:
             #     retval = self.__getWhenByMonthdays(offset, of)
             # else:
-            #     retval = self.__getWhenByOffsetMonthdays(offset, of)
-            raise NotImplementedError()
+            #     retval = self.__getWhenWithOffsetMonthdays(offset, of)
+            retval = self.__getWhenWithOffsetMonthdays(offset, of)
         return retval
 
     def __getWhenByWeekday(self, offset, of):
@@ -350,6 +350,18 @@ class Recurrence(rrulebase):
         else:
             TheOrdinal = theOrdinal[0].upper() + theOrdinal[1:]
             retval = _("{TheOrdinal} day").format(TheOrdinal=TheOrdinal)
+        retval += of
+        return retval
+
+    def __getWhenWithOffsetMonthdays(self, offset, of):
+        theOrdinal = hrJoin([toTheOrdinal(d, False) for d in self.bymonthday])
+        if offset != 0:
+             retval = _("{DaysOffset} {theOrdinal} day")  \
+                      .format(DaysOffset=toDaysOffsetStr(offset),
+                              theOrdinal=theOrdinal)
+        else:
+             TheOrdinal = theOrdinal[0].upper() + theOrdinal[1:]
+             retval = _("{TheOrdinal} day").format(TheOrdinal=TheOrdinal)
         retval += of
         return retval
 

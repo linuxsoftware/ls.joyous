@@ -237,12 +237,17 @@ class TestGetWhen(TestCase):
         self.assertEqual(rr._getWhen(1),
                          "The first day of August, September, October and January")
 
-    def testStillToDo(self):
+    def test1stAndLast(self):
         rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=MONTHLY,
                         bymonthday=[1,-1])
-        with self.assertRaises(NotImplementedError):
-            rr._getWhen(0)
+        self.assertEqual(rr._getWhen(0), "The first and the last day of the month")
+
+    def test1stAndLastOffsetNeg1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=[1,-1])
+        self.assertEqual(rr._getWhen(-1), "The day before the first and the last day of the month")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
