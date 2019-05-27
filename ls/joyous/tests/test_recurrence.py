@@ -106,13 +106,6 @@ class TestRecurrence(TestCase):
                 "RRULE:FREQ=MONTHLY;WKST=SU;UNTIL=20141001;BYMONTHDAY=1,-1"   # first&last
         self.assertEqual(repr(Recurrence(rrStr)), rrStr)
 
-    def testGetWhen(self):
-        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
-                        freq=WEEKLY,
-                        count=9,
-                        byweekday=[MO,WE,FR])
-        self.assertEqual(rr._getWhen(1), "Tuesdays, Thursdays and Saturdays")
-
     def testFrequency(self):
         rr = Recurrence(freq=10)
         self.assertEqual(rr.frequency, "unsupported_frequency_10")
@@ -129,6 +122,127 @@ class TestRecurrence(TestCase):
         self.assertEqual(rr._getRrule(untilDt=dt.datetime(2011,1,11,23,59,59,
                                                           tzinfo=dt.timezone.utc)),
                         "FREQ=DAILY;INTERVAL=2;WKST=SU;UNTIL=20110111T235959Z")
+
+# ------------------------------------------------------------------------------
+class TestGetWhen(TestCase):
+    def testDaily(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1), freq=DAILY)
+        self.assertEqual(rr._getWhen(2), "Daily")
+
+    def testEvery2Days(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        interval=2,
+                        freq=DAILY)
+        self.assertEqual(rr._getWhen(3), "Every 2 days")
+
+    def testMonEveryFortnight(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        interval=2,
+                        freq=WEEKLY,
+                        byweekday=MO)
+        self.assertEqual(rr._getWhen(0), "Fortnightly on Mondays")
+
+    def testMonEvery6Weeks(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        interval=6,
+                        freq=WEEKLY,
+                        byweekday=MO)
+        self.assertEqual(rr._getWhen(0), "Every 6 weeks on Mondays")
+
+    def testEveryday(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        byweekday=[MO,TU,WE,TH,FR,SA,SU])
+        self.assertEqual(rr._getWhen(0), "Everyday")
+
+    def testFirstMonMonthly(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        byweekday=MO(1))
+        self.assertEqual(rr._getWhen(0), "The first Monday of the month")
+
+    def testMonEvery2Months(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        interval=2,
+                        freq=MONTHLY,
+                        byweekday=MO)
+        self.assertEqual(rr._getWhen(0), "Every Monday, every 2 months")
+
+    def testLastSatSeptEvery2Years(self):
+        rr = Recurrence(dtstart=dt.date(2018, 9, 29),
+                        interval=2,
+                        freq=YEARLY,
+                        byweekday=SA(-1),
+                        bymonth=9)
+        self.assertEqual(rr._getWhen(0, numDays=5), "The last Saturday of September, every 2 years for 5 days")
+
+    def test1st(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=1)
+        self.assertEqual(rr._getWhen(0), "The first day of the month")
+
+    def test22ndOffsetNeg1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=YEARLY,
+                        bymonthday=22,
+                        bymonth=5)
+        self.assertEqual(rr._getWhen(-1), "The 21st day of May")
+
+    def test30thOffset1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=30)
+        self.assertEqual(rr._getWhen(1), "The day after the 30th day of the month")
+
+    def testMonWedFriOffset1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=WEEKLY,
+                        count=9,
+                        byweekday=[MO,WE,FR])
+        self.assertEqual(rr._getWhen(1), "Tuesdays, Thursdays and Saturdays")
+
+    def test2ndAnd4thFriOffsetNeg1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        byweekday=[FR(2),FR(4)])
+        self.assertEqual(rr._getWhen(-1), "The Thursday before the second Friday and "
+                                          "Thursday before the fourth Friday of the month")
+
+    def test1stOffsetNeg1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=1,
+                        until=dt.date(2010,5,1))
+        self.assertEqual(rr._getWhen(-1), "The last day of the month (until 30 April 2010)")
+
+    def test3rdOffset2(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=3)
+        self.assertEqual(rr._getWhen(2), "The fifth day of the month")
+
+    def test1stJanAprMayOffsetNeg1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=YEARLY,
+                        bymonthday=1,
+                        bymonth=[1,4,5])
+        self.assertEqual(rr._getWhen(-1), "The last day of December, March and April")
+
+    def testLastJulAugSepDecOffset1(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=YEARLY,
+                        bymonthday=-1,
+                        bymonth=[7,8,9,12])
+        self.assertEqual(rr._getWhen(1),
+                         "The first day of August, September, October and January")
+
+    def testStillToDo(self):
+        rr = Recurrence(dtstart=dt.date(2009, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=[1,-1])
+        with self.assertRaises(NotImplementedError):
+            rr._getWhen(0)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

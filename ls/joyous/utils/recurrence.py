@@ -18,7 +18,7 @@ from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
 from django.utils.translation import gettext as _
 from .telltime import dateFormatDMY
-from .manythings import toOrdinal, toTheOrdinal, hrJoin
+from .manythings import toOrdinal, toTheOrdinal, toDaysOffsetStr, hrJoin
 from .names import (WEEKDAY_NAMES, WEEKDAY_NAMES_PLURAL,
                     MONTH_NAMES, WRAPPED_MONTH_NAMES)
 
@@ -233,87 +233,124 @@ class Recurrence(rrulebase):
     def _getWhen(self, offset, numDays=1):
         retval = ""
         if self.freq == DAILY:
-            if self.interval > 1:
-                retval = _("Every {n} days").format(n=self.interval)
-            else:
-                retval = _("Daily")
+            retval = self.__getDailyWhen()
+
         elif self.freq == WEEKLY:
-            retval = hrJoin([d._getPluralWhen(offset) for d in self.byweekday])
-            if self.interval == 2:
-                retval = _("Fortnightly on {days}").format(days=retval)
-            elif self.interval > 2:
-                retval = _("Every {n} weeks on {days}").format(n=self.interval,
-                                                               days=retval)
+            retval = self.__getWeeklyWhen(offset)
 
-        elif self.freq in (MONTHLY, YEARLY):
-            if self.freq == MONTHLY:
-                of = " "+_("of the month")
-            else:
-                months = hrJoin([MONTH_NAMES[m] for m in self.bymonth])
-                of = " "+_("of {months}").format(months=months)
-            days = []
-            if self.byweekday:
-                if (len(self.byweekday) == 7 and
-                    all(not day.n for day in self.byweekday)):
-                    retval = _("Everyday")
-                    of = ""
-                else:
-                    retval = hrJoin([d._getWhen(offset) for d in self.byweekday])
-                    if not self.byweekday[0].n:
-                        retval = _("Every {when}").format(when=retval)
-                        of = ""
-                    else:
-                        retval = _("The {when}").format(when=retval)
+        elif self.freq == MONTHLY:
+            retval = self.__getMonthlyWhen(offset)
 
-            elif len(self.bymonthday) > 1:
-                days = [toTheOrdinal(d, False) for d in self.bymonthday]
-                if offset == -2:
-                    retval = _("Two days before {theOrdinal} day") \
-                             .format(theOrdinal=hrJoin(days))
-                elif offset == -1:
-                    retval = _("The day before {theOrdinal} day")  \
-                             .format(theOrdinal=hrJoin(days))
-                elif offset == 1:
-                    retval = _("The day after {theOrdinal} day")   \
-                             .format(theOrdinal=hrJoin(days))
-                elif offset == 2:
-                    retval = _("Two days after {theOrdinal} day")  \
-                             .format(theOrdinal=hrJoin(days))
-                elif offset != 0:
-                    retval = hrJoin(["{}{:+d}".format(day, offset)
-                                     for day in days])
+        elif self.freq == YEARLY:
+            retval = self.__getYearlyWhen(offset)
 
-            elif len(self.bymonthday) == 1:
-                d = self.bymonthday[0]
-                if d == 1 and offset < 0:
-                    d = offset
-                    if self.freq != MONTHLY:
-                        months = [WRAPPED_MONTH_NAMES[m-1] for m in self.bymonth]
-                        of = " "+_("of {months}").format(months=hrJoin(months))
-                elif d == -1 and offset > 0:
-                    d = offset
-                    if self.freq != MONTHLY:
-                        months = [WRAPPED_MONTH_NAMES[m+1] for m in self.bymonth]
-                        of = " "+_("of {months}").format(months=hrJoin(months))
-                else:
-                    d += offset
-                theOrdinal = toTheOrdinal(d, inTitleCase=False)
-                TheOrdinal = theOrdinal[0].upper() + theOrdinal[1:]
-                retval = _("{TheOrdinal} day").format(TheOrdinal=TheOrdinal)
-            retval += of
-            if self.interval >= 2:
-                if self.freq == MONTHLY:
-                    retval = _("{when}, every {n} months")  \
-                             .format(when=retval, n=self.interval)
-                else:
-                    retval = _("{when}, every {n} years")   \
-                             .format(when=retval, n=self.interval)
         if numDays >= 2:
             retval += " "+_("for {n} days").format(n=numDays)
         if self.until:
             until = self.until + dt.timedelta(days=offset)
             # TODO make format configurable
             retval += " "+_("(until {when})").format(when=dateFormatDMY(until))
+        return retval
+
+    def __getDailyWhen(self):
+        if self.interval > 1:
+            retval = _("Every {n} days").format(n=self.interval)
+        else:
+            retval = _("Daily")
+        return retval
+
+    def __getWeeklyWhen(self, offset):
+        retval = hrJoin([d._getPluralWhen(offset) for d in self.byweekday])
+        if self.interval == 2:
+            retval = _("Fortnightly on {days}").format(days=retval)
+        elif self.interval > 2:
+            retval = _("Every {n} weeks on {days}").format(n=self.interval,
+                                                           days=retval)
+        return retval
+
+    def __getMonthlyWhen(self, offset):
+        of = " "+_("of the month")
+        retval = self.__getMonthlyYearlyWhen(offset, of)
+        if self.interval >= 2:
+            retval = _("{when}, every {n} months")  \
+                     .format(when=retval, n=self.interval)
+        return retval
+
+    def __getYearlyWhen(self, offset):
+        months = hrJoin([MONTH_NAMES[m] for m in self.bymonth])
+        of = " "+_("of {months}").format(months=months)
+        retval = self.__getMonthlyYearlyWhen(offset, of)
+        if self.interval >= 2:
+            retval = _("{when}, every {n} years")   \
+                         .format(when=retval, n=self.interval)
+        return retval
+
+    def __getMonthlyYearlyWhen(self, offset, of):
+        if self.byweekday:
+            retval = self.__getWhenByWeekday(offset, of)
+
+        elif len(self.bymonthday) == 1:
+            retval = self.__getWhenByMonthday(offset, of)
+
+        else:
+            # TODO: deal with it when it is needed
+            # if offset == 0:
+            #     retval = self.__getWhenByMonthdays(offset, of)
+            # elif offset < 0 and min(self.bymonthday) > 3:
+            #     retval = self.__getWhenByMonthdays(offset, of)
+            # elif offset > 0 and max(self.bymonthday) < 26:
+            #     retval = self.__getWhenByMonthdays(offset, of)
+            # else:
+            #     retval = self.__getWhenByOffsetMonthdays(offset, of)
+            raise NotImplementedError()
+        return retval
+
+    def __getWhenByWeekday(self, offset, of):
+        if (len(self.byweekday) == 7 and
+            all(not day.n for day in self.byweekday)):
+            retval = _("Everyday")
+        else:
+            retval = hrJoin([d._getWhen(offset) for d in self.byweekday])
+            if not self.byweekday[0].n:
+                retval = _("Every {when}").format(when=retval)
+            else:
+                retval = _("The {when}").format(when=retval)
+                retval += of
+        return retval
+
+    def __getWhenByMonthday(self, offset, of):
+        daysOffset = ""
+        d = self.bymonthday[0]
+        if d == 1 and offset < 0:
+            # bump first day to previous month
+            d = offset
+            if self.freq != MONTHLY:
+                months = [WRAPPED_MONTH_NAMES[m-1] for m in self.bymonth]
+                of = " "+_("of {months}").format(months=hrJoin(months))
+
+        elif d == -1 and offset > 0:
+            # bump last day to next month
+            d = offset
+            if self.freq != MONTHLY:
+                months = [WRAPPED_MONTH_NAMES[m+1] for m in self.bymonth]
+                of = " "+_("of {months}").format(months=hrJoin(months))
+
+        elif 0 < d + offset < 28:
+            # adjust within the month
+            d += offset
+
+        else:
+            # too complicated don't adjust for any offset
+            daysOffset = toDaysOffsetStr(offset)
+
+        theOrdinal = toTheOrdinal(d, inTitleCase=False)
+        if daysOffset:
+            retval = _("{DaysOffset} {theOrdinal} day")  \
+                     .format(DaysOffset=daysOffset, theOrdinal=theOrdinal)
+        else:
+            TheOrdinal = theOrdinal[0].upper() + theOrdinal[1:]
+            retval = _("{TheOrdinal} day").format(TheOrdinal=TheOrdinal)
+        retval += of
         return retval
 
 # ------------------------------------------------------------------------------

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-25 10:08+1200\n"
+"POT-Creation-Date: 2019-05-27 12:21+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -624,7 +624,25 @@ msgstr "η τρίτη"
 msgid "the"
 msgstr "η "
 
-#: utils/manythings.py:76
+#: utils/manythings.py:75
+#, python-brace-format
+msgid "{N} days before"
+msgstr ""
+
+#: utils/manythings.py:77
+msgid "The day before"
+msgstr ""
+
+#: utils/manythings.py:79
+msgid "The day after"
+msgstr ""
+
+#: utils/manythings.py:82
+#, python-brace-format
+msgid "{N} days after"
+msgstr ""
+
+#: utils/manythings.py:91
 msgid "and"
 msgstr ""
 
@@ -671,91 +689,76 @@ msgstr ""
 msgid "{localWeekday} after {theOrdinal} {weekday}"
 msgstr ""
 
-#: utils/recurrence.py:237
-#, python-brace-format
-msgid "Every {n} days"
-msgstr ""
-
-#: utils/recurrence.py:239 widgets.py:51
-msgid "Daily"
-msgstr ""
-
-#: utils/recurrence.py:243
-#, python-brace-format
-msgid "Fortnightly on {days}"
-msgstr ""
-
-#: utils/recurrence.py:245
-#, python-brace-format
-msgid "Every {n} weeks on {days}"
-msgstr ""
-
-#: utils/recurrence.py:250
-msgid "of the month"
-msgstr ""
-
-#: utils/recurrence.py:253 utils/recurrence.py:292 utils/recurrence.py:297
-#, python-brace-format
-msgid "of {months}"
-msgstr ""
-
-#: utils/recurrence.py:258
-msgid "Everyday"
-msgstr ""
-
-#: utils/recurrence.py:263
-#, python-brace-format
-msgid "Every {when}"
-msgstr ""
-
-#: utils/recurrence.py:266
-#, python-brace-format
-msgid "The {when}"
-msgstr ""
-
-#: utils/recurrence.py:271
-#, python-brace-format
-msgid "Two days before {theOrdinal} day"
-msgstr ""
-
-#: utils/recurrence.py:274
-#, python-brace-format
-msgid "The day before {theOrdinal} day"
-msgstr ""
-
-#: utils/recurrence.py:277
-#, python-brace-format
-msgid "The day after {theOrdinal} day"
-msgstr ""
-
-#: utils/recurrence.py:280
-#, python-brace-format
-msgid "Two days after {theOrdinal} day"
-msgstr ""
-
-#: utils/recurrence.py:302
-#, python-brace-format
-msgid "{TheOrdinal} day"
-msgstr ""
-
-#: utils/recurrence.py:306
-#, python-brace-format
-msgid "{when}, every {n} months"
-msgstr ""
-
-#: utils/recurrence.py:309
-#, python-brace-format
-msgid "{when}, every {n} years"
-msgstr ""
-
-#: utils/recurrence.py:312
+#: utils/recurrence.py:248
 #, python-brace-format
 msgid "for {n} days"
 msgstr ""
 
-#: utils/recurrence.py:316
+#: utils/recurrence.py:252
 #, python-brace-format
 msgid "(until {when})"
+msgstr ""
+
+#: utils/recurrence.py:257
+#, python-brace-format
+msgid "Every {n} days"
+msgstr ""
+
+#: utils/recurrence.py:259 widgets.py:51
+msgid "Daily"
+msgstr ""
+
+#: utils/recurrence.py:265
+#, python-brace-format
+msgid "Fortnightly on {days}"
+msgstr ""
+
+#: utils/recurrence.py:267
+#, python-brace-format
+msgid "Every {n} weeks on {days}"
+msgstr ""
+
+#: utils/recurrence.py:272
+msgid "of the month"
+msgstr ""
+
+#: utils/recurrence.py:275
+#, python-brace-format
+msgid "{when}, every {n} months"
+msgstr ""
+
+#: utils/recurrence.py:281 utils/recurrence.py:329 utils/recurrence.py:336
+#, python-brace-format
+msgid "of {months}"
+msgstr ""
+
+#: utils/recurrence.py:284
+#, python-brace-format
+msgid "{when}, every {n} years"
+msgstr ""
+
+#: utils/recurrence.py:311
+msgid "Everyday"
+msgstr ""
+
+#: utils/recurrence.py:315
+#, python-brace-format
+msgid "Every {when}"
+msgstr ""
+
+#: utils/recurrence.py:317
+#, python-brace-format
+msgid "The {when}"
+msgstr ""
+
+#: utils/recurrence.py:348
+#, python-brace-format
+msgid "{DaysOffset} {theOrdinal} day"
+msgstr ""
+
+#: utils/recurrence.py:352
+#, python-brace-format
+msgid "{TheOrdinal} day"
 msgstr ""
 
 #: utils/telltime.py:99

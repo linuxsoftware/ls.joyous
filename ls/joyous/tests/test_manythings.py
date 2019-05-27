@@ -6,7 +6,8 @@ import datetime as dt
 import pytz
 from django.test import TestCase
 from django.utils import translation
-from ls.joyous.utils.manythings import toOrdinal, toTheOrdinal, hrJoin
+from ls.joyous.utils.manythings import (toOrdinal, toTheOrdinal,
+                                        toDaysOffsetStr, hrJoin)
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -45,6 +46,16 @@ class Test(TestCase):
         self.assertEqual(toTheOrdinal(21), "The 21st")
         self.assertEqual(toTheOrdinal(102), "The 102nd")
         self.assertEqual(toTheOrdinal(6543), "The 6543rd")
+
+    def testToDaysOffsetStr(self):
+        self.assertEqual(toDaysOffsetStr(-3), "Three days before")
+        self.assertEqual(toDaysOffsetStr(-2), "Two days before")
+        self.assertEqual(toDaysOffsetStr(-1), "The day before")
+        self.assertEqual(toDaysOffsetStr(0), "")
+        self.assertEqual(toDaysOffsetStr(1), "The day after")
+        self.assertEqual(toDaysOffsetStr(2), "Two days after")
+        self.assertEqual(toDaysOffsetStr(3), "Three days after")
+        self.assertEqual(toDaysOffsetStr(25), "Twenty-five days after")
 
     def testHumanReadableJoin(self):
         self.assertEqual(hrJoin([""]), "")
@@ -99,6 +110,16 @@ class  TestFrançais(TestCase):
         self.assertEqual(toTheOrdinal(21), "La 21me")
         self.assertEqual(toTheOrdinal(102), "La 102me")
         self.assertEqual(toTheOrdinal(6543), "La 6543me")
+
+    def testToDaysOffsetStr(self):
+        self.assertEqual(toDaysOffsetStr(-3), "Trois jours avant")
+        self.assertEqual(toDaysOffsetStr(-2), "Deux jours avant")
+        self.assertEqual(toDaysOffsetStr(-1), "Le jour précédent")
+        self.assertEqual(toDaysOffsetStr(0), "")
+        self.assertEqual(toDaysOffsetStr(1), "Le jour après")
+        self.assertEqual(toDaysOffsetStr(2), "Deux jours après")
+        self.assertEqual(toDaysOffsetStr(3), "Trois jours après")
+        self.assertEqual(toDaysOffsetStr(25), "Vingt-cinq jours après")
 
     def testHumanReadableJoin(self):
         self.assertEqual(hrJoin([""]), "")

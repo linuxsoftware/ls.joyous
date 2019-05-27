@@ -68,6 +68,21 @@ def toTheOrdinal(n, inTitleCase=True):
     return retval
 
 # ------------------------------------------------------------------------------
+def toDaysOffsetStr(offset):
+    retval = ""
+    if offset <= -2:
+        n = num2words(-offset, lang=to_locale(get_language()), to="cardinal")
+        retval = _("{N} days before").format(N=n.capitalize())
+    elif offset == -1:
+        retval = _("The day before")
+    elif offset == 1:
+        retval = _("The day after")
+    elif offset >= 2:
+        n = num2words(offset, lang=to_locale(get_language()), to="cardinal")
+        retval = _("{N} days after").format(N=n.capitalize())
+    return retval
+
+# ------------------------------------------------------------------------------
 def hrJoin(items):
     """
     Joins items together in a human readable string
