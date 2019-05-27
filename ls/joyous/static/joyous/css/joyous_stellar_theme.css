@@ -80,7 +80,7 @@ a.joy-cal__period-ctrl {
     border-color:          #3a373c #070408 #060208 #281f22;
 }
 
-.joy-cal__day--first,
+.joy-cal--monthly .joy-cal__day--first,
 .joy-cal__day:first-child {
     border-left:            2px solid #3a373c;
 }
@@ -179,7 +179,7 @@ a.joy-cal__read-more {
     border-width:          2px;
     border-style:          solid;
     border-color:          #3a373c #070408 #060208 #281f22;
-    box-shadow:            5px 10px 5px 5px rgba(0, 0, 0, 0.9);
+    box-shadow:            1px 1px 5px 1px rgba(100, 100, 100, 0.2);
 }
 
 a.joy-popup__close {
@@ -203,6 +203,7 @@ a.joy-popup__close {
     font-size:             12px;
     line-height:           12px;
     border-collapse:       collapse;
+    box-shadow:            1px 1px 5px 1px rgba(100, 100, 100, 0.2);
 }
 
 .joy-minical__heading {
@@ -416,9 +417,13 @@ a.joy-ev-related__overrides:hover strong  {
 
 .joy-this-week {
     font-size:             12px;
-    background:            white;   
-    border-radius:         5px;
-    box-shadow:            0 4px 10px rgba(150, 150, 150, 0.2);
+    background:            #080609;
+    color:                 white;   
+    border-radius:         0px;
+    border-width:          2px;
+    border-style:          solid;
+    border-color:          #3a373c #070408 #060208 #281f22;
+    box-shadow:            1px 1px 5px 1px rgba(100, 100, 100, 0.2);
 }
 
 .joy-this-week__title {
@@ -445,14 +450,14 @@ a.joy-ev-related__overrides:hover strong  {
 }
 
 .joy-this-week__weekday {
+    color:                 #ffffef;
     font-size:             14px;
     font-weight:           bold;
-    color:                 #36454f;
 }
 
 .joy-this-week__date {
     font-size:             14px;
-    color:                 #444;
+    color:                 #aaa;
 }
 
 .joy-this-week__days-events {
@@ -465,7 +470,11 @@ a.joy-ev-related__overrides:hover strong  {
     color:                 #d70606;
 }
 
-.joy-this-week__cal-link {
+.joy-this-week__cal {
+}
+
+a.joy-this-week__cal-link {
+    color:                 #bc929e;
 }
 
 /*-----------------------------------------------------------------------*/

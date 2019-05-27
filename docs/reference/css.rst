@@ -85,6 +85,7 @@ Elements
   .joy-this-week__weekday
   .joy-this-week__holiday-name
   .joy-this-week__days-events
+  .joy-this-week__cal
   .joy-this-week__cal-link
   .joy-days-events__event
   .joy-days-events__event-time

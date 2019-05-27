@@ -29,8 +29,8 @@
       {% endfor %}
     </div>{% endblock this_week %}
     {% block this_footer %}{% if calendarUrl %}
-    <div class="joy-this-week__cal-link">
-      <a href="{{ calendarUrl }}">{{ calendarName }}</a>
+    <div class="joy-this-week__cal">
+      <a class="joy-this-week__cal-link" href="{{ calendarUrl }}">{{ calendarName }}</a>
     </div>
     {% endif %}{% endblock this_footer %}
   </div>
