@@ -481,21 +481,41 @@ a.joy-this-week__cal-link {
 /*-----------------------------------------------------------------------*/
 
 .joy-pg {
+    display:               block;
+    margin:                0;
+    text-align:            center;
 }
 
 .joy-pg__page {
+    margin-top:            2px;
 }
 
-.joy-pg__ctrl,
+.joy-pg__ctrl {
+    float:                 none;
+    border:                none;
+}
+
 .joy-pg__num {
+    float:                 none;
+    padding:               6px 8px;
+    background:            #380110;
+    border-width:          2px;
+    border-style:          solid;
+    border-color:          #3a373c #070408 #060208 #281f22;
+}
+
+a.joy-pg__num {
+    color:                 #f6ffff;
+}
+
+a.joy-pg__ctrl {
+    color:                 #bc929e;
 }
 
 .joy-pg__ctrl--disabled {
-      color:               #aaa;
+    color:                 #3a373c;
 }
 
 .joy-pg__num--active {
-      background-color:    #ddd;
-      border-top:          1px solid #888;
-      border-left:         1px solid #777;
+    background:            #7a253c;
 }
