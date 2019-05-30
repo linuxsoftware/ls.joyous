@@ -258,12 +258,17 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
 # ------------------------------------------------------------------------------
 ThisEvent = namedtuple("ThisEvent", "title page url")
 
-class EventsOnDay(namedtuple("EODBase", "date days_events continuing_events")):
+class EventsOnDay:
     """
     The events that occur on a certain day.  Both events that start on that day
     and events that are still continuing.
     """
     holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
+
+    def __init__(self, date, days_events, continuing_events):
+        self.date = date
+        self.days_events = days_events
+        self.continuing_events = continuing_events
 
     @property
     def all_events(self):
