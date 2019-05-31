@@ -53,15 +53,15 @@ Upgrade considerations
 
 CSS
 ~~~
-There has been substantial changes to the CSS classes.  This table shows some of them.
+There has been substantial changes to the CSS selectors.  This table shows some of them.
 
 ===========================================  =======================================
 #calendar-overlay                            .joy-overlay
 .day-popup-outer                             .joy-popup__outer
 .day-popup                                   .joy-popup__content
 .day-popup .close                            .joy-popup__close
-.events-view                                 .joyous-view-choices
-.events-view .together                       .joyous-view-choices__link
+.events-view                                 .joy-view-choices
+.events-view .together                       .joy-view-choices__link
 table.calendar                               .joy-cal
 .calendar thead                              .joy-cal__head
 .calendar thead tr.heading th                .joy-cal__heading
