@@ -33,7 +33,6 @@ from wagtail.images import get_image_model_string
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
-from ..holidays.parser import parseHolidays
 from ..utils.mixins import ProxyPageMixin
 from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime, todayUtc)
@@ -48,7 +47,7 @@ from .groups import get_group_model_string, get_group_model
 # ------------------------------------------------------------------------------
 # API get functions
 # ------------------------------------------------------------------------------
-def getAllEventsByDay(request, fromDate, toDate, *, home=None):
+def getAllEventsByDay(request, fromDate, toDate, *, home=None, holidays=None):
     """
     Return all the events (under home if given) for the dates given, grouped by
     day.
@@ -57,6 +56,7 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None):
     :param fromDate: starting date (inclusive)
     :param toDate: finish date (inclusive)
     :param home: only include events that are under this page (if given)
+    :param holidays: the holidays that are celebrated for these dates
     :rtype: list of :class:`EventsOnDay <ls.joyous.models.events.EventsOnDay>` objects
     """
     qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
@@ -66,10 +66,10 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None):
     # Cancellations and ExtraInfo pages are returned by RecurringEventPage.byDay
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
-    evods = _getEventsByDay(fromDate, qrys)
+    evods = _getEventsByDay(fromDate, qrys, holidays)
     return evods
 
-def getAllEventsByWeek(request, year, month, *, home=None):
+def getAllEventsByWeek(request, year, month, *, home=None, holidays=None):
     """
     Return all the events (under home if given) for the given month, grouped by
     week.
@@ -80,11 +80,13 @@ def getAllEventsByWeek(request, year, month, *, home=None):
     :param month: the month
     :type month: int
     :param home: only include events that are under this page (if given)
+    :param holidays: the holidays that are celebrated for these dates
     :returns: a list of sublists (one for each week) each of 7 elements which are either None for days outside of the month, or the events on the day.
     :rtype: list of lists of None or :class:`EventsOnDay <ls.joyous.models.events.EventsOnDay>` objects
     """
     return _getEventsByWeek(year, month,
-                            partial(getAllEventsByDay, request, home=home))
+                            partial(getAllEventsByDay, request,
+                                    home=home, holidays=holidays))
 
 def getAllUpcomingEvents(request, *, home=None):
     """
@@ -216,7 +218,7 @@ def getAllEvents(request, *, home=None):
 # ------------------------------------------------------------------------------
 # Private
 # ------------------------------------------------------------------------------
-def _getEventsByDay(date_from, eventsByDaySrcs):
+def _getEventsByDay(date_from, eventsByDaySrcs, holidays):
     evods = []
     day = date_from
     for srcs in zip(*eventsByDaySrcs):
@@ -231,7 +233,8 @@ def _getEventsByDay(date_from, eventsByDaySrcs):
                 fromTime = dt.time.max
             return fromTime
         days_events.sort(key=sortByTime)
-        evods.append(EventsOnDay(day, days_events, continuing_events))
+        holiday = holidays.get(day) if holidays else None
+        evods.append(EventsOnDay(day, holiday, days_events, continuing_events))
         day += _1day
     return evods
 
@@ -263,10 +266,14 @@ class EventsOnDay:
     The events that occur on a certain day.  Both events that start on that day
     and events that are still continuing.
     """
-    holidays = parseHolidays(getattr(settings, "JOYOUS_HOLIDAYS", ""))
-
-    def __init__(self, date, days_events, continuing_events):
+    def __init__(self, date, holiday=None,
+                 days_events=None, continuing_events=None):
+        if days_events is None:
+            days_events = []
+        if continuing_events is None:
+            continuing_events = []
         self.date = date
+        self.holiday = holiday
         self.days_events = days_events
         self.continuing_events = continuing_events
 
@@ -293,18 +300,11 @@ class EventsOnDay:
         """
         return calendar.day_abbr[self.date.weekday()].lower()
 
-    @property
-    def holiday(self):
-        """
-        The names of any holidays on this day.
-        """
-        return self.holidays.get(self.date)
-
 class EventsByDayList(list):
     def __init__(self, fromDate, toDate):
         self.fromOrd = fromDate.toordinal()
         self.toOrd   = toDate.toordinal()
-        super().__init__(EventsOnDay(dt.date.fromordinal(ord), [], [])
+        super().__init__(EventsOnDay(dt.date.fromordinal(ord))
                          for ord in range(self.fromOrd, self.toOrd+1))
 
     def add(self, thisEvent, pageFromDate, pageToDate):

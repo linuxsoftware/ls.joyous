@@ -5,6 +5,10 @@ Calendar
 .. autoclass:: CalendarPage
     :show-inheritance:
 
+    .. attribute:: holidays
+    
+        The holidays to be displayed by this calendar.
+
     .. attribute:: intro
 
         Introductory text.
@@ -43,7 +47,6 @@ Calendar
     :show-inheritance:
 
     .. automethod:: _allowAnotherAt
-    .. automethod:: _getEventsOnDay
     .. automethod:: _getEventsByDay
     .. automethod:: _getEventsByWeek
     .. automethod:: _getUpcomingEvents
@@ -55,7 +58,6 @@ Calendar
     :show-inheritance:
 
     .. automethod:: _allowAnotherAt
-    .. automethod:: _getEventsOnDay
     .. automethod:: _getEventsByDay
     .. automethod:: _getEventsByWeek
     .. automethod:: _getUpcomingEvents

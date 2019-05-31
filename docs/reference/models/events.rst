@@ -23,6 +23,8 @@ Events
 
     .. attribute:: date
 
+    .. attribute:: holiday
+
     .. attribute:: days_events
 
         The events that start on this day
@@ -38,7 +40,6 @@ Events
     .. autoattribute:: all_events
     .. autoattribute:: preview
     .. autoattribute:: weekday
-    .. autoattribute:: holiday
 
 .. automodule:: ls.joyous.models
 

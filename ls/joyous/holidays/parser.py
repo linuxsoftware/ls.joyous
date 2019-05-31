@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import re
-from .. import holidays
+import holidays as python_holidays
 
 __all__ = ["parseHolidays"]
 
@@ -11,14 +11,14 @@ def _createMap(symbols):
     holidayMap = {}
     for (name, cls) in symbols:
         if (type(cls) is type(object) and
-            issubclass(cls, holidays.HolidayBase) and
-            cls is not holidays.HolidayBase):
+            issubclass(cls, python_holidays.HolidayBase) and
+            cls is not python_holidays.HolidayBase):
             holidayMap[name] = cls
             obj = cls()
             if hasattr(obj, "country"):
                 holidayMap.setdefault(obj.country, cls)
     return holidayMap
-_HOLIDAY_MAP = _createMap(holidays.__dict__.items())
+_PYTHON_HOLIDAYS_MAP = _createMap(list(python_holidays.__dict__.items()))
 
 HolsRe = re.compile(r"(\w[\w\ ]*)(\[.+?\])?")
 SplitRe = re.compile(r",\s*")
@@ -48,8 +48,8 @@ def parseHolidays(holidaysStr, holidayMap=None):
     Takes a string like NZ[WTL,Nelson],AU[*],Northern Ireland and builds a HolidaySum from it
     """
     if holidayMap is None:
-        holidayMap = _HOLIDAY_MAP
-    retval = holidays.HolidayBase()
+        holidayMap = _PYTHON_HOLIDAYS_MAP
+    retval = python_holidays.HolidayBase()
     retval.country = None
     holidaysStr = holidaysStr.strip()
     for (country, subdivisions) in HolsRe.findall(holidaysStr):

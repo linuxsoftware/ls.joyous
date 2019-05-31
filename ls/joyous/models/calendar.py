@@ -21,6 +21,7 @@ from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from .. import __version__
 from ..edit_handlers import ConcealedPanel
+from ..holidays import Holidays
 from ..utils.names import WEEKDAY_NAMES, MONTH_NAMES, MONTH_ABBRS
 from ..utils.weeks import week_info, gregorian_to_week_date, num_weeks_in_year
 from ..utils.weeks import weekday_abbr, weekday_name
@@ -117,6 +118,7 @@ class CalendarPage(RoutablePageMixin, Page):
         verbose_name_plural = _("calendar pages")
 
     EventsPerPage = getattr(settings, "JOYOUS_EVENTS_PER_PAGE", 25)
+    holidays = Holidays()
     subpage_types = ['joyous.SimpleEventPage',
                      'joyous.MultidayEventPage',
                      'joyous.RecurringEventPage',
@@ -428,22 +430,23 @@ class CalendarPage(RoutablePageMixin, Page):
 
     def _getEventsOnDay(self, request, day):
         """Return all the events in this site for a given day."""
-        home = request.site.root_page
-        return getAllEventsByDay(request, day, day, home=home)[0]
+        return self._getEventsByDay(request, day, day)[0]
 
     def _getEventsByDay(self, request, firstDay, lastDay):
         """
         Return the events in this site for the dates given, grouped by day.
         """
         home = request.site.root_page
-        return getAllEventsByDay(request, firstDay, lastDay, home=home)
+        return getAllEventsByDay(request, firstDay, lastDay,
+                                 home=home, holidays=self.holidays)
 
     def _getEventsByWeek(self, request, year, month):
         """
         Return the events in this site for the given month grouped by week.
         """
         home = request.site.root_page
-        return getAllEventsByWeek(request, year, month, home=home)
+        return getAllEventsByWeek(request, year, month,
+                                  home=home, holidays=self.holidays)
 
     def _getUpcomingEvents(self, request):
         """Return the upcoming events in this site."""
@@ -494,19 +497,17 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
         """Don't limit creation."""
         return True
 
-    def _getEventsOnDay(self, request, day):
-        """Return my child events for a given day."""
-        return getAllEventsByDay(request, day, day, home=self)[0]
-
     def _getEventsByDay(self, request, firstDay, lastDay):
         """
         Return my child events for the dates given,  grouped by day.
         """
-        return getAllEventsByDay(request, firstDay, lastDay, home=self)
+        return getAllEventsByDay(request, firstDay, lastDay,
+                                 home=self, holidays=self.holidays)
 
     def _getEventsByWeek(self, request, year, month):
         """Return my child events for the given month grouped by week."""
-        return getAllEventsByWeek(request, year, month, home=self)
+        return getAllEventsByWeek(request, year, month,
+                                  home=self, holidays=self.holidays)
 
     def _getUpcomingEvents(self, request):
         """Return my upcoming child events."""
@@ -543,19 +544,16 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
         """You can only create one of these pages."""
         return not cls.peers().exists()
 
-    def _getEventsOnDay(self, request, day):
-        """Return all the events for a given day."""
-        return getAllEventsByDay(request, day, day)[0]
-
     def _getEventsByDay(self, request, firstDay, lastDay):
         """
         Return all events for the dates given, grouped by day.
         """
-        return getAllEventsByDay(request, firstDay, lastDay)
+        return getAllEventsByDay(request, firstDay, lastDay,
+                                 holidays=self.holidays)
 
     def _getEventsByWeek(self, request, year, month):
         """Return all events for the given month grouped by week."""
-        return getAllEventsByWeek(request, year, month)
+        return getAllEventsByWeek(request, year, month, holidays=self.holidays)
 
     def _getUpcomingEvents(self, request):
         """Return all the upcoming events."""

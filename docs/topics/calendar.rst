@@ -88,3 +88,27 @@ The methods
 :meth:`_getEventFromUid <ls.joyous.models.CalendarPage._getEventFromUid>` and 
 :meth:`_getAllEvents <ls.joyous.models.CalendarPage._getAllEvents>` are for import and export.
 
+
+Holidays
+~~~~~~~~
+:class:`Holidays <ls.joyous.holidays.Holidays>` are a property of the
+:class:`CalendarPage <ls.joyous.models.CalendarPage>`.
+
+If the ``JOYOUS_HOLIDAYS`` setting is set then it is used to select holidays from 
+`python-holidays <https://github.com/dr-prodigy/python-holidays>`_.  But it is
+also possible to add other holiday sources (e.g. from 
+`workalendar <https://peopledoc.github.io/workalendar/>`_ or just a simple ``dict``)
+via :meth:`register <ls.joyous.holidays.Holidays.register>`. 
+And to add individual days via :meth:`add <ls.joyous.holidays.Holidays.add>`.
+
+For example:
+    .. code-block:: python
+
+        from datetime import date
+        from workalendar.america import Ontario
+
+        CalendarPage.holidays.register(Ontario())
+        CalendarPage.holidays.add(date(2019,4,29), "HAPPY HAPPY")
+
+It would also be possible to derieve different Calendar models and give them different sets of holidays.  Holidays for CalendarPage are determined programmatically, but a derieved Calendar model could choose to change this, e.g. store the holidays in the database so that different pages of the same model could have different holidays.  
+

@@ -12,5 +12,6 @@ Reference
     admin_ui
     fields
     middleware
+    holidays
     css
 

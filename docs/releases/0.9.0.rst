@@ -27,6 +27,17 @@ Available themes:
 
 All Joyous CSS classes now begin with the prefix ``joy-`` and try to follow the BEM protocol of ``block__element--modifier``. 
 
+Holidays
+~~~~~~~~
+Holidays are now a property of the CalendarPage.  This means it is possible to derieve different Calendar models and give them different sets of holidays.  Holidays for CalendarPage are still determined programmatically, but a derieved Calendar model could choose to change this, e.g. store the holidays in the database so that different pages of the same model could have different holidays.  
+
+The ``JOYOUS_HOLIDAYS`` setting still works the same - selecting holidays from 
+`python-holidays <https://github.com/dr-prodigy/python-holidays>`_. 
+But now, additional holiday sources (e.g. from 
+`workalendar <https://peopledoc.github.io/workalendar/>`_ or just a simple ``dict``) 
+can be registered  via :meth:`register <ls.joyous.holidays.Holidays.register>`. 
+As can individual days via :meth:`add <ls.joyous.holidays.Holidays.add>`.
+
 Other features
 ~~~~~~~~~~~~~~
  * Restructured templates to use more inheritance and less inclusion.
