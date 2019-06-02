@@ -199,7 +199,7 @@ class CalendarPage(RoutablePageMixin, Page):
             nextMonth = 1
             nextMonthYear += 1
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'year':         year,
                     'month':        month,
                     'yesterday':    today - dt.timedelta(1),
@@ -265,7 +265,7 @@ class CalendarPage(RoutablePageMixin, Page):
             nextWeek = 1
             nextWeekYear += 1
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'year':         year,
                     'week':         week,
                     'yesterday':    today - dt.timedelta(1),
@@ -311,7 +311,7 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[year, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'year':         year,
                     'month':        month,
                     'dom':          dom,
@@ -341,7 +341,7 @@ class CalendarPage(RoutablePageMixin, Page):
         upcomingEvents = self._getUpcomingEvents(request)
         eventsPage = self._paginate(request, upcomingEvents)
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'weeklyUrl':    weeklyUrl,
                     'monthlyUrl':   monthlyUrl,
                     'listUrl':      listUrl,
@@ -365,7 +365,7 @@ class CalendarPage(RoutablePageMixin, Page):
         pastEvents = self._getPastEvents(request)
         eventsPage = self._paginate(request, pastEvents)
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'weeklyUrl':    weeklyUrl,
                     'monthlyUrl':   monthlyUrl,
                     'listUrl':      listUrl,
@@ -387,7 +387,7 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
 
-        cxt = self._getCommonContext()
+        cxt = self._getCommonContext(request)
         cxt.update({'year':         year,
                     'month':        month,
                     'calendarUrl':  self.get_url(request),
@@ -417,13 +417,12 @@ class CalendarPage(RoutablePageMixin, Page):
         contentType = ContentType.objects.get_for_model(cls)
         return cls.objects.filter(content_type=contentType)
 
-    def _getCommonContext(self):
-        retval = {'self':     self,
-                  'page':     self,
-                  'version':  __version__,
-                  'themeCSS': getattr(settings, "JOYOUS_THEME_CSS", ""),
-                  'today':    timezone.localdate()}
-        return retval
+    def _getCommonContext(self, request):
+        cxt = self.get_context(request)
+        cxt.update({'version':  __version__,
+                    'themeCSS': getattr(settings, "JOYOUS_THEME_CSS", ""),
+                    'today':    timezone.localdate()})
+        return cxt
 
     def _getExtraContext(self, route):
         return {}
