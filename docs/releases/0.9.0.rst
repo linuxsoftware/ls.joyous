@@ -12,7 +12,7 @@ What's new
 
 CSS
 ~~~
-joyous.css has been stripped down to the bare structural basics that will display elements in appropriate places, but without pushing colour or font choices. New theme CSS files are available which the user can optionally choose to import if they wish.  Added a new setting ``JOYOUS_CSS_THEME`` to make it easy to include a theme CSS file without needing to override the joyous_base.html file.
+joyous.css has been stripped down to the bare structural basics that will display elements in appropriate places, but without pushing colour or font choices. New theme CSS files are available which the user can optionally choose to import if they wish.  Added a new setting ``JOYOUS_THEME_CSS`` to make it easy to include a theme CSS file without needing to override the joyous_base.html file.
 
 Add the following to your settings file (e.g. mysite/mysite/settings/base.py) to continue with the previous default appearance.
 
