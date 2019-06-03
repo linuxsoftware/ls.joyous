@@ -417,7 +417,7 @@ a.joy-ev-related__overrides:hover strong  {
     font-weight:           bold;
     font-size:             18px;
     text-align:            center;
-    background:            #950011;
+    background:            #0d6759;
     color:                 white;
 }
 
@@ -428,7 +428,7 @@ a.joy-ev-related__overrides:hover strong  {
 }
 
 .joy-this-week__day--today {
-    background:            #ffb442;
+    background:            #a0c55f;
 }
 
 .joy-this-week__day-title {
@@ -437,7 +437,7 @@ a.joy-ev-related__overrides:hover strong  {
 .joy-this-week__weekday {
     font-size:             14px;
     font-weight:           bold;
-    color:                 #36454f;
+    color:                 #114611;
 }
 
 .joy-this-week__date {
