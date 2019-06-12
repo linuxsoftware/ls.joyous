@@ -11,7 +11,6 @@ from ls.joyous.models.events import SimpleEventPage
 from ls.joyous.holidays import Holidays
 from .testutils import freeze_timetz, getPage
 
-
 # ------------------------------------------------------------------------------
 class Test(TestCase):
     @override_settings()

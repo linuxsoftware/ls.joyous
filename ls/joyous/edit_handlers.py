@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
+from wagtail.admin.utils import get_available_admin_languages
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from .widgets import ExceptionDateInput, Time12hrInput
 
@@ -44,7 +45,7 @@ def _add12hrFormats():
         _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
         settings.TIME_INPUT_FORMATS += _12hrFormats
 
-    for lang, _ in getattr(settings, 'WAGTAILADMIN_PERMITTED_LANGUAGES', []):
+    for lang, _ in get_available_admin_languages():
         for module in get_format_modules(lang):
             inputFormats = getattr(module, 'TIME_INPUT_FORMATS', [])
             if (_12hrFormats[0] not in inputFormats or

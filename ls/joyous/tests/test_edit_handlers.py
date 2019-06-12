@@ -3,17 +3,22 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import get_form_for_model
+from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
 from wagtail.core.models import Site, Page
 from ls.joyous.models.events import CancellationPageForm
 from ls.joyous.models import CalendarPage, CancellationPage, RecurringEventPage
 from ls.joyous.utils.recurrence import Recurrence, MONTHLY, TU
-from ls.joyous.edit_handlers import ExceptionDatePanel, TimePanel, ConcealedPanel
+from ls.joyous.edit_handlers import ExceptionDatePanel, ConcealedPanel
+from ls.joyous.widgets import Time12hrInput, ExceptionDateInput
 from .testutils import datetimetz, freeze_timetz, getPage
+import ls.joyous.edit_handlers
+import importlib
 
 # ------------------------------------------------------------------------------
 class TestExceptionDatePanel(TestCase):
@@ -41,6 +46,9 @@ class TestExceptionDatePanel(TestCase):
         request.session = {}
         request.site = Site.objects.get(is_default_site=True)
         return request
+
+    def testWidget(self):
+        self.assertIs(ExceptionDatePanel.widget, ExceptionDateInput)
 
     def testBindWithoutForm(self):
         cancellation = CancellationPage(owner = self.user,
@@ -89,25 +97,23 @@ class TestExceptionDatePanel(TestCase):
         self.assertEquals(panel.exceptionTZ, "Asia/Tokyo")
 
 # ------------------------------------------------------------------------------
+@override_settings(JOYOUS_TIME_INPUT=12)
 class TestTime12hrPanel(TestCase):
     def setUp(self):
-        self.newTime = AdminTimeInput().attrs.get('autocomplete', "new-time")
+        importlib.reload(ls.joyous.edit_handlers)
 
-#     def testNullValue(self):
-#         widget = Time12hrInput()
-#         self.assertEqual(widget.value_from_datadict({}, {}, 'time'), None)
-#
-#     def testRenderNone(self):
-#         widget = Time12hrInput()
-#         out = widget.render('time', None, {'id': "time_id"})
-#         self.assertHTMLEqual(out, """
-# <input type="text" name="time" id="time_id" autocomplete="{0.newTime}">
-# <script>
-# $(function() {{
-#     initTime12hrChooser("time_id");
-# }});
-# </script>""".format(self))
+    def testWidget(self):
+        from ls.joyous.edit_handlers import TimePanel
+        self.assertIs(TimePanel.widget, Time12hrInput)
+        
+    def testDefaultTimeInput(self):
+        self.assertIn('%I:%M%p', settings.TIME_INPUT_FORMATS)
+        self.assertIn('%I%p', settings.TIME_INPUT_FORMATS)
 
+    def testNZLocaleTimeInput(self):
+        format = get_format_modules("en-nz")
+        self.assertIn('%I:%M%p', format[0].TIME_INPUT_FORMATS)
+        self.assertIn('%I%p', format[0].TIME_INPUT_FORMATS)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
