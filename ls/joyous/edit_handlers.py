@@ -35,23 +35,30 @@ class ExceptionDatePanel(FieldPanel):
 # ------------------------------------------------------------------------------
 def _add12hrFormats():
     # Time12hrInput will not work unless django.forms.fields.TimeField
-    # can process 12hr times, so sneak them into the default and all locales
-    # TIME_INPUT_FORMATS.
+    # can process 12hr times, so sneak them into the default and all the
+    # selectable locales that define TIME_INPUT_FORMATS.
 
-    # Note: strptime does not accept %P %p is for both cases here
+    # strptime does not accept %P, %p is for both cases here.
     _12hrFormats = ['%I:%M%p', # 2:30pm
                     '%I%p']    # 7am
+
+    # TIME_INPUT_FORMATS is defined in django.conf.global_settings if not
+    # by the user's local settings.
     if (_12hrFormats[0] not in settings.TIME_INPUT_FORMATS or
         _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
         settings.TIME_INPUT_FORMATS += _12hrFormats
 
-    for lang, _ in get_available_admin_languages():
+    # As at 2019-06-13 none of the built-in locales define TIME_INPUT_FORMATS
+    # but a user-defined locale could or it could be added to a built-in one.
+    langCodes = [language[0] for language in get_available_admin_languages()]
+    langCodes.append(settings.LANGUAGE_CODE)
+    for lang in langCodes:
         for module in get_format_modules(lang):
-            inputFormats = getattr(module, 'TIME_INPUT_FORMATS', [])
-            if (_12hrFormats[0] not in inputFormats or
-                _12hrFormats[1] not in inputFormats):
+            inputFormats = getattr(module, 'TIME_INPUT_FORMATS', None)
+            if (inputFormats is not None and
+                (_12hrFormats[0] not in inputFormats or
+                 _12hrFormats[1] not in inputFormats)):
                 inputFormats += _12hrFormats
-                setattr(module, 'TIME_INPUT_FORMATS', inputFormats)
 
 # ------------------------------------------------------------------------------
 class TimePanel(FieldPanel):

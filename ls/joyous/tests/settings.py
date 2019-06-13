@@ -85,6 +85,7 @@ INSTALLED_APPS = [
 
 WSGI_APPLICATION = 'demo.wsgi.application'
 
+FORMAT_MODULE_PATH = "ls.joyous.tests.formats"
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
