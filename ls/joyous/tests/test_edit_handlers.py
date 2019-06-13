@@ -217,7 +217,7 @@ class TestConcealedPanel(TestCase):
             def _show(self):
                 return True
 
-        panel = ShownPanel([], "Test")
+        panel = ShownPanel([], "Test", help_text="Nothing")
         panel = panel.bind_to(instance=self.event)
         self.assertEqual(panel.heading, "")
         self.assertEqual(panel.help_text, "")
@@ -230,6 +230,8 @@ class TestConcealedPanel(TestCase):
     </ul>
 </fieldset>
 """)
+        self.assertEqual(panel.heading, "Test")
+        self.assertEqual(panel.help_text, "Nothing")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
