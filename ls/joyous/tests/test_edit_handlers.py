@@ -12,7 +12,7 @@ from django.utils.formats import get_format
 from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
 from wagtail.core.models import Site, Page
-from ls.joyous.models.events import CancellationPageForm
+from ls.joyous.models.events import CancellationPageForm, RecurringEventPageForm
 from ls.joyous.models import CalendarPage, CancellationPage, RecurringEventPage
 from ls.joyous.utils.recurrence import Recurrence, MONTHLY, TU
 from ls.joyous.edit_handlers import ExceptionDatePanel, ConcealedPanel
@@ -203,7 +203,48 @@ class TestConcealedPanel(TestCase):
         self.assertEqual(panel.heading, "")
         self.assertEqual(panel.help_text, "")
 
-    def testConcealed(self):
+    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
+    def testConcealed23(self):
+        Form = get_form_for_model(RecurringEventPage,
+                                  form_class=RecurringEventPageForm)
+        form = Form(instance=self.event, parent_page=self.calendar)
+        panel = ConcealedPanel([], "Test")
+        panel = panel.bind_to_model(RecurringEventPage)
+        panel = panel.bind_to_instance(instance=self.event,
+                                       form=form,
+                                       request=self._getRequest())
+        content = panel.render()
+        self.assertEqual(content, "")
+        self.assertEqual(panel.heading, "")
+        self.assertEqual(panel.help_text, "")
+
+    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
+    def testShown23(self):
+        class ShownPanel(ConcealedPanel):
+            def _show(self):
+                return True
+
+        Form = get_form_for_model(RecurringEventPage,
+                                  form_class=RecurringEventPageForm)
+        form = Form(instance=self.event, parent_page=self.calendar)
+        panel = ShownPanel([], "Test", help_text="Nothing")
+        panel = panel.bind_to_model(RecurringEventPage)
+        panel = panel.bind_to_instance(instance=self.event,
+                                       form=form,
+                                       request=self._getRequest())
+        content = panel.render()
+        self.assertHTMLEqual(content, """
+<fieldset>
+    <legend>Test</legend>
+    <ul class="fields">
+    </ul>
+</fieldset>
+""")
+        self.assertEqual(panel.heading, "Test")
+        self.assertEqual(panel.help_text, "Nothing")
+
+    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
+    def testConcealed25(self):
         panel = ConcealedPanel([], "Test")
         panel = panel.bind_to(instance=self.event)
         panel = panel.bind_to(request=self._getRequest())
@@ -212,7 +253,8 @@ class TestConcealedPanel(TestCase):
         self.assertEqual(panel.heading, "")
         self.assertEqual(panel.help_text, "")
 
-    def testShown(self):
+    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
+    def testShown25(self):
         class ShownPanel(ConcealedPanel):
             def _show(self):
                 return True
