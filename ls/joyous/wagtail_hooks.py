@@ -9,7 +9,7 @@ from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import ModelAdmin
 from wagtail.contrib.modeladmin.options import modeladmin_register
 from .models import EventCategory, CalendarPage, CalendarPageForm
-from .formats import NullHandler, ICalHandler, GoogleCalendarHandler
+from .formats import NullHandler, ICalHandler, GoogleCalendarHandler, RssHandler
 
 # ------------------------------------------------------------------------------
 @hooks.register('insert_editor_js')
@@ -28,6 +28,8 @@ def handlePageExport(page, request, serve_args, serve_kwargs):
         handler = ICalHandler()
     elif format == "google":
         handler = GoogleCalendarHandler()
+    elif format == "rss":
+        handler = RssHandler()
     else:
         handler = NullHandler()
     return handler.serve(page, request, serve_args, serve_kwargs)

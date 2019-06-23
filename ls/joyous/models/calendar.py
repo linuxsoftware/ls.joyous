@@ -65,7 +65,6 @@ class CalendarPageForm(WagtailAdminPageForm):
                                             required=False,
                                             initial=True)
         CalendarPage.settings_panels.append(Panel([
-              HelpPanel(_("<b>Warning!</b> this feature is experimental")),
               FieldPanel('upload'),
               FieldPanel('utc2local'),
             ], heading=_("Import")))

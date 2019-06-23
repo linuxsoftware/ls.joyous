@@ -6,6 +6,7 @@ num2words>=0.5.10
 holidays
 icalendar
 python-dateutil
+feedgen
 
 django-beautifulsoup-test
 coverage
