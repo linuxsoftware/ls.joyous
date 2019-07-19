@@ -18,7 +18,7 @@ Add the following to your settings file (e.g. mysite/mysite/settings/base.py) to
 
     .. code-block:: python
 
-        JOYOUS_CSS_THEME = "/static/joyous/css/joyous_coast_theme.css"
+        JOYOUS_THEME_CSS = "/static/joyous/css/joyous_coast_theme.css"
 
 Available themes:
  * ``joyous_coast_theme.css``: Greys and gold.
