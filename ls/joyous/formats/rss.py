@@ -16,14 +16,7 @@ from ..models import CalendarPage
 from ..utils.telltime import getAwareDatetime
 from feedgen.feed import FeedGenerator
 from feedgen.entry import FeedEntry
-
-# ------------------------------------------------------------------------------
-#TODO move to format/errors.py
-class CalendarTypeError(TypeError):
-    pass
-
-class CalendarNotInitializedError(RuntimeError):
-    pass
+from .errors import CalendarTypeError, CalendarNotInitializedError
 
 # ------------------------------------------------------------------------------
 class RssHandler:
@@ -63,7 +56,7 @@ class CalendarFeed(FeedGenerator):
         feed.title(page.title)
         feed.link(href=page.get_full_url(request))
         feed.author(name=page.owner.get_full_name())
-        feed.description(page.intro)
+        feed.description(page.intro or page.title)
         feed.generator("ls.joyous")
         feed.image(url=fullUrl(static(cls.imagePath), page, request))
 

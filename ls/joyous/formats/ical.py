@@ -23,6 +23,7 @@ from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
 from ..utils.recurrence import Recurrence
 from ..utils.telltime import getAwareDatetime, getLocalDatetime
 from .vtimezone import create_timezone
+from .errors import CalendarTypeError, CalendarNotInitializedError
 
 # ------------------------------------------------------------------------------
 class VComponentMixin:
@@ -31,12 +32,6 @@ class VComponentMixin:
         if name in self:
             del self[name]
         self.add(name, value, parameters, encode)
-
-class CalendarTypeError(TypeError):
-    pass
-
-class CalendarNotInitializedError(RuntimeError):
-    pass
 
 # ------------------------------------------------------------------------------
 class ICalHandler:
