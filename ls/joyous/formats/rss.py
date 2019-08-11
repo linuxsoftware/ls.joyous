@@ -8,11 +8,13 @@ from urllib.parse import urlencode
 import pytz
 from icalendar import vPeriod
 from django.http import HttpResponse
+from django.conf import settings
 from django.utils import html
 from django.utils.http import http_date
 from django.template import TemplateDoesNotExist, loader
 from django.templatetags.static import static
-from ..models import CalendarPage
+from ..models import (CalendarPage, SimpleEventPage, MultidayEventPage,
+        RecurringEventPage, ExtraInfoPage, CancellationPage, PostponementPage)
 from ..utils.telltime import getAwareDatetime
 from feedgen.feed import FeedGenerator
 from feedgen.entry import FeedEntry
@@ -41,7 +43,7 @@ def fullUrl(url, page, request):
 # ------------------------------------------------------------------------------
 class CalendarFeed(FeedGenerator):
     """Produce a feed of upcoming events"""
-    imagePath = "joyous/img/logo.png"
+    imagePath = static("joyous/img/logo.png")
 
     @classmethod
     def fromPage(cls, page, request):
@@ -58,28 +60,41 @@ class CalendarFeed(FeedGenerator):
         feed.author(name=page.owner.get_full_name())
         feed.description(page.intro or page.title)
         feed.generator("ls.joyous")
-        feed.image(url=fullUrl(static(cls.imagePath), page, request))
+        imagePath = getattr(settings, "JOYOUS_RSS_FEED_IMAGE", cls.imagePath)
+        feed.image(url=fullUrl(imagePath, page, request))
 
-        for event in page._getUpcomingEvents(request):
-            entry = EventEntry.fromEvent(event, request)
+        for thisEvent in page._getUpcomingEvents(request):
+            entry = cls._makeFromEvent(thisEvent, request)
             feed.entry(entry)
         return feed
 
+    @classmethod
+    def _makeFromEvent(cls, thisEvent, request):
+        page = thisEvent.page
+        if isinstance(page, (SimpleEventPage, MultidayEventPage, RecurringEventPage)):
+            return EventEntry.fromEvent(thisEvent, request)
+        elif isinstance(page, ExtraInfoPage):
+            return ExtraInfoEntry.fromPage(thisEvent, request)
+        #elif isinstance(page, CancellationPage):
+        #    return CancellationEntry.fromPage(thisEvent, request)
+        # XXX No Cancellations are returned from _getUpcomingEvents
+        elif isinstance(page, ExtraInfoPage):
+            return PostponementEntry.fromPage(thisEvent, request)
 
 # ------------------------------------------------------------------------------
 class EventEntry(FeedEntry):
-    templatePath = "joyous/formats/rss.xml"
+    templatePath = "joyous/formats/rss_entry.xml"
 
     @classmethod
-    def fromEvent(cls, event, request):
-        page = event.page
+    def fromEvent(cls, thisEvent, request):
+        page = thisEvent.page
         entry = cls()
-        entry.title(event.title)
-        url = fullUrl(event.url, page, request)
+        entry.title(thisEvent.title)
+        url = fullUrl(thisEvent.url, page, request)
         entry.link(href=url)
         entry.guid(url, permalink=True)
         # entry.id(page.uid)
-        entry.setDescription(event, request)
+        entry.setDescription(thisEvent, request)
         entry.setCategory(page)
         entry.setImage(page, request)
         entry.author(name=page.owner.get_full_name())
@@ -87,10 +102,12 @@ class EventEntry(FeedEntry):
         entry.updated(page.last_published_at)
         return entry
 
-    def setDescription(self, event, request):
+    def setDescription(self, thisEvent, request):
+        page = thisEvent.page
         tmpl = loader.get_template(self.templatePath)
-        ctxt = {'event':   event.page,
-                'title':   event.title,
+        ctxt = {'event':   page,
+                'title':   thisEvent.title,
+                'details': page.details,
                 'request': request}
         self.description(tmpl.render(ctxt, request))
 
@@ -106,6 +123,34 @@ class EventEntry(FeedEntry):
             self.enclosure(url=fullUrl(ren.url, page, request),
                            length=str(len(ren.file)),
                            type="image/png")
+
+# ------------------------------------------------------------------------------
+class ExtraInfoEntry(EventEntry):
+    templatePath = "joyous/formats/rss_extra_info_entry.xml"
+
+    def setImage(self, page, request):
+        # FIXME This might not be needed. if page.image was page.overrides.image
+        # BUT THEN be careful with postponement.image and /from.image
+        image = page.overrides.image
+        if image:
+            ren = image.get_rendition("width-350|format-png")
+            self.enclosure(url=fullUrl(ren.url, page, request),
+                           length=str(len(ren.file)),
+                           type="image/png")
+
+# ------------------------------------------------------------------------------
+class PostponementEntry(EventEntry):
+    templatePath = "joyous/formats/rss_postponement_entry.xml"
+
+    def setDescription(self, thisEvent, request):
+        page = thisEvent.page
+        tmpl = loader.get_template(self.templatePath)
+        ctxt = {'event':   page,
+                # TODO: page.postponement_title --- would that make it clearer?
+                'title':   thisEvent.title,
+                'details': page.details,
+                'request': request}
+        self.description(tmpl.render(ctxt, request))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

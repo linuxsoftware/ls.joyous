@@ -86,7 +86,7 @@ class VCalendar(Calendar, VComponentMixin):
         for tz, vspan in tzs.items():
             vtz = vspan.createVTimeZone(tz)
             # Put timezones up top. The RFC doesn't require this, but everyone
-            # else seems to.
+            # else does it.
             vcal.add_component(vtz)
         vcal.subcomponents.extend(vevents)
         return vcal
@@ -765,9 +765,11 @@ class CancellationVEvent(ExceptionVEvent):
         vparent.vchildren.append(vevent)
         return vevent
 
+    # this method is not currently used
     @classmethod
     def fromPage(cls, page):
         vevent = super().fromPage(page)
+        vevent.set('URL',           page.cancellation_url)
         vevent.set('SUMMARY',       page.cancellation_title)
         vevent._setDesc(page.cancellation_details)
         return vevent

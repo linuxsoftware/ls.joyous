@@ -2,8 +2,9 @@
 {% load wagtailcore_tags wagtailimages_tags i18n %}
 
 {% block event_image %}
-<div class="joy-image">
-  {% image overrides.image width-350 %}
+<div class="joy-img">
+  {# FIXME Only Cancellation and Postponement/From should need this ? #}
+  {% image overrides.image width-350 class="joy-img__img" %}
 </div>
 {% endblock event_image %}
 

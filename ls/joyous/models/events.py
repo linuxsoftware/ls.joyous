@@ -102,6 +102,7 @@ def getAllUpcomingEvents(request, *, home=None):
             PostponementPage.events(request).upcoming().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").upcoming()
                                          .this()]
+    # Cancellations are not returned
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -130,6 +131,7 @@ def getGroupUpcomingEvents(request, group):
                                          .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
+    # Cancellations are not returned
 
     # Get events that are linked to a group page, or a postponement or extra
     # info a child of the recurring event linked to a group
@@ -162,6 +164,7 @@ def getAllPastEvents(request, *, home=None):
             RecurringEventPage.events(request).past().this(),
             PostponementPage.events(request).past().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").past().this()]
+    # Cancellations are not returned
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -866,12 +869,9 @@ class RecurringEventQuerySet(EventQuerySet):
                                                        extraInfo.get_url(request))
                 for cancellation in CancellationPage.events.child_of(page)   \
                                      .filter(except_date__range=dateRange):
-                    url = cancellation.get_url(request)
-                    if hasattr(cancellation, "postponementpage"):
-                        if url[-1] != '/':
-                            url += "/from"
-                        else:
-                            url += "from/"
+                    url = cancellation.getCancellationUrl(request)
+                    # The cancellation still affects the event, even if the
+                    # user is not authorized to view the cancellation.
                     if cancellation.isAuthorized(request):
                         title = cancellation.cancellation_title
                     else:
@@ -1494,6 +1494,7 @@ class ExtraInfoPage(EventExceptionBase, Page):
     promote_panels = []
 
     # Original properties
+    # FIXME move these to EventExceptionBase?
     category    = property(attrgetter("overrides.category"))
     image       = property(attrgetter("overrides.image"))
     location    = property(attrgetter("overrides.location"))
@@ -1606,6 +1607,17 @@ class CancellationPage(EventExceptionBase, Page):
         """
         return _("This event has been cancelled.")
 
+    def getCancellationUrl(self, request=None):
+        url = self.get_url(request)
+        if hasattr(self, "postponementpage"):
+            if url[-1] != '/':
+                url += "/from"
+            else:
+                url += "from/"
+        return url
+
+    cancellation_url = property(getCancellationUrl)
+
 # ------------------------------------------------------------------------------
 class PostponementQuerySet(EventQuerySet):
     def upcoming(self):
@@ -1667,7 +1679,8 @@ class PostponementPageForm(EventExceptionPageForm):
 class RescheduleEventBase(EventBase):
     """
     This class exists just so that the class attributes defined here are
-    picked up before the instance properties from EventExceptionBase.
+    picked up before the instance properties from EventExceptionBase,
+    as well as before EventBase.
     """
     class Meta:
         abstract = True

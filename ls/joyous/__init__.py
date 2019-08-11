@@ -18,3 +18,4 @@ default_app_config = 'ls.joyous.apps.JoyousAppConfig'
 # settings.JOYOUS_TIME_INPUT = "24"
 # settings.JOYOUS_EVENTS_PER_PAGE = 25
 # settings.JOYOUS_THEME_CSS = ""
+# settings.JOYOUS_RSS_FEED_IMAGE = "joyous/img/logo.png"
