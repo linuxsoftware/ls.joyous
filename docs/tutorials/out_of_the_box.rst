@@ -17,7 +17,7 @@ configuration or customisations, on a fresh Wagtail site.
 
    .. code-block:: console
 
-       $ pip install joyous
+       $ pip install ls.joyous
 
 2.  Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS setting
     in mysite/mysite/settings/base.py.

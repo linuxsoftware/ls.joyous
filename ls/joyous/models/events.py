@@ -379,6 +379,8 @@ class EventQuerySet(PageQuerySet):
 
     def __predicateBasedOn(self, attribute):
         def predicate(item):
+            # FIXME: This will reject the whole days_events if just
+            # one event does not match the predicate.
             for event in getattr(item, 'days_events', [item]):
                 page = getattr(event, 'page', event)
                 if not getattr(page, attribute, False):
