@@ -2,10 +2,12 @@
 # Date/time utilities
 # ------------------------------------------------------------------------------
 import datetime as dt
+import re
 from functools import wraps
 from inspect import signature
 from django.conf import settings
 from django.utils import dateformat
+from django.utils import formats
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -83,47 +85,91 @@ def timeTo(time_to):
     return time_to if time_to is not None else dt.time.max
 
 # ------------------------------------------------------------------------------
+re_formatchars = re.compile(r'(?<!\\)([aAbBcdDeEfFgGhHiIjlLmMnNoOPqrsStTUuwWXyYzZ])')
+re_escaped = re.compile(r'\\(.)')
+
+class _Formatter(dateformat.DateFormat):
+    def format(self, formatstr):
+        pieces = []
+        for i, piece in enumerate(re_formatchars.split(str(formatstr))):
+            if i % 2:
+                pieces.append(str(getattr(self, piece)()))
+            elif piece:
+                pieces.append(re_escaped.sub(r'\1', piece))
+        return ''.join(pieces)
+
+    def q(self):
+        "'am' or 'pm'"
+        if self.data.hour > 11:
+            return _('pm')
+        return _('am')
+
+    def X(self):
+        "Year, if it is not the current year, 4 digits; e.g. '1999'"
+        retval = ""
+        if self.data.year != dt.date.today().year:
+            retval = str(self.data.year)
+        return retval
+
+def _timeFormat(when, formatStr):
+    """
+    Format a single time, e.g. 10am
+    """
+    if formatStr:
+        retval = _Formatter(when).format(formatStr)
+    else:
+        retval = formats.time_format(when)
+    return retval
+
 def timeFormat(time_from, time_to=None, prefix="", infix=None):
     """
     Format the times time_from and optionally time_to, e.g. 10am
+
+    Uses the format given by JOYOUS_TIME_FORMAT if that is set, or otherwise
+    the standard Django time format.
     """
+    formatStr = getattr(settings, 'JOYOUS_TIME_FORMAT', None)   # e.g. "fq"
     retval = ""
     if time_from != "" and time_from is not None:
         retval += prefix
-        retval += dateformat.time_format(time_from, "fA").lower()
+        retval += _timeFormat(time_from, formatStr)
     if time_to != "" and time_to is not None:
-        to = format(dateformat.time_format(time_to, "fA").lower())
-        if infix is not None:
-            retval = "{} {} {}".format(retval, infix, to)
-        else:
-            retval = _("{fromTime} to {toTime}").format(fromTime=retval,
-                                                        toTime=to)
+        to = _timeFormat(time_to, formatStr)
+        if infix is None:
+            infix = _("to")
+        retval = "{} {} {}".format(retval, infix, to)
     return retval.strip()
 
 def dateFormat(when):
     """
     Format the date when, e.g. Friday 14th of April 2011
+
+    Uses the format given by JOYOUS_DATE_FORMAT if that is set, or otherwise
+    the standard Django date format.
     """
     retval = ""
     if when is not None:
-        dow = dateformat.format(when, "l")
-        dom = dateformat.format(when, "jS")
-        month = dateformat.format(when, "F")
-        if when.year != dt.date.today().year:
-            retval = _("{weekday} {day} of {month} {year}")  \
-                    .format(weekday=dow, day=dom, month=month, year=when.year)
+        formatStr = getattr(settings, 'JOYOUS_DATE_FORMAT', None)   # e.g. "l jS \\o\\f F X"
+        if formatStr:
+            retval = _Formatter(when).format(formatStr)
         else:
-            retval = _("{weekday} {day} of {month}")  \
-                    .format(weekday=dow, day=dom, month=month)
-    return retval
+            retval = formats.date_format(when)
+    return retval.strip()
 
-def dateFormatDMY(when):
+def dateShortFormat(when):
     """
-    Format when as day month year, e.g. 14 April 2017
+    Short version of the date when, e.g. 14 April 2017
+
+    Uses the format given by JOYOUS_DATE_SHORT_FORMAT if that is set, or otherwise
+    the standard Django date format.
     """
+    retval = ""
     if when is not None:
-        return dateformat.format(when, "j F Y")
-    else:
-        return ""
+        formatStr = getattr(settings, 'JOYOUS_DATE_SHORT_FORMAT', None)   # e.g. "j F Y"
+        if formatStr:
+            retval = _Formatter(when).format(formatStr)
+        else:
+            retval = formats.date_format(when)
+    return retval.strip()
 
 # ------------------------------------------------------------------------------

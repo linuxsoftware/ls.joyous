@@ -17,7 +17,7 @@ from dateutil.rrule import rrule, rrulestr, rrulebase
 from dateutil.rrule import DAILY, WEEKLY, MONTHLY, YEARLY
 from dateutil.rrule import weekday as rrweekday
 from django.utils.translation import gettext as _
-from .telltime import dateFormatDMY
+from .telltime import dateShortFormat
 from .manythings import toOrdinal, toTheOrdinal, toDaysOffsetStr, hrJoin
 from .names import (WEEKDAY_NAMES, WEEKDAY_NAMES_PLURAL,
                     MONTH_NAMES, WRAPPED_MONTH_NAMES)
@@ -249,7 +249,7 @@ class Recurrence(rrulebase):
         if self.until:
             until = self.until + dt.timedelta(days=offset)
             # TODO make format configurable
-            retval += " "+_("(until {when})").format(when=dateFormatDMY(until))
+            retval += " "+_("(until {when})").format(when=dateShortFormat(until))
         return retval
 
     def __getDailyWhen(self):

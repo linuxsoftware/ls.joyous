@@ -1,5 +1,5 @@
 ==========================
-Joyous 0.9.1 release notes - IN DEVELOPMENT
+Joyous 0.9.1 release notes
 ==========================
 
 .. contents::
@@ -10,13 +10,31 @@ Joyous 0.9.1 release notes - IN DEVELOPMENT
 What's new
 ==========
 
+Date and Time formats
+~~~~~~~~~~~~~~~~~~~~~
+
+New settings ``JOYOUS_DATE_FORMAT``, ``JOYOUS_DATE_SHORT_FORMAT`` and ``JOYOUS_TIME_FORMAT`` now 
+allow custom formatting of dateFormat, dateShortFormat (formerly known as dateFormatYMD) and timeFormat.  
+(See :doc:`../topics/settings` for details.)  If a setting is not set then
+Joyous will default to using the standard Django formatting.
+
+Use the following settings to keep the date and time formats as they were previously.
+
+    .. code-block:: python
+
+        JOYOUS_DATE_FORMAT = "l jS \\o\\f F X"
+        JOYOUS_DATE_SHORT_FORMAT = "j F Y"
+        JOYOUS_TIME_FORMAT = "fq"
 
 Other features
 ~~~~~~~~~~~~~~
+ * Better unit test coverage.
 
 Bug fixes
 ~~~~~~~~~
  * In _add12hrFormats fix which locales have 12hr time formats added
+ * Documentation fixes
+ * Fix the CSS class of exception_base and postponement_page event images
 
 
 Upgrade considerations

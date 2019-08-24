@@ -4,11 +4,11 @@
 import sys
 import datetime as dt
 import pytz
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from .testutils import datetimetz
 from ls.joyous.utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime,
-        timeFrom, timeTo, timeFormat, dateFormat, dateFormatDMY)
+        timeFrom, timeTo, timeFormat, dateFormat, dateShortFormat)
 
 # ------------------------------------------------------------------------------
 class TestLocalTimes(TestCase):
@@ -82,6 +82,11 @@ class TestFormats(TestCase):
         self.assertEqual(timeFormat(dt.time(8), dt.time(11)), "8am to 11am")
         self.assertEqual(timeFormat(dt.time(20), dt.time(2), "at ", "->"),
                          "at 8pm -> 2am")
+        with override_settings(JOYOUS_TIME_FORMAT = None):
+            self.assertEqual(timeFormat(dt.time(8)), "8 a.m.")
+        with override_settings(JOYOUS_TIME_FORMAT = "Hi"):
+            self.assertEqual(timeFormat(dt.time(8), dt.time(11)),
+                             "0800 to 1100")
 
     def testDateFormat(self):
         self.assertEqual(dateFormat(None), "")
@@ -95,10 +100,21 @@ class TestFormats(TestCase):
         self.assertIn(parts[1][-2:], ["st", "nd", "rd", "th"])
         self.assertEqual(parts[2], "of")
         self.assertEqual(parts[3], "{:%B}".format(today))
+        with override_settings(JOYOUS_DATE_FORMAT = None):
+            self.assertEqual(dateFormat(dt.date(2017,2,16)),
+                             "Feb. 16, 2017")
+        with override_settings(JOYOUS_DATE_FORMAT = "ymd"):
+            self.assertEqual(dateFormat(dt.date(2017,2,16)), "170216")
 
-    def testDateFormatDMY(self):
-        self.assertEqual(dateFormatDMY(dt.date(2016,5,22)), "22 May 2016")
-        self.assertEqual(dateFormatDMY(None), "")
+    def testDateShortFormat(self):
+        self.assertEqual(dateShortFormat(dt.date(2016,5,22)), "22 May 2016")
+        self.assertEqual(dateShortFormat(None), "")
+        with override_settings(JOYOUS_DATE_SHORT_FORMAT = None):
+            self.assertEqual(dateShortFormat(dt.date(2017,2,16)),
+                             "Feb. 16, 2017")
+        with override_settings(JOYOUS_DATE_SHORT_FORMAT = "M jS"):
+            self.assertEqual(dateShortFormat(dt.date(2017,2,16)), "Feb 16th")
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
