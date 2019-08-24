@@ -112,8 +112,8 @@ class TestRecurrenceWidget(TestCase):
 
     def testMedia(self):
         widget = RecurrenceWidget()
-        self.assertEqual(widget.media._css, {'all': ["/static/joyous/css/recurrence_admin.css"]})
-        self.assertEqual(widget.media._js, ["/static/joyous/js/recurrence_admin.js"])
+        self.assertIn("/static/joyous/css/recurrence_admin.css" ,widget.media._css['all'])
+        self.assertIn("/static/joyous/js/recurrence_admin.js", widget.media._js)
 
 # ------------------------------------------------------------------------------
 class TestTime12hrInput(TestCase):
