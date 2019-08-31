@@ -248,7 +248,6 @@ class Recurrence(rrulebase):
             retval += " "+_("for {n} days").format(n=numDays)
         if self.until:
             until = self.until + dt.timedelta(days=offset)
-            # TODO make format configurable
             retval += " "+_("(until {when})").format(when=dateShortFormat(until))
         return retval
 
