@@ -11,7 +11,8 @@ from django.test import TestCase, RequestFactory
 from wagtail.core.models import Site, Page
 from bs4 import BeautifulSoup
 from ls.joyous.utils.recurrence import Recurrence
-from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
+from ls.joyous.utils.recurrence import (DAILY, WEEKLY, MONTHLY, YEARLY,
+                                        MO, TU, WE, TH, FR, SA)
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
                               CancellationPage, PostponementPage, GroupPage)
 from .testutils import datetimetz, freeze_timetz
@@ -24,6 +25,7 @@ class TestMultiSite(TestCase):
         self.requestFactory = RequestFactory()
         self._setUpMainSite()
         self._setUpNovaSubsite()
+        self._setUpVeterisSubsite()
 
     def _setUpMainSite(self):
         Site.objects.filter(is_default_site=True).update(hostname="joy.test")
@@ -84,7 +86,8 @@ class TestMultiSite(TestCase):
                                                        freq=WEEKLY,
                                                        byweekday=[TH],
                                                        interval=2),
-                                   time_from = dt.time(17))
+                                   time_from = dt.time(17),
+                                   location = "Community Centre, Backstage")
         events.add_child(instance=event)
         event.save_revision().publish()
         event = SimpleEventPage(owner = self.user,
@@ -140,6 +143,34 @@ class TestMultiSite(TestCase):
                                                                "the working bee")
         committee.add_child(instance=cancellation)
         cancellation.save_revision().publish()
+
+    def _setUpVeterisSubsite(self):
+        main = getPage("/home/")
+        home = Page(slug="veteris", title="Veteris Council")
+        main.add_child(instance=home)
+        home.save_revision().publish()
+        activities = Page(slug="activities", title="Veteris Calendar")
+        home.add_child(instance=activities)
+        activities.save_revision().publish()
+        Site.objects.create(hostname='veteris.joy.test',
+                            root_page_id=home.id,
+                            is_default_site=False)
+        events = CalendarPage(owner = self.user,
+                              slug  = "veteris-events",
+                              title = "Veteris Events")
+        home.add_child(instance=events)
+        events.save_revision().publish()
+        committee = RecurringEventPage(owner = self.user,
+                                       slug  = "veteris-committee",
+                                       title = "Committee Meeting",
+                                       repeat = Recurrence(dtstart=dt.date(1970,1,5),
+                                                           freq=MONTHLY,
+                                                           byweekday=[MO],
+                                                           until=dt.date(1978,8,7)),
+                                       time_from = dt.time(14),
+                                       time_to   = dt.time(15))
+        events.add_child(instance=committee)
+        committee.save_revision().publish()
 
     def _getContext(self, hostname=None, slug="", **kwargs):
         if hostname is None:
@@ -385,7 +416,7 @@ class TestMultiSite(TestCase):
         self.assertEqual(lecture.find(class_="joy-ev-when").get_text(strip=True),
                          "Friday 14th of September at 7pm")
         self.assertEqual(lecture.find(class_="joy-ev-where").get_text(strip=True),
-                         "Lecture Hall C")
+                         "Lecture Hall C[map]")
         self.assertEqual(market.a['href'], "/events/flea-market/")
         self.assertEqual(market.a.get_text(strip=True), "Flea Market")
         self.assertEqual(chess2.a['href'], "/chess-club/lunchtime-matches/1984-10-03-postponement/")
@@ -443,6 +474,20 @@ class TestMultiSite(TestCase):
     </div>
 """)
 
+    def testGroupUpcomingEventsNotGroup(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% group_upcoming_events %}"
+        ).render(self._getContext(page=getPage("/home/")))
+        self.assertHTMLEqual(out, "")
+
+    def testGroupUpcomingEventsNoPage(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% group_upcoming_events %}"
+        ).render(self._getContext(page=None))
+        self.assertHTMLEqual(out, "")
+
     @freeze_timetz("1984-08-04 10:00")
     def testFutureExceptionsImplicitPage(self):
         out = Template(
@@ -477,6 +522,61 @@ class TestMultiSite(TestCase):
                          "/chess-club/lunchtime-matches/1984-10-03-postponement/")
         self.assertEqual(postponement.find(class_="joy-field").get_text(strip=True),
                          "Early Morning Matches on Thursday 4th of October")
+
+    def testFutureExceptionsNotRrevent(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% future_exceptions %}"
+        ).render(self._getContext(page=getPage("/home/chess-club/")))
+        self.assertHTMLEqual(out, "")
+
+    def testFutureExceptionsNoPage(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% future_exceptions %}"
+        ).render(self._getContext(page=None))
+        self.assertHTMLEqual(out, "")
+
+    @freeze_timetz("1984-10-10 10:00")
+    def testNextOn(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% next_on %}"
+        ).render(self._getContext(hostname="nova.joy.test",
+                                  page=getPage("/home/nova/nova-events/executive-meeting/")))
+        self.assertEqual(out, "Thursday 11th of October at 1pm")
+
+    def testLocationGMap(self):
+        page = getPage("/home/events/drama-practice/")
+        out = Template(
+            "{% load joyous_tags %}"
+            "{% location_gmap location %}"
+        ).render(self._getContext(page=page,
+                                  location=page.location))
+        self.assertHTMLEqual(out, """
+<a class="joy-ev-where__map-link" target="_blank"
+   href="http://maps.google.com/?q=Community Centre, Backstage">[map]</a>
+""")
+    def testTimeDisplay(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{{ alarm | time_display }}"
+        ).render(self._getContext(alarm=dt.time(6,55)))
+        self.assertEqual(out, "6:55am")
+
+    def testAtTimeDisplay(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{{ meeting | at_time_display }}"
+        ).render(self._getContext(meeting=dt.time(8,30)))
+        self.assertEqual(out, "at 8:30am")
+
+    def testDateDisplay(self):
+        out = Template(
+            "{% load joyous_tags %}"
+            "{{ day | date_display }}"
+        ).render(self._getContext(day=dt.date(2008,3,10)))
+        self.assertEqual(out, "Monday 10th of March 2008")
 
 # ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):

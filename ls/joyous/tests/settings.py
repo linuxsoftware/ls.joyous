@@ -59,6 +59,7 @@ MIDDLEWARE = [
 
 INSTALLED_APPS = [
     'ls.joyous',
+    'wagtailgmaps',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -102,3 +103,5 @@ JOYOUS_GROUP_SELECTABLE = True
 JOYOUS_DATE_FORMAT = "l jS \\o\\f F X"
 JOYOUS_DATE_SHORT_FORMAT = "j F Y"
 JOYOUS_TIME_FORMAT = "fq"
+
+WAGTAIL_ADDRESS_MAP_KEY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

@@ -5,6 +5,7 @@ import datetime as dt
 import calendar
 from django import template
 from django.utils import timezone
+from django.utils.translation import gettext
 from ..utils.telltime import timeFormat, dateFormat
 from ..models import getAllEventsByDay
 from ..models import getAllUpcomingEvents
@@ -118,7 +119,7 @@ def future_exceptions(context, rrevent=None):
     request = context['request']
     if rrevent is None:
         rrevent = context.get('page')
-    if rrevent:
+    if rrevent and hasattr(rrevent, '_futureExceptions'):
         exceptions = rrevent._futureExceptions(request)
     else:
         exceptions = []
@@ -134,7 +135,7 @@ def next_on(context, rrevent=None):
     request = context['request']
     if rrevent is None:
         rrevent = context.get('page')
-    eventNextOn = getattr(rrevent, '_nextOn', lambda _:None)
+    eventNextOn = getattr(rrevent, '_nextOn', lambda request:None)
     return eventNextOn(request)
 
 @register.inclusion_tag("joyous/tags/location_gmap.html",
@@ -156,7 +157,7 @@ def time_display(time):
 @register.filter
 def at_time_display(time):
     """format as being "at" some time"""
-    return timeFormat(time, prefix=_("at "))
+    return timeFormat(time, prefix=gettext("at "))
 
 @register.filter
 def date_display(date):

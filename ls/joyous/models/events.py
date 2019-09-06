@@ -117,6 +117,10 @@ def getGroupUpcomingEvents(request, group):
     :param group: for this group page
     :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
+    if not hasattr(group, 'recurringeventpage_set'):
+        # This is not a group page
+        return []
+
     # Get events that are a child of a group page, or a postponement or extra
     # info a child of the recurring event child of the group
     rrEvents = RecurringEventPage.events(request).exclude(group_page=group) \

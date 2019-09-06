@@ -12,6 +12,7 @@ django-beautifulsoup-test
 coverage
 coveralls
 freezegun
+wagtailgmaps
 
 Sphinx
 sphinx_rtd_theme
