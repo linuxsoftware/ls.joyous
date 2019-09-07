@@ -13,7 +13,6 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, PermissionDenied
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Q
 from django.db.models.query import ModelIterable
 from django.forms import widgets
 from django.template.response import TemplateResponse
@@ -383,8 +382,9 @@ class EventQuerySet(PageQuerySet):
 
     def __predicateBasedOn(self, attribute):
         def predicate(item):
-            # FIXME: This will reject the whole days_events if just
-            # one event does not match the predicate.
+            # If used after byDay [ e.g. qry.byDay(from, to).upcoming() ] then
+            # this will reject the whole days_events if just one event does not
+            # match the predicate.
             for event in getattr(item, 'days_events', [item]):
                 page = getattr(event, 'page', event)
                 if not getattr(page, attribute, False):
@@ -422,7 +422,7 @@ class EventQuerySet(PageQuerySet):
             if membership:
                 restrictions = restrictions.exclude(groups__in=membership,
                                                     restriction_type=GROUPS)
-        q = Q()
+        q = models.Q()
         for restriction in restrictions:
             q &= ~self.descendant_of_q(restriction.page, inclusive=True)
         return q
