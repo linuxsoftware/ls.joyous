@@ -72,13 +72,13 @@ def todayUtc():
     return dt.datetime.utcnow().date()
 
 # ------------------------------------------------------------------------------
-def timeFrom(time_from):
+def getTimeFrom(time_from):
     """
     Return time_from if it is set, otherwise return the start of the day
     """
     return time_from if time_from is not None else dt.time.min
 
-def timeTo(time_to):
+def getTimeTo(time_to):
     """
     Return time_to if it is set, otherwise return the end of the day
     """

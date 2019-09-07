@@ -35,7 +35,7 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from ..utils.mixins import ProxyPageMixin
 from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime, todayUtc)
-from ..utils.telltime import timeFrom, timeTo
+from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 from ..fields import RecurrenceField
@@ -444,8 +444,8 @@ class EventPageForm(WagtailAdminPageForm):
         return cleaned_data
 
     def _checkStartBeforeEnd(self, cleaned_data):
-        startTime = timeFrom(cleaned_data.get('time_from'))
-        endTime   = timeTo(cleaned_data.get('time_to'))
+        startTime = getTimeFrom(cleaned_data.get('time_from'))
+        endTime   = getTimeTo(cleaned_data.get('time_to'))
         if startTime > endTime:
             self.add_error('time_to', _("Event cannot end before it starts"))
 
@@ -1677,8 +1677,8 @@ class PostponementPageForm(EventExceptionPageForm):
 
     def _checkStartBeforeEnd(self, cleaned_data):
         numDays   = cleaned_data.get('num_days', 1)
-        startTime = timeFrom(cleaned_data.get('time_from'))
-        endTime   = timeTo(cleaned_data.get('time_to'))
+        startTime = getTimeFrom(cleaned_data.get('time_from'))
+        endTime   = getTimeTo(cleaned_data.get('time_to'))
         if numDays == 1 and startTime > endTime:
             self.add_error('time_to', _("Event cannot end before it starts"))
 
@@ -1791,9 +1791,10 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         the start and finish time of the event has been changed to.
         """
         originalFromDt = dt.datetime.combine(self.except_date,
-                                             timeFrom(self.overrides.time_from))
-        changedFromDt = dt.datetime.combine(self.date, timeFrom(self.time_from))
+                                             getTimeFrom(self.overrides.time_from))
+        changedFromDt = dt.datetime.combine(self.date, getTimeFrom(self.time_from))
         originalDaysDelta = dt.timedelta(days=self.overrides.num_days - 1)
+        # FIXME does this have to be an aware datetime?
         originalToDt = getAwareDatetime(self.except_date + originalDaysDelta,
                                         self.overrides.time_to, self.tz)
         changedDaysDelta = dt.timedelta(days=self.num_days - 1)

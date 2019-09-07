@@ -8,7 +8,7 @@ from django.test import TestCase, override_settings
 from .testutils import datetimetz
 from ls.joyous.utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime,
-        timeFrom, timeTo, timeFormat, dateFormat, dateShortFormat)
+        getTimeFrom, getTimeTo, timeFormat, dateFormat, dateShortFormat)
 
 # ------------------------------------------------------------------------------
 class TestLocalTimes(TestCase):
@@ -65,12 +65,12 @@ class TestLocalTimes(TestCase):
 # ------------------------------------------------------------------------------
 class TestNullableTimes(TestCase):
     def testTimeFrom(self):
-        self.assertEqual(timeFrom(None), dt.time(0))
-        self.assertEqual(timeFrom(dt.time(8)), dt.time(8))
+        self.assertEqual(getTimeFrom(None), dt.time(0))
+        self.assertEqual(getTimeFrom(dt.time(8)), dt.time(8))
 
     def testTimeTo(self):
-        self.assertEqual(timeTo(None), dt.time.max)
-        self.assertEqual(timeTo(dt.time(8)), dt.time(8))
+        self.assertEqual(getTimeTo(None), dt.time.max)
+        self.assertEqual(getTimeTo(dt.time(8)), dt.time(8))
 
 # ------------------------------------------------------------------------------
 class TestFormats(TestCase):
