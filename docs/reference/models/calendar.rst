@@ -1,7 +1,12 @@
 Calendar
---------
-
+========
 .. automodule:: ls.joyous.models
+
+CalendarPage
+------------
+.. inheritance-diagram:: CalendarPage
+    :top-classes: wagtail.core.models.Page
+    :parts: 1
 .. autoclass:: CalendarPage
     :show-inheritance:
 
@@ -43,6 +48,11 @@ Calendar
     .. automethod:: _getAllEvents
 
 
+SpecificCalendarPage
+--------------------
+.. inheritance-diagram:: SpecificCalendarPage
+    :top-classes: ls.joyous.models.calendar.CalendarPage
+    :parts: 1
 .. autoclass:: SpecificCalendarPage
     :show-inheritance:
 
@@ -54,6 +64,11 @@ Calendar
     .. automethod:: _getEventFromUid
     .. automethod:: _getAllEvents
 
+GeneralCalendarPage
+-------------------
+.. inheritance-diagram:: GeneralCalendarPage
+    :top-classes: ls.joyous.models.calendar.CalendarPage
+    :parts: 1
 .. autoclass:: GeneralCalendarPage
     :show-inheritance:
 
