@@ -1,8 +1,10 @@
 Events
-------
+======
 
 .. automodule:: ls.joyous.models
 
+Get Events API
+--------------
 .. autofunction:: getAllEventsByDay
 
 .. autofunction:: getAllEventsByWeek
@@ -19,6 +21,8 @@ Events
 
 .. automodule:: ls.joyous.models.events
 
+EventsOnDay
+-----------
 .. autoclass:: EventsOnDay
 
     .. attribute:: date
@@ -43,6 +47,11 @@ Events
 
 .. automodule:: ls.joyous.models
 
+EventCategory
+-------------
+.. inheritance-diagram:: EventCategory
+    :top-classes: wagtail.core.models.Page
+    :parts: 1
 .. autoclass:: EventCategory
     :show-inheritance:
 
@@ -54,6 +63,11 @@ Events
 
         The category name.
 
+EventBase
+---------
+.. inheritance-diagram:: EventBase
+    :top-classes: django.db.models.base.Model
+    :parts: 1
 .. autoclass:: EventBase
     :show-inheritance:
 
@@ -109,6 +123,11 @@ Events
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
 
+SimpleEventPage
+---------------
+.. inheritance-diagram:: SimpleEventPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventBase
+    :parts: 1
 .. autoclass:: SimpleEventPage
     :show-inheritance:
 
@@ -121,6 +140,11 @@ Events
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
 
+MultidayEventPage
+-----------------
+.. inheritance-diagram:: MultidayEventPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventBase
+    :parts: 1
 .. autoclass:: MultidayEventPage
     :show-inheritance:
 
@@ -137,6 +161,11 @@ Events
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
 
+RecurringEventPage
+------------------
+.. inheritance-diagram:: RecurringEventPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventBase
+    :parts: 1
 .. autoclass:: RecurringEventPage
     :show-inheritance:
 
@@ -165,9 +194,19 @@ Events
     .. automethod:: _getMyFirstDatetimeFrom
     .. automethod:: _getMyFirstDatetimeTo
 
+MultidayRecurringEventPage
+--------------------------
+.. inheritance-diagram:: MultidayRecurringEventPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventBase
+    :parts: 1
 .. autoclass:: MultidayRecurringEventPage
     :show-inheritance:
 
+EventExceptionBase
+------------------
+.. inheritance-diagram:: EventExceptionBase
+    :top-classes: django.db.models.base.Model
+    :parts: 1
 .. autoclass:: EventExceptionBase
     :show-inheritance:
 
@@ -203,6 +242,11 @@ Events
     .. automethod:: full_clean
     .. automethod:: isAuthorized
 
+ExtraInfoPage
+-------------
+.. inheritance-diagram:: ExtraInfoPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase
+    :parts: 1
 .. autoclass:: ExtraInfoPage
     :show-inheritance:
 
@@ -219,6 +263,11 @@ Events
     .. autoattribute:: _upcoming_datetime_from
     .. autoattribute:: _past_datetime_from
 
+CancellationPage
+----------------
+.. inheritance-diagram:: CancellationPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase
+    :parts: 1
 .. autoclass:: CancellationPage
     :show-inheritance:
 
@@ -233,6 +282,11 @@ Events
     .. autoattribute:: status
     .. autoattribute:: status_text
 
+RescheduleEventBase
+-------------------
+.. inheritance-diagram:: RescheduleEventBase
+    :top-classes: ls.joyous.models.events.EventBase
+    :parts: 1
 .. autoclass:: RescheduleEventBase
     :show-inheritance:
 
@@ -252,6 +306,11 @@ Events
 
         Shortcut for overrides.uid.
 
+PostponementPage
+----------------
+.. inheritance-diagram:: PostponementPage
+    :top-classes: ls.joyous.models.events.CancellationPage, ls.joyous.models.events.RescheduleEventBase
+    :parts: 1
 .. autoclass:: PostponementPage
     :show-inheritance:
 
@@ -273,6 +332,11 @@ Events
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
 
+RescheduleMultidayEventPage
+---------------------------
+.. inheritance-diagram:: RescheduleMultidayEventPage
+    :top-classes: ls.joyous.models.events.PostponementPage
+    :parts: 1
 .. autoclass:: RescheduleMultidayEventPage
     :show-inheritance:
 
