@@ -23,6 +23,14 @@ Add ls.joyous and wagtail.contrib.modeladmin to your INSTALLED_APPS.
         ...
     ]
 
+Make sure USE_TZ is set to True
+
+.. code-block:: python
+
+    USE_TZ = True
+
+The blocks ``content``, ``extra_css`` and ``extra_js`` are required in the base.html template for the Joyous templates to work.  A Wagtail project based upon the `default template <https://github.com/wagtail/wagtail/blob/master/wagtail/project_template/project_name/templates/base.html>`_ will have these.
+
 Run migrations and collectstatic.
 
 .. code-block:: console
