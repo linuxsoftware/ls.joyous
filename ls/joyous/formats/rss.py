@@ -83,7 +83,7 @@ class CalendarFeed(FeedGenerator):
 
 # ------------------------------------------------------------------------------
 class EventEntry(FeedEntry):
-    templatePath = "joyous/formats/rss_entry.xml"
+    template = "joyous/formats/rss_entry.xml"
 
     @classmethod
     def fromEvent(cls, thisEvent, request):
@@ -104,7 +104,7 @@ class EventEntry(FeedEntry):
 
     def setDescription(self, thisEvent, request):
         page = thisEvent.page
-        tmpl = loader.get_template(self.templatePath)
+        tmpl = loader.get_template(self.template)
         ctxt = {'event':   page,
                 'title':   thisEvent.title,
                 'details': page.details,
@@ -126,7 +126,7 @@ class EventEntry(FeedEntry):
 
 # ------------------------------------------------------------------------------
 class ExtraInfoEntry(EventEntry):
-    templatePath = "joyous/formats/rss_extra_info_entry.xml"
+    template = "joyous/formats/rss_extra_info_entry.xml"
 
     def setImage(self, page, request):
         # FIXME This might not be needed. if page.image was page.overrides.image
@@ -140,11 +140,11 @@ class ExtraInfoEntry(EventEntry):
 
 # ------------------------------------------------------------------------------
 class PostponementEntry(EventEntry):
-    templatePath = "joyous/formats/rss_postponement_entry.xml"
+    template = "joyous/formats/rss_postponement_entry.xml"
 
     def setDescription(self, thisEvent, request):
         page = thisEvent.page
-        tmpl = loader.get_template(self.templatePath)
+        tmpl = loader.get_template(self.template)
         ctxt = {'event':   page,
                 # TODO: page.postponement_title --- would that make it clearer?
                 'title':   thisEvent.title,

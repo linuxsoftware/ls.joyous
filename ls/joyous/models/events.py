@@ -476,7 +476,7 @@ class EventBase(models.Model):
     time_from = models.TimeField(_("start time"), null=True, blank=True)
     time_to = models.TimeField(_("end time"), null=True, blank=True)
 
-    # No you can't set different timezones for time_from and time_to
+    # Cannot set different timezones for time_from and time_to yet
     # TODO: Allow tz to be blank for 'floating' times?
     tz = TimeZoneField(verbose_name=_("time zone"),
                        default=_get_default_timezone)
@@ -1297,6 +1297,7 @@ class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
                      'joyous.RescheduleMultidayEventPage']
+    template = "joyous/recurring_event_page.html"
 
     content_panels = RecurringEventPage.content_panels0 + [
         FieldPanel('num_days'),
@@ -1852,6 +1853,7 @@ class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
         verbose_name_plural = _("postponements")
 
     parent_page_types = ["joyous.MultidayRecurringEventPage"]
+    template = "joyous/postponement_page.html"
 
     postponement_panel = MultiFieldPanel(
             PostponementPage.postponement_panel0 +
