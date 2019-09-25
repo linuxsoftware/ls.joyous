@@ -3,7 +3,7 @@ Reference
 
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
 
     models/index
     templatetags
@@ -14,4 +14,5 @@ Reference
     middleware
     holidays
     css
+    templates
 
