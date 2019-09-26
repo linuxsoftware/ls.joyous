@@ -72,6 +72,8 @@ See :class:`SpecificCalendarPage <ls.joyous.models.SpecificCalendarPage>`.
 
 SpecificCalendarPage is disabled by default.  Use ``SpecificCalendarPage.is_creatable = True`` to enable it.
 
+.. _DeriveYourOwn:
+
 Derive your own
 ----------------
 If you would like some other kind of event selection you can derive your own version of 
@@ -88,13 +90,14 @@ The methods
 :meth:`_getEventFromUid <ls.joyous.models.CalendarPage._getEventFromUid>` and 
 :meth:`_getAllEvents <ls.joyous.models.CalendarPage._getAllEvents>` are for import and export.
 
+.. _CalendarHolidays:
 
 Holidays
 ~~~~~~~~
 :class:`Holidays <ls.joyous.holidays.Holidays>` are a property of the
 :class:`CalendarPage <ls.joyous.models.CalendarPage>`.
 
-If the ``JOYOUS_HOLIDAYS`` setting is set then it is used to select holidays from 
+If the :setting:`JOYOUS_HOLIDAYS` setting is set then it is used to select holidays from 
 `python-holidays <https://github.com/dr-prodigy/python-holidays>`_.  But it is
 also possible to add other holiday sources (e.g. from 
 `workalendar <https://peopledoc.github.io/workalendar/>`_ or just a simple ``dict``)

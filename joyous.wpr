@@ -31,11 +31,17 @@ proj.directory-list = [{'dirloc': loc('ls/joyous'),
                         'filter': u'*',
                         'include_hidden': False,
                         'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('../../env/software/site-packages/feedgen'),
+                        'excludes': (),
+                        'filter': u'*',
+                        'include_hidden': False,
+                        'recursive': True,
                         'watch_for_changes': True}]
 proj.file-list = [loc('runtests.py')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('runtests.py'): ('project',
-        (u'test_templatetags',
+        (u'test_rss',
          ''))}
 proj.main-file = loc('runtests.py')
 testing.test-framework = {None: ':internal djangotest'}
