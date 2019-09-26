@@ -109,7 +109,9 @@ class EventEntry(FeedEntry):
                 'title':   thisEvent.title,
                 'details': page.details,
                 'request': request}
-        self.description(tmpl.render(ctxt, request))
+        descr = tmpl.render(ctxt, request)
+        self.description(descr)
+        # NOTE: feedgen will escape the HTML and that is a GOOD THING
 
     def setCategory(self, page):
         category = page.category
