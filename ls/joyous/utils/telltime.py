@@ -169,7 +169,7 @@ def dateShortFormat(when):
         if formatStr:
             retval = _Formatter(when).format(formatStr)
         else:
-            retval = formats.date_format(when)
+            retval = formats.date_format(when, "SHORT_DATE_FORMAT")
     return retval.strip()
 
 # ------------------------------------------------------------------------------

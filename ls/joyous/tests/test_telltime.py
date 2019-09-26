@@ -111,7 +111,7 @@ class TestFormats(TestCase):
         self.assertEqual(dateShortFormat(None), "")
         with override_settings(JOYOUS_DATE_SHORT_FORMAT = None):
             self.assertEqual(dateShortFormat(dt.date(2017,2,16)),
-                             "Feb. 16, 2017")
+                             "02/16/2017")
         with override_settings(JOYOUS_DATE_SHORT_FORMAT = "M jS"):
             self.assertEqual(dateShortFormat(dt.date(2017,2,16)), "Feb 16th")
 
