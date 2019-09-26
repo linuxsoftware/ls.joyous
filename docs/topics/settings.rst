@@ -22,7 +22,7 @@ Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_FORMAT = "l 
 Default: Falls back to Django date formatting.
 (See :doc:`django:topics/i18n/formatting`, :setting:`django:SHORT_DATE_FORMAT`)
 
-Short format of dates, if different from the Django standard.  Uses the same options as 
+Short format of dates, if different from the Django standard.  Uses the same options as :setting:`JOYOUS_DATE_FORMAT`.
 
 Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT = "j F Y"`` for formatting as it was previously.
 
