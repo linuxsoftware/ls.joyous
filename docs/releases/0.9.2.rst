@@ -10,13 +10,23 @@ Joyous 0.9.2 release notes - IN DEVELOPMENT
 What's new
 ==========
 
+RSS
+~~~
 
 Other features
 ~~~~~~~~~~~~~~
+ * Improvements to documentation
+ * Better unit test coverage
+ * Rename timeTo as getTimeTo, timeFrom as getTimeFrom
+ * MultidayRecurringEventPage now uses the template recurring_event_page.html
+ * RescheduleMultidayEventPage now uses the template postponement_page.html
 
 Bug fixes
 ~~~~~~~~~
-
+ * Return [] if getGroupUpcomingEvents is called without a group
+ * Return [] if future_exceptions tag is called without a recurring event
+ * Use gettext in at_time_display filter
+ * dateShortFormat will use Django's SHORT_DATE_FORMAT if JOYOUS_DATE_SHORT_FORMAT is not set
 
 Upgrade considerations
 ======================
