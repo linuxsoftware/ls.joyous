@@ -9,5 +9,6 @@ Usage guide
     events
     groups
     settings
-    ical
     view_restrictions
+    ical
+    integration
