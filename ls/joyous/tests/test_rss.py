@@ -10,24 +10,31 @@ from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, RequestFactory
 from bs4 import BeautifulSoup
+from lxml import etree
 from django_bs_test import TestCase
 from django.utils import timezone
 from wagtail.core.models import Site, Page
+from wagtail.images.models import Image
+from wagtail.images.tests.utils import get_test_image_file
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage, MultidayRecurringEventPage)
-from ls.joyous.models import getAllEvents
+from ls.joyous.models import (EventCategory, SimpleEventPage, MultidayEventPage,
+        RecurringEventPage, CancellationPage, MultidayRecurringEventPage,
+        PostponementPage, ExtraInfoPage)
+from ls.joyous.models.events import ThisEvent
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
-from ls.joyous.formats.rss import RssHandler
+from ls.joyous.formats.rss import RssHandler, EventEntry
 from ls.joyous.formats.errors import CalendarTypeError
 from freezegun import freeze_time
 from .testutils import datetimetz
 
 # ------------------------------------------------------------------------------
-class TestExport(TestCase):
+class TestFeed(TestCase):
     @freeze_time("2016-03-24")
     def setUp(self):
+        imgFile = get_test_image_file()
+        imgFile.name = "logo.png"
+        self.img = Image.objects.create(title="Logo", file=imgFile)
         Site.objects.update(hostname="joy.test")
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3(R3t')
@@ -40,14 +47,19 @@ class TestExport(TestCase):
         self.event = RecurringEventPage(owner = self.user,
                                         slug  = "workshop",
                                         title = "Workshop",
+                                        image = self.img,
                                         repeat    = Recurrence(dtstart=dt.date(2017,1,1),
                                                                freq=MONTHLY,
                                                                byweekday=[TU(1)],
-                                                               until=dt.date(2017,12,26)),
-                                       )
+                                                               until=dt.date(2017,12,26)))
         self.calendar.add_child(instance=self.event)
         self.event.save_revision().publish()
         self.handler = RssHandler()
+
+    def tearDown(self):
+        self.img.file.delete(False)
+        for rend in self.img.renditions.all():
+            rend.file.delete(False)
 
     def _getRequest(self, path="/"):
         request = self.requestFactory.get(path)
@@ -59,13 +71,8 @@ class TestExport(TestCase):
         request.POST['action-publish'] = "action-publish"
         return request
 
-    def testServeUnsupported(self):
-        response = self.handler.serve(self.event,
-                                      self._getRequest("/events/workshop"))
-        self.assertIsNone(response)
-
     @freeze_time("2016-12-02")
-    def testServeCalendar(self):
+    def testServe(self):
         response = self.handler.serve(self.calendar,
                                       self._getRequest("/events/"))
         self.assertEqual(response.status_code, 200)
@@ -87,19 +94,167 @@ class TestExport(TestCase):
         item = channel.item
         self.assertEqual(item.title.string, "Workshop")
         self.assertEqual(item.link.string, "http://joy.test/events/workshop/")
-        self.assertEqual(item.description.string.strip(),
-"""<div class="joy-ev-when joy-field">
+        self.assertEqual(item.enclosure.decode(),
+                         '<enclosure length="773" type="image/png" '
+                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+        self.assertEqual(item.description.decode(), """<description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
     The first Tuesday of the month (until 26 December 2017)
-  </div>\n
-  <div class="joy-ev-next-on joy-field">
+  &lt;/div&gt;\n
+  &lt;div class="joy-ev-next-on joy-field"&gt;
     Next on Tuesday 3rd of January 2017 
-  </div>
-\n\n\n
-<div class="rich-text"></div>""")
+  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;&lt;/div&gt;\n</description>""")
         self.assertEqual(item.guid.get("isPermaLink"), "true")
         self.assertEqual(item.guid.string, "http://joy.test/events/workshop/")
         self.assertEqual(item.pubDate.string, "Thu, 24 Mar 2016 00:00:00 +0000")
 
+    def testServeUnsupported(self):
+        response = self.handler.serve(self.event,
+                                      self._getRequest("/events/workshop"))
+        self.assertIsNone(response)
+
+    @freeze_time("2016-03-25")
+    def testServeExtraInfo(self):
+        info = ExtraInfoPage(owner = self.user,
+                             overrides = self.event,
+                             except_date = dt.date(2017,2,7),
+                             extra_title = "System Demo",
+                             extra_information = "<h3>System Demo</h3>")
+        self.event.add_child(instance=info)
+        info.save_revision().publish()
+        response = self.handler.serve(self.calendar,
+                                      self._getRequest("/events/"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get('Content-Type'), "application/xml; charset=utf-8")
+        soup = BeautifulSoup(response.content, "xml")
+        channel = soup.channel
+        self.assertEqual(channel.title.string, "Events")
+        self.assertEqual(len(channel("item")), 2)
+        item = channel("item")[1]
+        self.assertEqual(item.title.string, "System Demo")
+        self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-02-07-extra-info/")
+        self.assertEqual(item.enclosure.decode(),
+                         '<enclosure length="773" type="image/png" '
+                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+        self.assertEqual(item.description.decode(), """<description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 7th of February 2017
+  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;&lt;h3&gt;System Demo&lt;/h3&gt;&lt;/div&gt;
+&lt;div class="rich-text"&gt;&lt;/div&gt;\n</description>""")
+        self.assertEqual(item.guid.get("isPermaLink"), "true")
+        self.assertEqual(item.guid.string, "http://joy.test/events/workshop/2017-02-07-extra-info/")
+        self.assertEqual(item.pubDate.string, "Fri, 25 Mar 2016 00:00:00 +0000")
+
+    @freeze_time("2016-03-26")
+    def testServePostponement(self):
+        postponement = PostponementPage(owner = self.user,
+                                        overrides = self.event,
+                                        except_date = dt.date(2017,4,4),
+                                        image = self.img,
+                                        cancellation_title   = "Workshop Postponed",
+                                        cancellation_details = "Workshop will take place next week",
+                                        postponement_title   = "Workshop",
+                                        date      = dt.date(2017, 4, 11),
+                                        details   = "Interesting stuff")
+        self.event.add_child(instance=postponement)
+        postponement.save_revision().publish()
+        response = self.handler.serve(self.calendar,
+                                      self._getRequest("/events/"))
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, "xml")
+        channel = soup.channel
+        self.assertEqual(channel.title.string, "Events")
+        self.assertEqual(len(channel("item")), 2)
+        item = channel("item")[1]
+        self.assertEqual(item.title.string, "Workshop")
+        self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
+        self.assertEqual(item.enclosure.decode(),
+                         '<enclosure length="773" type="image/png" '
+                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+        self.assertEqual(item.description.decode(), """<description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 11th of April 2017
+  &lt;/div&gt;\n
+  &lt;div class="joy-ev-from-when joy-field"&gt;
+    Postponed from Tuesday 4th of April 2017
+  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;Interesting stuff&lt;/div&gt;\n</description>""")
+        self.assertEqual(item.guid.get("isPermaLink"), "true")
+        self.assertEqual(item.guid.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
+        self.assertEqual(item.pubDate.string, "Sat, 26 Mar 2016 00:00:00 +0000")
+
+# ------------------------------------------------------------------------------
+class TestEntry(TestCase):
+    def setUp(self):
+        imgFile = get_test_image_file()
+        imgFile.name = "people.png"
+        self.img = Image.objects.create(title="People", file=imgFile)
+        Site.objects.update(hostname="joy.test")
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3(R3t')
+        self.requestFactory = RequestFactory()
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+
+    def tearDown(self):
+        self.img.file.delete(False)
+        for rend in self.img.renditions.all():
+            rend.file.delete(False)
+
+    def _getRequest(self, path="/"):
+        request = self.requestFactory.get(path)
+        request.user = self.user
+        request.site = self.home.get_site()
+        request.session = {}
+        request._messages = FallbackStorage(request)
+        request.POST = request.POST.copy()
+        request.POST['action-publish'] = "action-publish"
+        return request
+
+    def testSetCategory(self):
+        cat = EventCategory.objects.create(code="A1", name="AlphaOne")
+        page = MultidayEventPage(owner = self.user,
+                                 slug  = "road-trip",
+                                 title = "Road Trip",
+                                 date_from = dt.date(2016,11,1),
+                                 date_to   = dt.date(2016,11,10),
+                                 time_from = dt.time(10),
+                                 category  = cat)
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        request = self._getRequest()
+        thisEvent = ThisEvent(page.title, page, page.get_url(request))
+        entry = EventEntry.fromEvent(thisEvent, request)
+        self.assertEqual(entry.category(), [{'term': 'AlphaOne'}])
+        rss = entry.rss_entry()
+        self.assertEqual(etree.tostring(rss),
+b"""<item><title>Road Trip</title><link>http://joy.test/events/road-trip/</link><description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 1st of November 2016 at 10am to Thursday 10th of November 2016\n  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;&lt;/div&gt;
+</description><guid isPermaLink="true">http://joy.test/events/road-trip/</guid><category>AlphaOne</category></item>""")
+
+    def testSetImage(self):
+        page = SimpleEventPage(owner = self.user,
+                               slug  = "meetup",
+                               title = "Meet Up",
+                               image = self.img,
+                               date  = dt.date(2016,10,21),
+                               time_from = dt.time(16))
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        request = self._getRequest()
+        thisEvent = ThisEvent(page.title, page, page.get_url(request))
+        entry = EventEntry.fromEvent(thisEvent, request)
+        self.assertEqual(entry.enclosure(), {
+            'length': '773',
+            'url': 'http://joy.test/media/images/people.width-350.format-png.png',
+            'type': 'image/png'})
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

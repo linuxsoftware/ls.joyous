@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 import os
+import os.path
 import sys
 import django
+from glob import glob
 from django.conf import settings
 from django.test.utils import get_runner
 
+def cleanMedia():
+    mediaDir = settings.MEDIA_ROOT
+    imgDir = os.path.join(mediaDir, "images")
+    origImgDir = os.path.join(mediaDir, "original_images")
+    for path in glob(os.path.join(imgDir, "*")) + glob(os.path.join(origImgDir, "*")):
+        try:
+            os.remove(path)
+        except:
+            print("Error deleting", path)
 
 def run():
     verbosity = 1
@@ -12,6 +23,7 @@ def run():
         verbosity = 2
     os.environ['DJANGO_SETTINGS_MODULE'] = 'ls.joyous.tests.settings'
     django.setup()
+    cleanMedia()
     TestRunner = get_runner(settings)
     test_runner = TestRunner(top_level="ls/joyous",
                              verbosity=verbosity,

@@ -12,6 +12,7 @@ What's new
 
 RSS
 ~~~
+Added RSS Feed.
 
 Other features
 ~~~~~~~~~~~~~~

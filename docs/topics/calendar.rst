@@ -37,6 +37,7 @@ with the slug /events/:
 /events/2018/W2/              Weekly view for Week 2 of 2018.
 /events/2018/6/18/            Day list view for the 18th of June 2018.
 /events/?format=ical          Export as an :doc:`ical` file.
+/events/?format=rss           Export as a RSS feed.
 ============================  ==============================================================================
 
 Models

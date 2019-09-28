@@ -2,4 +2,5 @@
 {% include "joyous/includes/who.html" %}
 {% include "joyous/includes/when.html" %}
 {% include "joyous/includes/where.html" %}
-{{ event.details|richtext|truncatewords_html:150 }}
+{{ extra_information|richtext|truncatewords_html:150 }}
+{{ details|richtext|truncatewords_html:150 }}

@@ -2,23 +2,15 @@
 # RSS Feed Export Handler
 # ------------------------------------------------------------------------------
 import datetime as dt
-from calendar import timegm
-from collections import OrderedDict
-from urllib.parse import urlencode
-import pytz
-from icalendar import vPeriod
 from django.http import HttpResponse
 from django.conf import settings
-from django.utils import html
-from django.utils.http import http_date
-from django.template import TemplateDoesNotExist, loader
+from django.template import loader
 from django.templatetags.static import static
 from ..models import (CalendarPage, SimpleEventPage, MultidayEventPage,
         RecurringEventPage, ExtraInfoPage, CancellationPage, PostponementPage)
-from ..utils.telltime import getAwareDatetime
 from feedgen.feed import FeedGenerator
 from feedgen.entry import FeedEntry
-from .errors import CalendarTypeError, CalendarNotInitializedError
+from .errors import CalendarTypeError
 
 # ------------------------------------------------------------------------------
 class RssHandler:
@@ -74,12 +66,10 @@ class CalendarFeed(FeedGenerator):
         if isinstance(page, (SimpleEventPage, MultidayEventPage, RecurringEventPage)):
             return EventEntry.fromEvent(thisEvent, request)
         elif isinstance(page, ExtraInfoPage):
-            return ExtraInfoEntry.fromPage(thisEvent, request)
-        #elif isinstance(page, CancellationPage):
-        #    return CancellationEntry.fromPage(thisEvent, request)
-        # XXX No Cancellations are returned from _getUpcomingEvents
-        elif isinstance(page, ExtraInfoPage):
-            return PostponementEntry.fromPage(thisEvent, request)
+            return ExtraInfoEntry.fromEvent(thisEvent, request)
+        elif isinstance(page, PostponementPage):
+            return PostponementEntry.fromEvent(thisEvent, request)
+        # No Cancellations are returned from _getUpcomingEvents
 
 # ------------------------------------------------------------------------------
 class EventEntry(FeedEntry):
@@ -93,7 +83,6 @@ class EventEntry(FeedEntry):
         url = fullUrl(thisEvent.url, page, request)
         entry.link(href=url)
         entry.guid(url, permalink=True)
-        # entry.id(page.uid)
         entry.setDescription(thisEvent, request)
         entry.setCategory(page)
         entry.setImage(page, request)
@@ -130,6 +119,17 @@ class EventEntry(FeedEntry):
 class ExtraInfoEntry(EventEntry):
     template = "joyous/formats/rss_extra_info_entry.xml"
 
+    def setDescription(self, thisEvent, request):
+        page = thisEvent.page
+        tmpl = loader.get_template(self.template)
+        ctxt = {'event':   page,
+                'title':   thisEvent.title,
+                'extra_information': page.extra_information,
+                'details': page.overrides.details,
+                'request': request}
+        descr = tmpl.render(ctxt, request)
+        self.description(descr)
+
     def setImage(self, page, request):
         # FIXME This might not be needed. if page.image was page.overrides.image
         # BUT THEN be careful with postponement.image and /from.image
@@ -142,13 +142,12 @@ class ExtraInfoEntry(EventEntry):
 
 # ------------------------------------------------------------------------------
 class PostponementEntry(EventEntry):
-    template = "joyous/formats/rss_postponement_entry.xml"
+    template = "joyous/formats/rss_entry.xml"
 
     def setDescription(self, thisEvent, request):
         page = thisEvent.page
         tmpl = loader.get_template(self.template)
         ctxt = {'event':   page,
-                # TODO: page.postponement_title --- would that make it clearer?
                 'title':   thisEvent.title,
                 'details': page.details,
                 'request': request}
