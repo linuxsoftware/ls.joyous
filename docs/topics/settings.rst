@@ -71,8 +71,17 @@ Observed holidays using
 Specified as  string of countries [with regions in square brackets] separated by commas.
 e.g. ``"NZ[WTL,Nelson],AU[*],Northern Ireland"``.
 
-
 See :ref:`calendarholidays`.
+
+
+.. setting:: JOYOUS_RSS_FEED_IMAGE
+
+``JOYOUS_RSS_FEED_IMAGE``
+---------------------------------
+
+Default: ``"/static/joyous/img/logo.png"``
+
+This is the image that is displayed on RSS for your channel.
 
 
 .. setting:: JOYOUS_THEME_CSS
@@ -96,8 +105,8 @@ Added in :doc:`version 0.9.0 </releases/0.9.0>`.  Use
 ``JOYOUS_THEME_CSS = "/static/joyous/css/joyous_coast_theme.css"``
 to continue with the previous default appearance.
 
-.. setting:: JOYOUS_TIME_FORMAT
 
+.. setting:: JOYOUS_TIME_FORMAT
 
 ``JOYOUS_TIME_FORMAT``
 ---------------------------------

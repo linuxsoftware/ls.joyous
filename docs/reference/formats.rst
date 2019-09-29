@@ -12,6 +12,11 @@ Google
 .. autoclass:: GoogleCalendarHandler
     :members:
 
+RSS
+---
+.. autoclass:: RssHandler
+    :members:
+
 Null
 ----
 .. autoclass:: NullHandler
