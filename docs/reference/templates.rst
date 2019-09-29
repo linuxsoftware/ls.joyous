@@ -1,8 +1,9 @@
+=========
 Templates
 =========
 
 Hierarchy
----------
+=========
 .. graphviz::
 
    digraph  {
@@ -24,6 +25,8 @@ Hierarchy
       "joyous_base" -> "group_page";
    }
 
+Templates
+=========
 
 joyous/joyous_base.html
 -------------------------
