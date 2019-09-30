@@ -12,9 +12,11 @@ from django.utils.formats import get_format
 from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
 from wagtail.core.models import Site, Page
-from ls.joyous.models.events import CancellationPageForm, RecurringEventPageForm
-from ls.joyous.models import CalendarPage, CancellationPage, RecurringEventPage
-from ls.joyous.utils.recurrence import Recurrence, MONTHLY, TU
+from ls.joyous.models.events import (CancellationPageForm, RecurringEventPageForm,
+                                     HiddenNumDaysPanel)
+from ls.joyous.models import (CalendarPage, CancellationPage, RecurringEventPage,
+                              MultidayRecurringEventPage)
+from ls.joyous.utils.recurrence import Recurrence, MONTHLY, YEARLY, TU, FR
 from ls.joyous.edit_handlers import ExceptionDatePanel, ConcealedPanel
 from ls.joyous.widgets import Time12hrInput, ExceptionDateInput
 from .testutils import datetimetz, freeze_timetz, getPage
@@ -274,6 +276,139 @@ class TestConcealedPanel(TestCase):
 """)
         self.assertEqual(panel.heading, "Test")
         self.assertEqual(panel.help_text, "Nothing")
+
+# ------------------------------------------------------------------------------
+class TestHiddenNumDaysPanel(TestCase):
+    FIELD_CONTENT = """
+<fieldset>
+  <legend>Number of days</legend>
+  <ul class="fields">
+    <li>
+      <div class="field integer_field number_input ">
+        <div class="field-content">
+          <div class="input  ">
+            <input type="number" name="num_days" value="1" required id="id_num_days">
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</fieldset>
+"""
+
+    def setUp(self):
+        self.home = getPage("/home/")
+        self.user = User.objects.create_superuser('i', 'i@joy.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "leaders-meeting",
+                                        title     = "Leaders' Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(2016,2,16),
+                                                               freq=MONTHLY,
+                                                               byweekday=[TU(3)]),
+                                        time_from = dt.time(19),
+                                        tz        = "Asia/Tokyo")
+        self.calendar.add_child(instance=self.event)
+        self.event.save_revision().publish()
+        Form = get_form_for_model(RecurringEventPage,
+                                  form_class=RecurringEventPageForm)
+        self.form = Form(instance=self.event, parent_page=self.calendar)
+
+    def _getRequest(self):
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        request.site = Site.objects.get(is_default_site=True)
+        return request
+
+    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
+    def testHidden24(self):
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to_model(RecurringEventPage)
+        panel = panel.bind_to_instance(instance=self.event,
+                                       form=self.form,
+                                       request=self._getRequest())
+        content = panel.render_as_object()
+        self.assertEqual(content, "")
+        content = panel.render_as_field()
+        self.assertEqual(content, "")
+
+    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
+    def testShowWith2Days24(self):
+        self.event.num_days = 2
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to_model(RecurringEventPage)
+        panel = panel.bind_to_instance(instance=self.event,
+                                       form=self.form,
+                                       request=self._getRequest())
+        content = panel.render_as_object()
+        self.assertHTMLEqual(content, self.FIELD_CONTENT)
+
+    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
+    def testShowMulidayRecurringEvent24(self):
+        event = MultidayRecurringEventPage(slug      = "leaders-retreat",
+                                           title     = "Leaders' Retreet",
+                                           repeat    = Recurrence(dtstart=dt.date(2016,2,16),
+                                                                  freq=YEARLY,
+                                                                  bymonth=3,
+                                                                  byweekday=[FR(1)]),
+                                           time_from = dt.time(19),
+                                           num_days  = 3,
+                                           tz        = "Asia/Tokyo")
+        self.calendar.add_child(instance=event)
+        event.save_revision().publish()
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to_model(RecurringEventPage)
+        panel = panel.bind_to_instance(instance=event,
+                                       form=self.form,
+                                       request=self._getRequest())
+        content = panel.render_as_object()
+        self.assertHTMLEqual(content, self.FIELD_CONTENT)
+
+    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
+    def testHidden25(self):
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to(instance=self.event,
+                              request=self._getRequest(),
+                              form=self.form)
+        content = panel.render_as_object()
+        self.assertEqual(content, "")
+        content = panel.render_as_field()
+        self.assertEqual(content, "")
+
+    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
+    def testShowWith2Days25(self):
+        self.event.num_days = 2
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to(instance=self.event,
+                              request=self._getRequest(),
+                              form=self.form)
+        content = panel.render_as_object()
+        self.assertHTMLEqual(content, self.FIELD_CONTENT)
+
+    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
+    def testShowMulidayRecurringEvent25(self):
+        event = MultidayRecurringEventPage(slug      = "leaders-retreat",
+                                           title     = "Leaders' Retreet",
+                                           repeat    = Recurrence(dtstart=dt.date(2016,2,16),
+                                                                  freq=YEARLY,
+                                                                  bymonth=3,
+                                                                  byweekday=[FR(1)]),
+                                           time_from = dt.time(19),
+                                           num_days  = 3,
+                                           tz        = "Asia/Tokyo")
+        self.calendar.add_child(instance=event)
+        event.save_revision().publish()
+        panel = HiddenNumDaysPanel()
+        panel = panel.bind_to(instance=event,
+                              request=self._getRequest(),
+                              form=self.form)
+        content = panel.render_as_object()
+        self.assertHTMLEqual(content, self.FIELD_CONTENT)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

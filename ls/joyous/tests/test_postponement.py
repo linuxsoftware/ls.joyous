@@ -9,6 +9,7 @@ from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
+import wagtail.core.models
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models import (GeneralCalendarPage, RecurringEventPage,
         CancellationPage, PostponementPage)
@@ -177,6 +178,15 @@ class Test(TestCase):
                          "Thursday 11th of October 1990 at 1pm to 4:30pm")
         self.assertEqual(toLink['href'],
                          "/events/test-meeting/1990-10-10-postponement/")
+
+    def testCancellationUrl(self):
+        self.assertEqual(self.postponement.getCancellationUrl(self.request),
+                         "/events/test-meeting/1990-10-10-postponement/from/")
+        was = wagtail.core.models.WAGTAIL_APPEND_SLASH
+        wagtail.core.models.WAGTAIL_APPEND_SLASH = False
+        self.assertEqual(self.postponement.getCancellationUrl(self.request),
+                         "/events/test-meeting/1990-10-10-postponement/from")
+        wagtail.core.models.WAGTAIL_APPEND_SLASH = was
 
 # ------------------------------------------------------------------------------
 class TestTZ(TestCase):

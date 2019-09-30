@@ -5,7 +5,8 @@ import sys
 import datetime as dt
 import pytz
 from freezegun import freeze_time
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, override_settings
+from django_bs_test import TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
@@ -131,6 +132,18 @@ class Test(TestCase):
                                date  = dt.date(2008, 6, 3))
         group.add_child(instance=race)
         self.assertEqual(race.group, group)
+
+    @override_settings(JOYOUS_THEME_CSS = "/static/joyous/joyous_stellar_theme.html")
+    def testIncludeThemeCss(self):
+        response = self.client.get("/events/pet-show/")
+        self.assertEqual(response.status_code, 200)
+        soup = response.soup
+        links = soup.head('link')
+        self.assertEqual(len(links), 2)
+        link = links[1]
+        self.assertEqual(link['href'], "/static/joyous/joyous_stellar_theme.html")
+        self.assertEqual(link['type'], "text/css")
+        self.assertEqual(link['rel'], ["stylesheet"])
 
 # ------------------------------------------------------------------------------
 class TestTZ(TestCase):
