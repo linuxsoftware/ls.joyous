@@ -2,9 +2,13 @@
 # MiniCalendar scripts
 #---------------------------------------------------------------------------
 
+# delay choosing jQuery variable until constructor
+root = @
+$ = undefined
+
 class @MiniCalendar
     constructor: (@calendarUrl, @year, @month) ->
-        return
+        $ = root.joyJQ ? root.$
 
     enable: () ->
         $(".joy-minical__prev").click =>

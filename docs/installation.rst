@@ -42,7 +42,6 @@ Run migrations and collectstatic.
 
 Compatibility
 -------------
-I am aiming to support the latest releases of Wagtail and Django. Older versions may be dropped without much notice. Let me know if that is a problem for you.
 
 Joyous version 0.9.1 is known to work with the following versions of Wagtail, Django and Python.
 
@@ -60,4 +59,4 @@ Wagtail   Django   Python
 2.6.1     2.2.4    3.7.1
 =======   ======   =======
 
-Other versions may work - YMMV.  Django 2.1 is a definite minimum requirement.
+Other versions may work - YMMV.

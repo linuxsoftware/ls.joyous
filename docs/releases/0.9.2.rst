@@ -12,15 +12,41 @@ What's new
 
 RSS
 ~~~
-Added RSS Feed.
+An RSS Feed of the Upcoming Events is now available.  Via a link at the bottom
+of the ``/calendar/upcoming/`` page, or by adding ``?format=rss`` to any calendar
+page URL.
+
+jQuery
+~~~~~~
+The Calendar pages and MiniCalendar tag have had an undocumented dependency on
+jQuery being loaded somewhere on the pages that they are on (e.g. in base.html).
+I have changed this so now they will load jQuery 3.2.1 as ``joyJQ`` via noConflict.
+This is done in the included template ``joyous/includes/joyjq.html``.
+
+    .. code-block:: html
+
+        {% load static %}
+        <script src="{% static 'wagtailadmin/js/vendor/jquery-3.2.1.min.js' %}"></script>
+        <script>joyJQ = $.noConflict(true);</script>
+
+Just :doc:`override <django:howto/overriding-templates>`
+this template if you don't like how it works.
+An empty file here will restore the previous behaviour.  The Calendar and MiniCalendar
+will prefer using ``joyJQ`` for jQuery, but if that does not exist will fall back to ``$``.
+
+The Admin RecurrenceWidget also has a dependency upon jQuery.  But as jQuery is always
+available on Admin pages this is not a problem.  The RecurrenceWidget
+will prefer using ``joyJQ`` for jQuery, but if that does not exist will fall back to ``$``,
+and if that does not exist will fall back to ``django.jQuery``.
+
 
 Other features
 ~~~~~~~~~~~~~~
- * Improvements to documentation
- * Better unit test coverage
  * Rename timeTo as getTimeTo, timeFrom as getTimeFrom
  * MultidayRecurringEventPage now uses the template recurring_event_page.html
  * RescheduleMultidayEventPage now uses the template postponement_page.html
+ * Improvements to documentation
+ * Better unit test coverage
 
 Bug fixes
 ~~~~~~~~~

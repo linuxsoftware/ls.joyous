@@ -2,6 +2,8 @@
 # Calendar scripts
 #---------------------------------------------------------------------------
 
+$ = @joyJQ ? @$
+
 class EventsCalendar
     constructor: () ->
         return
@@ -74,5 +76,3 @@ $ ->
     calendar = new EventsCalendar()
     calendar.enable()
     return
-
-
