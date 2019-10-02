@@ -1,0 +1,5 @@
+{% load wagtailcore_tags %}{% if event.group %}
+  <div class="joy-ev-who joy-field">
+    <a class="joy-ev-who__link" href="{{ event.group.full_url }}">{{ event.group.title }}</a>
+  </div>
+{% endif %}

@@ -18,8 +18,8 @@ from wagtail.images.models import Image
 from wagtail.images.tests.utils import get_test_image_file
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (EventCategory, SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage, MultidayRecurringEventPage,
-        PostponementPage, ExtraInfoPage)
+        RecurringEventPage, PostponementPage, ExtraInfoPage)
+from ls.joyous.models.groups import get_group_model
 from ls.joyous.models.events import ThisEvent
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
@@ -27,6 +27,7 @@ from ls.joyous.formats.rss import RssHandler, EventEntry
 from ls.joyous.formats.errors import CalendarTypeError
 from freezegun import freeze_time
 from .testutils import datetimetz
+GroupPage = get_group_model()
 
 # ------------------------------------------------------------------------------
 class TestFeed(TestCase):
@@ -255,6 +256,32 @@ b"""<item><title>Road Trip</title><link>http://joy.test/events/road-trip/</link>
             'length': '773',
             'url': 'http://joy.test/media/images/people.width-350.format-png.png',
             'type': 'image/png'})
+
+    def testSetDescription(self):
+        group = GroupPage(slug = "sandmen", title = "Sandmen")
+        self.home.add_child(instance=group)
+        group.save_revision().publish()
+        page = MultidayEventPage(owner = self.user,
+                                 slug  = "road-trip",
+                                 title = "Road Trip",
+                                 date_from = dt.date(2016,11,1),
+                                 date_to   = dt.date(2016,11,10),
+                                 group_page = group)
+        self.calendar.add_child(instance=page)
+        page.save_revision().publish()
+        request = self._getRequest()
+        thisEvent = ThisEvent(page.title, page, page.get_url(request))
+        entry = EventEntry.fromEvent(thisEvent, request)
+        rss = entry.rss_entry()
+        self.assertEqual(etree.tostring(rss),
+b"""<item><title>Road Trip</title><link>http://joy.test/events/road-trip/</link><description>\n
+  &lt;div class="joy-ev-who joy-field"&gt;
+    &lt;a class="joy-ev-who__link" href="http://joy.test/sandmen/"&gt;Sandmen&lt;/a&gt;
+  &lt;/div&gt;\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 1st of November 2016 to Thursday 10th of November 2016\n  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;&lt;/div&gt;
+</description><guid isPermaLink="true">http://joy.test/events/road-trip/</guid></item>""")
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
