@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-24 14:54+1200\n"
+"POT-Creation-Date: 2019-10-02 21:31+1300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,350 +34,350 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: models/calendar.py:108 templates/joyous/includes/events_view_choices.html:4
+#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:4
 msgid "List View"
 msgstr ""
 
-#: models/calendar.py:109 templates/joyous/includes/events_view_choices.html:7
+#: models/calendar.py:108 templates/joyous/includes/events_view_choices.html:7
 msgid "Weekly View"
 msgstr ""
 
-#: models/calendar.py:110 templates/joyous/includes/events_view_choices.html:10
+#: models/calendar.py:109 templates/joyous/includes/events_view_choices.html:10
 msgid "Monthly View"
 msgstr ""
 
-#: models/calendar.py:116
+#: models/calendar.py:115
 msgid "calendar page"
 msgstr ""
 
-#: models/calendar.py:117
+#: models/calendar.py:116
 msgid "calendar pages"
 msgstr ""
 
-#: models/calendar.py:127
+#: models/calendar.py:126
 msgid "intro"
 msgstr ""
 
-#: models/calendar.py:128
+#: models/calendar.py:127
 msgid "Introductory text."
 msgstr ""
 
-#: models/calendar.py:129
+#: models/calendar.py:128
 msgid "view choices"
 msgstr ""
 
-#: models/calendar.py:132
+#: models/calendar.py:131
 msgid "default view"
 msgstr ""
 
-#: models/calendar.py:144
+#: models/calendar.py:143
 msgid "View Options"
 msgstr ""
 
-#: models/calendar.py:278
+#: models/calendar.py:277
 #, python-brace-format
 msgid "Week {weekNum}"
 msgstr ""
 
-#: models/calendar.py:491
+#: models/calendar.py:490
 msgid "specific calendar page"
 msgstr ""
 
-#: models/calendar.py:492
+#: models/calendar.py:491
 msgid "specific calendar pages"
 msgstr ""
 
-#: models/calendar.py:538
+#: models/calendar.py:537
 msgid "general calendar page"
 msgstr ""
 
-#: models/calendar.py:539
+#: models/calendar.py:538
 msgid "general calendar pages"
 msgstr ""
 
-#: models/events.py:335
+#: models/events.py:338
 msgid "event category"
 msgstr ""
 
-#: models/events.py:336
+#: models/events.py:339
 msgid "event categories"
 msgstr ""
 
-#: models/events.py:338
+#: models/events.py:341
 msgid "code"
 msgstr ""
 
-#: models/events.py:339
+#: models/events.py:342
 msgid "name"
 msgstr ""
 
-#: models/events.py:446 models/events.py:765 models/events.py:1679
+#: models/events.py:450 models/events.py:769 models/events.py:1684
 msgid "Event cannot end before it starts"
 msgstr ""
 
-#: models/events.py:463
+#: models/events.py:467
 msgid "category"
 msgstr ""
 
-#: models/events.py:469
+#: models/events.py:473
 msgid "image"
 msgstr ""
 
-#: models/events.py:472
+#: models/events.py:476
 msgid "start time"
 msgstr ""
 
-#: models/events.py:473
+#: models/events.py:477
 msgid "end time"
 msgstr ""
 
-#: models/events.py:477
+#: models/events.py:481
 msgid "time zone"
 msgstr ""
 
-#: models/events.py:482 models/groups.py:50
+#: models/events.py:486 models/groups.py:50
 msgid "group page"
 msgstr ""
 
-#: models/events.py:484 models/events.py:1580
+#: models/events.py:488 models/events.py:1585
 msgid "details"
 msgstr ""
 
-#: models/events.py:485
+#: models/events.py:489
 msgid "location"
 msgstr ""
 
-#: models/events.py:486
+#: models/events.py:490
 msgid "website"
 msgstr ""
 
-#: models/events.py:556 models/events.py:1526
+#: models/events.py:560 models/events.py:1531
 msgid "This event has finished."
 msgstr ""
 
-#: models/events.py:558 models/events.py:1528
+#: models/events.py:562 models/events.py:1533
 msgid "This event has started."
 msgstr ""
 
-#: models/events.py:605 models/events.py:608 models/events.py:1400
+#: models/events.py:609 models/events.py:612 models/events.py:1405
 #, python-brace-format
 msgid "{date} {atTime}"
 msgstr ""
 
-#: models/events.py:606 models/events.py:609 models/events.py:613
-#: models/events.py:1074 models/events.py:1141 models/events.py:1402
-#: templatetags/joyous_tags.py:159
+#: models/events.py:610 models/events.py:613 models/events.py:617
+#: models/events.py:1078 models/events.py:1145 models/events.py:1407
+#: templatetags/joyous_tags.py:160
 msgid "at "
 msgstr ""
 
-#: models/events.py:610
+#: models/events.py:614
 #, python-brace-format
 msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
 msgstr ""
 
-#: models/events.py:671
+#: models/events.py:675
 msgid "event page"
 msgstr ""
 
-#: models/events.py:672
+#: models/events.py:676
 msgid "event pages"
 msgstr ""
 
-#: models/events.py:682 models/events.py:1715
+#: models/events.py:686 models/events.py:1720
 msgid "date"
 msgstr ""
 
-#: models/events.py:773
+#: models/events.py:777
 msgid "multiday event page"
 msgstr ""
 
-#: models/events.py:774
+#: models/events.py:778
 msgid "multiday event pages"
 msgstr ""
 
-#: models/events.py:784
+#: models/events.py:788
 msgid "start date"
 msgstr ""
 
-#: models/events.py:785
+#: models/events.py:789
 msgid "end date"
 msgstr ""
 
-#: models/events.py:926
+#: models/events.py:930
 msgid "recurring event page"
 msgstr ""
 
-#: models/events.py:927
+#: models/events.py:931
 msgid "recurring event pages"
 msgstr ""
 
-#: models/events.py:942
+#: models/events.py:946
 msgid "repeat"
 msgstr ""
 
-#: models/events.py:943 models/events.py:1690
+#: models/events.py:947 models/events.py:1695
 msgid "number of days"
 msgstr ""
 
-#: models/events.py:1052
+#: models/events.py:1056
 msgid "These events have finished."
 msgstr ""
 
-#: models/events.py:1072
+#: models/events.py:1076
 #, python-brace-format
 msgid "{repeat} {atTime}"
 msgstr ""
 
-#: models/events.py:1077
+#: models/events.py:1081
 #, python-brace-format
 msgid "{repeat} {startFinishTime}"
 msgstr ""
 
-#: models/events.py:1080 models/events.py:1409
+#: models/events.py:1084 models/events.py:1414
 msgid "starting at "
 msgstr ""
 
-#: models/events.py:1081
+#: models/events.py:1085
 msgid "finishing at"
 msgstr ""
 
-#: models/events.py:1290
+#: models/events.py:1294
 msgid "multiday recurring event page"
 msgstr ""
 
-#: models/events.py:1291
+#: models/events.py:1295
 msgid "multiday recurring event pages"
 msgstr ""
 
-#: models/events.py:1320
+#: models/events.py:1325
 msgid "That date already has"
 msgstr ""
 
-#: models/events.py:1333
+#: models/events.py:1338
 msgid "overrides"
 msgstr ""
 
-#: models/events.py:1336
+#: models/events.py:1341
 msgid "The recurring event that we are updating."
 msgstr ""
 
-#: models/events.py:1337
+#: models/events.py:1342
 msgid "For Date"
 msgstr ""
 
-#: models/events.py:1338
+#: models/events.py:1343
 msgid "For this date"
 msgstr ""
 
-#: models/events.py:1361
+#: models/events.py:1366
 #, python-brace-format
 msgid "{exception} for {date}"
 msgstr ""
 
-#: models/events.py:1406
+#: models/events.py:1411
 #, python-brace-format
 msgid "{date} for {n} days {startTime}"
 msgstr ""
 
-#: models/events.py:1410
+#: models/events.py:1415
 #, python-brace-format
 msgid "{dateAndStartTime} {finishTime}"
 msgstr ""
 
-#: models/events.py:1412
+#: models/events.py:1417
 msgid "finishing at "
 msgstr ""
 
-#: models/events.py:1459
+#: models/events.py:1464
 msgid "Extra Information"
 msgstr ""
 
-#: models/events.py:1468 models/events.py:1469
+#: models/events.py:1473 models/events.py:1474
 msgid "extra event information"
 msgstr ""
 
-#: models/events.py:1478
+#: models/events.py:1483
 msgid "Extra-Info"
 msgstr ""
 
-#: models/events.py:1480 models/events.py:1577 models/events.py:1713
+#: models/events.py:1485 models/events.py:1582 models/events.py:1718
 msgid "title"
 msgstr ""
 
-#: models/events.py:1481
+#: models/events.py:1486
 msgid "A more specific title for this occurence (optional)"
 msgstr ""
 
-#: models/events.py:1482
+#: models/events.py:1487
 msgid "extra information"
 msgstr ""
 
-#: models/events.py:1483
+#: models/events.py:1488
 msgid "Information just for this date"
 msgstr ""
 
-#: models/events.py:1556
+#: models/events.py:1561
 msgid "a cancellation"
 msgstr ""
 
-#: models/events.py:1566
+#: models/events.py:1571
 msgid "cancellation"
 msgstr ""
 
-#: models/events.py:1567
+#: models/events.py:1572
 msgid "cancellations"
 msgstr ""
 
-#: models/events.py:1575 models/events.py:1594 models/events.py:1724
+#: models/events.py:1580 models/events.py:1599 models/events.py:1729
 msgid "Cancellation"
 msgstr ""
 
-#: models/events.py:1578
+#: models/events.py:1583
 msgid "Show in place of cancelled event (Leave empty to show nothing)"
 msgstr ""
 
-#: models/events.py:1581
+#: models/events.py:1586
 msgid "Why was the event cancelled?"
 msgstr ""
 
-#: models/events.py:1610
+#: models/events.py:1615
 msgid "This event has been cancelled."
 msgstr ""
 
-#: models/events.py:1665
+#: models/events.py:1670
 msgid "a postponement"
 msgstr ""
 
-#: models/events.py:1702 models/events.py:1846
+#: models/events.py:1707 models/events.py:1852
 msgid "postponement"
 msgstr ""
 
-#: models/events.py:1703 models/events.py:1847
+#: models/events.py:1708 models/events.py:1853
 msgid "postponements"
 msgstr ""
 
-#: models/events.py:1711
+#: models/events.py:1716
 msgid "Postponement"
 msgstr ""
 
-#: models/events.py:1714
+#: models/events.py:1719
 msgid "The title for the postponed event"
 msgstr ""
 
-#: models/events.py:1737 models/events.py:1855
+#: models/events.py:1742 models/events.py:1862
 msgid "Postponed to"
 msgstr ""
 
-#: models/events.py:1780
+#: models/events.py:1785
 #, python-brace-format
 msgid "{what} from {when}"
 msgstr ""
 
-#: models/events.py:1799
+#: models/events.py:1805
 msgid "Postponed"
 msgstr ""
 
-#: models/events.py:1801
+#: models/events.py:1807
 msgid "Rescheduled"
 msgstr ""
 
@@ -695,69 +695,69 @@ msgstr ""
 msgid "for {n} days"
 msgstr ""
 
-#: utils/recurrence.py:252
+#: utils/recurrence.py:251
 #, python-brace-format
 msgid "(until {when})"
 msgstr ""
 
-#: utils/recurrence.py:257
+#: utils/recurrence.py:256
 #, python-brace-format
 msgid "Every {n} days"
 msgstr ""
 
-#: utils/recurrence.py:259 widgets.py:51
+#: utils/recurrence.py:258 widgets.py:51
 msgid "Daily"
 msgstr ""
 
-#: utils/recurrence.py:265
+#: utils/recurrence.py:264
 #, python-brace-format
 msgid "Fortnightly on {days}"
 msgstr ""
 
-#: utils/recurrence.py:267
+#: utils/recurrence.py:266
 #, python-brace-format
 msgid "Every {n} weeks on {days}"
 msgstr ""
 
-#: utils/recurrence.py:272
+#: utils/recurrence.py:271
 msgid "of the month"
 msgstr ""
 
-#: utils/recurrence.py:275
+#: utils/recurrence.py:274
 #, python-brace-format
 msgid "{when}, every {n} months"
 msgstr ""
 
-#: utils/recurrence.py:281 utils/recurrence.py:329 utils/recurrence.py:336
+#: utils/recurrence.py:280 utils/recurrence.py:328 utils/recurrence.py:335
 #, python-brace-format
 msgid "of {months}"
 msgstr ""
 
-#: utils/recurrence.py:284
+#: utils/recurrence.py:283
 #, python-brace-format
 msgid "{when}, every {n} years"
 msgstr ""
 
-#: utils/recurrence.py:311
+#: utils/recurrence.py:310
 msgid "Everyday"
 msgstr ""
 
-#: utils/recurrence.py:315
+#: utils/recurrence.py:314
 #, python-brace-format
 msgid "Every {when}"
 msgstr ""
 
-#: utils/recurrence.py:317
+#: utils/recurrence.py:316
 #, python-brace-format
 msgid "The {when}"
 msgstr ""
 
-#: utils/recurrence.py:348 utils/recurrence.py:359
+#: utils/recurrence.py:347 utils/recurrence.py:358
 #, python-brace-format
 msgid "{DaysOffset} {theOrdinal} day"
 msgstr ""
 
-#: utils/recurrence.py:352 utils/recurrence.py:364
+#: utils/recurrence.py:351 utils/recurrence.py:363
 #, python-brace-format
 msgid "{TheOrdinal} day"
 msgstr ""
@@ -770,7 +770,7 @@ msgstr ""
 msgid "am"
 msgstr ""
 
-#: utils/telltime.py:141
+#: utils/telltime.py:139
 msgid "to"
 msgstr ""
 
