@@ -17,7 +17,7 @@
   <tbody class="joy-cal__body">
     {% for week in events %}{% block cal_week %}<tr class="joy-cal__week">
       {% for evod in week %}{% block cal_day %}{% if evod %}
-      <td class="joy-cal__day {% if evod.date == today %} joy-cal__day--today{% elif evod.date == yesterday %} joy-cal__day--yesterday{% elif evod.date == lastweek %} joy-cal__day--lastweek{% endif %}{% if evod.date.day == 1 %} joy-cal__day--first{% elif evod.date == lastDay %} joy-cal__day--last{% endif %}">  {% block cal_day_title %}{% endblock cal_day_title %}
+      <td class="joy-cal__day {% if evod.date == today %} joy-cal__day--today{% elif evod.date == yesterday %} joy-cal__day--yesterday{% elif evod.date == lastweek %} joy-cal__day--lastweek{% endif %}{% if evod.date.day == 1 %} joy-cal__day--first{% elif evod.date == lastDay %} joy-cal__day--last{% endif %}{% if evod.days_events or evod.continuing_events %}joy-cal__day--has_events{% endif %}">  {% block cal_day_title %}{% endblock cal_day_title %}
         {% block days_events %}<div class="joy-days-events">{% for title, event, url in evod.continuing_events %}
           <a href="{{ url }}" class="joy-days-events__event joy-days-events__event--continues">
             <span class="joy-days-events__event-title">{{title}} {%trans "cont." %}</span>
