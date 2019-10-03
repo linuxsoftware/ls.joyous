@@ -46,7 +46,7 @@ html:
 
 publish:
 	rm -f dist/* && python setup.py sdist bdist_wheel && twine upload dist/* && echo 'Success! Go to https://pypi.python.org/pypi/ls.joyous and check that all is well.'
-	python -m webbrowser https://pypi.python.org/pypi/ls.joyous
+	python -m webbrowser https://pypi.python.org/pypi/ls.joyous/#history
 
 purge:
 	curl -X PURGE https://camo.githubusercontent.com/6e29f322d6505de214323b7680fbbdadcbb93ed9/68747470733a2f2f636f766572616c6c732e696f2f7265706f732f6769746875622f6c696e7578736f6674776172652f6c732e6a6f796f75732f62616467652e7376673f6272616e63683d6d6173746572
