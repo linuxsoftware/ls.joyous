@@ -146,6 +146,7 @@ Modifiers
   .joy-cal__day--lastweek
   .joy-cal__day--first
   .joy-cal__day--last
+  .joy-cal__day--has-events
   .joy-cal__date--holiday
   .joy-cal__date--sun
   .joy-minical__weekday--sun

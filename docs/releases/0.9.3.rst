@@ -10,6 +10,11 @@ Joyous 0.9.3 release notes - IN DEVELOPMENT
 What's new
 ==========
 
+CSS
+~~~
+New modifier .joy-cal__day--has-events added to calendar days that have events.
+Thanks to JorneVL for requesting this.
+
 
 Other features
 ~~~~~~~~~~~~~~
