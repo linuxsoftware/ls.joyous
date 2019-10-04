@@ -143,7 +143,7 @@ class Recurrence(rrulebase):
         """
         The week start day.  The default week start is got from
         calendar.firstweekday() which Joyous sets based on the Django
-        FIRST_DAY_OF_WEEK setting.
+        FIRST_DAY_OF_WEEK format.
         """
         return Weekday(self.rule._wkst)
 
