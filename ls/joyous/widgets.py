@@ -4,7 +4,7 @@
 import sys
 import json
 import datetime as dt
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.templatetags.static import static
 from django.forms import Media
 from django.utils.formats import get_format
 from django.utils import timezone

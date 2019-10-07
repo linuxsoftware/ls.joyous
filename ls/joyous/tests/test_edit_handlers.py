@@ -98,7 +98,7 @@ class TestExceptionDatePanel(TestCase):
         panel = panel.bind_to_instance(instance=cancellation,
                                        form=form,
                                        request=self._getRequest())
-        self.assertEquals(panel.exceptionTZ, "Asia/Tokyo")
+        self.assertEqual(panel.exceptionTZ, "Asia/Tokyo")
 
     @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
     def testBindWithoutForm25(self):
@@ -148,7 +148,7 @@ class TestExceptionDatePanel(TestCase):
         panel = panel.bind_to(instance=cancellation)
         panel = panel.bind_to(request=self._getRequest())
         panel = panel.bind_to(form=form)
-        self.assertEquals(panel.exceptionTZ, "Asia/Tokyo")
+        self.assertEqual(panel.exceptionTZ, "Asia/Tokyo")
 
 # ------------------------------------------------------------------------------
 @override_settings(JOYOUS_TIME_INPUT=12)
