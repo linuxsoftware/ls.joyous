@@ -14,7 +14,7 @@ coveralls
 freezegun
 wagtailgmaps
 
-pytest
+pytest>=4.4.0
 pytest-pythonpath
 pytest-django
 pytest-cov
