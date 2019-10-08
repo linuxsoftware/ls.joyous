@@ -5,6 +5,9 @@
 source = ls.joyous
 
 omit =
+    setup.py
+    shell.py
+    runtests.py
     */tests/*
     */migrations/*
 
