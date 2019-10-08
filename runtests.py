@@ -64,7 +64,7 @@ def main():
         failures = runPytest()
     else:
         if doRunCoverage:
-            coverage()
+            failures = coverage()
         else:
             failures = runDjangoTest()
     return failures
