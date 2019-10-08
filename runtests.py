@@ -52,18 +52,18 @@ def coverage():
     return failures
 
 def main():
-    coverage = "--coverage" in sys.argv
+    doRunCoverage = "--coverage" in sys.argv
     os.environ['DJANGO_SETTINGS_MODULE'] = 'ls.joyous.tests.settings'
     cleanMedia()
     if "--pytest" in sys.argv:
         sys.argv.remove("--pytest")
-        if coverage:
+        if doRunCoverage:
             sys.argv.remove("--coverage")
             sys.argv.append("--cov=.")
             sys.argv.append("--cov-report=html")
         failures = runPytest()
     else:
-        if coverage:
+        if doRunCoverage:
             coverage()
         else:
             failures = runDjangoTest()
