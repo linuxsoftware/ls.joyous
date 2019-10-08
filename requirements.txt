@@ -14,6 +14,13 @@ coveralls
 freezegun
 wagtailgmaps
 
+pytest
+pytest-pythonpath
+pytest-django
+pytest-cov
+pytest-xdist
+pytest-subtests
+
 Sphinx
 sphinx_rtd_theme
 # sphinxcontrib-spelling

@@ -15,6 +15,9 @@ CSS
 New modifier .joy-cal__day--has-events added to calendar days that have events.
 Thanks to JorneVL for requesting this.
 
+Pytest
+~~~~~~
+Run tests in parallel using pytest.  Runs about twice as fast.
 
 Other features
 ~~~~~~~~~~~~~~

@@ -17,13 +17,19 @@ def cleanMedia():
         except:
             print("Error deleting", path)
 
-def run():
+def runPytest():
+    import pytest
+    opts = [arg for arg in sys.argv[1:] if arg.startswith("-")]
+    labels = ["ls/joyous/tests/"+arg for arg in sys.argv[1:]
+              if not arg.startswith("-")]
+    errCode = pytest.main(opts + labels)
+    return errCode
+
+def runDjangoTest():
     verbosity = 1
     if "-v" in sys.argv or "--verbose" in sys.argv:
         verbosity = 2
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'ls.joyous.tests.settings'
     django.setup()
-    cleanMedia()
     TestRunner = get_runner(settings)
     test_runner = TestRunner(top_level="ls/joyous",
                              verbosity=verbosity,
@@ -39,15 +45,30 @@ def coverage():
     from coverage import Coverage
     cover = Coverage()
     cover.start()
-    failures = run()
+    failures = runDjangoTest()
     cover.stop()
     cover.save()
     cover.html_report()
     return failures
 
-if __name__ == "__main__":
-    if "--coverage" in sys.argv:
-        failures = coverage()
+def main():
+    coverage = "--coverage" in sys.argv
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'ls.joyous.tests.settings'
+    cleanMedia()
+    if "--pytest" in sys.argv:
+        sys.argv.remove("--pytest")
+        if coverage:
+            sys.argv.remove("--coverage")
+            sys.argv.append("--cov=.")
+            sys.argv.append("--cov-report=html")
+        failures = runPytest()
     else:
-        failures = run()
+        if coverage:
+            coverage()
+        else:
+            failures = runDjangoTest()
+    return failures
+
+if __name__ == "__main__":
+    failures = main()
     sys.exit(bool(failures))

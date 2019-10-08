@@ -18,6 +18,13 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+
 SECRET_KEY = 'not needed'
 
 ROOT_URLCONF = 'ls.joyous.tests.urls'

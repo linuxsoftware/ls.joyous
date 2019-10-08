@@ -2,6 +2,7 @@
 # Test RSS Format
 # ------------------------------------------------------------------------------
 import sys
+import os.path
 import datetime as dt
 import pytz
 from io import BytesIO
@@ -36,6 +37,8 @@ class TestFeed(TestCase):
         imgFile = get_test_image_file()
         imgFile.name = "logo.png"
         self.img = Image.objects.create(title="Logo", file=imgFile)
+        imgName = os.path.splitext(os.path.basename(self.img.file.name))[0]
+        self.rendName = "{}.width-350.format-png.png".format(imgName)
         Site.objects.update(hostname="joy.test")
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3(R3t')
@@ -97,7 +100,7 @@ class TestFeed(TestCase):
         self.assertEqual(item.link.string, "http://joy.test/events/workshop/")
         self.assertEqual(item.enclosure.decode(),
                          '<enclosure length="773" type="image/png" '
-                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+                         'url="http://joy.test/media/images/{}"/>'.format(self.rendName))
         self.assertEqual(item.description.decode(), """<description>\n\n\n
   &lt;div class="joy-ev-when joy-field"&gt;
     The first Tuesday of the month (until 26 December 2017)
@@ -137,7 +140,7 @@ class TestFeed(TestCase):
         self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-02-07-extra-info/")
         self.assertEqual(item.enclosure.decode(),
                          '<enclosure length="773" type="image/png" '
-                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+                         'url="http://joy.test/media/images/{}"/>'.format(self.rendName))
         self.assertEqual(item.description.decode(), """<description>\n\n\n
   &lt;div class="joy-ev-when joy-field"&gt;
     Tuesday 7th of February 2017
@@ -173,7 +176,7 @@ class TestFeed(TestCase):
         self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
         self.assertEqual(item.enclosure.decode(),
                          '<enclosure length="773" type="image/png" '
-                         'url="http://joy.test/media/images/logo.width-350.format-png.png"/>')
+                         'url="http://joy.test/media/images/{}"/>'.format(self.rendName))
         self.assertEqual(item.description.decode(), """<description>\n\n\n
   &lt;div class="joy-ev-when joy-field"&gt;
     Tuesday 11th of April 2017
@@ -192,6 +195,8 @@ class TestEntry(TestCase):
         imgFile = get_test_image_file()
         imgFile.name = "people.png"
         self.img = Image.objects.create(title="People", file=imgFile)
+        imgName = os.path.splitext(os.path.basename(self.img.file.name))[0]
+        self.rendName = "{}.width-350.format-png.png".format(imgName)
         Site.objects.update(hostname="joy.test")
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3(R3t')
@@ -254,7 +259,7 @@ b"""<item><title>Road Trip</title><link>http://joy.test/events/road-trip/</link>
         entry = EventEntry.fromEvent(thisEvent, request)
         self.assertEqual(entry.enclosure(), {
             'length': '773',
-            'url': 'http://joy.test/media/images/people.width-350.format-png.png',
+            'url': 'http://joy.test/media/images/{}'.format(self.rendName),
             'type': 'image/png'})
 
     def testSetDescription(self):

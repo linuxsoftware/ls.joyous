@@ -8,7 +8,7 @@ import calendar
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.utils import timezone
-from wagtail.core.models import Page
+from wagtail.core.models import Site, Page
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY
 from ls.joyous.utils.recurrence import TU, TH, SA, SU, EVERYWEEKDAY
@@ -20,6 +20,7 @@ from .testutils import datetimetz, freeze_timetz
 # ------------------------------------------------------------------------------
 class Test(TestCase):
     def setUp(self):
+        Site.objects.update(hostname="joy.test")
         self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         self.calendar = CalendarPage(owner = self.user,
                                      slug  = "events",
