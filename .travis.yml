@@ -19,7 +19,7 @@ install:
   - pip install wagtail==$WAGTAIL_VERSION
 
 script:
-  - ./runtests.py --coverage --pytest -n2
+  - ./runtests.py --coverage
 
 after_success:
   - coveralls
