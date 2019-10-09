@@ -19,9 +19,19 @@ def cleanMedia():
 
 def runPytest():
     import pytest
-    opts = [arg for arg in sys.argv[1:] if arg.startswith("-")]
-    labels = ["ls/joyous/tests/"+arg for arg in sys.argv[1:]
-              if not arg.startswith("-")]
+    opts = []
+    parallelOpt = ""
+    labels = []
+    for arg in sys.argv[1:]:
+        if arg.startswith("-"):
+            opts.append(arg)
+            if arg.startswith("-n"):
+                parallelOpt = arg
+        else:
+            labels.append("ls/joyous/tests/"+arg)
+    if not parallelOpt:
+        # default to running in parallel
+        opts.append("-n2")
     errCode = pytest.main(opts + labels)
     return errCode
 
@@ -59,7 +69,7 @@ def main():
         sys.argv.remove("--pytest")
         if doRunCoverage:
             sys.argv.remove("--coverage")
-            sys.argv.append("--cov=.")
+            sys.argv.append("--cov=ls/joyous")
             sys.argv.append("--cov-report=html")
         failures = runPytest()
     else:
