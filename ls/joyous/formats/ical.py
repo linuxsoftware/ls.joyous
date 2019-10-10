@@ -95,12 +95,12 @@ class VCalendar(Calendar, VComponentMixin):
     def _fromEventPage(cls, event):
         vcal = cls(cls._findCalendarFor(event))
         vevent = cls.factory.makeFromPage(event)
-        vcal.add_component(vevent)
-        for vchild in vevent.vchildren:
-            vcal.add_component(vchild)
         if event.tz and event.tz is not pytz.utc:
             vtz = TimeZoneSpan(vevent).createVTimeZone(event.tz)
             vcal.add_component(vtz)
+        vcal.add_component(vevent)
+        for vchild in vevent.vchildren:
+            vcal.add_component(vchild)
         return vcal
 
     @classmethod
