@@ -82,15 +82,15 @@ DTSTART;TZID=America/New_York:20180724T190000\r
 DTEND;TZID=America/New_York:20180724T213000\r
 STATUS:CONFIRMED\r
 SUMMARY:Weekly Hack Night\r
-DESCRIPTION:Code for Boston\\nTuesday\, July 24 at 7:00 PM\\n\\nOur weekly w\r
+DESCRIPTION:Code for Boston\\nTuesday\\, July 24 at 7:00 PM\\n\\nOur weekly w\r
  ork session will be at the Cambridge Innovation Center in Kendall Square\r
  \\, on the FOURTH FLOOR\\, in the CAFE. These Hack Nights are our time...\\\r
  n\\nhttps://www.meetup.com/Code-for-Boston/events/249894034/\r
 CLASS:PUBLIC\r
 CREATED:20180404T010420Z\r
 GEO:42.36;-71.09\r
-LOCATION:Cambridge Innovation Center\, 4th Floor Cafe (1 Broadway\, Cambr\r
- idge\, MA)\r
+LOCATION:Cambridge Innovation Center\\, 4th Floor Cafe (1 Broadway\\, Cambr\r
+ idge\\, MA)\r
 URL:https://www.meetup.com/Code-for-Boston/events/249894034/\r
 LAST-MODIFIED:20180404T010420Z\r
 UID:event_xwqmnpyxkbgc@meetup.com\r
