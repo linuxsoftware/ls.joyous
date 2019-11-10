@@ -29,8 +29,7 @@ Thanks To
 
 Contributors
 ~~~~~~~~~~~~
-* @acerix
-* @Jean-Zombie
+Thanks to everyone who has `contributed <https://github.com/linuxsoftware/ls.joyous/graphs/contributors>`_ to Joyous.
 
 Tools
 ~~~~~
