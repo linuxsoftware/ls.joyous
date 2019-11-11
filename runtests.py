@@ -28,7 +28,13 @@ def runPytest():
             if arg.startswith("-n"):
                 parallelOpt = arg
         else:
-            labels.append("ls/joyous/tests/"+arg)
+            # convert unittest "test_ical.TestImport.testMeetup" format to
+            # "ls/joyous/test_ical.py::TestImport::testMeetup"
+            path = arg.split(".")
+            if path[1] == "py":
+                del path[1]
+            path[0] += ".py"
+            labels.append("ls/joyous/tests/"+"::".join(path))
     if not parallelOpt:
         # default to running in parallel
         opts.append("-n2")
