@@ -20,7 +20,7 @@ def _createMap(symbols):
     return holidayMap
 _PYTHON_HOLIDAYS_MAP = _createMap(list(python_holidays.__dict__.items()))
 
-HolsRe = re.compile(r"(\w[\w\ ]*)(\[.+?\])?")
+HolsRe = re.compile(r"(\w[\w\ ]*|\*)(\[.+?\])?")
 SplitRe = re.compile(r",\s*")
 
 def _parseSubdivisions(holidaysStr, cls):
@@ -53,6 +53,15 @@ def parseHolidays(holidaysStr, holidayMap=None):
     retval.country = None
     holidaysStr = holidaysStr.strip()
     for (country, subdivisions) in HolsRe.findall(holidaysStr):
+        if country == "*":
+            retval = python_holidays.HolidayBase()
+            retval.country = None
+            for cls in holidayMap.values():
+                if subdivisions:
+                    retval += _parseSubdivisions(subdivisions, cls)
+                else:
+                    retval += cls()
+            return retval
         cls = holidayMap.get(country)
         if cls is not None:
             if subdivisions:
