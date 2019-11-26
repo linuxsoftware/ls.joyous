@@ -36,7 +36,8 @@ class Time12hrInput(AdminTimeInput):
 
     @property
     def media(self):
-        return Media(js=[static("joyous/js/time12hr_admin.js")])
+        return Media(js=[static('joyous/js/vendor/moment-2.22.0.min.js'),
+                         static("joyous/js/time12hr_admin.js")])
 
 # ------------------------------------------------------------------------------
 (EVERY_DAY, SAME_DAY, DAY_OF_MONTH) = (100, 101, 200)

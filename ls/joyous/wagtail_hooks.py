@@ -12,14 +12,6 @@ from .models import EventCategory, CalendarPage, CalendarPageForm
 from .formats import NullHandler, ICalHandler, GoogleCalendarHandler, RssHandler
 
 # ------------------------------------------------------------------------------
-@hooks.register('insert_editor_js')
-def editor_js():
-    return format_html(
-        '<script src="{}"></script>',
-        static('joyous/js/vendor/moment-2.22.0.min.js')
-    )
-
-# ------------------------------------------------------------------------------
 @hooks.register('before_serve_page')
 def handlePageExport(page, request, serve_args, serve_kwargs):
     format = request.GET.get('format')
