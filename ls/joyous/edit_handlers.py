@@ -5,8 +5,11 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
-from wagtail.admin.utils import get_available_admin_languages
-from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
+from wagtail.admin.widgets import AdminTimeInput
+try:
+    from wagtail.admin.utils import get_available_admin_languages
+except ImportError:
+    from wagtail.admin.localization import get_available_admin_languages
 from .widgets import ExceptionDateInput, Time12hrInput
 
 # ------------------------------------------------------------------------------
