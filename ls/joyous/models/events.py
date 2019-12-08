@@ -1348,6 +1348,10 @@ class EventExceptionBase(models.Model):
     time_to     = property(attrgetter("overrides.time_to"))
     tz          = property(attrgetter("overrides.tz"))
     group       = property(attrgetter("overrides.group"))
+    category    = property(attrgetter("overrides.category"))
+    image       = property(attrgetter("overrides.image"))
+    location    = property(attrgetter("overrides.location"))
+    website     = property(attrgetter("overrides.website"))
 
     @property
     def overrides_repeat(self):
@@ -1499,13 +1503,6 @@ class ExtraInfoPage(EventExceptionBase, Page):
         FieldPanel('extra_information', classname="full"),
         ]
     promote_panels = []
-
-    # Original properties
-    # FIXME move these to EventExceptionBase?
-    category    = property(attrgetter("overrides.category"))
-    image       = property(attrgetter("overrides.image"))
-    location    = property(attrgetter("overrides.location"))
-    website     = property(attrgetter("overrides.website"))
 
     @property
     def status(self):

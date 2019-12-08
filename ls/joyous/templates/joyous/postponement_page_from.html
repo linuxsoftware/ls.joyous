@@ -1,5 +1,5 @@
 {% extends "joyous/exception_base.html" %}
-{% load wagtailcore_tags i18n %}
+{% load wagtailcore_tags wagtailimages_tags i18n %}
 
 {% block event_status %}
   <div class="joy-ev-status">{% if page.status %}
@@ -28,6 +28,12 @@
     {% blocktrans with what=page.what postponed_to=page.when %}{{ what }} to <a class="joy-ev-to-when__link" href="{{ postponement_url }}" >{{ postponed_to }}</a>{% endblocktrans %}
   </div>
 {% endblock event_when %}
+
+{% block event_image %}
+<div class="joy-img">
+  {% image overrides.image width-350 class="joy-img__img" %}
+</div>
+{% endblock event_image %}
 
 {% block event_details %}<div class="joy-ev-details joy-field">
   {{ page.cancellation_details|richtext }}

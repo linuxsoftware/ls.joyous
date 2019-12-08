@@ -1,13 +1,6 @@
 {% extends "joyous/event_base.html" %}
 {% load wagtailcore_tags wagtailimages_tags i18n %}
 
-{% block event_image %}
-<div class="joy-img">
-  {# FIXME Only Cancellation and Postponement/From should need this ? #}
-  {% image overrides.image width-350 class="joy-img__img" %}
-</div>
-{% endblock event_image %}
-
 {% block event_footer %}
 <div class="joy-ev-related">
   <div class="joy-ev-related__item">
