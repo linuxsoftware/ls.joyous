@@ -12,20 +12,26 @@ What's new
 
 Translations
 ~~~~~~~~~~~~
- * Thanks to Alexandre Marinho for the new Brazilian Portuguese translation.
+Thanks to Alexandre Marinho for the new Brazilian Portuguese translation.
 
 CSS
 ~~~
- * New modifier .joy-cal__day--has-events added to calendar days that have events.  Thanks to JorneVL for requesting this.
+New modifier ``.joy-cal__day--has-events`` added to calendar days that have events.  Thanks to JorneVL for requesting this.
 
 Pytest
 ~~~~~~
- * Option to run tests in parallel using pytest.  Runs about twice as fast.
+Option to run tests in parallel using pytest.  Runs about twice as fast.
+
+Documentation
+~~~~~~~~~~~~~
+Added a new tutorial - "A few easy changes".
 
 Other features
 ~~~~~~~~~~~~~~
  * Accept ``*`` as a wildcard for countries in :setting:`JOYOUS_HOLIDAYS`.
  * Add the Time12hr JS all in one place.
+ * Move category, image, location and website property shortcuts from ExtraInfoPage to EventExceptionBase.
+ * Move the block event_image from exception_base.html to postponement_page_from.html
 
 Bug fixes
 ~~~~~~~~~

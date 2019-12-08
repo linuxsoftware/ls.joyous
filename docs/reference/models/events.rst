@@ -234,6 +234,22 @@ EventExceptionBase
 
         Shortcut for overrides.group.
 
+    .. attribute:: category
+
+        Shortcut for overrides.category.
+
+    .. attribute:: image
+
+        Shortcut for overrides.image.
+
+    .. attribute:: location
+
+        Shortcut for overrides.location.
+
+    .. attribute:: website
+
+        Shortcut for overrides.website.
+
     .. autoattribute:: overrides_repeat
     .. autoattribute:: local_title
     .. autoattribute:: when

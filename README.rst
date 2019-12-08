@@ -9,7 +9,12 @@ ls.joyous
 About
 ------
 Joyous is a reusable calendar application for Wagtail. Features include rrule
-based recurring events with cancellations and postponements; iCal import and export; Gcal export; event permissioning; timezone handling; and multi-site aware calendars.
+based recurring events with cancellations and postponements; iCal import and export; Gcal export; RSS feed; event permissioning; timezone handling; and multi-site aware calendars.
+
+Languages
+~~~~~~~~~
+Joyous has been translated into French, German and Brazilian-Portuguese.
+Translations into other languages would be welcome.
 
 Documentation
 -------------

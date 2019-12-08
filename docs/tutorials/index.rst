@@ -9,3 +9,4 @@ Step by step instructions on using Joyous.
 
     out_of_the_box
     keeping_things_simple
+    a_few_easy_changes

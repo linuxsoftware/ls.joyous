@@ -247,7 +247,6 @@ joyous/exception_base.html
 
 Blocks
 ~~~~~~
-* **event_image**  FIXME
 * **event_footer**
 
 
@@ -294,6 +293,7 @@ Blocks
 * **event_status**
 * **event_title**
 * **event_when**
+* **event_image**
 * **event_details**
 
 
