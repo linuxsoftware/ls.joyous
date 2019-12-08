@@ -170,7 +170,9 @@ $(function() {{
     def testMedia(self):
         widget = Time12hrInput()
         self.assertEqual(widget.media._css, {})
-        self.assertEqual(widget.media._js, ["/static/joyous/js/time12hr_admin.js"])
+        self.assertEqual(widget.media._js, 
+                         ["/static/joyous/js/vendor/moment-2.22.0.min.js",
+                          "/static/joyous/js/time12hr_admin.js"])
 
 # ------------------------------------------------------------------------------
 class TestExceptionDateInput(TestCase):
