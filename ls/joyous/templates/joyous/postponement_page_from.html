@@ -29,11 +29,11 @@
   </div>
 {% endblock event_when %}
 
-{% block event_image %}
+{% block event_image %}{% if overrides.image %}
 <div class="joy-img">
   {% image overrides.image width-350 class="joy-img__img" %}
 </div>
-{% endblock event_image %}
+{% endif %}{% endblock event_image %}
 
 {% block event_details %}<div class="joy-ev-details joy-field">
   {{ page.cancellation_details|richtext }}
