@@ -51,8 +51,7 @@ def _add12hrFormats():
         _12hrFormats[1] not in settings.TIME_INPUT_FORMATS):
         settings.TIME_INPUT_FORMATS += _12hrFormats
 
-    # As at 2019-06-13 none of the built-in locales define TIME_INPUT_FORMATS
-    # but a user-defined locale could or it could be added to a built-in one.
+    # Many of the built-in locales define TIME_INPUT_FORMATS
     langCodes = [language[0] for language in get_available_admin_languages()]
     langCodes.append(settings.LANGUAGE_CODE)
     for lang in langCodes:
