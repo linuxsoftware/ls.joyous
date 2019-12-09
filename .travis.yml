@@ -5,14 +5,14 @@ dist: xenial
 language: python
 
 env:
- - WAGTAIL_VERSION=2.4
  - WAGTAIL_VERSION=2.5.2
- - WAGTAIL_VERSION=2.6.2
+ - WAGTAIL_VERSION=2.6.3
+ - WAGTAIL_VERSION=2.7
 
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8"
 
 install:
   - pip install -r requirements.txt

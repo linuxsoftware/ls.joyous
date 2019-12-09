@@ -120,7 +120,7 @@ the Joyous templates.  And, you can use :ref:`template inheritance <django:templ
 to override just the particular :doc:`blocks </reference/templates>` you want to change.
 E.g. just override the footer.
 
-5.  Create a ``templates/joyous`` directory in you app.
+5.  Create a ``templates/joyous`` directory in your app.
 
 6.  Add the following files to your this directory.  This will replace the download links
     in the footers of the calendars and events.
