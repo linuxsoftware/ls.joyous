@@ -22,6 +22,7 @@ Other features
 
 Bug fixes
 ~~~~~~~~~
+ * Fix weekly urls at the end of the year
 
 Upgrade considerations
 ======================
