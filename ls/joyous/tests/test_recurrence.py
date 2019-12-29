@@ -54,6 +54,22 @@ class TestRecurrence(TestCase):
         rr2 = Recurrence(rr1)
         self.assertEqual(rr2.freq, WEEKLY)
 
+    def testEq(self):
+        rr1 = rrule(dtstart=dt.datetime(2009, 1, 1, 0, 0, 1),
+                    freq=WEEKLY,
+                    byweekday=[MO,TU,WE,TH,FR])
+        rr2 = Recurrence(dtstart=dt.date(2009, 1, 1),
+                         freq=WEEKLY,
+                         byweekday=[MO,TU,WE,TH,FR])
+        rr3 = Recurrence("DTSTART:20090101\n"
+                         "RRULE:FREQ=WEEKLY;WKST=SU;BYDAY=MO,TU,WE,TH,FR")
+        self.assertEqual(Recurrence(rr1), rr2)
+        self.assertEqual(rr2, rr1)
+        self.assertEqual(rr1, rr2)
+        self.assertEqual(rr2, rr2)
+        self.assertEqual(rr2, rr3)
+        self.assertNotEqual(rr2, 99)
+
     def testRepr(self):
         rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=WEEKLY,

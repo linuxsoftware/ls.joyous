@@ -193,6 +193,34 @@ class Recurrence(rrulebase):
         """
         return self.rule.count()
 
+    def __eq__(self, other):
+        my = self.rule
+        if isinstance(other, Recurrence):
+            their = other.rule
+        elif isinstance(other, rrule):
+            their = other
+        else:
+            return NotImplemented
+        theirDtstart = their._dtstart.date()
+        theirUntil = their._until
+        if theirUntil is not None:
+            theirUntil = theirUntil.date()
+        return (my._freq        == their._freq        and
+                my._interval    == their._interval    and
+                my._count       == their._count       and
+                my._byweekno    == their._byweekno    and
+                my._byyearday   == their._byyearday   and
+                my._byeaster    == their._byeaster    and
+                my._bysetpos    == their._bysetpos    and
+                self.dtstart    == theirDtstart       and
+                self.until      == theirUntil         and
+                my._wkst        == their._wkst        and
+                my._byweekday   == their._byweekday   and
+                my._bynweekday  == their._bynweekday  and
+                my._bymonthday  == their._bymonthday  and
+                my._bynmonthday == their._bynmonthday and
+                my._bymonth     == their._bymonth)
+
     def __repr__(self):
         dtstart = ""
         if self.dtstart:
