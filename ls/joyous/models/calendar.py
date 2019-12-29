@@ -178,11 +178,11 @@ class CalendarPage(RoutablePageMixin, Page):
         lastDay = dt.date(year, month, calendar.monthrange(year, month)[1])
 
         if year == today.year and month == today.month:
-            weekNum = gregorian_to_week_date(today)[1]
+            weekYear, weekNum, dow = gregorian_to_week_date(today)
         else:
-            weekNum = gregorian_to_week_date(dt.date(year, month, 7))[1]
+            weekYear, weekNum, dow = gregorian_to_week_date(dt.date(year, month, 7))
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
-                                                 args=[year, weekNum])
+                                                 args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
         prevMonth = month - 1
@@ -305,9 +305,9 @@ class CalendarPage(RoutablePageMixin, Page):
 
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[year, month])
-        weekNum = gregorian_to_week_date(today)[1]
+        weekYear, weekNum, dow = gregorian_to_week_date(dt.date(year, month, 7))
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
-                                                 args=[year, weekNum])
+                                                 args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
 
         cxt = self._getCommonContext(request)
@@ -333,9 +333,9 @@ class CalendarPage(RoutablePageMixin, Page):
         today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[today.year, today.month])
-        weekNum = gregorian_to_week_date(today)[1]
+        weekYear, weekNum, dow = gregorian_to_week_date(today)
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
-                                                 args=[today.year, weekNum])
+                                                 args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('servePast')
         upcomingEvents = self._getUpcomingEvents(request)
         # FIXME: Does not include Cancellations - should it?
@@ -358,9 +358,9 @@ class CalendarPage(RoutablePageMixin, Page):
         today = timezone.localdate()
         monthlyUrl = myurl + self.reverse_subpage('serveMonth',
                                                   args=[today.year, today.month])
-        weekNum = gregorian_to_week_date(today)[1]
+        weekYear, weekNum, dow = gregorian_to_week_date(today)
         weeklyUrl = myurl + self.reverse_subpage('serveWeek',
-                                                 args=[today.year, weekNum])
+                                                 args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
         pastEvents = self._getPastEvents(request)
         # FIXME: Does not include Cancellations - should it?

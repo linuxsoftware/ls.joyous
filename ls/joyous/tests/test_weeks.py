@@ -82,7 +82,9 @@ class TestSundayStartingWeek(TestCase):
         self.assertEqual(_gregorian_to_ssweek(dt.date(1991,5,25)),  (1991,21,6))
         self.assertEqual(_gregorian_to_ssweek(dt.date(2007,1,2)),   (2007,1,2))
         self.assertEqual(_gregorian_to_ssweek(dt.date(2022,12,13)), (2022,50,2))
-        self.assertEqual(_gregorian_to_ssweek(dt.date(2035,12,31)), (2035,53,1))
+        self.assertEqual(_gregorian_to_ssweek(dt.date(2035,12,31)), (2036,1,1))
+        self.assertEqual(_gregorian_to_ssweek(dt.date(2019,12,1)),  (2019,49,7))
+        self.assertEqual(_gregorian_to_ssweek(dt.date(2019,12,29)), (2020,1,7))
 
     def testWeekToGregorianDate(self):
         self.assertEqual(_ssweek_to_gregorian(1990,2,6),  dt.date(1990,1,12))

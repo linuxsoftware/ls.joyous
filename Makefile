@@ -31,7 +31,7 @@ shell:
 	python ./shell.py
 
 coverage:
-	python ./runtests.py --coverage
+	python ./runtests.py --pytest --coverage
 	python -m webbrowser htmlcov/index.html
 
 i18n:

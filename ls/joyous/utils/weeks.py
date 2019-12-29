@@ -88,10 +88,17 @@ def _ssweek_info(ssweek_year, ssweek_week):
 
 def _gregorian_to_ssweek(date_value):
     "Sundaystarting-week year, week and day for the given  Gregorian calendar date"
-    yearStart = _ssweek_year_start(date_value.year)
+    nextYear = date_value.year+1
+    nextYearStart = _ssweek_year_start(nextYear)
+    if date_value >= nextYearStart:
+        year = nextYear
+        yearStart = nextYearStart
+    else:
+        year = date_value.year
+        yearStart = _ssweek_year_start(date_value.year)
     weekNum = ((date_value - yearStart).days) // 7 + 1
     dayOfWeek = date_value.weekday()+1
-    return (date_value.year, weekNum, dayOfWeek)
+    return (year, weekNum, dayOfWeek)
 
 def _ssweek_of_month(date_value):
     "0-starting index which Sundaystarting-week in the month this date is"
