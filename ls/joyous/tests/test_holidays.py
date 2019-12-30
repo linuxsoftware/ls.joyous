@@ -81,6 +81,9 @@ class TestParser(TestCase):
         self.assertEqual(hols.get(dt.date(2020,10,23)),
                          "Hawke's Bay Anniversary Day")
 
+    def testInvalidCountry(self):
+        self.assertIsNone(parseHolidays("Ruritania"))
+
     def testInvalidSubdivision(self):
         from holidays import UK
         self.assertEqual(_parseSubdivisions("ZZZ", UK), 0)
