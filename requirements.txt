@@ -10,8 +10,8 @@ python-dateutil
 feedgen
 
 django-beautifulsoup-test
-coverage
 coveralls
+coverage<5.0
 freezegun
 wagtailgmaps
 

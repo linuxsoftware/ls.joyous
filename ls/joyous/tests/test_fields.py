@@ -106,6 +106,8 @@ class TestMultipleSelectField(TestCase):
 
     def testContributeToClass(self):
         class Foo(models.Model):
+            class Meta:
+                app_label = "foo"
             field = MultipleSelectField(choices=self.choices)
         self.assertTrue(hasattr(Foo, "get_field_display"))
         foo = Foo(field="A")

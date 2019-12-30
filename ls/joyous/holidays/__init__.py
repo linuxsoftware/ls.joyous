@@ -16,7 +16,9 @@ class Holidays:
     def _parseSettings(self):
         holidaySettings = getattr(settings, "JOYOUS_HOLIDAYS", "")
         if holidaySettings:
-            self.register(parseHolidays(holidaySettings))
+            hols = parseHolidays(holidaySettings)
+            if hols is not None:
+                self.register(hols)
 
     def register(self, src):
         """Register a new source of holiday data."""

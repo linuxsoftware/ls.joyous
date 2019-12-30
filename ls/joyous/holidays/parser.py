@@ -34,10 +34,12 @@ def _parseSubdivisions(holidaysStr, cls):
     for subdivision in SplitRe.split(holidaysStr[1:-1]):
         subdivision = subdivision.strip()
         if subdivision == "*":
-            if states:
-                retval += sum(cls(state = subdivision) for subdivision in states)
-            if provinces:
-                retval += sum(cls(prov = subdivision) for subdivision in provinces)
+            retval = 0
+            subval = sum(cls(state = subdivision) for subdivision in states)
+            retval += subval
+            subval = sum(cls(prov = subdivision) for subdivision in provinces)
+            retval += subval
+            break
         else:
             if subdivision in states:
                 retval += cls(state = subdivision)
@@ -51,27 +53,27 @@ def parseHolidays(holidaysStr, holidayMap=None):
     """
     if holidayMap is None:
         holidayMap = _PYTHON_HOLIDAYS_MAP
-    retval = python_holidays.HolidayBase()
-    retval.country = None
+    retval = 0
     holidaysStr = holidaysStr.strip()
     for (country, subdivisions) in HolsRe.findall(holidaysStr):
         if country == "*":
-            retval = python_holidays.HolidayBase()
-            retval.country = None
+            retval = 0
             for cls in holidayMap.values():
                 if subdivisions:
                     subval = _parseSubdivisions(subdivisions, cls)
-                    if subval != 0:
-                        retval += subval
+                    retval += subval
                 else:
                     retval += cls()
-            return retval
+            break
         cls = holidayMap.get(country)
         if cls is not None:
             if subdivisions:
-                retval += _parseSubdivisions(subdivisions, cls)
+                subval = _parseSubdivisions(subdivisions, cls)
+                retval += subval
             else:
                 retval += cls()
+    if retval is 0:
+        retval = None
     return retval
 
 # ------------------------------------------------------------------------------
