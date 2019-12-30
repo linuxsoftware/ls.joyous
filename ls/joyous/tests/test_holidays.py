@@ -59,11 +59,10 @@ class TestParser(TestCase):
     def testAllCountries(self):
         from ls.joyous.holidays.parser import _PYTHON_HOLIDAYS_MAP
         hols = parseHolidays("*")
-        klas = [hol.__class__ for hol in hols.holidays if hol.country]
-        self.assertCountEqual(klas, _PYTHON_HOLIDAYS_MAP.values())
+        classes = [hol.__class__ for hol in hols.holidays if hol.country]
+        self.assertCountEqual(classes, _PYTHON_HOLIDAYS_MAP.values())
 
     def testCountriesNE(self):
-        from holidays import UnitedStates, Switzerland
         hols = parseHolidays("*[NE]")
         self.assertEqual(hols.get(dt.date(2019,3,1)),
                          "Jahrestag der Ausrufung der Republik")
