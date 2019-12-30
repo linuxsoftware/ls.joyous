@@ -8,6 +8,7 @@ omit =
     setup.py
     shell.py
     runtests.py
+    ls/joyous/_version.py
     */tests/*
     */migrations/*
 

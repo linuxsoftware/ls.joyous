@@ -9,10 +9,11 @@ from django.test import TestCase, override_settings
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import SimpleEventPage
 from ls.joyous.holidays import Holidays
+from ls.joyous.holidays.parser import parseHolidays, _parseSubdivisions
 from .testutils import freeze_timetz, getPage
 
 # ------------------------------------------------------------------------------
-class Test(TestCase):
+class TestHolidays(TestCase):
     @override_settings()
     def testNoSettings(self):
         del settings.JOYOUS_HOLIDAYS
@@ -48,6 +49,41 @@ class Test(TestCase):
         hols.add(dt.date(1999,1,1), "Whatnot")
         self.assertEqual(hols.get(dt.date(1999,1,1)),
                          "Gliffy, Whatnot, New Year's Day")
+
+# ------------------------------------------------------------------------------
+class TestParser(TestCase):
+    def testScotland(self):
+        hols = parseHolidays("Scotland")
+        self.assertEqual(hols.get(dt.date(2019,11,30)), "St. Andrew's Day")
+
+    def testAllCountries(self):
+        from ls.joyous.holidays.parser import _PYTHON_HOLIDAYS_MAP
+        hols = parseHolidays("*")
+        klas = [hol.__class__ for hol in hols.holidays if hol.country]
+        self.assertCountEqual(klas, _PYTHON_HOLIDAYS_MAP.values())
+
+    def testCountriesNE(self):
+        from holidays import UnitedStates, Switzerland
+        hols = parseHolidays("*[NE]")
+        self.assertEqual(hols.get(dt.date(2019,3,1)),
+                         "Jahrestag der Ausrufung der Republik")
+        self.assertEqual(hols.get(dt.date(2019,4,26)),
+                         "Arbor Day")
+
+    def testNorthIsland(self):
+        hols = parseHolidays("NZ[NTL,AUK,HKB,TKI,WGN]")
+        self.assertEqual(hols.get(dt.date(2020,1,20)),
+                         "Wellington Anniversary Day")
+        self.assertEqual(hols.get(dt.date(2020,1,27)),
+                         "Auckland Anniversary Day")
+        self.assertEqual(hols.get(dt.date(2020,3,9)),
+                         "Taranaki Anniversary Day")
+        self.assertEqual(hols.get(dt.date(2020,10,23)),
+                         "Hawke's Bay Anniversary Day")
+
+    def testInvalidSubdivision(self):
+        from holidays import UK
+        self.assertEqual(_parseSubdivisions("ZZZ", UK), 0)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

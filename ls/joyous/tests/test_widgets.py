@@ -44,6 +44,17 @@ class TestRecurrenceWidget(TestCase):
                           100, 200, None, None, None,         #10
                           None, [1]])
 
+    def testDecompressDayOfMonth(self):
+        rr = Recurrence(dtstart=dt.date(2019, 1, 1),
+                        freq=MONTHLY,
+                        bymonthday=1)
+        widget = RecurrenceWidget()
+        self.assertEqual(widget.decompress(rr),
+                         [dt.date(2019, 1, 1), MONTHLY, 1,
+                          [], None, None,                     #5
+                          101, 200, None, None, None,         #10
+                          None, []])
+
     def testNullValue(self):
         widget = RecurrenceWidget()
         self.assertEqual(widget.value_from_datadict({}, {}, 'repeat'), None)
@@ -61,7 +72,7 @@ class TestRecurrenceWidget(TestCase):
                 'repeat_9':  None,
                 'repeat_10': None,
                 'repeat_11': None,
-                'repeat_12': ['1']}
+                'repeat_12': []}
         rr = Recurrence(dtstart=dt.date(2009, 1, 1),
                         freq=WEEKLY,
                         byweekday=[MO,TU,WE,TH,FR],
@@ -86,8 +97,79 @@ class TestRecurrenceWidget(TestCase):
                         freq=YEARLY,
                         byweekday=[MO,TU,WE,TH,FR,SA,SU],
                         bymonth=[1])
-        self.assertEqual(str(widget.value_from_datadict(data, {}, 'repeat')),
-                         str(rr))
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
+
+    def testSameDayOfMonthValue(self):
+        widget = RecurrenceWidget()
+        data = {'repeat_0':  '2019-01-01',
+                'repeat_1':  '1',
+                'repeat_2':  '1',
+                'repeat_5':  '',
+                'repeat_6':  '101',
+                'repeat_7':  '200'}
+        rr = Recurrence(dtstart=dt.date(2019, 1, 1), freq=MONTHLY)
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
+
+    def testDayOfMonthValue(self):
+        widget = RecurrenceWidget()
+        data = {'repeat_0':  '2019-01-01',
+                'repeat_1':  '1',
+                'repeat_2':  '1',
+                'repeat_5':  '',
+                'repeat_6':  '2',
+                'repeat_7':  '200'}
+        rr = Recurrence(dtstart=dt.date(2019, 1, 1), freq=MONTHLY, bymonthday=[2])
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
+
+    def testMonthOfTuesdaysValue(self):
+        widget = RecurrenceWidget()
+        data = {'repeat_0':  '2010-01-05',
+                'repeat_1':  '1',
+                'repeat_2':  '1',
+                'repeat_5':  '2010-01-26',
+                'repeat_6':  '100',
+                'repeat_7':  '1',
+                'repeat_8':  None,
+                'repeat_9':  None,
+                'repeat_10': None,
+                'repeat_11': None }
+        rr = Recurrence(dtstart=dt.date(2010, 1, 5),
+                        freq=MONTHLY,
+                        byweekday=[TU],
+                        until=dt.date(2010,1,26))
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
+
+    def testSameTuesdayValue(self):
+        widget = RecurrenceWidget()
+        data = {'repeat_0':  '2010-01-12',
+                'repeat_1':  '1',
+                'repeat_2':  '1',
+                'repeat_6':  '101',
+                'repeat_7':  '1',
+                'repeat_8':  None,
+                'repeat_9':  None,
+                'repeat_10': None,
+                'repeat_11': None }
+        rr = Recurrence(dtstart=dt.date(2010, 1, 12),
+                        freq=MONTHLY,
+                        byweekday=[TU(2)])
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
+
+    def test135WednesdaysValue(self):
+        widget = RecurrenceWidget()
+        data = {'repeat_0':  '2010-01-12',
+                'repeat_1':  '1',
+                'repeat_2':  '1',
+                'repeat_6':  '1',
+                'repeat_7':  '2',
+                'repeat_8':  '3',
+                'repeat_9':  '2',
+                'repeat_10': '5',
+                'repeat_11': '2' }
+        rr = Recurrence(dtstart=dt.date(2010, 1, 12),
+                        freq=MONTHLY,
+                        byweekday=[WE(1),WE(3),WE(5)])
+        self.assertEqual(widget.value_from_datadict(data, {}, 'repeat'), rr)
 
     def testGetContext(self):
         rr = Recurrence(dtstart=dt.date(2014, 12, 1),

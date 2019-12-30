@@ -34,12 +34,14 @@ def _parseSubdivisions(holidaysStr, cls):
     for subdivision in SplitRe.split(holidaysStr[1:-1]):
         subdivision = subdivision.strip()
         if subdivision == "*":
-            retval += sum(cls(state = subdivision) for subdivision in states)
-            retval += sum(cls(prov = subdivision) for subdivision in provinces)
+            if states:
+                retval += sum(cls(state = subdivision) for subdivision in states)
+            if provinces:
+                retval += sum(cls(prov = subdivision) for subdivision in provinces)
         else:
             if subdivision in states:
                 retval += cls(state = subdivision)
-            else:
+            elif subdivision in provinces:
                 retval += cls(prov = subdivision)
     return retval
 
@@ -58,7 +60,9 @@ def parseHolidays(holidaysStr, holidayMap=None):
             retval.country = None
             for cls in holidayMap.values():
                 if subdivisions:
-                    retval += _parseSubdivisions(subdivisions, cls)
+                    subval = _parseSubdivisions(subdivisions, cls)
+                    if subval != 0:
+                        retval += subval
                 else:
                     retval += cls()
             return retval

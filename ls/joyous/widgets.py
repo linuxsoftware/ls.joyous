@@ -186,9 +186,9 @@ class RecurrenceWidget(MultiWidget):
             dayChoices  = [toIntOrNone(values[7]),
                            toIntOrNone(values[9]),
                            toIntOrNone(values[11])]
-            wdayChoices = []
+            wdayChoices = None
             mdayChoices = None
-            monChoices  = []
+            monChoices  = None
             if freq == WEEKLY:
                 if values[3]:
                     wdayChoices = [int(day) for day in values[3]]

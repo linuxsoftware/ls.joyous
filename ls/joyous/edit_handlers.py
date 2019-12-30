@@ -8,7 +8,7 @@ from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
 from wagtail.admin.widgets import AdminTimeInput
 try:
     from wagtail.admin.utils import get_available_admin_languages
-except ImportError:
+except ImportError:        # pragma: no cover
     from wagtail.admin.localization import get_available_admin_languages
 from .widgets import ExceptionDateInput, Time12hrInput
 
@@ -80,7 +80,7 @@ try:
     settings.INSTALLED_APPS.index('wagtailgmaps')
     from wagtailgmaps.edit_handlers import MapFieldPanel
     MapFieldPanel.UsingWagtailGMaps = True
-except (ValueError, ImportError):
+except (ValueError, ImportError):       # pragma: no cover
     MapFieldPanel = FieldPanel
 
 # ------------------------------------------------------------------------------
