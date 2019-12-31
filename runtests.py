@@ -31,7 +31,7 @@ def runPytest():
             # convert unittest "test_ical.TestImport.testMeetup" format to
             # "ls/joyous/test_ical.py::TestImport::testMeetup"
             path = arg.split(".")
-            if path[1] == "py":
+            if len(path) >= 2 and path[1] == "py":
                 del path[1]
             path[0] += ".py"
             labels.append("ls/joyous/tests/"+"::".join(path))
@@ -42,6 +42,7 @@ def runPytest():
     return errCode
 
 def runDjangoTest():
+    cleanMedia()
     verbosity = 1
     if "-v" in sys.argv or "--verbose" in sys.argv:
         verbosity = 2
@@ -70,7 +71,6 @@ def coverage():
 def main():
     doRunCoverage = "--coverage" in sys.argv
     os.environ['DJANGO_SETTINGS_MODULE'] = 'ls.joyous.tests.settings'
-    cleanMedia()
     if "--pytest" in sys.argv:
         sys.argv.remove("--pytest")
         if doRunCoverage:
@@ -87,4 +87,4 @@ def main():
 
 if __name__ == "__main__":
     failures = main()
-    sys.exit(bool(failures))
+    sys.exit(failures)
