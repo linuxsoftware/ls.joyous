@@ -9,9 +9,10 @@ from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.utils import translation
 from django.urls import reverse
+from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import (CalendarPage, SpecificCalendarPage,
-                                       GeneralCalendarPage)
+        CalendarPageForm, GeneralCalendarPage)
 from ls.joyous.models.events import SimpleEventPage
 from ls.joyous.models.groups import get_group_model
 from .testutils import freeze_timetz, getPage
@@ -260,6 +261,44 @@ class TestCalendar(TestCase):
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/events/2100/W1/")
         self.assertEqual(response.status_code, 404)
+
+# ------------------------------------------------------------------------------
+class TestCalendarPageForm(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser('i', 'i@j.test', 's3(r3t')
+        self.request = RequestFactory().get("/test")
+        self.request.user = self.user
+        self.request.session = {}
+        self.home = Page.objects.get(slug='home')
+        self.page = CalendarPage(owner  = self.user,
+                                 slug  = "events",
+                                 title = "Events")
+        self.home.add_child(instance=self.page)
+        self.page.save_revision().publish()
+
+    def testImportPanel(self):
+        CalendarPageForm.registerImportHandler(Mock())
+        panel = CalendarPage.settings_panels[-1]
+        self.assertFalse(panel._show())
+        panel.instance = self.page
+        panel.request  = self.request
+        self.assertFalse(panel._show())
+        setattr(self.page, '__joyous_edit_request', self.request)
+        self.assertTrue(panel._show())
+        delattr(self.page, '__joyous_edit_request')
+
+    def testSave(self):
+        Form = get_form_for_model(CalendarPage, form_class=CalendarPageForm)
+        setattr(self.page, '__joyous_edit_request', self.request)
+        form = Form(instance=self.page, parent_page=self.home)
+        handler = Mock()
+        CalendarPageForm.registerImportHandler(handler)
+        form.cleaned_data = {'utc2local': True,
+                             'upload':    "FILE"}
+        form.save()
+        handler.load.assert_called_with(self.page, self.request,
+                                        "FILE", utc2local=True)
+
 
 # ------------------------------------------------------------------------------
 class TestFrançais(TestCase):
@@ -529,7 +568,7 @@ class TestMultiCalendarCreate(TestCase):
     def testMainSiteAnotherGeneralCalendar(self):
         calendar = GeneralCalendarPage(owner  = self.user,
                                        slug  = "events",
-                                       title = "Events",)
+                                       title = "Events")
         self.main.add_child(instance=calendar)
         calendar.save_revision().publish()
         self.assertFalse(GeneralCalendarPage.can_create_at(self.main))
@@ -537,7 +576,7 @@ class TestMultiCalendarCreate(TestCase):
     def testSubSiteAnotherGeneralCalendar(self):
         calendar = GeneralCalendarPage(owner  = self.user,
                                        slug  = "events",
-                                       title = "Events",)
+                                       title = "Events")
         self.main.add_child(instance=calendar)
         calendar.save_revision().publish()
         self.assertFalse(GeneralCalendarPage.can_create_at(self.sub))
@@ -545,13 +584,13 @@ class TestMultiCalendarCreate(TestCase):
     def testCalendarMixture(self):
         general = GeneralCalendarPage(owner  = self.user,
                                       slug  = "events1",
-                                      title = "Events",)
+                                      title = "Events")
         self.main.add_child(instance=general)
         general.save_revision().publish()
         self.assertTrue(CalendarPage.can_create_at(self.main))
         calendar = CalendarPage(owner  = self.user,
                                 slug  = "events2",
-                                title = "Events",)
+                                title = "Events")
         self.main.add_child(instance=calendar)
         calendar.save_revision().publish()
         self.assertTrue(SpecificCalendarPage.can_create_at(self.main))
@@ -560,6 +599,7 @@ class TestMultiCalendarCreate(TestCase):
                                         title = "Events")
         self.main.add_child(instance=specific)
         specific.save_revision().publish()
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

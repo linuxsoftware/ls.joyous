@@ -80,6 +80,24 @@ class TestVDt(TestCase):
         atime = dt.datetime(2014, 10, 28, 10, 10)
         assert create_timezone(self.bogota, atime, atime).to_ical().split(b'\r\n') == vbogota
 
+    def testPST(self):
+        vpacific = [b'BEGIN:VTIMEZONE',
+                    b'TZID:Etc/GMT-8',
+                    b'BEGIN:STANDARD',
+                    b'DTSTART;VALUE=DATE-TIME:16010101T000000',
+                    b'RDATE:16010101T000000',
+                    b'TZNAME:Etc/GMT-8',
+                    b'TZOFFSETFROM:+0800',
+                    b'TZOFFSETTO:+0800',
+                    b'END:STANDARD',
+                    b'END:VTIMEZONE',
+                    b'']
+        pst = pytz.timezone('Etc/GMT-8')
+        atime = dt.datetime(2014, 10, 28, 10, 10)
+        btime = dt.datetime(2016, 10, 28, 10, 10)
+        vtz = create_timezone(pst, atime, btime)
+        assert vtz.to_ical().split(b'\r\n') == vpacific
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
