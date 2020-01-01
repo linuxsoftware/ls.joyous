@@ -14,7 +14,8 @@ from django.utils import timezone
 from wagtail.core.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, CancellationPage, MultidayRecurringEventPage)
+        RecurringEventPage, CancellationPage, MultidayRecurringEventPage,
+        RescheduleMultidayEventPage)
 from ls.joyous.models import getAllEvents
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
@@ -659,6 +660,105 @@ END:VCALENDAR""")
         self.assertEqual(event.num_days,   3)
         self.assertEqual(event.time_from,  dt.time(16))
         self.assertEqual(event.time_to,    dt.time(18))
+
+    def testMultidayRescheduleEvent(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//linuxsoftware.nz//NONSGML Joyous v0.9//EN
+BEGIN:VTIMEZONE
+TZID:Pacific/Auckland
+BEGIN:STANDARD
+DTSTART;VALUE=DATE-TIME:20200405T020000
+RDATE:20210404T020000,20220403T020000,20230402T020000,20240407T020000,2025
+ 0406T020000,20260405T020000,20270404T020000,20280402T020000,20290401T02000
+ 0,20300407T020000,20310406T020000,20320404T020000,20330403T020000,20340402
+ T020000,20350401T020000,20360406T020000,20370405T020000
+TZNAME:NZST
+TZOFFSETFROM:+1300
+TZOFFSETTO:+1200
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART;VALUE=DATE-TIME:20190929T030000
+RDATE:20200927T030000,20210926T030000,20220925T030000,20230924T030000,2024
+ 0929T030000,20250928T030000,20260927T030000,20270926T030000,20280924T03000
+ 0,20290930T030000,20300929T030000,20310928T030000,20320926T030000,20330925
+ T030000,20340924T030000,20350930T030000,20360928T030000,20370927T030000
+TZNAME:NZDT
+TZOFFSETFROM:+1200
+TZOFFSETTO:+1300
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+SUMMARY:Colour In
+DTSTART;TZID=Pacific/Auckland:20200101T103000
+DTEND;TZID=Pacific/Auckland:20200102T140000
+DTSTAMP:20200101T012156Z
+UID:6ca93786-722e-410c-91a2-bc8a6ecdadb9
+SEQUENCE:1
+RRULE:FREQ=WEEKLY;BYDAY=WE;WKST=SU
+CREATED:20200101T011254Z
+DESCRIPTION:Paint that scene.
+X-ALT-DESC;FMTTYPE=text/html:<h2>Paint that scene.</h2>
+LAST-MODIFIED:20200101T011254Z
+LOCATION:
+URL:http://localhost/calendar/colour/
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Knock
+DTSTART;TZID=Pacific/Auckland:20200108T110000
+DTEND;TZID=Pacific/Auckland:20200109T140000
+DTSTAMP:20200101T012156Z
+UID:6ca93786-722e-410c-91a2-bc8a6ecdadb9
+RECURRENCE-ID;TZID=Pacific/Auckland:20200108T103000
+SEQUENCE:1
+CREATED:20200101T011852Z
+DESCRIPTION:
+LAST-MODIFIED:20200101T011852Z
+LOCATION:
+URL:http://localhost/calendar/colour/2020-01-08-postponement/
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Change
+DTSTART;TZID=Pacific/Auckland:20200116T110000
+DTEND;TZID=Pacific/Auckland:20200116T143000
+DTSTAMP:20200101T012156Z
+UID:6ca93786-722e-410c-91a2-bc8a6ecdadb9
+RECURRENCE-ID;TZID=Pacific/Auckland:20200115T103000
+SEQUENCE:1
+CREATED:20200101T012044Z
+DESCRIPTION:
+LAST-MODIFIED:20200101T012044Z
+LOCATION:
+URL:http://localhost/calendar/colour/2020-01-15-postponement/
+END:VEVENT
+END:VCALENDAR""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        events = self.calendar.get_children()
+        self.assertEqual(len(events), 1)
+        event = events[0].specific
+        self.assertIs(type(event),          MultidayRecurringEventPage)
+        self.assertEqual(event.title,       "Colour In")
+        self.assertEqual(event.details,     "<h2>Paint that scene.</h2>")
+        self.assertEqual(event.tz.zone,     "Pacific/Auckland")
+        self.assertEqual(event.num_days,    2)
+        self.assertEqual(event.time_from,   dt.time(10,30))
+        self.assertEqual(event.time_to,     dt.time(14))
+        exceptions = event.get_children()
+        self.assertEqual(len(exceptions),   2)
+        resched = exceptions[0].specific
+        self.assertIs(type(resched),        RescheduleMultidayEventPage)
+        self.assertEqual(resched.postponement_title, "Knock")
+        self.assertEqual(resched.num_days,  2)
+        self.assertEqual(resched.time_from, dt.time(11))
+        self.assertEqual(resched.time_to,   dt.time(14))
+        resched = exceptions[1].specific
+        self.assertIs(type(resched),        RescheduleMultidayEventPage)
+        self.assertEqual(resched.postponement_title, "Change")
+        self.assertEqual(resched.num_days,  1)
+        self.assertEqual(resched.time_from, dt.time(11))
+        self.assertEqual(resched.time_to,   dt.time(14,30))
 
 # ------------------------------------------------------------------------------
 class TestExport(TestCase):

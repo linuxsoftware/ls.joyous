@@ -176,7 +176,7 @@ class VCalendar(Calendar, VComponentMixin):
                     event = self.page._getEventFromUid(request, vevent['UID'])
                 except PermissionDenied:
                     # No authority
-                    pass
+                    numFail += 1
                 except ObjectDoesNotExist:
                     numSuccess += self._createEventPage(request, vevent)
                 else:
@@ -694,7 +694,7 @@ class RecurringVEvent(VEvent):
         page.location   = str(self.get('LOCATION', ""))
         page.repeat     = Recurrence(rrule.to_ical().decode(),
                                      dtstart=dtstart.date())
-        page.num_days   = (dtend.date() - dtstart.date()).days + 1
+        page.num_days   = self.numDays
         page.time_from  = dtstart.time()
         page.time_to    = dtend.time()
         page.tz         = dtstart.timezone()
@@ -806,6 +806,7 @@ class PostponementVEvent(ExceptionVEvent):
         page.details            = self._getDesc()
         page.location           = str(self.get('LOCATION', ""))
         page.date               = dtstart.date()
+        page.num_days           = self.numDays
         page.time_from          = dtstart.time()
         page.time_to            = dtend.time()
 

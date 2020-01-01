@@ -19,12 +19,13 @@ Documentation
 
 Other features
 ~~~~~~~~~~~~~~
+ * Don't build unnecessary holiday objects
 
 Bug fixes
 ~~~~~~~~~
  * Fix weekly urls at the end of the year
- * Don't build unnecessary holiday objects
  * Use None to mark default byweekday and bymonth
+ * Count PermissionDenied errors in import as failures
 
 Upgrade considerations
 ======================

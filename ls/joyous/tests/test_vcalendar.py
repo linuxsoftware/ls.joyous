@@ -4,12 +4,12 @@
 import sys
 import datetime as dt
 import pytz
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser, Group
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib import messages
 from django.utils import timezone
 from django.test import TestCase, RequestFactory
-from wagtail.core.models import Site, Page
+from wagtail.core.models import Site, Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
@@ -18,6 +18,8 @@ from ls.joyous.formats.ical import (CalendarTypeError,
         CalendarNotInitializedError, VCalendar)
 from freezegun import freeze_time
 from .testutils import datetimetz, freeze_timetz, getPage
+
+
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -408,6 +410,20 @@ class TestUpdate(TestCase):
         event.add_child(instance=info)
         info.save_revision().publish()
 
+        GROUPS = PageViewRestriction.GROUPS
+        self.friends = Group.objects.create(name = "Friends")
+        self.rendezvous = SimpleEventPage(owner = self.user,
+                                          slug   = "rendezvous",
+                                          title  = "Private Rendezvous",
+                                          date   = dt.date(2013,1,10),
+                                          uid    = "80af64e7-84e6-40d9-8b4f-7edf92aab9f7")
+        self.calendar.add_child(instance=self.rendezvous)
+        self.rendezvous.save_revision().publish()
+        restriction = PageViewRestriction.objects.create(restriction_type = GROUPS,
+                                                         page = self.rendezvous)
+        restriction.groups.set([self.friends])
+        restriction.save()
+
     def _getRequest(self, path="/"):
         request = self.requestFactory.get(path)
         request.user = self.user
@@ -519,6 +535,46 @@ class TestUpdate(TestCase):
         self.assertEqual(cancellation.except_date, dt.date(2019,2,14))
         cancellation = cancellations[1]
         self.assertEqual(cancellation.except_date, dt.date(2018,10,25))
+
+    @freeze_timetz("2014-05-09 11:00")
+    def testLoadRestricted(self):
+        data  = b"\r\n".join([
+                b"BEGIN:VCALENDAR",
+                b"VERSION:2.0",
+                b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
+                b"CALSCALE:GREGORIAN",
+                b"METHOD:PUBLISH",
+                b"X-WR-CALNAME:Bloor &amp; Spadina",
+                b"X-ORIGINAL-URL:http://bloorneighbours.ca",
+                b"X-WR-CALDESC:Events for Bloor &amp; Spadina",
+                b"BEGIN:VEVENT",
+                b"DTSTART;TZID=UTC+0:20130110T000000",
+                b"DTEND;TZID=UTC+0:20130110T100000",
+                b"DTSTAMP:20140509T110000",
+                b"CREATED:20130304T225154Z",
+                b"LAST-MODIFIED:20120304T225154Z",
+                b"UID:80af64e7-84e6-40d9-8b4f-7edf92aab9f7",
+                b"LOCATION:4 William James Lane, Toronto ON, M5S 1X9",
+                b"SUMMARY:Private Rendezvous",
+                b"DESCRIPTION:",
+                b"END:VEVENT",
+                b"END:VCALENDAR",])
+        vcal = VCalendar(self.calendar)
+        request = self._getRequest()
+        vcal.load(request, data)
+        events = SimpleEventPage.events.child_of(self.calendar)            \
+                                       .filter(date=dt.date(2013,1,10)).all()
+        self.assertEqual(len(events), 1)
+        event = events[0]
+        self.assertEqual(event.title,      "Private Rendezvous")
+        self.assertEqual(event.location,   "")
+        revisions = event.revisions.all()
+        self.assertEqual(len(revisions), 1)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        msg = msgs[0]
+        self.assertEqual(msg.level, messages.ERROR)
+        self.assertEqual(msg.message, "Could not load 1 iCal events")
 
 # ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
