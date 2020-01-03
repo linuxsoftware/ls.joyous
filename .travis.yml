@@ -4,6 +4,8 @@ dist: xenial
 
 language: python
 
+cache: pip
+
 env:
  - WAGTAIL_VERSION=2.5.2
  - WAGTAIL_VERSION=2.6.3
