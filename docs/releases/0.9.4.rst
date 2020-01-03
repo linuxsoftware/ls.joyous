@@ -10,13 +10,6 @@ Joyous 0.9.4 release notes - IN DEVELOPMENT
 What's new
 ==========
 
-Translations
-~~~~~~~~~~~~
-
-
-Documentation
-~~~~~~~~~~~~~
-
 Other features
 ~~~~~~~~~~~~~~
  * Don't build unnecessary holiday objects
