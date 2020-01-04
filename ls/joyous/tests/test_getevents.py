@@ -15,7 +15,7 @@ from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, MO, TU, WE, FR, SU
 from ls.joyous.models.calendar import GeneralCalendarPage
 from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, PostponementPage, ExtraInfoPage)
+        RecurringEventPage, PostponementPage, CancellationPage, ExtraInfoPage)
 from ls.joyous.models.events import (getAllEventsByDay, getAllEventsByWeek,
         getAllUpcomingEvents, getAllPastEvents, getGroupUpcomingEvents,
         getEventFromUid)
@@ -97,6 +97,14 @@ class Test(TestCase):
                                              time_to   = dt.time(16,30),
                                              details   = "Yes a test meeting on a Thursday")
         self.standup.add_child(instance=self.postponement)
+
+        cancelTuesday = CancellationPage(owner = self.user,
+                                         slug  = "2013-01-01-cancellation",
+                                         title = "CancellationPage for Tuesday 1st of January",
+                                         overrides = self.standup,
+                                         except_date = dt.date(2013,1,1),
+                                         cancellation_title   = "Meeting Cancelled")
+        self.standup.add_child(instance=cancelTuesday)
 
     def testGetAllEventsByDay(self):
         events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
