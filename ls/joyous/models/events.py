@@ -100,8 +100,9 @@ def getAllUpcomingEvents(request, *, home=None):
             RecurringEventPage.events(request).upcoming().this(),
             PostponementPage.events(request).upcoming().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").upcoming()
-                                         .this()]
-    # Cancellations are not returned
+                            .this(),
+            CancellationPage.events(request).exclude(cancellation_title="")
+                            .upcoming().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -133,8 +134,9 @@ def getGroupUpcomingEvents(request, group):
         qrys += [PostponementPage.events(request).child_of(rrEvent.page)
                                          .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
+                                 .child_of(rrEvent.page).upcoming().this(),
+                 CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
-    # Cancellations are not returned
 
     # Get events that are linked to a group page, or a postponement or extra
     # info a child of the recurring event linked to a group
@@ -149,6 +151,8 @@ def getGroupUpcomingEvents(request, group):
         qrys += [PostponementPage.events(request).child_of(rrEvent.page)
                                                        .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
+                                 .child_of(rrEvent.page).upcoming().this(),
+                 CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
     events = sorted(chain.from_iterable(qrys),
                     key=attrgetter('page._upcoming_datetime_from'))
@@ -166,8 +170,9 @@ def getAllPastEvents(request, *, home=None):
             MultidayEventPage.events(request).past().this(),
             RecurringEventPage.events(request).past().this(),
             PostponementPage.events(request).past().this(),
-            ExtraInfoPage.events(request).exclude(extra_title="").past().this()]
-    # Cancellations are not returned
+            ExtraInfoPage.events(request).exclude(extra_title="").past().this(),
+            CancellationPage.events(request).exclude(cancellation_title="")
+                            .past().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -1155,7 +1160,6 @@ class RecurringEventPage(EventBase, Page):
 
         (Does not include postponements, but does exclude cancellations.)
         """
-        # TODO analyse which is faster (rrule or db) and test that first
         if myDate not in self.repeat:
             return False
         if CancellationPage.events.child_of(self)                            \
@@ -1504,6 +1508,9 @@ class ExtraInfoPage(EventExceptionBase, Page):
         ]
     promote_panels = []
 
+    # Original properties
+    details     = property(attrgetter("overrides.details"))
+
     @property
     def status(self):
         """
@@ -1548,12 +1555,26 @@ class ExtraInfoPage(EventExceptionBase, Page):
         return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
 
     def __checkFromDt(self, predicate):
+        # _occursOn means a lookup of CancellationPage
+        # possible performance problem?
         if not self.overrides._occursOn(self.except_date):
             return None
         fromDt = getLocalDatetime(self.except_date, self.time_from, self.tz)
         return fromDt if predicate(fromDt) else None
 
 # ------------------------------------------------------------------------------
+class CancellationQuerySet(EventExceptionQuerySet):
+    def this(self):
+        request = self.request
+        class ThisCancellationIterable(ModelIterable):
+            def __iter__(self):
+                for page in super().__iter__():
+                    yield ThisEvent(page.cancellation_title, page,
+                                    page.getCancellationUrl(request))
+        qs = self._clone()
+        qs._iterable_class = ThisCancellationIterable
+        return qs
+
 class CancellationPageForm(EventExceptionPageForm):
     description = _("a cancellation")
 
@@ -1569,6 +1590,7 @@ class CancellationPage(EventExceptionBase, Page):
         verbose_name_plural = _("cancellations")
         default_manager_name = "objects"
 
+    events = EventManager.from_queryset(CancellationQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage",
                          "joyous.MultidayRecurringEventPage"]
     subpage_types = []
@@ -1610,6 +1632,28 @@ class CancellationPage(EventExceptionBase, Page):
         A text description of the current status of the event.
         """
         return _("This event has been cancelled.")
+
+    @property
+    def _upcoming_datetime_from(self):
+        """
+        The datetime this event next starts in the local time zone, or None if
+        it is finished.
+        """
+        return self.__checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
+
+    @property
+    def _past_datetime_from(self):
+        """
+        The datetime this event previously started in the local timezone, or
+        None if it never did.
+        """
+        return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
+
+    def __checkFromDt(self, predicate):
+        if self.except_date not in self.overrides.repeat:
+            return None
+        fromDt = getLocalDatetime(self.except_date, self.time_from, self.tz)
+        return fromDt if predicate(fromDt) else None
 
     def getCancellationUrl(self, request=None):
         url = self.get_url(request)

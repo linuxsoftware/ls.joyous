@@ -3,14 +3,21 @@
   <div class="joy-title joy-title--item">
     <h3><a class="joy-title__link" href="{{ url }}">{{ title }}</a></h3>
   </div>
-  {% if event.image %}
-  <a class="joy-img-link joy-field" 
-     href="{{ url }}">{% image event.image width-250 class="joy-img-link__img" %}</a>
-  {% endif %}
+  {% if event.image %}<a class="joy-img-link joy-field" 
+     href="{{ url }}">{% image event.image width-250 class="joy-img-link__img" %}</a>{% endif %}
   {% include "joyous/includes/who.html" %}
   {% include "joyous/includes/when.html" %}
   {% include "joyous/includes/where.html" %}
+  {% if event.details %}
+  {% if event.extra_information %}<div class="joy-ev-extra joy-field">
+    {{ event.extra_information|richtext|truncatewords_html:150 }}
+  </div> {% endif %}
   <div class="joy-ev-details joy-field">
     {{ event.details|richtext|truncatewords_html:150 }}
   </div>
+  {% else %}
+  {% if event.cancellation_details %}<div class="joy-ev-details joy-field">
+  {{ event.cancellation_details|richtext }}
+  </div> {% endif %}
+  {% endif %}
 </div>   

@@ -400,8 +400,8 @@ class TestMultiSite(TestCase):
         ).render(self._getContext())
         soup = BeautifulSoup(out, "html5lib")
         items = soup(class_="joy-ev-item")
-        self.assertEqual(len(items), 7)
-        chess, novaexec, blitz, drama, lecture, market, chess2 = items
+        self.assertEqual(len(items), 9)
+        chess, novaexec, blitz, cancel, drama, lecture, market, nochess, chess2 = items
         self.assertEqual(chess.a['href'], "/chess-club/lunchtime-matches/")
         self.assertEqual(novaexec.find(class_="joy-ev-next-on").get_text(strip=True),
                          "Next on Thursday 6th of September at 1pm")
@@ -422,6 +422,8 @@ class TestMultiSite(TestCase):
         self.assertEqual(chess2.a['href'], "/chess-club/lunchtime-matches/1984-10-03-postponement/")
         self.assertEqual(chess2.find(class_="joy-ev-from-when").get_text(strip=True),
                          "Postponed from Wednesday 3rd of October at 12pm to 1pm")
+        self.assertEqual(cancel.a.get_text(strip=True), "Meeting Cancelled")
+        self.assertEqual(nochess.a.get_text(strip=True), "No Chess Club Today")
 
     @freeze_timetz("1984-09-01 15:00")
     def testSubsiteUpcomingEvents(self):
@@ -432,11 +434,12 @@ class TestMultiSite(TestCase):
                                   page=getPage("/home/nova/activities/")))
         soup = BeautifulSoup(out, "html5lib")
         items = soup(class_="joy-ev-item")
-        self.assertEqual(len(items), 2)
-        novaexec, blitz = items
+        self.assertEqual(len(items), 3)
+        novaexec, blitz, cancel = items
         self.assertEqual(novaexec.a.get_text(strip=True),
                          "Executive Committee Meeting")
         self.assertEqual(blitz.a.get_text(strip=True), "Rubbish Blitz")
+        self.assertEqual(cancel.a.get_text(strip=True), "Meeting Cancelled")
 
     @freeze_timetz("1984-09-15 10:00")
     def testGroupUpcomingEvents(self):
@@ -458,6 +461,14 @@ class TestMultiSite(TestCase):
         </div>
         <div class="joy-ev-next-on joy-field">
           Next on Monday 17th of September at 12pm
+        </div>
+      </div>
+      <div class="joy-ev-item">
+        <div class="joy-title joy-title--item">
+          <h3><a class="joy-title__link" href="/chess-club/lunchtime-matches/1984-10-01-cancellation/">No Chess Club Today</a></h3>
+        </div>
+        <div class="joy-ev-when joy-field">
+          Monday 1st of October at 12pm to 1pm
         </div>
       </div>
       <div class="joy-ev-item">

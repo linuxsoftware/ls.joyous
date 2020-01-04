@@ -153,11 +153,12 @@ class Test(TestCase):
 
     def testGetAllPastEvents(self):
         events = getAllPastEvents(self.request)
-        self.assertEqual(len(events), 4)
+        self.assertEqual(len(events), 5)
         self.assertEqual(events[0].title, "Test Meeting")
         self.assertEqual(events[1].title, "A Meeting")
-        self.assertEqual(events[2].title, "Pet Show")
-        self.assertEqual(events[3].title, "All Night")
+        self.assertEqual(events[2].title, "Meeting Postponed")
+        self.assertEqual(events[3].title, "Pet Show")
+        self.assertEqual(events[4].title, "All Night")
 
     def testGetGroupUpcomingEvents(self):
         meeting = RecurringEventPage(owner = self.user,

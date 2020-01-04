@@ -297,7 +297,6 @@ class CalendarPage(RoutablePageMixin, Page):
         day = dt.date(year, month, dom)
 
         daysEvents = self._getEventsOnDay(request, day).all_events
-        # FIXME: Does include Cancellations - should it?
         if len(daysEvents) == 1:
             event = daysEvents[0].page
             return redirect(event.get_url(request))
@@ -338,7 +337,6 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('servePast')
         upcomingEvents = self._getUpcomingEvents(request)
-        # FIXME: Does not include Cancellations - should it?
         eventsPage = self._paginate(request, upcomingEvents)
 
         cxt = self._getCommonContext(request)
@@ -363,7 +361,6 @@ class CalendarPage(RoutablePageMixin, Page):
                                                  args=[weekYear, weekNum])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
         pastEvents = self._getPastEvents(request)
-        # FIXME: Does not include Cancellations - should it?
         eventsPage = self._paginate(request, pastEvents)
 
         cxt = self._getCommonContext(request)
