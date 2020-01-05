@@ -1636,16 +1636,16 @@ class CancellationPage(EventExceptionBase, Page):
     @property
     def _upcoming_datetime_from(self):
         """
-        The datetime this event next starts in the local time zone, or None if
-        it is finished.
+        The datetime of the event to be cancelled in the local time zone, or
+        None if it is past then.
         """
         return self.__checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
 
     @property
     def _past_datetime_from(self):
         """
-        The datetime this event previously started in the local timezone, or
-        None if it never did.
+        The datetime of the event that was cancelled in the local time zone, or
+        None if it never was.
         """
         return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
 
@@ -1656,6 +1656,10 @@ class CancellationPage(EventExceptionBase, Page):
         return fromDt if predicate(fromDt) else None
 
     def getCancellationUrl(self, request=None):
+        """
+        The URL to a page describing the cancellation for Postponements and
+        plain Cancellations.
+        """
         url = self.get_url(request)
         if hasattr(self, "postponementpage"):
             if url[-1] != '/':

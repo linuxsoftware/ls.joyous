@@ -12,7 +12,7 @@ What's new
 
 List "named" Cancellations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-A Cancellation or Postponement with the cancellation_title filled in will be
+A Cancellation (or Postponement) with the cancellation_title filled in will be
 shown in the list of upcoming or past events at the date the event was
 cancelled.
 This matches how cancellations are already displayed in the monthly and weekly

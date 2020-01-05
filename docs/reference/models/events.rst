@@ -274,6 +274,10 @@ ExtraInfoPage
 
         Information just for this date.
 
+    .. attribute:: details
+
+        Shortcut for overrides.details.
+
     .. autoattribute:: status
     .. autoattribute:: status_text
     .. autoattribute:: _upcoming_datetime_from
@@ -291,12 +295,16 @@ CancellationPage
 
         Show in place of cancelled event (Leave empty to show nothing).
 
-    .. attribute:: cancellation_information
+    .. attribute:: cancellation_details
 
         Why was the event cancelled?
 
     .. autoattribute:: status
     .. autoattribute:: status_text
+    .. autoattribute:: _upcoming_datetime_from
+    .. autoattribute:: _past_datetime_from
+    .. automethod:: getCancellationUrl
+    .. autoattribute:: cancellation_url
 
 RescheduleEventBase
 -------------------
