@@ -850,7 +850,8 @@ class RecurringEventQuerySet(EventQuerySet):
                 evods = EventsByDayList(fromDate, toDate)
                 for page in super().__iter__():
                     exceptions = self.__getExceptionsFor(page)
-                    for occurence in page.repeat.between(fromDate - _2days,
+                    startDelta = dt.timedelta(days=page.num_days + 1)
+                    for occurence in page.repeat.between(fromDate - startDelta,
                                                          toDate + _2days, True):
                         thisEvent = None
                         exception = exceptions.get(occurence)

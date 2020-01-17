@@ -11,7 +11,7 @@ from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY
-from ls.joyous.utils.recurrence import SA, TU, TH, FR
+from ls.joyous.utils.recurrence import SA, MO, TU, TH, FR
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import MultidayRecurringEventPage, ExtraInfoPage
 from .testutils import datetimetz, freeze_timetz
@@ -128,6 +128,64 @@ class Test(TestCase):
         self.event.add_child(instance=info2018)
         before = self.event._past_datetime_from
         self.assertEqual(before, datetimetz(2017, 8, 4, 18))
+
+# ------------------------------------------------------------------------------
+class Test40Day(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        Page.objects.get(slug='home').add_child(instance=self.calendar)
+        self.calendar.save()
+        self.calendar.save_revision().publish()
+        self.event = MultidayRecurringEventPage(
+                               owner = self.user,
+                               slug  = "ice-festival",
+                               title = "Ice Festival",
+                               repeat = Recurrence(dtstart=dt.date(2000,12,25),
+                                                   until=dt.date(2020,1,31),
+                                                   freq=YEARLY,
+                                                   bymonth=12,
+                                                   byweekday=MO(4)),
+                               num_days  = 40)
+        self.calendar.add_child(instance=self.event)
+        self.event.save_revision().publish()
+
+    def testGetEventsByDay(self):
+        events = MultidayRecurringEventPage.events.byDay(dt.date(2020,1,1),
+                                                         dt.date(2020,1,31))
+        self.assertEqual(len(events), 31)
+        evod = events[0]
+        self.assertEqual(evod.date, dt.date(2020,1,1))
+        self.assertEqual(len(evod.days_events), 0)
+        self.assertEqual(len(evod.continuing_events), 1)
+        thisEvent = evod.continuing_events[0]
+        self.assertEqual(thisEvent.title, "Ice Festival")
+        evod = events[10]
+        self.assertEqual(evod.date, dt.date(2020,1,11))
+        self.assertEqual(len(evod.continuing_events), 1)
+        thisEvent = evod.continuing_events[0]
+        self.assertEqual(thisEvent.title, "Ice Festival")
+
+    def testStatus(self):
+        with freeze_timetz("2019-12-20 13:00:00"):
+            self.assertEqual(self.event.status_text, "")
+        with freeze_timetz("2020-01-02 13:00:00"):
+            self.assertEqual(self.event.status_text, "This event has started.")
+        with freeze_timetz("2020-02-03 17:00:00"):
+            self.assertEqual(self.event.status_text, "These events have finished.")
+
+    def testAt(self):
+        self.assertEqual(self.event.at.strip(), "")
+
+    @freeze_timetz("2035-04-03 10:00:00")
+    def testNextDate(self):
+        self.assertEqual(self.event.next_date, None)
+
+    @freeze_timetz("2035-04-03 10:00:00")
+    def testPrevDate(self):
+        self.assertEqual(self.event.prev_date, dt.date(2019, 12, 23))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
