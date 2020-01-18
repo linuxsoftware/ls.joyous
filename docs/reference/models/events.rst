@@ -112,7 +112,8 @@ EventBase
         A website location for the event.
 
     .. autoattribute:: group
-    .. autoattribute:: _upcoming_datetime_from
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
     .. autoattribute:: _first_datetime_from
     .. autoattribute:: status
@@ -122,6 +123,7 @@ EventBase
     .. automethod:: _getLocalWhen
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
+    .. automethod:: _getToDt
 
 SimpleEventPage
 ---------------
@@ -139,6 +141,7 @@ SimpleEventPage
     .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
+    .. automethod:: _getToDt
 
 MultidayEventPage
 -----------------
@@ -160,6 +163,7 @@ MultidayEventPage
     .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
+    .. automethod:: _getToDt
 
 RecurringEventPage
 ------------------
@@ -178,7 +182,8 @@ RecurringEventPage
         The number of days an occurrence lasts for.
 
     .. autoattribute:: next_date
-    .. autoattribute:: _upcoming_datetime_from
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
     .. autoattribute:: prev_date
     .. autoattribute:: _past_datetime_from
     .. autoattribute:: _first_datetime_from
@@ -255,6 +260,8 @@ EventExceptionBase
     .. autoattribute:: when
     .. autoattribute:: at
     .. automethod:: _getFromTime
+    .. automethod:: _getFromDt
+    .. automethod:: _getToDt
     .. automethod:: full_clean
     .. automethod:: isAuthorized
 
@@ -280,7 +287,8 @@ ExtraInfoPage
 
     .. autoattribute:: status
     .. autoattribute:: status_text
-    .. autoattribute:: _upcoming_datetime_from
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
 
 CancellationPage
@@ -301,7 +309,8 @@ CancellationPage
 
     .. autoattribute:: status
     .. autoattribute:: status_text
-    .. autoattribute:: _upcoming_datetime_from
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
     .. automethod:: getCancellationUrl
     .. autoattribute:: cancellation_url
@@ -355,6 +364,7 @@ PostponementPage
     .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
+    .. automethod:: _getToDt
 
 RescheduleMultidayEventPage
 ---------------------------

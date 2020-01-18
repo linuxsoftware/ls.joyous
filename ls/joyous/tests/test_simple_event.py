@@ -4,7 +4,6 @@
 import sys
 import datetime as dt
 import pytz
-from freezegun import freeze_time
 from django.test import RequestFactory, override_settings
 from django_bs_test import TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
@@ -13,7 +12,7 @@ from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.models.calendar import SpecificCalendarPage
 from ls.joyous.models.events import SimpleEventPage, ThisEvent, EventsOnDay
 from ls.joyous.models.groups import get_group_model
-from .testutils import datetimetz
+from .testutils import datetimetz, freeze_timetz
 GroupPage = get_group_model()
 
 # ------------------------------------------------------------------------------
@@ -76,8 +75,8 @@ class Test(TestCase):
     def testAt(self):
         self.assertEqual(self.event.at, "11am")
 
-    def testUpcomingDt(self):
-        self.assertIsNone(self.event._upcoming_datetime_from)
+    def testCurrentDt(self):
+        self.assertIsNone(self.event._current_datetime_from)
         now = timezone.localtime()
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
@@ -89,14 +88,37 @@ class Test(TestCase):
                                    time_from = earlier.time(),
                                    time_to   = dt.time.max)
         self.calendar.add_child(instance=nowEvent)
-        self.assertIsNone(nowEvent._upcoming_datetime_from)
+        self.assertEqual(nowEvent._current_datetime_from, earlier)
         tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = SimpleEventPage(owner = self.user,
                                       slug  = "tomorrow",
                                       title = "Tomorrow's Event",
                                       date  = tomorrow)
         self.calendar.add_child(instance=futureEvent)
-        self.assertEqual(futureEvent._upcoming_datetime_from,
+        self.assertEqual(futureEvent._current_datetime_from,
+                         datetimetz(tomorrow, dt.time.max))
+
+    def testFutureDt(self):
+        self.assertIsNone(self.event._future_datetime_from)
+        now = timezone.localtime()
+        earlier = now - dt.timedelta(hours=1)
+        if earlier.date() != now.date():
+            earlier = datetimetz(now.date(), dt.time.min)
+        nowEvent = SimpleEventPage(owner = self.user,
+                                   slug  = "now",
+                                   title = "Now Event",
+                                   date      = now.date(),
+                                   time_from = earlier.time(),
+                                   time_to   = dt.time.max)
+        self.calendar.add_child(instance=nowEvent)
+        self.assertIsNone(nowEvent._future_datetime_from)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
+        futureEvent = SimpleEventPage(owner = self.user,
+                                      slug  = "tomorrow",
+                                      title = "Tomorrow's Event",
+                                      date  = tomorrow)
+        self.calendar.add_child(instance=futureEvent)
+        self.assertEqual(futureEvent._future_datetime_from,
                          datetimetz(tomorrow, dt.time.max))
 
     def testPastDt(self):
@@ -191,8 +213,12 @@ class TestTZ(TestCase):
         self.assertEqual(self.event.at, "6pm")
 
     @timezone.override("America/Los_Angeles")
-    def testUpcomingLocalDt(self):
-        self.assertIsNone(self.event._upcoming_datetime_from)
+    def testCurrentLocalDt(self):
+        self.assertIsNone(self.event._current_datetime_from)
+
+    @timezone.override("America/Los_Angeles")
+    def testFutureLocalDt(self):
+        self.assertIsNone(self.event._future_datetime_from)
 
     @timezone.override("America/Los_Angeles")
     def testPastLocalDt(self):
@@ -236,17 +262,32 @@ class TestQuerySet(TestCase):
         self.calendar.add_child(instance=self.event)
         self.event.save_revision().publish()
 
-    @freeze_time("2017-05-31")
+    @freeze_timetz("2017-05-31")
     def testPast(self):
         self.assertEqual(list(SimpleEventPage.events.past()), [self.event])
         self.assertEqual(SimpleEventPage.events.past().count(), 1)
-        self.assertEqual(SimpleEventPage.events.upcoming().count(), 0)
+        self.assertEqual(SimpleEventPage.events.future().count(), 0)
 
-    @freeze_time("2012-03-04")
-    def testUpcoming(self):
-        self.assertEqual(list(SimpleEventPage.events.upcoming()), [self.event])
+    @freeze_timetz("2012-03-04")
+    def testFuture(self):
+        self.assertEqual(list(SimpleEventPage.events.future()), [self.event])
         self.assertEqual(SimpleEventPage.events.past().count(), 0)
-        self.assertEqual(SimpleEventPage.events.upcoming().count(), 1)
+        self.assertEqual(SimpleEventPage.events.future().count(), 1)
+
+    @freeze_timetz("2015-06-05 12:00:00")
+    def testCurrent(self):
+        self.assertEqual(list(SimpleEventPage.events.current()), [self.event])
+        self.assertEqual(SimpleEventPage.events.past().count(), 1)
+        self.assertEqual(SimpleEventPage.events.current().count(), 1)
+
+    @freeze_timetz("2015-06-05 12:00:00")
+    def testUpcoming(self):
+        with override_settings(JOYOUS_UPCOMING_INCLUDES_STARTED = True):
+            self.assertEqual(SimpleEventPage.events.past().count(), 1)
+            self.assertEqual(SimpleEventPage.events.upcoming().count(), 1)
+        with override_settings(JOYOUS_UPCOMING_INCLUDES_STARTED = False):
+            self.assertEqual(SimpleEventPage.events.past().count(), 1)
+            self.assertEqual(SimpleEventPage.events.upcoming().count(), 0)
 
     def testThis(self):
         events = list(SimpleEventPage.events.this())

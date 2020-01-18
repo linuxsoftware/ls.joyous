@@ -1,0 +1,43 @@
+==========================
+Joyous 0.9.5 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+Option to include started events in the upcoming list
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release adds new setting :setting:`JOYOUS_UPCOMING_INCLUDES_STARTED`.
+If this is set to ``True`` then the list of upcoming events will also include
+events that have already started but have not yet finished.
+
+New filters ``current`` for upcoming and started events and ``future``
+for just upcoming events have been added to EventQuerySet.  The old
+filter ``upcoming`` now just delegates to the appropriate one depending upon
+:setting:`JOYOUS_UPCOMING_INCLUDES_STARTED`.
+
+New event properties ``_current_datetime_from`` and ``_future_datetime_from``
+are used by the filters and for sorting the list of events.
+The old property ``_upcoming_datetime_from`` has been removed.
+
+Other features
+~~~~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+ * Subtract page.num_days for continuuing events starting before fromDate
+ * Force a call to _fetch_all in EventQuerySet.count()
+
+
+
+Upgrade considerations
+======================
+
+

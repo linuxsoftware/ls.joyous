@@ -105,8 +105,7 @@ def getAllUpcomingEvents(request, *, home=None):
                             .upcoming().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
-    events = sorted(chain.from_iterable(qrys),
-                    key=attrgetter('page._upcoming_datetime_from'))
+    events = sorted(chain.from_iterable(qrys), key=__getUpcomingSort())
     return events
 
 def getGroupUpcomingEvents(request, group):
@@ -154,8 +153,7 @@ def getGroupUpcomingEvents(request, group):
                                  .child_of(rrEvent.page).upcoming().this(),
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
-    events = sorted(chain.from_iterable(qrys),
-                    key=attrgetter('page._upcoming_datetime_from'))
+    events = sorted(chain.from_iterable(qrys), key=__getUpcomingSort())
     return events
 
 def getAllPastEvents(request, *, home=None):
@@ -267,6 +265,12 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
         weeks.append(week)
     return weeks
 
+def __getUpcomingSort():
+    if getattr(settings, "JOYOUS_UPCOMING_INCLUDES_STARTED", False):
+        return attrgetter('page._current_datetime_from')
+    else:
+        return attrgetter('page._future_datetime_from')
+
 # ------------------------------------------------------------------------------
 # Helper types and constants
 # ------------------------------------------------------------------------------
@@ -375,9 +379,26 @@ class EventQuerySet(PageQuerySet):
         if self.postFilter:
             self._result_cache[:] = filter(self.postFilter, self._result_cache)
 
+    def count(self):
+        if self.postFilter and self._result_cache is None:
+            # if we have a postFilter then force a call to _fetch_all
+            self._fetch_all()
+        return super().count()
+
     def upcoming(self):
+        if getattr(settings, "JOYOUS_UPCOMING_INCLUDES_STARTED", False):
+            return self.current()
+        else:
+            return self.future()
+
+    def current(self):
         qs = self._clone()
-        qs.postFilter = self.__predicateBasedOn('_upcoming_datetime_from')
+        qs.postFilter = self.__predicateBasedOn('_current_datetime_from')
+        return qs
+
+    def future(self):
+        qs = self._clone()
+        qs.postFilter = self.__predicateBasedOn('_future_datetime_from')
         return qs
 
     def past(self):
@@ -523,10 +544,20 @@ class EventBase(models.Model):
         return retval
 
     @property
-    def _upcoming_datetime_from(self):
+    def _current_datetime_from(self):
+        """
+        The datetime this event will start or did start in the local timezone, or
+        None if it is finished.
+        """
+        fromDt = self._getFromDt()
+        toDt = self._getToDt()
+        return fromDt if toDt >= timezone.localtime() else None
+
+    @property
+    def _future_datetime_from(self):
         """
         The datetime this event next starts in the local timezone, or None if
-        it is finished.
+        in the past.
         """
         fromDt = self._getFromDt()
         return fromDt if fromDt >= timezone.localtime() else None
@@ -634,6 +665,12 @@ class EventBase(models.Model):
         """
         raise NotImplementedError()
 
+    def _getToDt(self):
+        """
+        Datetime that the event ends (in the local time zone).
+        """
+        raise NotImplementedError()
+
 def removeContentPanels(remove):
     """
     Remove the panels and so hide the fields named.
@@ -646,8 +683,12 @@ def removeContentPanels(remove):
 
 # ------------------------------------------------------------------------------
 class SimpleEventQuerySet(EventQuerySet):
-    def upcoming(self):
-        qs = super().upcoming()
+    def current(self):
+        qs = super().current()
+        return qs.filter(date__gte = todayUtc() - _1day)
+
+    def future(self):
+        qs = super().future()
         return qs.filter(date__gte = todayUtc() - _1day)
 
     def past(self):
@@ -736,10 +777,20 @@ class SimpleEventPage(EventBase, Page):
         """
         return getLocalDatetime(self.date, self.time_from, self.tz)
 
+    def _getToDt(self):
+        """
+        Datetime that the event ends (in the local time zone).
+        """
+        return getLocalDatetime(self.date, self.time_to, self.tz)
+
 # ------------------------------------------------------------------------------
 class MultidayEventQuerySet(EventQuerySet):
-    def upcoming(self):
-        qs = super().upcoming()
+    def current(self):
+        qs = super().current()
+        return qs.filter(date_to__gte = todayUtc() - _1day)
+
+    def future(self):
+        qs = super().future()
         return qs.filter(date_from__gte = todayUtc() - _1day)
 
     def past(self):
@@ -839,6 +890,12 @@ class MultidayEventPage(EventBase, Page):
         Datetime that the event starts (in the local time zone).
         """
         return getLocalDatetime(self.date_from, self.time_from, self.tz)
+
+    def _getToDt(self):
+        """
+        Datetime that the event ends (in the local time zone).
+        """
+        return getLocalDatetime(self.date_to, self.time_to, self.tz)
 
 # ------------------------------------------------------------------------------
 class RecurringEventQuerySet(EventQuerySet):
@@ -980,15 +1037,39 @@ class RecurringEventPage(EventBase, Page):
             return nextDt.date()
 
     @property
-    def _upcoming_datetime_from(self):
+    def _current_datetime_from(self):
         """
-        The datetime this event next starts in the local time zone, or None if
-        it is finished.
+        The datetime this event will start or did start in the local timezone, or
+        None if it is finished.
         """
-        nextDt = self.__localAfter(timezone.localtime(), dt.time.max,
-                                   excludeCancellations=True,
-                                   excludeExtraInfo=True)
-        return nextDt
+        myNow = timezone.localtime(timezone=self.tz)
+        timeFrom = getTimeFrom(self.time_from)
+        timeTo = getTimeTo(self.time_to)
+        # Yes this ignores DST transitions and milliseconds
+        timeDelta = dt.timedelta(days    = self.num_days - 1,
+                                 hours   = timeTo.hour   - timeFrom.hour,
+                                 minutes = timeTo.minute - timeFrom.minute,
+                                 seconds = timeTo.second - timeFrom.second)
+        nextDt = self.__after(myNow - timeDelta,
+                              excludeCancellations=True,
+                              excludeExtraInfo=True)
+        if nextDt is not None:
+            return getLocalDatetime(nextDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+
+    @property
+    def _future_datetime_from(self):
+        """
+        The datetime this event next starts in the local timezone, or None if
+        in the past.
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        nextDt = self.__after(myNow,
+                              excludeCancellations=True,
+                              excludeExtraInfo=True)
+        if nextDt is not None:
+            return getLocalDatetime(nextDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
 
     @property
     def prev_date(self):
@@ -1310,8 +1391,12 @@ class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
 
 # ------------------------------------------------------------------------------
 class EventExceptionQuerySet(EventQuerySet):
-    def upcoming(self):
-        qs = super().upcoming()
+    def current(self):
+        qs = super().current()
+        return qs.filter(except_date__gte = todayUtc() - _1day)
+
+    def future(self):
+        qs = super().future()
         return qs.filter(except_date__gte = todayUtc() - _1day)
 
     def past(self):
@@ -1432,6 +1517,18 @@ class EventExceptionBase(models.Model):
         """
         return getLocalTime(self.except_date, self.time_from, self.tz)
 
+    def _getFromDt(self):
+        """
+        Datetime that the event starts (in the local time zone).
+        """
+        return getAwareDatetime(self.except_date, self.time_from, self.tz)
+
+    def _getToDt(self):
+        """
+        Datetime that the event ends (in the local time zone).
+        """
+        return getAwareDatetime(self.except_date, self.time_to, self.tz)
+
     def full_clean(self, *args, **kwargs):
         """
         Apply fixups that need to happen before per-field validation occurs.
@@ -1540,12 +1637,30 @@ class ExtraInfoPage(EventExceptionBase, Page):
             return ""
 
     @property
-    def _upcoming_datetime_from(self):
+    def _current_datetime_from(self):
         """
-        The datetime this event next starts in the local time zone, or None if
-        it is finished.
+        The datetime this event will start or did start in the local timezone, or
+        None if it is finished.
         """
-        return self.__checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
+        # _occursOn means a lookup of CancellationPage
+        # possible performance problem?
+        if not self.overrides._occursOn(self.except_date):
+            return None
+        fromDt = self._getFromDt()
+        toDt = self._getToDt()
+        return fromDt if toDt >= timezone.localtime() else None
+
+    @property
+    def _future_datetime_from(self):
+        """
+        The datetime this event next starts in the local timezone, or None if
+        in the past.
+        """
+        # possible performance problem?
+        if not self.overrides._occursOn(self.except_date):
+            return None
+        fromDt = self._getFromDt()
+        return fromDt if fromDt >= timezone.localtime() else None
 
     @property
     def _past_datetime_from(self):
@@ -1553,15 +1668,11 @@ class ExtraInfoPage(EventExceptionBase, Page):
         The datetime this event previously started in the local timezone, or
         None if it never did.
         """
-        return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
-
-    def __checkFromDt(self, predicate):
-        # _occursOn means a lookup of CancellationPage
         # possible performance problem?
         if not self.overrides._occursOn(self.except_date):
             return None
-        fromDt = getLocalDatetime(self.except_date, self.time_from, self.tz)
-        return fromDt if predicate(fromDt) else None
+        fromDt = self._getFromDt()
+        return fromDt if fromDt < timezone.localtime() else None
 
 # ------------------------------------------------------------------------------
 class CancellationQuerySet(EventExceptionQuerySet):
@@ -1635,26 +1746,38 @@ class CancellationPage(EventExceptionBase, Page):
         return _("This event has been cancelled.")
 
     @property
-    def _upcoming_datetime_from(self):
+    def _current_datetime_from(self):
         """
-        The datetime of the event to be cancelled in the local time zone, or
-        None if it is past then.
+        The datetime this event will start or did start in the local timezone, or
+        None if it is finished.
         """
-        return self.__checkFromDt(lambda fromDt:fromDt >= timezone.localtime())
+        if self.except_date not in self.overrides.repeat:
+            return None
+        fromDt = self._getFromDt()
+        toDt = self._getToDt()
+        return fromDt if toDt >= timezone.localtime() else None
+
+    @property
+    def _future_datetime_from(self):
+        """
+        The datetime this event next starts in the local timezone, or None if
+-       in the past.
+        """
+        if self.except_date not in self.overrides.repeat:
+            return None
+        fromDt = self._getFromDt()
+        return fromDt if fromDt >= timezone.localtime() else None
 
     @property
     def _past_datetime_from(self):
         """
-        The datetime of the event that was cancelled in the local time zone, or
-        None if it never was.
+        The datetime this event previously started in the local timezone, or
+        None if it never did.
         """
-        return self.__checkFromDt(lambda fromDt:fromDt < timezone.localtime())
-
-    def __checkFromDt(self, predicate):
         if self.except_date not in self.overrides.repeat:
             return None
-        fromDt = getLocalDatetime(self.except_date, self.time_from, self.tz)
-        return fromDt if predicate(fromDt) else None
+        fromDt = self._getFromDt()
+        return fromDt if fromDt < timezone.localtime() else None
 
     def getCancellationUrl(self, request=None):
         """
@@ -1673,8 +1796,12 @@ class CancellationPage(EventExceptionBase, Page):
 
 # ------------------------------------------------------------------------------
 class PostponementQuerySet(EventQuerySet):
-    def upcoming(self):
-        qs = super().upcoming()
+    def current(self):
+        qs = super().current()
+        return qs.filter(date__gte = todayUtc() - _1day)
+
+    def future(self):
+        qs = super().future()
         return qs.filter(date__gte = todayUtc() - _1day)
 
     def past(self):
@@ -1888,6 +2015,12 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         Datetime that the postponement starts (in the local time zone).
         """
         return getLocalDatetime(self.date, self.time_from, self.tz)
+
+    def _getToDt(self):
+        """
+        Datetime that the postponement ends (in the local time zone).
+        """
+        return getLocalDatetime(self.date, self.time_to, self.tz)
 
 # ------------------------------------------------------------------------------
 class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):

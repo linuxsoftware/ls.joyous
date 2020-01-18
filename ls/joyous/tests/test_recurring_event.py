@@ -154,8 +154,8 @@ class Test(TestCase):
     def testAt(self):
         self.assertEqual(self.event.at.strip(), "6:30pm")
 
-    def testUpcomingDt(self):
-        lugDt = self.event._upcoming_datetime_from
+    def testCurrentDt(self):
+        lugDt = self.event._current_datetime_from
         self.assertEqual(lugDt.time(), dt.time(18,30))
         self.assertEqual(lugDt.date().weekday(), 1)
         self.assertLess(lugDt.date().day, 8)
@@ -174,7 +174,30 @@ class Test(TestCase):
         if now.time() > startTime:
             myday += dt.timedelta(days=1)
         thursday = myday + dt.timedelta(days=(3-myday.weekday())%7)
-        self.assertEqual(movieNight._upcoming_datetime_from,
+        self.assertEqual(movieNight._current_datetime_from,
+                         datetimetz(thursday, startTime))
+
+    def testFutureDt(self):
+        lugDt = self.event._future_datetime_from
+        self.assertEqual(lugDt.time(), dt.time(18,30))
+        self.assertEqual(lugDt.date().weekday(), 1)
+        self.assertLess(lugDt.date().day, 8)
+        movieNight = RecurringEventPage(owner = self.user,
+                                        slug  = "movies",
+                                        title = "Movies",
+                                        repeat = Recurrence(dtstart=dt.date(2005,2,1),
+                                                            freq=WEEKLY,
+                                                            byweekday=[TH,]),
+                                        time_from = dt.time(20,15),
+                                        time_to   = dt.time(21,30))
+        self.calendar.add_child(instance=movieNight)
+        now = timezone.localtime()
+        myday = now.date()
+        startTime = dt.time(20,15)
+        if now.time() > startTime:
+            myday += dt.timedelta(days=1)
+        thursday = myday + dt.timedelta(days=(3-myday.weekday())%7)
+        self.assertEqual(movieNight._future_datetime_from,
                          datetimetz(thursday, startTime))
 
     def testPastDt(self):
@@ -253,8 +276,14 @@ class TestTZ(TestCase):
         self.assertEqual(self.event.at, "4pm")
 
     @timezone.override("America/Los_Angeles")
-    def testUpcomingLocalDt(self):
-        when = self.event._upcoming_datetime_from
+    def testCurrentLocalDt(self):
+        when = self.event._current_datetime_from
+        self.assertEqual(when.tzinfo.zone, "America/Los_Angeles")
+        self.assertEqual(when.weekday(), calendar.TUESDAY)
+
+    @timezone.override("America/Los_Angeles")
+    def testFutureLocalDt(self):
+        when = self.event._future_datetime_from
         self.assertEqual(when.tzinfo.zone, "America/Los_Angeles")
         self.assertEqual(when.weekday(), calendar.TUESDAY)
 

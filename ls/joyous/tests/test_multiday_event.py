@@ -82,8 +82,8 @@ class Test(TestCase):
     def testAt(self):
         self.assertEqual(self.event.at, "11pm")
 
-    def testUpcomingDt(self):
-        self.assertIsNone(self.event._upcoming_datetime_from)
+    def testCurrentDt(self):
+        self.assertIsNone(self.event._current_datetime_from)
         now = timezone.localtime()
         today = now.date()
         nextWeek = today + dt.timedelta(6 - today.weekday())
@@ -98,7 +98,7 @@ class Test(TestCase):
                                      time_from = earlier.time(),
                                      time_to   = dt.time(1))
         self.calendar.add_child(instance=nowEvent)
-        self.assertIsNone(nowEvent._upcoming_datetime_from)
+        self.assertEqual(nowEvent._current_datetime_from, earlier)
         tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = MultidayEventPage(owner = self.user,
                                         slug  = "tomorrow",
@@ -106,7 +106,34 @@ class Test(TestCase):
                                         date_from  = tomorrow,
                                         date_to    = tomorrow + dt.timedelta(2))
         self.calendar.add_child(instance=futureEvent)
-        self.assertEqual(futureEvent._upcoming_datetime_from,
+        self.assertEqual(futureEvent._current_datetime_from,
+                         datetimetz(tomorrow, dt.time.max))
+
+    def testFutureDt(self):
+        self.assertIsNone(self.event._future_datetime_from)
+        now = timezone.localtime()
+        today = now.date()
+        nextWeek = today + dt.timedelta(6 - today.weekday())
+        earlier = now - dt.timedelta(hours=1)
+        if earlier.date() != now.date():
+            earlier = datetimetz(now.date(), dt.time.min)
+        nowEvent = MultidayEventPage(owner = self.user,
+                                     slug  = "now",
+                                     title = "Now Event",
+                                     date_from = earlier.date(),
+                                     date_to   = nextWeek,
+                                     time_from = earlier.time(),
+                                     time_to   = dt.time(1))
+        self.calendar.add_child(instance=nowEvent)
+        self.assertIsNone(nowEvent._future_datetime_from)
+        tomorrow = timezone.localdate() + dt.timedelta(days=1)
+        futureEvent = MultidayEventPage(owner = self.user,
+                                        slug  = "tomorrow",
+                                        title = "Tomorrow's Event",
+                                        date_from  = tomorrow,
+                                        date_to    = tomorrow + dt.timedelta(2))
+        self.calendar.add_child(instance=futureEvent)
+        self.assertEqual(futureEvent._future_datetime_from,
                          datetimetz(tomorrow, dt.time.max))
 
     def testPastDt(self):
@@ -182,8 +209,12 @@ class TestTZ(TestCase):
         self.assertEqual(self.event.at, "")
 
     @timezone.override("America/Los_Angeles")
-    def testUpcomingLocalDt(self):
-        self.assertIsNone(self.event._upcoming_datetime_from)
+    def testCurrentLocalDt(self):
+        self.assertIsNone(self.event._current_datetime_from)
+
+    @timezone.override("America/Los_Angeles")
+    def testFutureLocalDt(self):
+        self.assertIsNone(self.event._future_datetime_from)
 
     @timezone.override("Pacific/Auckland")
     def testPastLocalDt(self):

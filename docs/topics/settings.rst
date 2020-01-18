@@ -128,3 +128,13 @@ Default: ``"24"``
 
 Prompt for 12 or 24 hour times.
 
+
+``JOYOUS_UPCOMING_INCLUDES_STARTED``
+------------------------------------
+
+Default: ``False``
+
+If this is set to ``True`` then the list of upcoming events will also include
+events that have already started but have not yet finished.
+
+Added in :doc:`version 0.9.5 </releases/0.9.5>`.

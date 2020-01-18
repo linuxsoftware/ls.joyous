@@ -80,8 +80,11 @@ class Test(TestCase):
     def testAt(self):
         self.assertEqual(self.info.at.strip(), "1pm")
 
-    def testUpcomingDt(self):
-        self.assertIsNone(self.info._upcoming_datetime_from)
+    def testCurrentDt(self):
+        self.assertIsNone(self.info._current_datetime_from)
+
+    def testFutureDt(self):
+        self.assertIsNone(self.info._future_datetime_from)
 
     def testPastDt(self):
         self.assertEqual(self.info._past_datetime_from,
@@ -94,6 +97,8 @@ class Test(TestCase):
                              extra_title = "Tuesday",
                              extra_information = "Standard")
         self.event.add_child(instance=info)
+        self.assertIsNone(info._current_datetime_from)
+        self.assertIsNone(info._future_datetime_from)
         self.assertIsNone(info._past_datetime_from)
 
     def testGroup(self):

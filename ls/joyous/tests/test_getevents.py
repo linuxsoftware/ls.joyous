@@ -5,7 +5,7 @@ import sys
 import datetime as dt
 import pytz
 import calendar
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.core.exceptions import (MultipleObjectsReturned, ObjectDoesNotExist,
                                     PermissionDenied)
@@ -156,6 +156,25 @@ class Test(TestCase):
         title, event, url = events[0]
         self.assertEqual(title, "Tomorrow's Event")
         self.assertEqual(event.slug, "tomorrow")
+        events0 = getAllUpcomingEvents(self.request)
+        self.assertEqual(len(events0), 1)
+
+    @override_settings(JOYOUS_UPCOMING_INCLUDES_STARTED = True)
+    def testGetAllCurrentEvents(self):
+        today = timezone.localdate()
+        futureEvent = MultidayEventPage(owner = self.user,
+                                        slug  = "yesterday",
+                                        title = "Yesterday's Event",
+                                        date_from = today - dt.timedelta(days=1),
+                                        date_to   = today + dt.timedelta(days=3),
+                                        time_from = dt.time(17),
+                                        time_to   = dt.time(10,30))
+        self.calendar.add_child(instance=futureEvent)
+        events = getAllUpcomingEvents(self.request, home=self.home)
+        self.assertEqual(len(events), 1)
+        title, event, url = events[0]
+        self.assertEqual(title, "Yesterday's Event")
+        self.assertEqual(event.slug, "yesterday")
         events0 = getAllUpcomingEvents(self.request)
         self.assertEqual(len(events0), 1)
 

@@ -10,6 +10,7 @@ from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage
 from ls.joyous.models.events import CancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
+from .testutils import datetimetz
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -141,6 +142,27 @@ class Test(TestCase):
 
     def testAt(self):
         self.assertEqual(self.cancellation.at.strip(), "1pm")
+
+    def testCurrentDt(self):
+        self.assertIsNone(self.cancellation._current_datetime_from)
+
+    def testFutureDt(self):
+        self.assertIsNone(self.cancellation._future_datetime_from)
+
+    def testPastDt(self):
+        self.assertEqual(self.cancellation._past_datetime_from,
+                         datetimetz(1989,2,1,13,0))
+
+    def testNeverOccursOn(self):
+        cancellation = CancellationPage(owner = self.user,
+                                        overrides = self.event,
+                                        except_date = dt.date(1989,2,7),
+                                        cancellation_title = "Tuesday",
+                                        cancellation_details = "Banner")
+        self.event.add_child(instance=cancellation)
+        self.assertIsNone(cancellation._current_datetime_from)
+        self.assertIsNone(cancellation._future_datetime_from)
+        self.assertIsNone(cancellation._past_datetime_from)
 
     def testGroup(self):
         self.assertIsNone(self.cancellation.group)

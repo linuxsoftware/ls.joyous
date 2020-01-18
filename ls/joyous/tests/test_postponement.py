@@ -14,7 +14,7 @@ from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models import (GeneralCalendarPage, RecurringEventPage,
         CancellationPage, PostponementPage)
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, TU, WE, FR
-from .testutils import freeze_timetz, getPage
+from .testutils import freeze_timetz, getPage, datetimetz
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -163,6 +163,16 @@ class Test(TestCase):
         self.assertEqual(parts[3], "{:%B}".format(newDate))
         self.assertEqual(parts[4], "at")
         self.assertEqual(parts[5], "8:30am")
+
+    def testCurrentDt(self):
+        self.assertIsNone(self.postponement._current_datetime_from)
+
+    def testFutureDt(self):
+        self.assertIsNone(self.postponement._future_datetime_from)
+
+    def testPastDt(self):
+        self.assertEqual(self.postponement._past_datetime_from,
+                         datetimetz(1990,10,11,13,0))
 
     def testCancellationView(self):
         response = self.client.get("/events/test-meeting/1990-10-10-postponement/from/")
