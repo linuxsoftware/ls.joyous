@@ -40,4 +40,5 @@ Bug fixes
 Upgrade considerations
 ======================
 
+ * The old property ``_upcoming_datetime_from`` has been removed.
 

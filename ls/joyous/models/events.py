@@ -1748,8 +1748,8 @@ class CancellationPage(EventExceptionBase, Page):
     @property
     def _current_datetime_from(self):
         """
-        The datetime this event will start or did start in the local timezone, or
-        None if it is finished.
+        The datetime the event that was cancelled would start in the local
+        timezone, or None if it would have finished by now.
         """
         if self.except_date not in self.overrides.repeat:
             return None
@@ -1760,8 +1760,8 @@ class CancellationPage(EventExceptionBase, Page):
     @property
     def _future_datetime_from(self):
         """
-        The datetime this event next starts in the local timezone, or None if
--       in the past.
+        The datetime the event that was cancelled would start in the local
+        timezone, or None if that is in the past.
         """
         if self.except_date not in self.overrides.repeat:
             return None
@@ -1771,8 +1771,8 @@ class CancellationPage(EventExceptionBase, Page):
     @property
     def _past_datetime_from(self):
         """
-        The datetime this event previously started in the local timezone, or
-        None if it never did.
+        The datetime of the event that was cancelled in the local timezone, or
+        None if it never would have.
         """
         if self.except_date not in self.overrides.repeat:
             return None
