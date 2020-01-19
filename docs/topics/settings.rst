@@ -129,6 +129,8 @@ Default: ``"24"``
 Prompt for 12 or 24 hour times.
 
 
+.. setting:: JOYOUS_UPCOMING_INCLUDES_STARTED
+
 ``JOYOUS_UPCOMING_INCLUDES_STARTED``
 ------------------------------------
 
