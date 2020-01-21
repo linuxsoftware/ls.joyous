@@ -8,7 +8,7 @@ ls.joyous
 
 About
 ------
-Joyous is a reusable calendar application for Wagtail. Features include rrule
+Joyous is a reusable calendar application for Wagtail. Features include rule
 based recurring events with cancellations and postponements; iCal import and export; Gcal export; RSS feed; event permissioning; timezone handling; and multi-site aware calendars.
 
 Documentation
