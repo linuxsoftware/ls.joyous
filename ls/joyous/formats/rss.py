@@ -130,16 +130,6 @@ class ExtraInfoEntry(EventEntry):
         descr = tmpl.render(ctxt, request)
         self.description(descr)
 
-    def setImage(self, page, request):
-        # FIXME This might not be needed. if page.image was page.overrides.image
-        # BUT THEN be careful with postponement.image and /from.image
-        image = page.overrides.image
-        if image:
-            ren = image.get_rendition("width-350|format-png")
-            self.enclosure(url=fullUrl(ren.url, page, request),
-                           length=str(len(ren.file)),
-                           type="image/png")
-
 # ------------------------------------------------------------------------------
 class PostponementEntry(EventEntry):
     template = "joyous/formats/rss_entry.xml"

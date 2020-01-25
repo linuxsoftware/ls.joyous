@@ -28,8 +28,10 @@ The old property ``_upcoming_datetime_from`` has been removed.
 
 Other features
 ~~~~~~~~~~~~~~
- * New ``JOYOUS_FIRST_DAY_OF_WEEK`` setting that will override Django's
+ * New :setting:`JOYOUS_FIRST_DAY_OF_WEEK` setting that will override Django's
    definition of the first day of the week if set.
+ * Remove unneeded rss.ExtraInfoEntry.setImage()
+ * Use naive datetimes in PostponementPage.what()
 
 Bug fixes
 ~~~~~~~~~
