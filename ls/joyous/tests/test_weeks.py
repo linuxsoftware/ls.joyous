@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from django.test import TestCase
+from django.test import TestCase, override_settings
 import ls.joyous.utils.weeks
 from ls.joyous.utils.weeks import (
         _iso_year_start, _iso_info, _iso_num_weeks,
@@ -136,6 +136,17 @@ class TestSetting(TestCase):
         self.assertEqual(weekday_abbr, ("Sun","Mon","Tue","Wed","Thu","Fri","Sat"))
         self.assertEqual(weekday_name, ("Sunday","Monday","Tuesday","Wednesday","Thursday",
                                         "Friday","Saturday"))
+
+    def testFirstDayOfWeek(self):
+        with override_settings(JOYOUS_FIRST_DAY_OF_WEEK = 0):
+            importlib.reload(ls.joyous.utils.weeks)
+            from ls.joyous.utils.weeks import weekday_abbr
+            self.assertEqual(weekday_abbr, ("Sun","Mon","Tue","Wed","Thu","Fri","Sat"))
+
+        with override_settings(JOYOUS_FIRST_DAY_OF_WEEK = 1):
+            importlib.reload(ls.joyous.utils.weeks)
+            from ls.joyous.utils.weeks import weekday_abbr
+            self.assertEqual(weekday_abbr, ("Mon","Tue","Wed","Thu","Fri","Sat","Sun"))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

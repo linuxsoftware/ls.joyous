@@ -85,13 +85,12 @@ Settings
         in case you ever want to display your website in another language.
 
     d.  :setting:`django:USE_L10N` enables Django's localized formatting of numbers and dates.
-        :setting:`JOYOUS_DATE_FORMAT`, :setting:`JOYOUS_DATE_SHORT_FORMAT`, and 
-        :setting:`JOYOUS_TIME_FORMAT` override Django's formatting, but if they were not set
+        :setting:`JOYOUS_DATE_FORMAT`, :setting:`JOYOUS_DATE_SHORT_FORMAT`, 
+        :setting:`JOYOUS_TIME_FORMAT`, and :setting:`JOYOUS_FIRST_DAY_OF_WEEK`
+        override Django's formatting, but if they were not set
         then Joyous dates and times would be formatted according to the current locale.
         See your django/conf/locale directory to find these format files. If
         you want, you can create your own :ref:`custom format <django:custom-format-files>`.  
-        The first day of the week Sunday or Monday will also be determined by the current locale.
-        TODO: add a :setting:`JOYOUS_FIRST_DAY_OF_WEEK` to override this.
 
     e.  :setting:`django:LANGUAGE_CODE` sets the default locale that Django will use.
 

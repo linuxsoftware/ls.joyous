@@ -10,6 +10,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar
+from django.conf import settings
 from django.utils.formats import get_format
 from .names import (MONDAY_TO_SUNDAY, MON_TO_SUN,
                     SUNDAY_TO_SATURDAY, SUN_TO_SAT)
@@ -106,7 +107,8 @@ def _ssweek_of_month(date_value):
     return (date_value.day + weekday_of_first - 1) // 7
 
 # ------------------------------------------------------------------------------
-if get_format("FIRST_DAY_OF_WEEK") == 1:
+if getattr(settings, "JOYOUS_FIRST_DAY_OF_WEEK",
+           get_format("FIRST_DAY_OF_WEEK")) == 1:
     calendar.setfirstweekday(calendar.MONDAY)
 
     #: Give all the info we need from one calculation

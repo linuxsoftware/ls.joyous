@@ -27,6 +27,17 @@ Short format of dates, if different from the Django standard.  Uses the same opt
 Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT = "j F Y"`` for formatting as it was previously.
 
 
+.. setting:: JOYOUS_FIRST_DAY_OF_WEEK
+
+``JOYOUS_FIRST_DAY_OF_WEEK``
+---------------------------------
+
+Default: Falls back to Django date formatting.
+(See :doc:`django:topics/i18n/formatting`, :setting:`django:FIRST_DAY_OF_WEEK`)
+
+The first day of the week, 0=Sunday or 1=Monday.  
+
+
 .. setting:: JOYOUS_EVENTS_PER_PAGE
 
 ``JOYOUS_EVENTS_PER_PAGE``
