@@ -6,7 +6,7 @@ from django.db.models import Field
 from django.core.exceptions import ValidationError
 from django.forms.fields import Field as FormField
 from django.forms import TypedMultipleChoiceField, CheckboxSelectMultiple
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from .utils.recurrence import Recurrence
 from .widgets import RecurrenceWidget
 
@@ -143,7 +143,7 @@ class MultipleSelectField(Field):
                 value = getattr(self, fieldname)
                 if not isinstance(value, list):
                     value = [value]
-                return ", ".join([force_text(choicedict.get(i, i))
+                return ", ".join([force_str(choicedict.get(i, i))
                                   for i in value])
             setattr(cls, 'get_%s_display' % fieldname, func)
 

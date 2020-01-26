@@ -7,9 +7,9 @@ from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
 from wagtail.admin.widgets import AdminTimeInput
 try:
-    from wagtail.admin.utils import get_available_admin_languages
-except ImportError:        # pragma: no cover
     from wagtail.admin.localization import get_available_admin_languages
+except ImportError:        # pragma: no cover
+    from wagtail.admin.utils import get_available_admin_languages
 from .widgets import ExceptionDateInput, Time12hrInput
 
 # ------------------------------------------------------------------------------
