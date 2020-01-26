@@ -56,7 +56,7 @@ class Test(TestCase):
         self.assertEqual(self.event.status_text, "This event has finished.")
         today = timezone.localdate()
         yesterday = today - dt.timedelta(1)
-        nextWeek = today + dt.timedelta(6 - today.weekday())
+        nextWeek = today + dt.timedelta(7 - today.weekday())
         nowEvent = MultidayEventPage(owner = self.user,
                                      slug  = "now",
                                      title = "Now Event",
@@ -86,7 +86,7 @@ class Test(TestCase):
         self.assertIsNone(self.event._current_datetime_from)
         now = timezone.localtime()
         today = now.date()
-        nextWeek = today + dt.timedelta(6 - today.weekday())
+        nextWeek = today + dt.timedelta(7 - today.weekday())
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
             earlier = datetimetz(now.date(), dt.time.min)
@@ -113,7 +113,7 @@ class Test(TestCase):
         self.assertIsNone(self.event._future_datetime_from)
         now = timezone.localtime()
         today = now.date()
-        nextWeek = today + dt.timedelta(6 - today.weekday())
+        nextWeek = today + dt.timedelta(7 - today.weekday())
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
             earlier = datetimetz(now.date(), dt.time.min)
@@ -141,7 +141,7 @@ class Test(TestCase):
                          datetimetz(2012,12,31,23,0))
         now = timezone.localtime()
         today = now.date()
-        nextWeek = today + dt.timedelta(6 - today.weekday())
+        nextWeek = today + dt.timedelta(7 - today.weekday())
         earlier = now - dt.timedelta(hours=1)
         if earlier.date() != now.date():
             earlier = datetimetz(now.date(), dt.time.min)
