@@ -1968,12 +1968,11 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
                                              getTimeFrom(self.overrides.time_from))
         changedFromDt = dt.datetime.combine(self.date, getTimeFrom(self.time_from))
         originalDaysDelta = dt.timedelta(days=self.overrides.num_days - 1)
-        # FIXME does this have to be an aware datetime?
-        originalToDt = getAwareDatetime(self.except_date + originalDaysDelta,
-                                        self.overrides.time_to, self.tz)
+        originalToDt = dt.datetime.combine(self.except_date + originalDaysDelta,
+                                           getTimeTo(self.overrides.time_to))
         changedDaysDelta = dt.timedelta(days=self.num_days - 1)
-        changedToDt = getAwareDatetime(self.except_date + changedDaysDelta,
-                                        self.time_to, self.tz)
+        changedToDt = dt.datetime.combine(self.except_date + changedDaysDelta,
+                                          getTimeTo(self.time_to))
         if originalFromDt < changedFromDt:
             return _("Postponed")
         elif originalFromDt > changedFromDt or originalToDt != changedToDt:
