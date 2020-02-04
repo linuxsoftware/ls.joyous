@@ -26,6 +26,10 @@ New event properties ``_current_datetime_from`` and ``_future_datetime_from``
 are used by the filters and for sorting the list of events.
 The old property ``_upcoming_datetime_from`` has been removed.
 
+Wagtail 2.8
+~~~~~~~~~~~
+Support for Wagtail 2.8 (and Django 3.0).
+
 Other features
 ~~~~~~~~~~~~~~
  * New :setting:`JOYOUS_FIRST_DAY_OF_WEEK` setting that will override Django's
