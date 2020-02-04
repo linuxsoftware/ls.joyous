@@ -36,6 +36,7 @@ Other features
    definition of the first day of the week if set.
  * Remove unneeded rss.ExtraInfoEntry.setImage()
  * Use naive datetimes in PostponementPage.what()
+ * Dynamically copy postponements field values (should work for derieved classes too)
 
 Bug fixes
 ~~~~~~~~~
