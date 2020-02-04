@@ -157,6 +157,7 @@ Blocks
 Includes
 ~~~~~~~~
 * joyous/includes/events_view_choices.html
+* joyous/includes/joyjq.html
 
 
 joyous/calendar_month.html
