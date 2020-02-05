@@ -1553,6 +1553,13 @@ class EventExceptionBase(models.Model):
             return all(restriction.accept_request(request)
                        for restriction in restrictions)
 
+    def _copyFieldsFromParent(self, parent):
+        """
+        Copy across field values from the recurring event parent.
+        """
+        self.overrides = parent
+        self.except_date = parent.next_date
+
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):
     def this(self):
@@ -2020,6 +2027,24 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         Datetime that the postponement ends (in the local time zone).
         """
         return getLocalDatetime(self.date, self.time_to, self.tz)
+
+    def _copyFieldsFromParent(self, parent):
+        """
+        Copy across field values from the recurring event parent.
+        """
+        super()._copyFieldsFromParent(parent)
+        parentFields = set()
+        for panel in parent.content_panels:
+            parentFields.update(panel.required_fields())
+        pageFields = set()
+        for panel in self.content_panels:
+            pageFields.update(panel.required_fields())
+        commonFields = parentFields & pageFields
+        for name in commonFields:
+            setattr(self, name, getattr(parent, name))
+        if self.except_date:
+            self.date = self.except_date + dt.timedelta(days=1)
+        self.postponement_title = parent.title
 
 # ------------------------------------------------------------------------------
 class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
