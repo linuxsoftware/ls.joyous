@@ -37,6 +37,7 @@ Default: Falls back to Django date formatting.
 
 The first day of the week, 0=Sunday or 1=Monday.  
 
+Added in :doc:`version 0.9.5 </releases/0.9.5>`.
 
 .. setting:: JOYOUS_EVENTS_PER_PAGE
 

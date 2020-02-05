@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-05 23:58+1300\n"
+"POT-Creation-Date: 2020-02-05 20:57+1300\n"
 "PO-Revision-Date: 2018-11-27 14:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -90,298 +90,298 @@ msgstr "page de calendrier générale"
 msgid "general calendar pages"
 msgstr "pages de calendrier générales"
 
-#: models/events.py:343
+#: models/events.py:347
 msgid "event category"
 msgstr "catégories d'événement"
 
-#: models/events.py:344
+#: models/events.py:348
 msgid "event categories"
 msgstr "catégorie d'événements"
 
-#: models/events.py:346
+#: models/events.py:350
 msgid "code"
 msgstr "code"
 
-#: models/events.py:347
+#: models/events.py:351
 msgid "name"
 msgstr "prénom"
 
-#: models/events.py:455 models/events.py:774 models/events.py:1725
+#: models/events.py:476 models/events.py:825 models/events.py:1864
 msgid "Event cannot end before it starts"
 msgstr "L'événement ne peut pas se terminer avant qu'il ne commence"
 
-#: models/events.py:472
+#: models/events.py:493
 msgid "category"
 msgstr "catégorie"
 
-#: models/events.py:478
+#: models/events.py:499
 msgid "image"
 msgstr "image"
 
-#: models/events.py:481
+#: models/events.py:502
 msgid "start time"
 msgstr "heure de début"
 
-#: models/events.py:482
+#: models/events.py:503
 msgid "end time"
 msgstr "heure de fin"
 
-#: models/events.py:486
+#: models/events.py:507
 msgid "time zone"
 msgstr "fuseau horaire"
 
-#: models/events.py:491 models/groups.py:50
+#: models/events.py:512 models/groups.py:50
 msgid "group page"
 msgstr "page de groupe"
 
-#: models/events.py:493 models/events.py:1604
+#: models/events.py:514 models/events.py:1723
 msgid "details"
 msgstr "détails"
 
-#: models/events.py:494
+#: models/events.py:515
 msgid "location"
 msgstr "emplacement"
 
-#: models/events.py:495
+#: models/events.py:516
 msgid "website"
 msgstr "site Internet"
 
-#: models/events.py:565 models/events.py:1535
+#: models/events.py:596 models/events.py:1640
 msgid "This event has finished."
 msgstr "Cet événement est terminé."
 
-#: models/events.py:567 models/events.py:1537
+#: models/events.py:598 models/events.py:1642
 msgid "This event has started."
 msgstr "Cet événement a commencé."
 
-#: models/events.py:614 models/events.py:617 models/events.py:1413
+#: models/events.py:645 models/events.py:648 models/events.py:1499
 #, python-brace-format
 msgid "{date} {atTime}"
 msgstr ""
 
-#: models/events.py:615 models/events.py:618 models/events.py:622
-#: models/events.py:1083 models/events.py:1150 models/events.py:1415
+#: models/events.py:646 models/events.py:649 models/events.py:653
+#: models/events.py:1165 models/events.py:1232 models/events.py:1501
 #: templatetags/joyous_tags.py:160
 msgid "at "
 msgstr "à "
 
-#: models/events.py:619
+#: models/events.py:650
 #, python-brace-format
 msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
 msgstr ""
 
-#: models/events.py:680
+#: models/events.py:721
 msgid "event page"
 msgstr "page de l'événement"
 
-#: models/events.py:681
+#: models/events.py:722
 msgid "event pages"
 msgstr "pages de l'événement"
 
-#: models/events.py:691 models/events.py:1761
+#: models/events.py:732 models/events.py:1900
 msgid "date"
 msgstr "date"
 
-#: models/events.py:782
+#: models/events.py:833
 msgid "multiday event page"
 msgstr "page de l'événement sur plusieurs jours"
 
-#: models/events.py:783
+#: models/events.py:834
 msgid "multiday event pages"
 msgstr "pages d'évènements sur plusieurs jours"
 
-#: models/events.py:793
+#: models/events.py:844
 msgid "start date"
 msgstr "date de début"
 
-#: models/events.py:794
+#: models/events.py:845
 msgid "end date"
 msgstr "date de fin"
 
-#: models/events.py:935
+#: models/events.py:993
 msgid "recurring event page"
 msgstr "page d'événement récurrent"
 
-#: models/events.py:936
+#: models/events.py:994
 msgid "recurring event pages"
 msgstr "pages d'événements récurrents"
 
-#: models/events.py:951
+#: models/events.py:1009
 msgid "repeat"
 msgstr "répéter"
 
-#: models/events.py:952 models/events.py:1736
+#: models/events.py:1010 models/events.py:1875
 msgid "number of days"
 msgstr "nombre de jours"
 
-#: models/events.py:1061
+#: models/events.py:1143
 msgid "These events have finished."
 msgstr "Ces événements sont finis."
 
-#: models/events.py:1081
+#: models/events.py:1163
 #, python-brace-format
 msgid "{repeat} {atTime}"
 msgstr ""
 
-#: models/events.py:1086
+#: models/events.py:1168
 #, python-brace-format
 msgid "{repeat} {startFinishTime}"
 msgstr ""
 
-#: models/events.py:1089 models/events.py:1422
+#: models/events.py:1171 models/events.py:1508
 msgid "starting at "
 msgstr ""
 
-#: models/events.py:1090
+#: models/events.py:1172
 msgid "finishing at"
 msgstr ""
 
-#: models/events.py:1298
+#: models/events.py:1380
 msgid "multiday recurring event page"
 msgstr "page d'événements récurrents sur plusieurs jours"
 
-#: models/events.py:1299
+#: models/events.py:1381
 msgid "multiday recurring event pages"
 msgstr "pages d'événements récurrents sur plusieurs jours"
 
-#: models/events.py:1329
+#: models/events.py:1415
 msgid "That date already has"
 msgstr ""
 
-#: models/events.py:1342
+#: models/events.py:1428
 msgid "overrides"
 msgstr "annule"
 
-#: models/events.py:1345
+#: models/events.py:1431
 msgid "The recurring event that we are updating."
 msgstr "L'événement récurrent que nous mettons à jour."
 
-#: models/events.py:1346
+#: models/events.py:1432
 msgid "For Date"
 msgstr "Pour la date"
 
-#: models/events.py:1347
+#: models/events.py:1433
 msgid "For this date"
 msgstr "Pour cette date"
 
-#: models/events.py:1374
+#: models/events.py:1460
 #, python-brace-format
 msgid "{exception} for {date}"
 msgstr "{exception} pour {date}"
 
-#: models/events.py:1419
+#: models/events.py:1505
 #, python-brace-format
 msgid "{date} for {n} days {startTime}"
 msgstr ""
 
-#: models/events.py:1423
+#: models/events.py:1509
 #, python-brace-format
 msgid "{dateAndStartTime} {finishTime}"
 msgstr ""
 
-#: models/events.py:1425
+#: models/events.py:1511
 msgid "finishing at "
 msgstr ""
 
-#: models/events.py:1472
+#: models/events.py:1577
 msgid "Extra Information"
 msgstr "Informations supplémentaires"
 
-#: models/events.py:1481 models/events.py:1482
+#: models/events.py:1586 models/events.py:1587
 msgid "extra event information"
 msgstr "informations supplémentaires sur l'événement"
 
-#: models/events.py:1491
+#: models/events.py:1596
 msgid "Extra-Info"
 msgstr "Informations-supplémentaires"
 
-#: models/events.py:1493 models/events.py:1601 models/events.py:1759
+#: models/events.py:1598 models/events.py:1720 models/events.py:1898
 msgid "title"
 msgstr "titre"
 
-#: models/events.py:1494
+#: models/events.py:1599
 msgid "A more specific title for this occurence (optional)"
 msgstr "Un titre plus spécifique pour cette occurrence (facultatif)"
 
-#: models/events.py:1495
+#: models/events.py:1600
 msgid "extra information"
 msgstr "informations supplémentaires"
 
-#: models/events.py:1496
+#: models/events.py:1601
 msgid "Information just for this date"
 msgstr "Information juste pour cette date"
 
-#: models/events.py:1579
+#: models/events.py:1698
 #, fuzzy
 #| msgid "cancellation"
 msgid "a cancellation"
 msgstr "annulation"
 
-#: models/events.py:1589
+#: models/events.py:1708
 msgid "cancellation"
 msgstr "annulation"
 
-#: models/events.py:1590
+#: models/events.py:1709
 msgid "cancellations"
 msgstr "annulations"
 
-#: models/events.py:1599 models/events.py:1618 models/events.py:1770
+#: models/events.py:1718 models/events.py:1737 models/events.py:1909
 msgid "Cancellation"
 msgstr "Annulation"
 
-#: models/events.py:1602
+#: models/events.py:1721
 msgid "Show in place of cancelled event (Leave empty to show nothing)"
 msgstr ""
 "Afficher à la place de l'événement annulé (Laisser vide pour ne rien "
 "afficher)"
 
-#: models/events.py:1605
+#: models/events.py:1724
 msgid "Why was the event cancelled?"
 msgstr "Pourquoi l'événement a-t-il été annulé?"
 
-#: models/events.py:1634
+#: models/events.py:1753
 msgid "This event has been cancelled."
 msgstr "Cet événement a été annulé."
 
-#: models/events.py:1711
+#: models/events.py:1850
 #, fuzzy
 #| msgid "postponement"
 msgid "a postponement"
 msgstr "report"
 
-#: models/events.py:1748 models/events.py:1893
+#: models/events.py:1887 models/events.py:2055
 msgid "postponement"
 msgstr "report"
 
-#: models/events.py:1749 models/events.py:1894
+#: models/events.py:1888 models/events.py:2056
 msgid "postponements"
 msgstr "les reports"
 
-#: models/events.py:1757
+#: models/events.py:1896
 msgid "Postponement"
 msgstr "Report"
 
-#: models/events.py:1760
+#: models/events.py:1899
 msgid "The title for the postponed event"
 msgstr "Le titre de l'épreuve reportée"
 
-#: models/events.py:1783 models/events.py:1903
+#: models/events.py:1922 models/events.py:2065
 msgid "Postponed to"
 msgstr "Remis à"
 
-#: models/events.py:1826
+#: models/events.py:1965
 #, fuzzy, python-brace-format
 #| msgid "Postponed from {when}"
 msgid "{what} from {when}"
 msgstr "Remis à plus tard de {when}"
 
-#: models/events.py:1846
+#: models/events.py:1984
 #, fuzzy
 #| msgid "Postponed to"
 msgid "Postponed"
 msgstr "Remis à"
 
-#: models/events.py:1848
+#: models/events.py:1986
 #, fuzzy
 #| msgid "Rescheduled from {when}"
 msgid "Rescheduled"
