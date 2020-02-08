@@ -271,9 +271,6 @@ class ExceptionDateInput(AdminDateInput):
         return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
                      js=[static("joyous/js/recurrence_admin.js")])
 
-# TODO Should probably also do validation on the returned date?
-# that would require ExceptionDateField and ExceptionDateFormField :(
-# or else use custom form for page validation?
-# https://github.com/torchbox/wagtail/pull/1867
-
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

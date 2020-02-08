@@ -15,7 +15,6 @@ from .formats import NullHandler, ICalHandler, GoogleCalendarHandler, RssHandler
 @hooks.register('before_serve_page')
 def handlePageExport(page, request, serve_args, serve_kwargs):
     format = request.GET.get('format')
-    # TODO impement a registry of different format handlers
     if format == "ical":
         handler = ICalHandler()
     elif format == "google":

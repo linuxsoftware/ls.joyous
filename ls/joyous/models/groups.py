@@ -13,7 +13,6 @@ from wagtail.admin.edit_handlers import FieldPanel
 # Events can belong to groups
 # by default joyous.GroupPage, but also designed to work with goatherd.GroupPage
 # But we don't want a dependency on ls.goatherd, so make this settable
-# TODO: consider using https://github.com/wq/django-swappable-models
 # ------------------------------------------------------------------------------
 def get_group_model_string():
     """

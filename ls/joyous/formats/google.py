@@ -55,7 +55,6 @@ class SimpleGEvent(GEvent):
     @classmethod
     def fromPage(cls, page):
         gevent = super().fromPage(page)
-        # FIXME support Anniversary date type events?
         dtstart = getAwareDatetime(page.date, page.time_from, page.tz, dt.time.min)
         dtend   = getAwareDatetime(page.date, page.time_to, page.tz, dt.time.max)
         gevent.set('dates', vPeriod((dtstart, dtend)).to_ical().decode())
@@ -68,7 +67,6 @@ class MultidayGEvent(GEvent):
     @classmethod
     def fromPage(cls, page):
         gevent = super().fromPage(page)
-        # FIXME support Anniversary date type events?
         dtstart = getAwareDatetime(page.date_from, page.time_from, page.tz, dt.time.min)
         dtend   = getAwareDatetime(page.date_to, page.time_to, page.tz, dt.time.max)
         gevent.set('dates', vPeriod((dtstart, dtend)).to_ical().decode())
@@ -82,15 +80,12 @@ class RecurringGEvent(GEvent):
     def fromPage(cls, page):
         gevent = super().fromPage(page)
         minDt   = pytz.utc.localize(dt.datetime.min)
-        # FIXME support Anniversary date type events?
         dtstart = page._getMyFirstDatetimeFrom() or minDt
         dtend   = page._getMyFirstDatetimeTo()   or minDt
         gevent.set('dates', vPeriod((dtstart, dtend)).to_ical().decode())
         if page.tz != pytz.utc:
             gevent.set('ctz', page.tz.zone)
         gevent.set('recur', "RRULE:" + page.repeat._getRrule())
-        # TODO: try and confirm...
-        # Google doesn't accept EXDATE or RDATE here :-(
         return gevent
 
 # ------------------------------------------------------------------------------

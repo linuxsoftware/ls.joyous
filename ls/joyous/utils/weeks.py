@@ -138,8 +138,6 @@ else:
     weekday_abbr = SUN_TO_SAT
     weekday_name = SUNDAY_TO_SATURDAY
 
-# FIXME encapsulate these functions in classes
-# for ease of testing if nothing else
-
+# ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

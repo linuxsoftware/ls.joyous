@@ -273,7 +273,6 @@ class vDt(vDDDTypes):
             return self.dt.time()
 
     def datetime(self, timeDefault=dt.time.min):
-        # TODO: Allow 'floating' times?
         tz = timezone.get_current_timezone()
         if type(self.dt) == dt.datetime:
             if timezone.is_aware(self.dt):
@@ -426,7 +425,6 @@ class VEventFactory:
         rrule = props.get('RRULE')
         if rrule is not None:
             if type(rrule) == list:
-                # TODO support multiple RRULEs?
                 raise CalendarTypeError("Multiple RRULEs")
             if numDays > 1:
                 return MultidayRecurringVEvent.fromProps(props)
@@ -565,7 +563,6 @@ class SimpleVEvent(VEvent):
     @classmethod
     def fromPage(cls, page):
         vevent = super().fromPage(page)
-        # FIXME support Anniversary date type events?
         dtstart = getAwareDatetime(page.date, page.time_from, page.tz, dt.time.min)
         dtend   = getAwareDatetime(page.date, page.time_to, page.tz, dt.time.max)
         vevent.set('UID',         page.uid)
@@ -573,8 +570,6 @@ class SimpleVEvent(VEvent):
         vevent.set('DTEND',       vDatetime(dtend))
         vevent._setDesc(page.details)
         vevent.set('LOCATION',    page.location)
-        # TODO: Add CATEGORIES page.category
-        # TODO: Add CLASS pages.get_view_restrictions() ? "RESTRICTED" : "PUBLIC"
         return vevent
 
     def toPage(self, page):
@@ -597,7 +592,6 @@ class MultidayVEvent(VEvent):
     @classmethod
     def fromPage(cls, page):
         vevent = super().fromPage(page)
-        # FIXME support Anniversary date type events?
         dtstart = getAwareDatetime(page.date_from, page.time_from, page.tz, dt.time.min)
         dtend   = getAwareDatetime(page.date_to, page.time_to, page.tz, dt.time.max)
         vevent.set('UID',         page.uid)
@@ -629,7 +623,6 @@ class RecurringVEvent(VEvent):
     def fromPage(cls, page):
         vevent = super().fromPage(page)
         minDt   = pytz.utc.localize(dt.datetime.min)
-        # FIXME support Anniversary date type events?
         dtstart = page._getMyFirstDatetimeFrom() or minDt
         dtend   = page._getMyFirstDatetimeTo()   or minDt
         vevent.set('UID',         page.uid)

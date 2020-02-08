@@ -53,7 +53,6 @@ class CalendarPageForm(WagtailAdminPageForm):
                 perms = page.permissions_for_user(self.request.user)
                 return perms.can_publish() and perms.can_edit()
 
-        # TODO support multiple formats?
         cls.importHandler = handler
         uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
         cls.declared_fields['upload'] = forms.FileField(
@@ -78,7 +77,6 @@ class CalendarPageForm(WagtailAdminPageForm):
 
         cls.exportHandler = handler
         CalendarPage.settings_panels.append(Panel([
-              # TODO: annex the HelpPanel into ExportPanel?
               HelpPanel(template="joyous/edit_handlers/export_panel.html")
             ], heading=_("Export")))
 

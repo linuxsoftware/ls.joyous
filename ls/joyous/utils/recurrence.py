@@ -320,15 +320,6 @@ class Recurrence(rrulebase):
             retval = self.__getWhenByMonthday(offset, of)
 
         else:
-            # TODO: deal with it when it is needed
-            # if offset == 0:
-            #     retval = self.__getWhenByMonthdays(offset, of)
-            # elif offset < 0 and min(self.bymonthday) > 3:
-            #     retval = self.__getWhenByMonthdays(offset, of)
-            # elif offset > 0 and max(self.bymonthday) < 26:
-            #     retval = self.__getWhenByMonthdays(offset, of)
-            # else:
-            #     retval = self.__getWhenWithOffsetMonthdays(offset, of)
             retval = self.__getWhenWithOffsetMonthdays(offset, of)
         return retval
 

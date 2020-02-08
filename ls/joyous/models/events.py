@@ -482,8 +482,6 @@ def _get_default_timezone():
 
 class EventBase(models.Model):
     class Meta:
-        # TODO consider if EventBase was not abstract conversion from one event
-        # type to another might be a lot easier?
         abstract = True
 
     uid = models.CharField(max_length=255, db_index=True, editable=False,
@@ -501,9 +499,6 @@ class EventBase(models.Model):
 
     time_from = models.TimeField(_("start time"), null=True, blank=True)
     time_to = models.TimeField(_("end time"), null=True, blank=True)
-
-    # Cannot set different timezones for time_from and time_to yet
-    # TODO: Allow tz to be blank for 'floating' times?
     tz = TimeZoneField(verbose_name=_("time zone"),
                        default=_get_default_timezone)
 
@@ -1003,17 +998,10 @@ class RecurringEventPage(EventBase, Page):
                      'joyous.PostponementPage']
     base_form_class = RecurringEventPageForm
 
-    # FIXME So that Fred can't cancel Barney's event
-    # owner_subpages_only = True
-
     repeat   = RecurrenceField(_("repeat"))
     num_days = models.IntegerField(_("number of days"), default=1,
                                    validators=[MinValueValidator(1),
                                                MaxValueValidator(99)])
-
-    # TODO 
-    # exclude_holidays = models.BooleanField(default=False)
-    # exclude_holidays.help_text = "Cancel any occurence of this event on a public holiday"
 
     content_panels0 = Page.content_panels + [
         FieldPanel('category'),

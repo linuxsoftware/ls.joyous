@@ -69,8 +69,6 @@ def create_timezone(tz, first_date=None, last_date=None):
     if isinstance(tz, pytz.tzinfo.StaticTzInfo):
         return _create_timezone_static(tz)
 
-    # TODO last_date = None, recurring to infinity
-
     first_date = dt.datetime.today() if not first_date else to_naive_utc(first_date)
     last_date = dt.datetime.today() if not last_date else to_naive_utc(last_date)
     timezone = icalendar.Timezone()

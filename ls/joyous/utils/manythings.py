@@ -57,7 +57,6 @@ def toTheOrdinal(n, inTitleCase=True):
     elif n == 5:
         retval = _("the fifth")
     else:
-        # TODO: support other definite articles depending on gender, etc.
         retval = _("the")
         if inTitleCase:
             retval = retval.title()
