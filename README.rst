@@ -6,9 +6,10 @@ ls.joyous
 .. image:: https://coveralls.io/repos/github/linuxsoftware/ls.joyous/badge.svg?branch=master
    :target: https://coveralls.io/github/linuxsoftware/ls.joyous?branch=master
 
+.. image:: /docs/joyous-demo-1.png
+
 About
 ------
-.. image:: /docs/joyous-demo-1.png
 Joyous is a reusable calendar application for Wagtail. Features include rrule
 based recurring events with cancellations and postponements; iCal import and export; Gcal export; RSS feed; event permissioning; timezone handling; and multi-site aware calendars.
 
