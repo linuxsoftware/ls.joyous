@@ -1,22 +1,46 @@
 ==========================
-Joyous 1.0.0 release notes - IN DEVELOPMENT
+Joyous 1.0.0 release notes
 ==========================
 
 .. contents::
     :local:
     :depth: 3
 
+This is a milestone release.
+Following `semantic versioning <https://semver.org/>`_  this indicates Joyous
+now has a stable public API, and no incompatible changes to it will be made
+unless a 2.0 version is released.
+
 
 What's new
 ==========
+Not much has changed since :doc:`version 0.9.5 </releases/0.9.5>`, but this release marks:
 
-
-
+ * 5 years since the beginnings of Joyous in my first events app based upon `Wagtaildemo <https://github.com/wagtail/wagtaildemo>`_
+ * 2 years since the first commit of Joyous as a reusable calendar app
+ * 367 commits since then
+ * contributions from 5 `people <https://github.com/linuxsoftware/ls.joyous/graphs/contributors>`_
+ * 100% test coverage
+ * 20100 lines of code (45% in tests)
 
 
 Compatibility
 =============
 
 Joyous version 1.0.0 is known to work with the following versions of Wagtail, Django and Python.
+
+=======   ======   =======
+Wagtail   Django   Python
+=======   ======   =======
+2.6.3     2.2.10   3.6.7
+2.6.3     2.2.10   3.7.1
+2.6.3     2.2.10   3.8.0
+2.7.1     2.2.10   3.6.7
+2.7.1     2.2.10   3.7.1
+2.7.1     2.2.10   3.8.0
+2.8       3.0.3    3.6.7
+2.8       3.0.3    3.7.1
+2.8       3.0.3    3.8.0
+=======   ======   =======
 
 Other versions may work - YMMV.
