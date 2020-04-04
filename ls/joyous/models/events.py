@@ -1139,13 +1139,13 @@ class RecurringEventPage(EventBase, Page):
         """
         offset   = 0
         timeFrom = dateFrom = timeTo = dateTo = None
-        fromDt   = self._getFromDt()
-        if fromDt is not None:
-            offset = timezone.localtime(fromDt).toordinal() - fromDt.toordinal()
-            dateFrom, timeFrom = getLocalDateAndTime(fromDt.date(), self.time_from,
+        myFromDt = self.__getMyFromDt()
+        if myFromDt is not None:
+            offset = timezone.localtime(myFromDt).toordinal() - myFromDt.toordinal()
+            dateFrom, timeFrom = getLocalDateAndTime(myFromDt.date(), self.time_from,
                                                      self.tz, dt.time.min)
             daysDelta = dt.timedelta(days=self.num_days - 1)
-            dateTo, timeTo = getLocalDateAndTime(fromDt.date() + daysDelta,
+            dateTo, timeTo = getLocalDateAndTime(myFromDt.date() + daysDelta,
                                                  self.time_to, self.tz)
         if dateFrom == dateTo:
             retval = _("{repeat} {atTime}").format(
@@ -1175,13 +1175,6 @@ class RecurringEventPage(EventBase, Page):
         if atDate is None:
             atDate = timezone.localdate(timezone=self.tz)
         return getLocalTime(atDate, self.time_from, self.tz)
-
-    def _getFromDt(self):
-        """
-        Get the datetime of the next event after or before now.
-        """
-        myNow = timezone.localtime(timezone=self.tz)
-        return self.__after(myNow) or self.__before(myNow)
 
     def _futureExceptions(self, request):
         """
@@ -1255,6 +1248,13 @@ class RecurringEventPage(EventBase, Page):
             return getAwareDatetime(myFirstDt.date() + daysDelta,
                                     self.time_to,
                                     self.tz, dt.time.max)
+
+    def __getMyFromDt(self):
+        """
+        Get the datetime of the next event after or before now in my timezone.
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        return self.__after(myNow) or self.__before(myNow)
 
     def __localAfterOrPostponedTo(self, fromDt, timeDefault=dt.time.min):
         myFromDt, event = self.__afterOrPostponedTo(fromDt.astimezone(self.tz))
@@ -1509,13 +1509,13 @@ class EventExceptionBase(models.Model):
         """
         Datetime that the event starts (in the local time zone).
         """
-        return getAwareDatetime(self.except_date, self.time_from, self.tz)
+        return getLocalDatetime(self.except_date, self.time_from, self.tz)
 
     def _getToDt(self):
         """
         Datetime that the event ends (in the local time zone).
         """
-        return getAwareDatetime(self.except_date, self.time_to, self.tz)
+        return getLocalDatetime(self.except_date, self.time_to, self.tz)
 
     def full_clean(self, *args, **kwargs):
         """
