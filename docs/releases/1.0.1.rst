@@ -1,0 +1,28 @@
+==========================
+Joyous 1.0.1 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+CSS
+~~~
+Added a new class ``.joy-content`` to the content block of all templates.  
+This matches other Joyous classes in having the ``joy-`` prefix.
+The old ``.content`` class has been kept for backwards compatibility.
+
+Bug fixes
+~~~~~~~~~
+Return exception datetime_from properties 
+(``_current_datetime_from``, ``_future_datetime_from``, ``_past_datetime_from``)
+in the local time zone (as per the documentation).
+
+Upgrade considerations
+======================
+
+
