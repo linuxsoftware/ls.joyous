@@ -9,6 +9,7 @@ Blocks
 
   .joy-overlay
   .joy-popup
+  .joy-content
   .joy-title
   .joy-cal
   .joy-cal-list

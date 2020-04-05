@@ -192,7 +192,6 @@ RecurringEventPage
     .. autoattribute:: when
     .. autoattribute:: at
     .. automethod:: _getFromTime
-    .. automethod:: _getFromDt
     .. automethod:: _futureExceptions
     .. automethod:: _nextOn
     .. automethod:: _occursOn

@@ -43,20 +43,22 @@ Run migrations and collectstatic.
 Compatibility
 -------------
 
-Joyous version 1.0.0 is known to work with the following versions of Wagtail, Django and Python.
+Joyous version 1.0.1 is known to work with the following versions of Wagtail, Django and Python.
+
+
 
 =======   ======   =======
 Wagtail   Django   Python
 =======   ======   =======
-2.6.3     2.2.10   3.6.7
-2.6.3     2.2.10   3.7.1
-2.6.3     2.2.10   3.8.0
-2.7.1     2.2.10   3.6.7
-2.7.1     2.2.10   3.7.1
-2.7.1     2.2.10   3.8.0
-2.8       3.0.3    3.6.7
-2.8       3.0.3    3.7.1
-2.8       3.0.3    3.8.0
+2.6.3     2.2.12   3.6.7
+2.6.3     2.2.12   3.7.1
+2.6.3     2.2.12   3.8.0
+2.7.1     2.2.12   3.6.7
+2.7.1     2.2.12   3.7.1
+2.7.1     2.2.12   3.8.0
+2.8       3.0.5    3.6.7
+2.8       3.0.5    3.7.1
+2.8       3.0.5    3.8.0
 =======   ======   =======
 
 Other versions may work - YMMV.

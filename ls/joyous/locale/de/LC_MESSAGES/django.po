@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-15 22:08+1300\n"
+"POT-Creation-Date: 2020-04-05 20:48+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -167,7 +167,7 @@ msgid "{date} {atTime}"
 msgstr ""
 
 #: models/events.py:641 models/events.py:644 models/events.py:648
-#: models/events.py:1153 models/events.py:1220 models/events.py:1489
+#: models/events.py:1153 models/events.py:1213 models/events.py:1489
 #: templatetags/joyous_tags.py:160
 msgid "at "
 msgstr "um "
