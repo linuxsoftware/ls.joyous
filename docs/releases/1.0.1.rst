@@ -18,9 +18,10 @@ The old ``.content`` class has been kept for backwards compatibility.
 
 Bug fixes
 ~~~~~~~~~
-Return exception datetime_from properties 
-(``_current_datetime_from``, ``_future_datetime_from``, ``_past_datetime_from``)
-in the local time zone (as per the documentation).
+ * Return exception datetime_from properties 
+   (``_current_datetime_from``, ``_future_datetime_from``,
+   ``_past_datetime_from``) in the local time zone (as per the documentation).
+ * When prepopulating a cancellation keep the next date in the event's timezone
 
 Upgrade considerations
 ======================

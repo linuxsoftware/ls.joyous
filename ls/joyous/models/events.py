@@ -1249,6 +1249,16 @@ class RecurringEventPage(EventBase, Page):
                                     self.time_to,
                                     self.tz, dt.time.max)
 
+    def _getMyNextDate(self):
+        """
+        Date when this event is next scheduled to occur in my time zone
+        (Does not include postponements, but does exclude cancellations)
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        nextDt = self.__after(myNow)
+        if nextDt is not None:
+            return nextDt.date()
+
     def __getMyFromDt(self):
         """
         Get the datetime of the next event after or before now in my timezone.
@@ -1546,7 +1556,7 @@ class EventExceptionBase(models.Model):
         Copy across field values from the recurring event parent.
         """
         self.overrides = parent
-        self.except_date = parent.next_date
+        self.except_date = parent._getMyNextDate()
 
 # ------------------------------------------------------------------------------
 class ExtraInfoQuerySet(EventExceptionQuerySet):

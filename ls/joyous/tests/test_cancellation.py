@@ -226,6 +226,15 @@ class TestTZ(TestCase):
         self.assertEqual(when.time(), dt.time(5,30))
         self.assertEqual(when.date(), dt.date(1989,2,2))
 
+    @timezone.override("Australia/Sydney")
+    @freeze_timetz("1989-10-01T21:00:00+11:00")
+    def testCopyFieldsFromParent(self):
+        self.assertEqual(self.event.next_date, dt.date(1989,10,3))
+        cancellation = CancellationPage(owner = self.user)
+        cancellation._copyFieldsFromParent(self.event)
+        self.assertEqual(cancellation.overrides, self.event)
+        self.assertEqual(cancellation.except_date, dt.date(1989,10,2))
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
