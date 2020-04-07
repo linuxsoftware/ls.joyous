@@ -72,7 +72,7 @@ def parseHolidays(holidaysStr, holidayMap=None):
                 retval += subval
             else:
                 retval += cls()
-    if retval is 0:
+    if retval == 0:
         retval = None
     return retval
 
