@@ -68,6 +68,7 @@ class CalendarFeed(FeedGenerator):
         elif isinstance(page, ExtraInfoPage):
             return ExtraInfoEntry.fromEvent(thisEvent, request)
         elif isinstance(page, PostponementPage):
+            # FIXME this is not needed = postponements can use EventEntry
             return PostponementEntry.fromEvent(thisEvent, request)
         # No Cancellations are returned from _getUpcomingEvents
 
@@ -131,6 +132,7 @@ class ExtraInfoEntry(EventEntry):
         self.description(descr)
 
 # ------------------------------------------------------------------------------
+# FIXME this is not needed
 class PostponementEntry(EventEntry):
     template = "joyous/formats/rss_entry.xml"
 

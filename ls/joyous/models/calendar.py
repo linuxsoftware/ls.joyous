@@ -341,6 +341,10 @@ class CalendarPage(RoutablePageMixin, Page):
         cxt.update({'weeklyUrl':    weeklyUrl,
                     'monthlyUrl':   monthlyUrl,
                     'listUrl':      listUrl,
+                    # FIXME
+                    # 'listLink':     None,
+                    # 'weeklyLink':   None,
+                    # 'monthlyLink':  None,
                     'events':       eventsPage})
         cxt.update(self._getExtraContext("upcoming"))
         return TemplateResponse(request,
