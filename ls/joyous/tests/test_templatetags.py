@@ -4,7 +4,6 @@
 import sys
 import datetime as dt
 from django.contrib.auth.models import User
-from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase, RequestFactory
@@ -187,6 +186,8 @@ class TestMultiSite(TestCase):
         request = self.requestFactory.get(path)
         request.user = self.user
         request.site = site
+        request.META['HTTP_HOST'] = site.hostname
+        request.META['SERVER_PORT'] = site.port
         request.session = {}
         return request
 

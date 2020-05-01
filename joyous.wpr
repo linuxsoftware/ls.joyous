@@ -26,7 +26,13 @@ proj.directory-list = [{'dirloc': loc('ls/joyous'),
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True},
-                       {'dirloc': loc('../../env/software/site-packages/wagtail'),
+                       {'dirloc': loc('../../env/blaze/site-packages/wagtail'),
+                        'excludes': (),
+                        'filter': u'*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('../../env/blaze/site-packages/django'),
                         'excludes': (),
                         'filter': u'*',
                         'include_hidden': False,
@@ -35,7 +41,7 @@ proj.directory-list = [{'dirloc': loc('ls/joyous'),
 proj.file-list = [loc('runtests.py')]
 proj.file-type = 'shared'
 proj.launch-config = {loc('runtests.py'): ('project',
-        (u'test_cancellation.TestTZ',
+        (u'test_templatetags.TestMultiSite.testFutureExceptionsImplicitPage',
          ''))}
 proj.main-file = loc('runtests.py')
 testing.test-framework = {None: ':internal djangotest'}
