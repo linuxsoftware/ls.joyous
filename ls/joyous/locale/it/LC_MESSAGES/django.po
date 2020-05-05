@@ -289,7 +289,7 @@ msgstr "Ulteriori informazioni"
 
 #: models/events.py:1574 models/events.py:1575
 msgid "extra event information"
-msgstr "Ulteriori informazioni sull'evento"
+msgstr "ulteriori informazioni sull'evento"
 
 #: models/events.py:1584
 msgid "Extra-Info"
