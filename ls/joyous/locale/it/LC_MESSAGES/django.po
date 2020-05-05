@@ -1,0 +1,823 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-05 20:48+1200\n"
+"PO-Revision-Date: 2018-11-27 14:11-0500\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 2.1.1\n"
+
+#: models/calendar.py:59
+msgid "Upload"
+msgstr "Carica"
+
+#: models/calendar.py:63
+msgid "Convert UTC to localtime?"
+msgstr "Convertire l'orario UTC a quello locale?"
+
+#: models/calendar.py:69
+msgid "Import"
+msgstr "Importa"
+
+#: models/calendar.py:81
+msgid "Export"
+msgstr "Esporta"
+
+#: models/calendar.py:105 templates/joyous/includes/events_view_choices.html:4
+msgid "List View"
+msgstr "Vista ad elenco"
+
+#: models/calendar.py:106 templates/joyous/includes/events_view_choices.html:7
+msgid "Weekly View"
+msgstr "Vista settimanale"
+
+#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:10
+msgid "Monthly View"
+msgstr "Vista mensile"
+
+#: models/calendar.py:113
+msgid "calendar page"
+msgstr "pagina del calendario"
+
+#: models/calendar.py:114
+msgid "calendar pages"
+msgstr "pagine del calendario"
+
+#: models/calendar.py:124
+msgid "intro"
+msgstr "intro"
+
+#: models/calendar.py:125
+msgid "Introductory text."
+msgstr "Testo introduttorio"
+
+#: models/calendar.py:126
+msgid "view choices"
+msgstr "mostra opzioni"
+
+#: models/calendar.py:129
+msgid "default view"
+msgstr "vista di default"
+
+#: models/calendar.py:141
+msgid "View Options"
+msgstr "Opzioni di visualizzazione"
+
+#: models/calendar.py:275
+#, python-brace-format
+msgid "Week {weekNum}"
+msgstr "Settimana {weekNum}"
+
+#: models/calendar.py:485
+msgid "specific calendar page"
+msgstr "pagina specifica del calendario"
+
+#: models/calendar.py:486
+msgid "specific calendar pages"
+msgstr "pagine specifiche del calendario"
+
+#: models/calendar.py:532
+msgid "general calendar page"
+msgstr "pagina generale del calendario"
+
+#: models/calendar.py:533
+msgid "general calendar pages"
+msgstr "pagine generali del calendario"
+
+#: models/events.py:347
+msgid "event category"
+msgstr "categoria d'evento"
+
+#: models/events.py:348
+msgid "event categories"
+msgstr "categorie di eventi"
+
+#: models/events.py:350
+msgid "code"
+msgstr "codice"
+
+#: models/events.py:351
+msgid "name"
+msgstr "nome"
+
+#: models/events.py:476 models/events.py:820 models/events.py:1852
+msgid "Event cannot end before it starts"
+msgstr "Un evento non può terminare prima che inizi"
+
+#: models/events.py:491
+msgid "category"
+msgstr "categoria"
+
+#: models/events.py:497
+msgid "image"
+msgstr "immagine"
+
+#: models/events.py:500
+msgid "start time"
+msgstr "ora di inizio"
+
+#: models/events.py:501
+msgid "end time"
+msgstr "ora di fine"
+
+#: models/events.py:502
+msgid "time zone"
+msgstr "fuso orario"
+
+#: models/events.py:507 models/groups.py:49
+msgid "group page"
+msgstr "gruppo di pagine"
+
+#: models/events.py:509 models/events.py:1711
+msgid "details"
+msgstr "dettagli"
+
+#: models/events.py:510
+msgid "location"
+msgstr "luogo"
+
+#: models/events.py:511
+msgid "website"
+msgstr "sito Internet"
+
+#: models/events.py:591 models/events.py:1628
+msgid "This event has finished."
+msgstr "Questo evento è terminato."
+
+#: models/events.py:593 models/events.py:1630
+msgid "This event has started."
+msgstr "Questo evento è cominciato."
+
+#: models/events.py:640 models/events.py:643 models/events.py:1487
+#, python-brace-format
+msgid "{date} {atTime}"
+msgstr ""
+
+#: models/events.py:641 models/events.py:644 models/events.py:648
+#: models/events.py:1153 models/events.py:1213 models/events.py:1489
+#: templatetags/joyous_tags.py:160
+msgid "at "
+msgstr "dalle "
+
+#: models/events.py:645
+#, python-brace-format
+msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
+msgstr "{dateTimeFrom} a {dateTo} {atTimeTo}"
+
+#: models/events.py:716
+msgid "event page"
+msgstr "pagina dell'evento"
+
+#: models/events.py:717
+msgid "event pages"
+msgstr "pagine dell'evento"
+
+#: models/events.py:727 models/events.py:1888
+msgid "date"
+msgstr "data"
+
+#: models/events.py:828
+msgid "multiday event page"
+msgstr "pagina dell'evento su più giorni"
+
+#: models/events.py:829
+msgid "multiday event pages"
+msgstr "pagine degli eventi su più giorni"
+
+#: models/events.py:839
+msgid "start date"
+msgstr "data di inizio"
+
+#: models/events.py:840
+msgid "end date"
+msgstr "data di fine"
+
+#: models/events.py:988
+msgid "recurring event page"
+msgstr "pagina di evento ricorrente"
+
+#: models/events.py:989
+msgid "recurring event pages"
+msgstr "pagine di eventi ricorrenti"
+
+#: models/events.py:1001
+msgid "repeat"
+msgstr "ripeti"
+
+#: models/events.py:1002 models/events.py:1863
+msgid "number of days"
+msgstr "numero di giorni"
+
+#: models/events.py:1131
+msgid "These events have finished."
+msgstr "Questi eventi sono finiti."
+
+#: models/events.py:1151
+#, python-brace-format
+msgid "{repeat} {atTime}"
+msgstr ""
+
+#: models/events.py:1156
+#, python-brace-format
+msgid "{repeat} {startFinishTime}"
+msgstr ""
+
+#: models/events.py:1159 models/events.py:1496
+msgid "starting at "
+msgstr "inizia "
+
+#: models/events.py:1160
+msgid "finishing at"
+msgstr "finisce "
+
+#: models/events.py:1368
+msgid "multiday recurring event page"
+msgstr "pagina di evento ricorrente su più giorni"
+
+#: models/events.py:1369
+msgid "multiday recurring event pages"
+msgstr "pagine di eventi ricorrenti su più giorni"
+
+#: models/events.py:1403
+msgid "That date already has"
+msgstr "Quella data ha già"
+
+#: models/events.py:1416
+msgid "overrides"
+msgstr "sovrascrive"
+
+#: models/events.py:1419
+msgid "The recurring event that we are updating."
+msgstr "L'evento ricorrente che stiamo aggiornando."
+
+#: models/events.py:1420
+msgid "For Date"
+msgstr "Per la data"
+
+#: models/events.py:1421
+msgid "For this date"
+msgstr "Per questa data"
+
+#: models/events.py:1448
+#, python-brace-format
+msgid "{exception} for {date}"
+msgstr "{exception} per {date}"
+
+#: models/events.py:1493
+#, python-brace-format
+msgid "{date} per {n} giorni {startTime}"
+msgstr ""
+
+#: models/events.py:1497
+#, python-brace-format
+msgid "{dateAndStartTime} {finishTime}"
+msgstr ""
+
+#: models/events.py:1499
+msgid "finishing at "
+msgstr "finisce il "
+
+#: models/events.py:1565
+msgid "Extra Information"
+msgstr "Ulteriori informazioni"
+
+#: models/events.py:1574 models/events.py:1575
+msgid "extra event information"
+msgstr "ulteriori informazioni sull'evento"
+
+#: models/events.py:1584
+msgid "Extra-Info"
+msgstr "Info ulteriori"
+
+#: models/events.py:1586 models/events.py:1708 models/events.py:1886
+msgid "title"
+msgstr "titolo"
+
+#: models/events.py:1587
+msgid "A more specific title for this occurence (optional)"
+msgstr "Un titolo più specifico per questa occorrenza (opzionale)"
+
+#: models/events.py:1588
+msgid "extra information"
+msgstr "ulteriori informazioni"
+
+#: models/events.py:1589
+msgid "Information just for this date"
+msgstr "Ulteriori informazioni per questa data"
+
+#: models/events.py:1686
+#, fuzzy
+#| msgid "cancellation"
+msgid "a cancellation"
+msgstr "cancellazione"
+
+#: models/events.py:1696
+msgid "cancellation"
+msgstr "cancellazione"
+
+#: models/events.py:1697
+msgid "cancellations"
+msgstr "cancellazioni"
+
+#: models/events.py:1706 models/events.py:1725 models/events.py:1897
+msgid "Cancellation"
+msgstr "Cancellazione"
+
+#: models/events.py:1709
+msgid "Show in place of cancelled event (Leave empty to show nothing)"
+msgstr ""
+"Mostra al posto dell'evento cancellato (Lascia il campo vuoto per non "
+"mostrare nulla)"
+
+#: models/events.py:1712
+msgid "Why was the event cancelled?"
+msgstr "Perchè l'evento è stato cancellato?"
+
+#: models/events.py:1741
+msgid "This event has been cancelled."
+msgstr "Questo evento è stato cancellato."
+
+#: models/events.py:1838
+#, fuzzy
+#| msgid "postponement"
+msgid "a postponement"
+msgstr "uno spostamento"
+
+#: models/events.py:1875 models/events.py:2043
+msgid "postponement"
+msgstr "spostamento"
+
+#: models/events.py:1876 models/events.py:2044
+msgid "postponements"
+msgstr "gli spostamento"
+
+#: models/events.py:1884
+msgid "Postponement"
+msgstr "Spostamento"
+
+#: models/events.py:1887
+msgid "The title for the postponed event"
+msgstr "Il titolo dell'evento spostato"
+
+#: models/events.py:1910 models/events.py:2053
+msgid "Postponed to"
+msgstr "Spostato il"
+
+#: models/events.py:1953
+#, fuzzy, python-brace-format
+#| msgid "Postponed from {when}"
+msgid "{what} from {when}"
+msgstr "Spostato da {when}"
+
+#: models/events.py:1972
+#, fuzzy
+#| msgid "Postponed to"
+msgid "Postponed"
+msgstr "Spostato il"
+
+#: models/events.py:1974
+#, fuzzy
+#| msgid "Rescheduled from {when}"
+msgid "Rescheduled"
+msgstr "Ripianificato il {when}"
+
+#: models/groups.py:50
+msgid "group pages"
+msgstr "pagina di gruppo"
+
+#: models/groups.py:62
+msgid "content"
+msgstr "contenuto"
+
+#: models/groups.py:63
+msgid "An area of text for whatever you like"
+msgstr "Un'area di testo per quello che vuoi"
+
+#: templates/joyous/calendar_base.html:21
+#: templates/joyous/calendar_list_upcoming.html:18
+#: templates/joyous/edit_handlers/export_panel.html:17
+#: templates/joyous/event_base.html:27
+#: templates/joyous/includes/calendar_export.html:3
+msgid "Export iCal"
+msgstr "Esporta per iCal"
+
+#: templates/joyous/calendar_list_day.html:12
+#, python-format
+msgid "Events on %(day)s"
+msgstr "Eventi del %(day)s"
+
+#: templates/joyous/calendar_list_past.html:5
+#: templates/joyous/calendar_list_upcoming.html:12
+msgid "Upcoming Events"
+msgstr "Eventi futuri"
+
+#: templates/joyous/calendar_list_past.html:12
+#: templates/joyous/calendar_list_upcoming.html:5
+msgid "Past Events"
+msgstr "Eventi passati"
+
+#: templates/joyous/calendar_list_upcoming.html:20
+msgid "RSS Feed"
+msgstr "Feed RSS"
+
+#: templates/joyous/calendar_month.html:5
+msgid "This Month"
+msgstr "Mese corrente"
+
+#: templates/joyous/calendar_month.html:14
+#: templates/joyous/includes/minicalendar.html:12
+msgid "Previous month"
+msgstr "Mese precedente"
+
+#: templates/joyous/calendar_month.html:16
+#: templates/joyous/includes/minicalendar.html:13
+msgid "Next month"
+msgstr "Prossimo mese"
+
+#: templates/joyous/calendar_month.html:19
+#: templates/joyous/calendar_week.html:19
+msgid "Previous year"
+msgstr "Anno precedente"
+
+#: templates/joyous/calendar_month.html:21
+#: templates/joyous/calendar_week.html:21
+msgid "Next year"
+msgstr "Prossimo anno"
+
+#: templates/joyous/calendar_table_base.html:23
+#: templates/joyous/tags/events_this_week.html:19
+msgid "cont."
+msgstr ""
+
+#: templates/joyous/calendar_week.html:5
+#: templates/joyous/tags/events_this_week.html:3
+msgid "This Week"
+msgstr "Settimana corrente"
+
+#: templates/joyous/calendar_week.html:14
+msgid "Previous week"
+msgstr "Settimana precedente"
+
+#: templates/joyous/calendar_week.html:16
+msgid "Next week"
+msgstr "Prossima settimana"
+
+#: templates/joyous/edit_handlers/exception_date_object.html:28
+msgid "Time Zone"
+msgstr "Fuso Orario"
+
+#: templates/joyous/edit_handlers/export_panel.html:14
+msgid "Download"
+msgstr "Scarica"
+
+#: templates/joyous/event_base.html:25
+msgid "Google Calendar"
+msgstr "Calendario Google"
+
+#: templates/joyous/exception_base.html:7
+msgid "See also <strong>other occurrences</strong> of this event."
+msgstr "Vedi anche <strong>altre occorrenze</strong> di questo evento"
+
+#: templates/joyous/includes/when.html:11
+#, python-format
+msgid "Next on %(event_next_on)s"
+msgstr "Prossimo il %(event_next_on)s"
+
+#: templates/joyous/postponement_page_from.html:8
+#, fuzzy, python-format
+#| msgid "This event has been cancelled."
+msgid "This event has been %(what)s."
+msgstr "Questo evento è stato cancellato."
+
+#: templates/joyous/postponement_page_from.html:28
+#, python-format
+msgid ""
+"%(what)s to <a class=\"joy-ev-to-when__link\" href=\"%(postponement_url)s\" >"
+"%(postponed_to)s</a>"
+msgstr ""
+
+#: templates/joyous/tags/events_this_week.html:7
+msgid "Today"
+msgstr "Oggi"
+
+#: templates/joyous/tags/future_exceptions_list.html:9
+#: templates/joyous/tags/future_exceptions_list.html:11
+msgid "on"
+msgstr "il"
+
+#: templates/joyous/tags/group_upcoming_events.html:5
+msgid "Events"
+msgstr "Eventi"
+
+#: templates/joyous/widgets/recurrence_widget.html:7
+msgid "From Date"
+msgstr "Data di inizio"
+
+#: templates/joyous/widgets/recurrence_widget.html:17
+msgid "Frequency"
+msgstr "Frequenza"
+
+#: templates/joyous/widgets/recurrence_widget.html:28
+msgid "Until Date"
+msgstr "Data di fine"
+
+#: templates/joyous/widgets/recurrence_widget.html:38
+msgid "Use Advanced Options"
+msgstr "Utilizza le opzioni avanzate"
+
+#: templates/joyous/widgets/recurrence_widget.html:43 widgets.py:62
+msgid "Every"
+msgstr "Ogni"
+
+#: templates/joyous/widgets/recurrence_widget.html:47
+msgid "Day(s)"
+msgstr "Giorni"
+
+#: templates/joyous/widgets/recurrence_widget.html:48
+msgid "Week(s)"
+msgstr "Settimane"
+
+#: templates/joyous/widgets/recurrence_widget.html:49
+msgid "Month(s)"
+msgstr "Mesi"
+
+#: templates/joyous/widgets/recurrence_widget.html:50
+msgid "Year(s)"
+msgstr "Anni"
+
+#: templates/joyous/widgets/recurrence_widget.html:57
+msgid "On Days"
+msgstr "Il giorno"
+
+#: templates/joyous/widgets/recurrence_widget.html:67
+msgid "On"
+msgstr "Il"
+
+#: templates/joyous/widgets/recurrence_widget.html:86
+#: templates/joyous/widgets/recurrence_widget.html:105
+msgid "And"
+msgstr "E"
+
+#: templates/joyous/widgets/recurrence_widget.html:126
+msgid "Of"
+msgstr "Di"
+
+#: templates/joyous/widgets/recurrence_widget.html:142
+msgid "What are the rules for when this event recurs?"
+msgstr "Quali sono le regole per cui viene pianificato questo evento?"
+
+#: utils/manythings.py:15
+msgid "first"
+msgstr "primo"
+
+#: utils/manythings.py:16
+msgid "second"
+msgstr "secondo"
+
+#: utils/manythings.py:17
+msgid "third"
+msgstr "terzo"
+
+#: utils/manythings.py:18
+msgid "fourth"
+msgstr "quarto"
+
+#: utils/manythings.py:19
+msgid "fifth"
+msgstr "quinto"
+
+#: utils/manythings.py:29
+msgid "last"
+msgstr "ultimo"
+
+#: utils/manythings.py:31
+msgid "penultimate"
+msgstr "penultimo"
+
+#: utils/manythings.py:46
+msgid "the last"
+msgstr "l'ultimo"
+
+#: utils/manythings.py:48
+msgid "the penultimate"
+msgstr "il penultimo"
+
+#: utils/manythings.py:50
+msgid "the first"
+msgstr "la prima"
+
+#: utils/manythings.py:52
+msgid "the second"
+msgstr "la seconda"
+
+#: utils/manythings.py:54
+msgid "the third"
+msgstr "la terza"
+
+#: utils/manythings.py:56
+msgid "the fourth"
+msgstr "la quarta"
+
+#: utils/manythings.py:58
+msgid "the fifth"
+msgstr "la quinta"
+
+#: utils/manythings.py:60
+msgid "the"
+msgstr "la"
+
+#: utils/manythings.py:74
+#, python-brace-format
+msgid "{N} days before"
+msgstr "{N} giorni prima"
+
+#: utils/manythings.py:76
+msgid "The day before"
+msgstr "Il giorno prima"
+
+#: utils/manythings.py:78
+msgid "The day after"
+msgstr "Il giorno dopo"
+
+#: utils/manythings.py:81
+#, python-brace-format
+msgid "{N} days after"
+msgstr "{N} giorni dopo"
+
+#: utils/manythings.py:90
+msgid "and"
+msgstr "e"
+
+#: utils/names.py:36
+msgid "Mondays"
+msgstr "Ogni lunedì"
+
+#: utils/names.py:37
+msgid "Tuesdays"
+msgstr "Ogni martedì"
+
+#: utils/names.py:38
+msgid "Wednesdays"
+msgstr "Ogni mercoledì"
+
+#: utils/names.py:39
+msgid "Thursdays"
+msgstr "Ogni giovedì"
+
+#: utils/names.py:40
+msgid "Fridays"
+msgstr "Ogni venerdì"
+
+#: utils/names.py:41
+msgid "Saturdays"
+msgstr "Ogni sabato"
+
+#: utils/names.py:42
+msgid "Sundays"
+msgstr "Ogni domenica"
+
+#: utils/recurrence.py:48
+#, python-brace-format
+msgid "{ordinal} {weekday}"
+msgstr "{ordinal} {weekday}"
+
+#: utils/recurrence.py:56
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} before the {ordinal} {weekday}"
+msgid "{localWeekday} before {theOrdinal} {weekday}"
+msgstr "{localWeekday} prima del {theOrdinal} {weekday}"
+
+#: utils/recurrence.py:59
+#, fuzzy, python-brace-format
+#| msgid "{localWeekday} after the {ordinal} {weekday}"
+msgid "{localWeekday} after {theOrdinal} {weekday}"
+msgstr "{localWeekday} dopo il {theOrdinal} {weekday}"
+
+#: utils/recurrence.py:276
+#, python-brace-format
+msgid "for {n} days"
+msgstr "per {n} giorni"
+
+#: utils/recurrence.py:279
+#, python-brace-format
+msgid "(until {when})"
+msgstr "(fino a {when})"
+
+#: utils/recurrence.py:284
+#, python-brace-format
+msgid "Every {n} days"
+msgstr "ogni {n} giorni"
+
+#: utils/recurrence.py:286 widgets.py:52
+msgid "Daily"
+msgstr "Giornaliero"
+
+#: utils/recurrence.py:292
+#, python-brace-format
+msgid "Fortnightly on {days}"
+msgstr "bisettimanale il {days}"
+
+#: utils/recurrence.py:294
+#, python-brace-format
+msgid "Every {n} weeks on {days}"
+msgstr "ogni {n} settimane di {days}"
+
+#: utils/recurrence.py:299
+msgid "of the month"
+msgstr "del mese"
+
+#: utils/recurrence.py:302
+#, python-brace-format
+msgid "{when}, every {n} months"
+msgstr "{when}, ogni {n} mesi"
+
+#: utils/recurrence.py:308 utils/recurrence.py:347 utils/recurrence.py:354
+#, python-brace-format
+msgid "of {months}"
+msgstr "di {months}"
+
+#: utils/recurrence.py:311
+#, python-brace-format
+msgid "{when}, every {n} years"
+msgstr "{when}, ogni {n} anni"
+
+#: utils/recurrence.py:329
+msgid "Everyday"
+msgstr "Ogni giorno"
+
+#: utils/recurrence.py:333
+#, python-brace-format
+msgid "Every {when}"
+msgstr "Ogni {when}"
+
+#: utils/recurrence.py:335
+#, python-brace-format
+msgid "The {when}"
+msgstr "Il {when}"
+
+#: utils/recurrence.py:366 utils/recurrence.py:377
+#, fuzzy, python-brace-format
+#| msgid "Two days after {theOrdinal} day"
+msgid "{DaysOffset} {theOrdinal} day"
+msgstr "Dure giorni dopo {theOrdinal} giorno"
+
+#: utils/recurrence.py:370 utils/recurrence.py:382
+#, fuzzy, python-brace-format
+#| msgid "The {ordinal} day"
+msgid "{TheOrdinal} day"
+msgstr "Il {ordinal} giorno"
+
+#: utils/telltime.py:104
+msgid "pm"
+msgstr ""
+
+#: utils/telltime.py:105
+#, fuzzy
+#| msgid "name"
+msgid "am"
+msgstr "nome"
+
+#: utils/telltime.py:139
+msgid "to"
+msgstr "alle"
+
+#: widgets.py:53
+msgid "Weekly"
+msgstr "Settimanale"
+
+#: widgets.py:54
+msgid "Monthly"
+msgstr "Mensile"
+
+#: widgets.py:55
+msgid "Yearly"
+msgstr "Annuale"
+
+#: widgets.py:63
+msgid "The Same"
+msgstr "Lo stesso"
+
+#: widgets.py:74
+msgid "Day of the month"
+msgstr "Giorno del mese"
+
+#~ msgid "<b>Warning!</b> this feature is experimental"
+#~ msgstr "<b>Attenzione!</b> questa funzionalità è sperimentale."
+
+#~ msgid "{fromTime} to {toTime}"
+#~ msgstr "{fromTime} a {toTime}"
+
+#~ msgid "{weekday} {day} of {month} {year}"
+#~ msgstr "{weekday} {day} {month} {year}"
+
+#~ msgid "{weekday} {day} of {month}"
+#~ msgstr "{weekday} {day} {month}"
+
+#~ msgid "Two days before {theOrdinal} day"
+#~ msgstr "Due giorni prima del {theOrdinal} giorno"
