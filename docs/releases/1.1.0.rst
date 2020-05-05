@@ -1,0 +1,32 @@
+==========================
+Joyous 1.1.0 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+Translations
+~~~~~~~~~~~~
+ * Thanks to Pandevmonium for the new Italian translation.
+
+CSS
+~~~
+
+Documentation
+~~~~~~~~~~~~~
+
+Other features
+~~~~~~~~~~~~~~
+
+Bug fixes
+~~~~~~~~~
+
+Upgrade considerations
+======================
+
+
