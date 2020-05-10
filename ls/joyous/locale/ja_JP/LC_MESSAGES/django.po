@@ -1,0 +1,791 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-23 15:05+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Yuki Kikuchi <info@yukilab.cc>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: models/calendar.py:59
+msgid "Upload"
+msgstr "アップロード"
+
+#: models/calendar.py:63
+msgid "Convert UTC to localtime?"
+msgstr "UTCをローカル時刻に変換"
+
+#: models/calendar.py:69
+msgid "Import"
+msgstr "インポート"
+
+#: models/calendar.py:81
+msgid "Export"
+msgstr "エクスポート"
+
+#: models/calendar.py:105 templates/joyous/includes/events_view_choices.html:4
+msgid "List View"
+msgstr "リスト表示"
+
+#: models/calendar.py:106 templates/joyous/includes/events_view_choices.html:7
+msgid "Weekly View"
+msgstr "週表示"
+
+#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:10
+msgid "Monthly View"
+msgstr "月表示"
+
+#: models/calendar.py:113
+msgid "calendar page"
+msgstr "カレンダーページ"
+
+#: models/calendar.py:114
+msgid "calendar pages"
+msgstr "カレンダーページ"
+
+#: models/calendar.py:124
+msgid "intro"
+msgstr "説明"
+
+#: models/calendar.py:125
+msgid "Introductory text."
+msgstr "説明文"
+
+#: models/calendar.py:126
+msgid "view choices"
+msgstr "表示形式"
+
+#: models/calendar.py:129
+msgid "default view"
+msgstr "ディフォルト表示"
+
+#: models/calendar.py:141
+msgid "View Options"
+msgstr "表示オプション"
+
+#: models/calendar.py:275
+#, python-brace-format
+msgid "Week {weekNum}"
+msgstr "{weekNum}週"
+
+#: models/calendar.py:485
+msgid "specific calendar page"
+msgstr "子イベントのみのカレンダーページ"
+
+#: models/calendar.py:486
+msgid "specific calendar pages"
+msgstr "子イベントのみのカレンダーページ"
+
+#: models/calendar.py:532
+msgid "general calendar page"
+msgstr "全イベントカレンダーページ"
+
+#: models/calendar.py:533
+msgid "general calendar pages"
+msgstr "全イベントカレンダーページ"
+
+#: models/events.py:347
+msgid "event category"
+msgstr "イベントカテゴリ"
+
+#: models/events.py:348
+msgid "event categories"
+msgstr "イベントカテゴリ"
+
+#: models/events.py:350
+msgid "code"
+msgstr "code"
+
+#: models/events.py:351
+msgid "name"
+msgstr "名称"
+
+#: models/events.py:476 models/events.py:820 models/events.py:1862
+msgid "Event cannot end before it starts"
+msgstr "終了時刻を開始時刻以降で設定してください"
+
+#: models/events.py:491
+msgid "category"
+msgstr "カテゴリ"
+
+#: models/events.py:497
+msgid "image"
+msgstr "画像"
+
+#: models/events.py:500
+msgid "start time"
+msgstr "開始時刻"
+
+#: models/events.py:501
+msgid "end time"
+msgstr "終了時刻"
+
+#: models/events.py:502
+msgid "time zone"
+msgstr "タイムゾーン"
+
+#: models/events.py:507 models/groups.py:49
+msgid "group page"
+msgstr "グループページ"
+
+#: models/events.py:509 models/events.py:1721
+msgid "details"
+msgstr "詳細"
+
+#: models/events.py:510
+msgid "location"
+msgstr "場所"
+
+#: models/events.py:511
+msgid "website"
+msgstr "website"
+
+#: models/events.py:591 models/events.py:1638
+msgid "This event has finished."
+msgstr "このイベントは終了しています"
+
+#: models/events.py:593 models/events.py:1640
+msgid "This event has started."
+msgstr "このイベントは始まっています"
+
+#: models/events.py:640 models/events.py:643 models/events.py:1497
+#, python-brace-format
+msgid "{date} {atTime}"
+msgstr "{date} {atTime}"
+
+#: models/events.py:641 models/events.py:644 models/events.py:648
+#: models/events.py:1153 models/events.py:1213 models/events.py:1499
+#: templatetags/joyous_tags.py:160
+# start=stop など丁度を示す
+msgid "at "
+msgstr ""
+
+#: models/events.py:645
+#, python-brace-format
+msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
+msgstr "{dateTimeFrom} 〜 {dateTo} {atTimeTo}"
+
+#: models/events.py:716
+msgid "event page"
+msgstr "イベントページ"
+
+#: models/events.py:717
+msgid "event pages"
+msgstr "イベントページ"
+
+#: models/events.py:727 models/events.py:1898
+msgid "date"
+msgstr "日付"
+
+#: models/events.py:828
+msgid "multiday event page"
+msgstr "複数日イベントページ"
+
+#: models/events.py:829
+msgid "multiday event pages"
+msgstr "複数日イベントページ"
+
+#: models/events.py:839
+msgid "start date"
+msgstr "開始日"
+
+#: models/events.py:840
+msgid "end date"
+msgstr "終了日"
+
+#: models/events.py:988
+msgid "recurring event page"
+msgstr "繰り返しイベントページ"
+
+#: models/events.py:989
+msgid "recurring event pages"
+msgstr "繰り返しイベントページ"
+
+#: models/events.py:1001
+msgid "repeat"
+msgstr "繰り返し"
+
+#: models/events.py:1002 models/events.py:1873
+msgid "number of days"
+msgstr "日数"
+
+#: models/events.py:1131
+msgid "These events have finished."
+msgstr "これらのイベントは終了しています"
+
+#: models/events.py:1151
+#, python-brace-format
+msgid "{repeat} {atTime}"
+msgstr "{repeat} {atTime}"
+
+#: models/events.py:1156
+#, python-brace-format
+msgid "{repeat} {startFinishTime}"
+msgstr "{repeat} {startFinishTime}"
+
+#: models/events.py:1159 models/events.py:1506
+msgid "starting at "
+msgstr "開始："
+
+#: models/events.py:1160
+msgid "finishing at"
+msgstr "終了："
+
+#: models/events.py:1378
+msgid "multiday recurring event page"
+msgstr "繰り返し複数日イベントページ"
+
+#: models/events.py:1379
+msgid "multiday recurring event pages"
+msgstr "繰り返し複数日イベントページ"
+
+#: models/events.py:1413
+msgid "That date already has"
+msgstr "該当日の既存予定："
+
+#: models/events.py:1426
+msgid "overrides"
+msgstr "上書き"
+
+#: models/events.py:1429
+msgid "The recurring event that we are updating."
+msgstr "上書きする繰り返しイベント"
+
+#: models/events.py:1430
+msgid "For Date"
+msgstr "対象日："
+
+#: models/events.py:1431
+msgid "For this date"
+msgstr "対象日"
+
+#: models/events.py:1458
+#, python-brace-format
+msgid "{exception} for {date}"
+msgstr "{exception} 対象：{date}"
+
+#: models/events.py:1503
+#, python-brace-format
+msgid "{date} for {n} days {startTime}"
+msgstr "{date}から{n}日間：{startTime}"
+
+#: models/events.py:1507
+#, python-brace-format
+msgid "{dateAndStartTime} {finishTime}"
+msgstr "{dateAndStartTime}〜{finishTime}"
+
+#: models/events.py:1509
+msgid "finishing at "
+msgstr "終了："
+
+#: models/events.py:1575
+msgid "Extra Information"
+msgstr "追加情報"
+
+#: models/events.py:1584 models/events.py:1585
+msgid "extra event information"
+msgstr "追加イベント情報"
+
+#: models/events.py:1594
+msgid "Extra-Info"
+msgstr "追加情報"
+
+#: models/events.py:1596 models/events.py:1718 models/events.py:1896
+msgid "title"
+msgstr "タイトル"
+
+#: models/events.py:1597
+msgid "A more specific title for this occurence (optional)"
+msgstr "(任意)このイベントの追加情報"
+
+#: models/events.py:1598
+msgid "extra information"
+msgstr "追加情報"
+
+#: models/events.py:1599
+msgid "Information just for this date"
+msgstr "この日のみの情報"
+
+#: models/events.py:1696
+msgid "a cancellation"
+msgstr "キャンセル"
+
+#: models/events.py:1706
+msgid "cancellation"
+msgstr "キャンセル"
+
+#: models/events.py:1707
+msgid "cancellations"
+msgstr "キャンセル"
+
+#: models/events.py:1716 models/events.py:1735 models/events.py:1907
+msgid "Cancellation"
+msgstr "キャンセル"
+
+#: models/events.py:1719
+msgid "Show in place of cancelled event (Leave empty to show nothing)"
+msgstr "キャンセルしたイベントの代わりに表示(未入力にすると何も表示しません）"
+
+#: models/events.py:1722
+msgid "Why was the event cancelled?"
+msgstr "イベントキャンセルの理由"
+
+#: models/events.py:1751
+msgid "This event has been cancelled."
+msgstr "このイベントはキャンセルされました"
+
+#: models/events.py:1848
+msgid "a postponement"
+msgstr "延期"
+
+#: models/events.py:1885 models/events.py:2053
+msgid "postponement"
+msgstr "延期"
+
+#: models/events.py:1886 models/events.py:2054
+msgid "postponements"
+msgstr "延期"
+
+#: models/events.py:1894
+msgid "Postponement"
+msgstr "延期"
+
+#: models/events.py:1897
+msgid "The title for the postponed event"
+msgstr "延期されたイベント名"
+
+#: models/events.py:1920 models/events.py:2063
+msgid "Postponed to"
+msgstr "延期："
+
+#: models/events.py:1963
+#, python-brace-format
+msgid "{what} from {when}"
+msgstr "{what}：{when}"
+
+#: models/events.py:1982
+msgid "Postponed"
+msgstr "延期"
+
+#: models/events.py:1984
+msgid "Rescheduled"
+msgstr "リスケジュール"
+
+#: models/groups.py:50
+msgid "group pages"
+msgstr "グループペーjい"
+
+#: models/groups.py:62
+msgid "content"
+msgstr "コンテンツ"
+
+#: models/groups.py:63
+msgid "An area of text for whatever you like"
+msgstr "自由に文章を記載する領域"
+
+#: templates/joyous/calendar_base.html:21
+#: templates/joyous/calendar_list_upcoming.html:18
+#: templates/joyous/edit_handlers/export_panel.html:17
+#: templates/joyous/event_base.html:27
+#: templates/joyous/includes/calendar_export.html:3
+msgid "Export iCal"
+msgstr "iCalへエクスポート"
+
+#: templates/joyous/calendar_list_day.html:12
+#, python-format
+msgid "Events on %(day)s"
+msgstr "%(day)s 日間のイベント"
+
+#: templates/joyous/calendar_list_past.html:5
+#: templates/joyous/calendar_list_upcoming.html:12
+msgid "Upcoming Events"
+msgstr "直近のイベント"
+
+#: templates/joyous/calendar_list_past.html:12
+#: templates/joyous/calendar_list_upcoming.html:5
+msgid "Past Events"
+msgstr "過去のイベント"
+
+#: templates/joyous/calendar_list_upcoming.html:20
+msgid "RSS Feed"
+msgstr "RSSフィード"
+
+#: templates/joyous/calendar_month.html:5
+msgid "This Month"
+msgstr "今月"
+
+#: templates/joyous/calendar_month.html:14
+#: templates/joyous/includes/minicalendar.html:12
+msgid "Previous month"
+msgstr "先月"
+
+#: templates/joyous/calendar_month.html:16
+#: templates/joyous/includes/minicalendar.html:13
+msgid "Next month"
+msgstr "次月"
+
+#: templates/joyous/calendar_month.html:19
+#: templates/joyous/calendar_week.html:19
+msgid "Previous year"
+msgstr "前年"
+
+#: templates/joyous/calendar_month.html:21
+#: templates/joyous/calendar_week.html:21
+msgid "Next year"
+msgstr "来年"
+
+#: templates/joyous/calendar_table_base.html:23
+#: templates/joyous/tags/events_this_week.html:19
+msgid "cont."
+msgstr "続く"
+
+#: templates/joyous/calendar_week.html:5
+#: templates/joyous/tags/events_this_week.html:3
+msgid "This Week"
+msgstr "今週"
+
+#: templates/joyous/calendar_week.html:14
+msgid "Previous week"
+msgstr "先週"
+
+#: templates/joyous/calendar_week.html:16
+msgid "Next week"
+msgstr "次週"
+
+#: templates/joyous/edit_handlers/exception_date_object.html:28
+msgid "Time Zone"
+msgstr "タイムゾーン"
+
+#: templates/joyous/edit_handlers/export_panel.html:14
+msgid "Download"
+msgstr "ダウンロード"
+
+#: templates/joyous/event_base.html:25
+msgid "Google Calendar"
+msgstr "Googleカレンダー"
+
+#: templates/joyous/exception_base.html:7
+msgid "See also <strong>other occurrences</strong> of this event."
+msgstr "このイベントの<strong>他日時の開催</strong>を見る"
+
+#: templates/joyous/includes/when.html:11
+#, python-format
+msgid "Next on %(event_next_on)s"
+msgstr "Next on %(event_next_on)s"
+
+#: templates/joyous/postponement_page_from.html:8
+#, python-format
+msgid "This event has been %(what)s."
+msgstr "イベント%(what)s"
+
+#: templates/joyous/postponement_page_from.html:28
+#, python-format
+msgid ""
+"%(what)s to <a class=\"joy-ev-to-when__link\" href=\"%(postponement_url)s\" >"
+"%(postponed_to)s</a>"
+msgstr ""
+"<a class=\"joy-ev-to-when__link\" href=\"%(postponement_url)s\" >"
+"%(postponed_to)s </a>　%(what)s"
+
+#: templates/joyous/tags/events_this_week.html:7
+msgid "Today"
+msgstr "今日"
+
+#: templates/joyous/tags/future_exceptions_list.html:9
+#: templates/joyous/tags/future_exceptions_list.html:11
+msgid "on"
+msgstr ""
+
+#: templates/joyous/tags/group_upcoming_events.html:5
+msgid "Events"
+msgstr "イベント"
+
+#: templates/joyous/widgets/recurrence_widget.html:7
+msgid "From Date"
+msgstr "開始日"
+
+#: templates/joyous/widgets/recurrence_widget.html:17
+msgid "Frequency"
+msgstr "頻度"
+
+#: templates/joyous/widgets/recurrence_widget.html:28
+msgid "Until Date"
+msgstr "終了日"
+
+#: templates/joyous/widgets/recurrence_widget.html:38
+msgid "Use Advanced Options"
+msgstr "詳細オプション"
+
+#: templates/joyous/widgets/recurrence_widget.html:43 widgets.py:62
+msgid "Every"
+msgstr "毎"
+
+#: templates/joyous/widgets/recurrence_widget.html:47
+msgid "Day(s)"
+msgstr "日"
+
+#: templates/joyous/widgets/recurrence_widget.html:48
+msgid "Week(s)"
+msgstr "週"
+
+#: templates/joyous/widgets/recurrence_widget.html:49
+msgid "Month(s)"
+msgstr "月"
+
+#: templates/joyous/widgets/recurrence_widget.html:50
+msgid "Year(s)"
+msgstr "年"
+
+#: templates/joyous/widgets/recurrence_widget.html:57
+msgid "On Days"
+msgstr "日"
+
+#: templates/joyous/widgets/recurrence_widget.html:67
+msgid "On"
+msgstr "On"
+
+#: templates/joyous/widgets/recurrence_widget.html:86
+#: templates/joyous/widgets/recurrence_widget.html:105
+msgid "And"
+msgstr "And"
+
+#: templates/joyous/widgets/recurrence_widget.html:126
+msgid "Of"
+msgstr "Of"
+
+#: templates/joyous/widgets/recurrence_widget.html:142
+msgid "What are the rules for when this event recurs?"
+msgstr "このイベントの繰り返し条件"
+
+#: utils/manythings.py:15
+msgid "first"
+msgstr "1番目"
+
+#: utils/manythings.py:16
+msgid "second"
+msgstr "2番目"
+
+#: utils/manythings.py:17
+msgid "third"
+msgstr "3番目"
+
+#: utils/manythings.py:18
+msgid "fourth"
+msgstr "4番目"
+
+#: utils/manythings.py:19
+msgid "fifth"
+msgstr "5番目"
+
+#: utils/manythings.py:29
+msgid "last"
+msgstr "最後"
+
+#: utils/manythings.py:31
+msgid "penultimate"
+msgstr "最後から2番目"
+
+#: utils/manythings.py:46
+msgid "the last"
+msgstr "最後"
+
+#: utils/manythings.py:48
+msgid "the penultimate"
+msgstr "最後から2番目"
+
+#: utils/manythings.py:50
+msgid "the first"
+msgstr "1番目"
+
+#: utils/manythings.py:52
+msgid "the second"
+msgstr "2番目"
+
+#: utils/manythings.py:54
+msgid "the third"
+msgstr "3番目"
+
+#: utils/manythings.py:56
+msgid "the fourth"
+msgstr "4番目"
+
+#: utils/manythings.py:58
+msgid "the fifth"
+msgstr "5番目"
+
+#: utils/manythings.py:60
+msgid "the"
+msgstr ""
+
+#: utils/manythings.py:74
+#, python-brace-format
+msgid "{N} days before"
+msgstr "{N}日前"
+
+#: utils/manythings.py:76
+msgid "The day before"
+msgstr "以前の日"
+
+#: utils/manythings.py:78
+msgid "The day after"
+msgstr "以後の日"
+
+#: utils/manythings.py:81
+#, python-brace-format
+msgid "{N} days after"
+msgstr "{N}日後"
+
+#: utils/manythings.py:90
+msgid "and"
+msgstr "と"
+
+#: utils/names.py:36
+msgid "Mondays"
+msgstr "月"
+
+#: utils/names.py:37
+msgid "Tuesdays"
+msgstr "火"
+
+#: utils/names.py:38
+msgid "Wednesdays"
+msgstr "水"
+
+#: utils/names.py:39
+msgid "Thursdays"
+msgstr "木"
+
+#: utils/names.py:40
+msgid "Fridays"
+msgstr "金"
+
+#: utils/names.py:41
+msgid "Saturdays"
+msgstr "土"
+
+#: utils/names.py:42
+msgid "Sundays"
+msgstr "日"
+
+#: utils/recurrence.py:48
+#, python-brace-format
+msgid "{ordinal} {weekday}"
+msgstr "{ordinal} {weekday}"
+
+#: utils/recurrence.py:56
+#, python-brace-format
+msgid "{localWeekday} before {theOrdinal} {weekday}"
+msgstr "{localWeekday} before {theOrdinal} {weekday}"
+
+#: utils/recurrence.py:59
+#, python-brace-format
+msgid "{localWeekday} after {theOrdinal} {weekday}"
+msgstr "{localWeekday} after {theOrdinal} {weekday}"
+
+#: utils/recurrence.py:276
+#, python-brace-format
+msgid "for {n} days"
+msgstr "{n}日間"
+
+#: utils/recurrence.py:279
+#, python-brace-format
+msgid "(until {when})"
+msgstr "({when}まで)"
+
+#: utils/recurrence.py:284
+#, python-brace-format
+msgid "Every {n} days"
+msgstr "{n}日毎"
+
+#: utils/recurrence.py:286 widgets.py:52
+msgid "Daily"
+msgstr "毎日"
+
+#: utils/recurrence.py:292
+#, python-brace-format
+msgid "Fortnightly on {days}"
+msgstr "隔週 {days}"
+
+#: utils/recurrence.py:294
+#, python-brace-format
+msgid "Every {n} weeks on {days}"
+msgstr "{n}週毎 {days}"
+
+#: utils/recurrence.py:299
+msgid "of the month"
+msgstr "毎月"
+
+#: utils/recurrence.py:302
+#, python-brace-format
+msgid "{when}, every {n} months"
+msgstr "{n}ヶ月毎 {when}"
+
+#: utils/recurrence.py:308 utils/recurrence.py:347 utils/recurrence.py:354
+#, python-brace-format
+msgid "of {months}"
+msgstr " ({months}月)"
+
+#: utils/recurrence.py:311
+#, python-brace-format
+msgid "{when}, every {n} years"
+msgstr "{n}年毎 {when}"
+
+#: utils/recurrence.py:329
+msgid "Everyday"
+msgstr "毎日"
+
+#: utils/recurrence.py:333
+#, python-brace-format
+msgid "Every {when}"
+msgstr "毎 {when}"
+
+#: utils/recurrence.py:335
+#, python-brace-format
+msgid "The {when}"
+msgstr "{when}"
+
+#: utils/recurrence.py:366 utils/recurrence.py:377
+#, python-brace-format
+msgid "{DaysOffset} {theOrdinal} day"
+msgstr "{DaysOffset} {theOrdinal}"
+
+#: utils/recurrence.py:370 utils/recurrence.py:382
+#, python-brace-format
+msgid "{TheOrdinal} day"
+msgstr "{TheOrdinal}"
+
+#: utils/telltime.py:104
+msgid "pm"
+msgstr "PM"
+
+#: utils/telltime.py:105
+msgid "am"
+msgstr "AM"
+
+#: utils/telltime.py:139
+msgid "to"
+msgstr "〜"
+
+#: widgets.py:53
+msgid "Weekly"
+msgstr "毎週"
+
+#: widgets.py:54
+msgid "Monthly"
+msgstr "毎月"
+
+#: widgets.py:55
+msgid "Yearly"
+msgstr "毎年"
+
+#: widgets.py:63
+msgid "The Same"
+msgstr "同じ"
+
+#: widgets.py:74
+msgid "Day of the month"
+msgstr "月の日"
