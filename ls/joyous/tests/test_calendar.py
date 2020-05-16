@@ -181,7 +181,7 @@ class TestCalendar(TestCase):
         self.assertEqual(event['title'], "Tree Planting")
 
     def testInvalidDates(self):
-        invalidDates = ["2012/13", "2008/W54", "2099/W53"]
+        invalidDates = ["2012/13", "2008/W54", "2099/W53", "2021/2/30"]
         for date in invalidDates:
             with self.subTest(date=date):
                 response = self.client.get("/events/{}/".format(date))

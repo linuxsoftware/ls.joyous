@@ -294,6 +294,9 @@ class CalendarPage(RoutablePageMixin, Page):
         year = int(year)
         month = int(month)
         dom = int(dom)
+        daysInMonth = calendar.monthrange(year, month)[1]
+        if dom > daysInMonth:
+            raise Http404("Only {} days in month".format(daysInMonth))
         day = dt.date(year, month, dom)
 
         daysEvents = self._getEventsOnDay(request, day).all_events
