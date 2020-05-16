@@ -348,8 +348,6 @@ class Test(TestCase):
         self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0].level, messages.WARNING)
         self.assertEqual(msgs[0].message, "Unknown time zone Canada/Toronto")
-        # self.assertEqual(msgs[1].level, messages.SUCCESS)
-        # self.assertEqual(msgs[1].message, "1 iCal events loaded")
         self.assertEqual(results.success, 1)
         self.assertEqual(results.fail, 0)
 
@@ -568,12 +566,6 @@ class TestUpdate(TestCase):
         revisions = event.revisions.all()
         self.assertEqual(len(revisions), 1)
         self.assertEqual(results.success, 0)
-        # self.assertEqual(results.fail, 1)
-        # msgs = list(messages.get_messages(request))
-        # self.assertEqual(len(msgs), 1)
-        # msg = msgs[0]
-        # self.assertEqual(msg.level, messages.ERROR)
-        # self.assertEqual(msg.message, "Could not load 1 iCal events")
 
 # ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
