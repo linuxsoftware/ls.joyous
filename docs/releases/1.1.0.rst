@@ -15,6 +15,10 @@ Translations
  * Thanks to Yuki Kikuchi for the new Japanese translation.
  * Thanks to Pandevmonium for the new Italian translation.
 
+iCal
+~~~~
+ * Import whole zip files containing iCal files
+
 CSS
 ~~~
 

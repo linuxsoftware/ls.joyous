@@ -9,10 +9,41 @@ from django.utils import timezone
 from wagtail.core.models import Page
 from icalendar import vDatetime, vDate, vRecur, vDDDTypes, vText
 from ls.joyous.utils.telltime import getLocalDatetime
-from ls.joyous.formats.ical import (vDt, vSmart, TimeZoneSpan, VMatch,
+from ls.joyous.formats.ical import (VResults, vDt, vSmart, TimeZoneSpan, VMatch,
                                     VEventFactory, CalendarTypeError,
                                     Event, VEvent, SimpleVEvent)
 from freezegun import freeze_time
+
+# ------------------------------------------------------------------------------
+class TestVResults(TestCase):
+    def testEmpty(self):
+        results = VResults()
+        self.assertEqual(results.success, 0)
+        self.assertEqual(results.fail,    0)
+        self.assertEqual(results.error,   0)
+
+    def testInit(self):
+        results = VResults(3, 2, 1)
+        self.assertEqual(results.success, 3)
+        self.assertEqual(results.fail,    2)
+        self.assertEqual(results.error,   1)
+
+    def testEquals(self):
+        a = VResults()
+        b = VResults()
+        self.assertTrue(a == b)
+        b.success = 1
+        self.assertFalse(a == b)
+        a += b
+        self.assertTrue(a == b)
+        b.error = 1
+        self.assertFalse(a == b)
+
+    def testRepr(self):
+        results = VResults()
+        self.assertEqual(repr(results), "Success=0, Fail=0, Error=0")
+        results.error = 1
+        self.assertEqual(repr(results), "Success=0, Fail=0, Error=1")
 
 # ------------------------------------------------------------------------------
 class TestVDt(TestCase):

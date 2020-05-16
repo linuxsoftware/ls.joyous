@@ -2,12 +2,10 @@
 # ical import/export format
 # ------------------------------------------------------------------------------
 import datetime as dt
-from collections import namedtuple
-from contextlib import suppress
-from itertools import chain
 import pytz
 import base64
 import quopri
+from zipfile import is_zipfile, ZipFile
 from icalendar import Calendar, Event
 from icalendar import vDatetime, vRecur, vDDDTypes, vText
 from django.contrib import messages
@@ -21,7 +19,7 @@ from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         CancellationPage, PostponementPage, RescheduleMultidayEventPage,
         EventBase, CalendarPage)
 from ..utils.recurrence import Recurrence
-from ..utils.telltime import getAwareDatetime, getLocalDatetime
+from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
 from .errors import CalendarTypeError, CalendarNotInitializedError
 
@@ -32,6 +30,28 @@ class VComponentMixin:
         if name in self:
             del self[name]
         self.add(name, value, parameters, encode)
+
+# ------------------------------------------------------------------------------
+class VResults:
+    """The number of successes, failures and errors"""
+    def __init__(self, success=0, fail=0, error=0):
+        self.success = success
+        self.fail    = fail
+        self.error   = error
+
+    def __add__(self, other):
+        return VResults(self.success + other.success,
+                        self.fail    + other.fail,
+                        self.error   + other.error)
+
+    def __eq__(self, other):
+        return (self.success == other.success and
+                self.fail    == other.fail    and
+                self.error   == other.error)
+
+    def __repr__(self):
+        return "Success={}, Fail={}, Error={}".format(self.success, self.fail,
+                                                      self.error)
 
 # ------------------------------------------------------------------------------
 class ICalHandler:
@@ -47,8 +67,33 @@ class ICalHandler:
         return response
 
     def load(self, page, request, upload, **kwargs):
+        isZip = is_zipfile(upload)
+        upload.seek(0)
+        if isZip:
+            results = self._loadZip(page, request, upload, **kwargs)
+        else:
+            results = self._loadICal(page, request, upload, **kwargs)
+        if results.success:
+            messages.success(request, "{} iCal events loaded".format(results.success))
+        if results.fail:
+            messages.error(request, "Could not load {} iCal events".format(results.fail))
+
+    def _loadZip(self, page, request, upload, **kwargs):
+        results = VResults()
+        with ZipFile(upload) as package:
+            for info in package.infolist():
+                if info.filename.endswith(".ics"):
+                    with package.open(info) as calFile:
+                        results += self._loadICal(page, request, calFile, **kwargs)
+        return results
+
+    def _loadICal(self, page, request, upload, **kwargs):
         vcal = VCalendar(page, **kwargs)
-        vcal.load(request, upload.read(), getattr(upload, 'name', ""))
+        results = vcal.load(request, upload.read())
+        if results.error:
+            name = getattr(upload, 'name', "")
+            messages.error(request, "Could not parse iCalendar file "+name)
+        return results
 
 # ------------------------------------------------------------------------------
 class VCalendar(Calendar, VComponentMixin):
@@ -119,7 +164,7 @@ class VCalendar(Calendar, VComponentMixin):
         super().clear()
         self.subcomponents.clear()
 
-    def load(self, request, data, name=""):
+    def load(self, request, data):
         if self.page is None:
             raise CalendarNotInitializedError("No page set")
 
@@ -129,13 +174,12 @@ class VCalendar(Calendar, VComponentMixin):
         # stream.
         try:
             calStream = Calendar.from_ical(data, multiple=True)
-        except ValueError as e:
-            messages.error(request, "Could not parse iCalendar file "+name)
+        except Exception as e:
             #messages.debug(request, str(e))
-            return
+            return VResults(error=1)
 
         self.clear()
-        numSuccess = numFail = 0
+        results = VResults()
         for cal in calStream:
             tz = timezone.get_current_timezone()
             zone = cal.get('X-WR-TIMEZONE', None)
@@ -145,16 +189,11 @@ class VCalendar(Calendar, VComponentMixin):
                 except pytz.exceptions.UnknownTimeZoneError:
                     messages.warning(request, "Unknown time zone {}".format(zone))
             with timezone.override(tz):
-                result = self._loadEvents(request, cal.walk(name="VEVENT"))
-                numSuccess += result[0]
-                numFail    += result[1]
-        if numSuccess:
-            messages.success(request, "{} iCal events loaded".format(numSuccess))
-        if numFail:
-            messages.error(request, "Could not load {} iCal events".format(numFail))
+                results += self._loadEvents(request, cal.walk(name="VEVENT"))
+        return results
 
     def _loadEvents(self, request, vevents):
-        numSuccess = numFail = 0
+        results = VResults()
         vmap = {}
         for props in vevents:
             try:
@@ -163,7 +202,7 @@ class VCalendar(Calendar, VComponentMixin):
                 if self.utc2local:
                     vevent._convertTZ()
             except CalendarTypeError as e:
-                numFail += 1
+                results.fail += 1
                 #messages.debug(request, str(e))
             else:
                 self.add_component(vevent)
@@ -176,12 +215,12 @@ class VCalendar(Calendar, VComponentMixin):
                     event = self.page._getEventFromUid(request, vevent['UID'])
                 except PermissionDenied:
                     # No authority
-                    numFail += 1
+                    results.fail += 1
                 except ObjectDoesNotExist:
-                    numSuccess += self._createEventPage(request, vevent)
+                    results.success += self._createEventPage(request, vevent)
                 else:
-                    numSuccess += self._updateEventPage(request, vevent, event)
-        return numSuccess, numFail
+                    results.success += self._updateEventPage(request, vevent, event)
+        return results
 
     def _updateEventPage(self, request, vevent, event):
         numUpdated = 0
@@ -384,6 +423,7 @@ class VMatch:
 
     def _addParent(self, component):
         if self.parent:
+            # FIXME --- handler for this???
             raise self.DuplicateError("UID {}".format(component['UID']))
         self.parent = component
         for orphan in self.orphans:

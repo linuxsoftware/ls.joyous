@@ -7,8 +7,10 @@ import datetime as dt
 import pytz
 from io import BytesIO
 from icalendar import vDatetime
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib import messages
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from wagtail.core.models import Site, Page
@@ -264,6 +266,10 @@ END:VCALENDAR
 """)
         request = self._getRequest()
         self.handler.load(self.calendar, request, stream)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].level, messages.SUCCESS)
+        self.assertEqual(msgs[0].message, "5 iCal events loaded")
         events = getAllEvents(request, home=self.calendar)
         self.assertEqual(len(events), 5)
         tueMorn, daysOff, lilWeds, cnfCall, bigThur = events
@@ -414,6 +420,39 @@ END:VCALENDAR
         self.assertEqual(bigThur.date_to,    dt.date(2018,7,26))
         self.assertEqual(bigThur.time_to,    dt.time(18,30))
         self.assertEqual(bigThur.when,       "Thursday 26th of July at 9am to 8:30pm")
+
+    def testZipFile(self):
+        path = "{}/djm@software.net.nz.ical.zip".format(settings.TEST_IMPORT_DIR)
+        stream = open(path, "rb")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].level, messages.SUCCESS)
+        self.assertEqual(msgs[0].message, "2 iCal events loaded")
+
+    def testBadZipFile(self):
+        path = "{}/junk.zip".format(settings.TEST_IMPORT_DIR)
+        stream = open(path, "rb")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].level, messages.ERROR)
+        self.assertEqual(msgs[0].message, "Could not parse iCalendar file "+path)
+
+    def testZippedInvalidFile(self):
+        path = "{}/foobar.ical.zip".format(settings.TEST_IMPORT_DIR)
+        stream = open(path, "rb")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 2)
+        self.assertEqual(msgs[0].level, messages.ERROR)
+        self.assertEqual(msgs[0].message,
+                         "Could not parse iCalendar file foobar@group.calendar.google.com.ics")
+        self.assertEqual(msgs[1].level, messages.SUCCESS)
+        self.assertEqual(msgs[1].message, "1 iCal events loaded")
 
     def testOutlook(self):
         stream = BytesIO(rb"""
@@ -759,6 +798,48 @@ END:VCALENDAR""")
         self.assertEqual(resched.num_days,  1)
         self.assertEqual(resched.time_from, dt.time(11))
         self.assertEqual(resched.time_to,   dt.time(14,30))
+
+    def testLoadInvalidFile(self):
+        stream = BytesIO(rb"""FOO:BAR:SNAFU""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        msg = msgs[0]
+        self.assertEqual(msg.level, messages.ERROR)
+        self.assertEqual(msg.message, "Could not parse iCalendar file ")
+
+    def testLoadEventMissingUID(self):
+        stream = BytesIO(rb"""
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Bloor &amp; Spadina
+X-ORIGINAL-URL:http://bloorneighbours.ca
+X-WR-CALDESC:Events for Bloor &amp; Spadina
+BEGIN:VEVENT
+DTSTART;TZID=UTC+0:20180407T093000
+DTEND;TZID=UTC+0:20180407T113000
+DTSTAMP:20180402T054745
+CREATED:20180304T225154Z
+LAST-MODIFIED:20180304T225154Z
+SUMMARY:Mini-Fair & Garage Sale
+DESCRIPTION:
+URL:http://bloorneighbours.ca/event/mini-fair-garage-sale/
+END:VEVENT
+END:VCALENDAR""")
+        request = self._getRequest()
+        self.handler.load(self.calendar, request, stream)
+        events = SimpleEventPage.events.child_of(self.calendar)            \
+                                       .filter(date=dt.date(2018,4,7)).all()
+        self.assertEqual(len(events), 0)
+        msgs = list(messages.get_messages(request))
+        self.assertEqual(len(msgs), 1)
+        msg = msgs[0]
+        self.assertEqual(msg.level, messages.ERROR)
+        self.assertEqual(msg.message, "Could not load 1 iCal events")
 
 # ------------------------------------------------------------------------------
 class TestExport(TestCase):

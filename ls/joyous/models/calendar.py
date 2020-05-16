@@ -54,7 +54,9 @@ class CalendarPageForm(WagtailAdminPageForm):
                 return perms.can_publish() and perms.can_edit()
 
         cls.importHandler = handler
-        uploadWidget = forms.FileInput(attrs={'accept': "text/calendar"})
+        uploadWidget = forms.FileInput(attrs={'accept': "text/calendar,"
+                                                        "application/zip,"
+                                                        ".ics,.zip"})
         cls.declared_fields['upload'] = forms.FileField(
                                             label=_("Upload"),
                                             required=False,

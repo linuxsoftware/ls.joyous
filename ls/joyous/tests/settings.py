@@ -7,6 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(PROJECT_DIR))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'tests', 'test-static')
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'tests', 'test-media')
 TEMPLATES_DIR = os.path.join(PROJECT_DIR, 'tests', 'templates')
+TEST_IMPORT_DIR = os.path.join(PROJECT_DIR, 'tests', 'import')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 

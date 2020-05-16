@@ -280,12 +280,10 @@ class Test(TestCase):
         data  = b"FOO:BAR:SNAFU"
         vcal = VCalendar(self.calendar)
         request = self._getRequest()
-        vcal.load(request, data)
-        msgs = list(messages.get_messages(request))
-        self.assertEqual(len(msgs), 1)
-        msg = msgs[0]
-        self.assertEqual(msg.level, messages.ERROR)
-        self.assertEqual(msg.message, "Could not parse iCalendar file ")
+        results = vcal.load(request, data)
+        self.assertEqual(results.success, 0)
+        self.assertEqual(results.fail, 0)
+        self.assertEqual(results.error, 1)
 
     def testLoadEventMissingUID(self):
         data  = b"\r\n".join([
@@ -310,15 +308,12 @@ class Test(TestCase):
                 b"END:VCALENDAR",])
         vcal = VCalendar(self.calendar)
         request = self._getRequest()
-        vcal.load(request, data)
+        results = vcal.load(request, data)
         events = SimpleEventPage.events.child_of(self.calendar)            \
                                        .filter(date=dt.date(2018,4,7)).all()
         self.assertEqual(len(events), 0)
-        msgs = list(messages.get_messages(request))
-        self.assertEqual(len(msgs), 1)
-        msg = msgs[0]
-        self.assertEqual(msg.level, messages.ERROR)
-        self.assertEqual(msg.message, "Could not load 1 iCal events")
+        self.assertEqual(results.success, 0)
+        self.assertEqual(results.fail, 1)
 
     def testLoadUnknownTZ(self):
         data  = b"\r\n".join([
@@ -344,17 +339,19 @@ class Test(TestCase):
                 b"END:VCALENDAR",])
         vcal = VCalendar(self.calendar)
         request = self._getRequest()
-        vcal.load(request, data)
+        results = vcal.load(request, data)
         events = SimpleEventPage.events.child_of(self.calendar)            \
                                        .filter(date=dt.date(2018,4,7)).all()
         self.assertEqual(len(events), 1)
         self.assertEqual(events[0].tz.zone, "Asia/Tokyo")
         msgs = list(messages.get_messages(request))
-        self.assertEqual(len(msgs), 2)
+        self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0].level, messages.WARNING)
         self.assertEqual(msgs[0].message, "Unknown time zone Canada/Toronto")
-        self.assertEqual(msgs[1].level, messages.SUCCESS)
-        self.assertEqual(msgs[1].message, "1 iCal events loaded")
+        # self.assertEqual(msgs[1].level, messages.SUCCESS)
+        # self.assertEqual(msgs[1].message, "1 iCal events loaded")
+        self.assertEqual(results.success, 1)
+        self.assertEqual(results.fail, 0)
 
 # ------------------------------------------------------------------------------
 class TestUpdate(TestCase):
@@ -561,7 +558,7 @@ class TestUpdate(TestCase):
                 b"END:VCALENDAR",])
         vcal = VCalendar(self.calendar)
         request = self._getRequest()
-        vcal.load(request, data)
+        results = vcal.load(request, data)
         events = SimpleEventPage.events.child_of(self.calendar)            \
                                        .filter(date=dt.date(2013,1,10)).all()
         self.assertEqual(len(events), 1)
@@ -570,11 +567,13 @@ class TestUpdate(TestCase):
         self.assertEqual(event.location,   "")
         revisions = event.revisions.all()
         self.assertEqual(len(revisions), 1)
-        msgs = list(messages.get_messages(request))
-        self.assertEqual(len(msgs), 1)
-        msg = msgs[0]
-        self.assertEqual(msg.level, messages.ERROR)
-        self.assertEqual(msg.message, "Could not load 1 iCal events")
+        self.assertEqual(results.success, 0)
+        # self.assertEqual(results.fail, 1)
+        # msgs = list(messages.get_messages(request))
+        # self.assertEqual(len(msgs), 1)
+        # msg = msgs[0]
+        # self.assertEqual(msg.level, messages.ERROR)
+        # self.assertEqual(msg.message, "Could not load 1 iCal events")
 
 # ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
