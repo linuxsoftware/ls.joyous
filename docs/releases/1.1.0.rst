@@ -27,6 +27,7 @@ Documentation
 
 Other features
 ~~~~~~~~~~~~~~
+ * Provide defaults for otherwise undefined template variables
 
 Bug fixes
 ~~~~~~~~~

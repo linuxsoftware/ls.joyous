@@ -250,6 +250,8 @@ class CalendarPage(RoutablePageMixin, Page):
         else:
             monthlyUrl = myurl + self.reverse_subpage('serveMonth', args=[1900, 1])
         listUrl = myurl + self.reverse_subpage('serveUpcoming')
+        lastDayOfMonth = dt.date(firstDay.year, firstDay.month,
+                                 calendar.monthrange(firstDay.year, firstDay.month)[1])
 
         prevWeek = week - 1
         prevWeekYear = year
@@ -267,6 +269,8 @@ class CalendarPage(RoutablePageMixin, Page):
         cxt.update({'year':         year,
                     'week':         week,
                     'yesterday':    today - dt.timedelta(1),
+                    'lastweek':     None,
+                    'lastDay':      lastDayOfMonth,
                     'prevWeekUrl':  myUrl(prevWeekYear, prevWeek),
                     'nextWeekUrl':  myUrl(nextWeekYear, nextWeek),
                     'prevYearUrl':  myUrl(year - 1, week),
@@ -346,10 +350,6 @@ class CalendarPage(RoutablePageMixin, Page):
         cxt.update({'weeklyUrl':    weeklyUrl,
                     'monthlyUrl':   monthlyUrl,
                     'listUrl':      listUrl,
-                    # FIXME
-                    # 'listLink':     None,
-                    # 'weeklyLink':   None,
-                    # 'monthlyLink':  None,
                     'events':       eventsPage})
         cxt.update(self._getExtraContext("upcoming"))
         return TemplateResponse(request,
@@ -426,7 +426,13 @@ class CalendarPage(RoutablePageMixin, Page):
         cxt = self.get_context(request)
         cxt.update({'version':  __version__,
                     'themeCSS': getattr(settings, "JOYOUS_THEME_CSS", ""),
-                    'today':    timezone.localdate()})
+                    'today':    timezone.localdate(),
+
+                    # Init these variables to prevent template DEBUG messages
+                    'listLink':     None,
+                    'weeklyLink':   None,
+                    'monthlyLink':  None,
+                   })
         return cxt
 
     def _getExtraContext(self, route):

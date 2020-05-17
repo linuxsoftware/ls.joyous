@@ -510,6 +510,12 @@ class EventBase(models.Model):
     location = models.CharField(_("location"), max_length=255, blank=True)
     website = models.URLField(_("website"), blank=True)
 
+    # Init these variables to prevent template DEBUG messages
+    # Yes, this is very ugly.  An alternative solution would be welcome.
+    cancellation_details = None
+    extra_information    = None
+    postponed_from_when  = None
+
     search_fields = Page.search_fields + [
         index.SearchField('location'),
         index.SearchField('details'),
@@ -1440,6 +1446,12 @@ class EventExceptionBase(models.Model):
     image       = property(attrgetter("overrides.image"))
     location    = property(attrgetter("overrides.location"))
     website     = property(attrgetter("overrides.website"))
+
+    # Init these variables to prevent template DEBUG messages
+    # Yes, this is very ugly.  An alternative solution would be welcome.
+    cancellation_details = None
+    extra_information    = None
+    postponed_from_when  = None
 
     @property
     def overrides_repeat(self):
