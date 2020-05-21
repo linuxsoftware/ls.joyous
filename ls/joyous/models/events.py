@@ -26,7 +26,7 @@ from wagtail.core.query import PageQuerySet
 from wagtail.core.models import Page, PageManager, PageViewRestriction
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
-        PageChooserPanel)
+        PageChooserPanel, BaseCompositeEditHandler)
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images import get_image_model_string
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
@@ -105,7 +105,7 @@ def getAllUpcomingEvents(request, *, home=None):
                             .upcoming().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
-    events = sorted(chain.from_iterable(qrys), key=__getUpcomingSort())
+    events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
 def getGroupUpcomingEvents(request, group):
@@ -153,7 +153,7 @@ def getGroupUpcomingEvents(request, group):
                                  .child_of(rrEvent.page).upcoming().this(),
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this()]
-    events = sorted(chain.from_iterable(qrys), key=__getUpcomingSort())
+    events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
 def getAllPastEvents(request, *, home=None):
@@ -265,11 +265,21 @@ def _getEventsByWeek(year, month, eventsByDaySrc):
         weeks.append(week)
     return weeks
 
-def __getUpcomingSort():
+def _getUpcomingSort():
     if getattr(settings, "JOYOUS_UPCOMING_INCLUDES_STARTED", False):
         return attrgetter('page._current_datetime_from')
     else:
         return attrgetter('page._future_datetime_from')
+
+def _filterContentPanels(panels, remove):
+    retval = []
+    for panel in panels:
+        if isinstance(panel, FieldPanel) and panel.field_name in remove:
+            continue
+        elif isinstance(panel, BaseCompositeEditHandler):
+            panel.children = _filterContentPanels(panel.children, remove)
+        retval.append(panel)
+    return retval
 
 # ------------------------------------------------------------------------------
 # Helper types and constants
@@ -605,10 +615,7 @@ class EventBase(models.Model):
         """
         Remove the panels and so hide the fields named.
         """
-        if type(remove) is str:
-            remove = [remove]
-        cls.content_panels = [panel for panel in cls.content_panels
-                              if getattr(panel, "field_name", None) not in remove]
+        cls.content_panels = _filterContentPanels(cls.content_panels, remove)
 
     def isAuthorized(self, request):
         """
@@ -672,15 +679,23 @@ class EventBase(models.Model):
         """
         raise NotImplementedError()
 
-def removeContentPanels(remove):
+def removeContentPanels(*args):
     """
     Remove the panels and so hide the fields named.
     """
+    remove = []
+    for arg in args:
+        if type(arg) is str:
+            remove.append(arg)
+        else:
+            remove.extend(arg)
+
     SimpleEventPage._removeContentPanels(remove)
     MultidayEventPage._removeContentPanels(remove)
     RecurringEventPage._removeContentPanels(remove)
     MultidayRecurringEventPage._removeContentPanels(remove)
     PostponementPage._removeContentPanels(remove)
+    RescheduleMultidayEventPage._removeContentPanels(remove)
 
 # ------------------------------------------------------------------------------
 class SimpleEventQuerySet(EventQuerySet):
