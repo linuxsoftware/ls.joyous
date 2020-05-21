@@ -32,7 +32,7 @@ Other features
 Bug fixes
 ~~~~~~~~~
  * Return a 404 for invalid day dates
- * Fix removeContentPanels to work with postponments
+ * Fix removeContentPanels to work with postponements
 
 
 

@@ -611,10 +611,16 @@ class EventBase(models.Model):
             return ""
 
     @classmethod
-    def _removeContentPanels(cls, remove):
+    def _removeContentPanels(cls, *args):
         """
         Remove the panels and so hide the fields named.
         """
+        remove = []
+        for arg in args:
+            if type(arg) is str:
+                remove.append(arg)
+            else:
+                remove.extend(arg)
         cls.content_panels = _filterContentPanels(cls.content_panels, remove)
 
     def isAuthorized(self, request):

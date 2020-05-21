@@ -65,6 +65,15 @@ class Test(TestCase):
         postponement.save_revision().publish()
         self.assertIsNone(self.event.status)
 
+    def testRemoveContentPanels(self):
+        RescheduleMultidayEventPage._removeContentPanels(["tz", "location"])
+        RescheduleMultidayEventPage._removeContentPanels("website")
+        removed = ("tz", "location", "website")
+        panels = RescheduleMultidayEventPage.content_panels
+        self.assertFalse(any(field in removed
+                             for panel in panels
+                             for field in panel.required_fields()))
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
