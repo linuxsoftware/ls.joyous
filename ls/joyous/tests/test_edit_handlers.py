@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from unittest import skipIf, skipUnless
+from unittest import skipUnless
 from django.test import RequestFactory, TestCase, override_settings
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -54,51 +54,6 @@ class TestExceptionDatePanel(TestCase):
 
     def testWidget(self):
         self.assertIs(ExceptionDatePanel.widget, ExceptionDateInput)
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testBindWithoutOverrides23(self):
-        cancellation = CancellationPage(owner = self.user,
-                                        except_date = dt.date(2019,1,21))
-        Form = get_form_for_model(CancellationPage, form_class=CancellationPageForm)
-        form = Form(instance=cancellation, parent_page=self.event)
-        panel = ExceptionDatePanel('except_date', classname='full-width')
-        panel = panel.bind_to_model(CancellationPage)
-        panel = panel.bind_to_instance(instance=cancellation,
-                                       form=form,
-                                       request=self._getRequest())
-        self.assertIsNotNone(panel.form)
-        self.assertIsNone(panel.instance.overrides)
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testBindOverridesRepeat23(self):
-        cancellation = CancellationPage(owner = self.user,
-                                        overrides = self.event,
-                                        except_date = dt.date(2019,1,21))
-        Form = get_form_for_model(CancellationPage, form_class=CancellationPageForm)
-        form = Form(instance=cancellation, parent_page=self.event)
-        widget = form['except_date'].field.widget
-        panel = ExceptionDatePanel('except_date', classname='full-width')
-        panel = panel.bind_to_model(CancellationPage)
-        panel = panel.bind_to_instance(instance=cancellation,
-                                       form=form,
-                                       request=self._getRequest())
-        self.assertIs(widget.overrides_repeat, self.event.repeat)
-        self.assertIsNone(panel.exceptionTZ)
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    @timezone.override("America/Los_Angeles")
-    def testBindExceptionTZ23(self):
-        cancellation = CancellationPage(owner = self.user,
-                                        overrides = self.event,
-                                        except_date = dt.date(2019,1,21))
-        Form = get_form_for_model(CancellationPage, form_class=CancellationPageForm)
-        form = Form(instance=cancellation, parent_page=self.event)
-        panel = ExceptionDatePanel('except_date', classname='full-width')
-        panel = panel.bind_to_model(CancellationPage)
-        panel = panel.bind_to_instance(instance=cancellation,
-                                       form=form,
-                                       request=self._getRequest())
-        self.assertEqual(panel.exceptionTZ, "Asia/Tokyo")
 
     @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
     def testBindWithoutForm25(self):
@@ -204,46 +159,6 @@ class TestConcealedPanel(TestCase):
         self.assertEqual(panel._help_text, "Nothing")
         self.assertEqual(panel.heading, "")
         self.assertEqual(panel.help_text, "")
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testConcealed23(self):
-        Form = get_form_for_model(RecurringEventPage,
-                                  form_class=RecurringEventPageForm)
-        form = Form(instance=self.event, parent_page=self.calendar)
-        panel = ConcealedPanel([], "Test")
-        panel = panel.bind_to_model(RecurringEventPage)
-        panel = panel.bind_to_instance(instance=self.event,
-                                       form=form,
-                                       request=self._getRequest())
-        content = panel.render()
-        self.assertEqual(content, "")
-        self.assertEqual(panel.heading, "")
-        self.assertEqual(panel.help_text, "")
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testShown23(self):
-        class ShownPanel(ConcealedPanel):
-            def _show(self):
-                return True
-
-        Form = get_form_for_model(RecurringEventPage,
-                                  form_class=RecurringEventPageForm)
-        form = Form(instance=self.event, parent_page=self.calendar)
-        panel = ShownPanel([], "Test", help_text="Nothing")
-        panel = panel.bind_to_model(RecurringEventPage)
-        panel = panel.bind_to_instance(instance=self.event,
-                                       form=form,
-                                       request=self._getRequest())
-        content = panel.render()
-        self.assertHTMLEqual(content, """
-<fieldset>
-    <legend>Test</legend>
-    <ul class="fields">
-    </ul>
-</fieldset>
-""")
-        self.assertEqual(panel.heading, "Test")
-        self.assertEqual(panel.help_text, "Nothing")
 
     @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
     def testConcealed25(self):
