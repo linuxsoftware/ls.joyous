@@ -63,13 +63,11 @@ class CalendarFeed(FeedGenerator):
     @classmethod
     def _makeFromEvent(cls, thisEvent, request):
         page = thisEvent.page
-        if isinstance(page, (SimpleEventPage, MultidayEventPage, RecurringEventPage)):
+        if isinstance(page, (SimpleEventPage, MultidayEventPage,
+                             RecurringEventPage, PostponementPage)):
             return EventEntry.fromEvent(thisEvent, request)
         elif isinstance(page, ExtraInfoPage):
             return ExtraInfoEntry.fromEvent(thisEvent, request)
-        elif isinstance(page, PostponementPage):
-            # FIXME this is not needed = postponements can use EventEntry
-            return PostponementEntry.fromEvent(thisEvent, request)
         # No Cancellations are returned from _getUpcomingEvents
 
 # ------------------------------------------------------------------------------
@@ -130,20 +128,6 @@ class ExtraInfoEntry(EventEntry):
                 'request': request}
         descr = tmpl.render(ctxt, request)
         self.description(descr)
-
-# ------------------------------------------------------------------------------
-# FIXME this is not needed
-class PostponementEntry(EventEntry):
-    template = "joyous/formats/rss_entry.xml"
-
-    def setDescription(self, thisEvent, request):
-        page = thisEvent.page
-        tmpl = loader.get_template(self.template)
-        ctxt = {'event':   page,
-                'title':   thisEvent.title,
-                'details': page.details,
-                'request': request}
-        self.description(tmpl.render(ctxt, request))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

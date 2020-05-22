@@ -423,7 +423,7 @@ class VMatch:
 
     def _addParent(self, component):
         if self.parent:
-            # FIXME --- handler for this???
+            # duplicates should be caught before they get this far
             raise self.DuplicateError("UID {}".format(component['UID']))
         self.parent = component
         for orphan in self.orphans:
