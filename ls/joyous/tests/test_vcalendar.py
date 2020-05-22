@@ -315,6 +315,53 @@ class Test(TestCase):
         self.assertEqual(results.success, 0)
         self.assertEqual(results.fail, 1)
 
+    def testLoadDuplicateUIDs(self):
+        data  = b"\r\n".join([
+                b"BEGIN:VCALENDAR",
+                b"VERSION:2.0",
+                b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
+                b"CALSCALE:GREGORIAN",
+                b"METHOD:PUBLISH",
+                b"X-WR-CALNAME:Bloor &amp; Spadina",
+                b"X-ORIGINAL-URL:http://bloorneighbours.ca",
+                b"X-WR-CALDESC:Events for Bloor &amp; Spadina",
+                b"BEGIN:VEVENT",
+                b"UID:978-1523093400-1523100600@bloorneighbours.ca",
+                b"DTSTART;TZID=UTC+0:20180407T080000",
+                b"DTEND;TZID=UTC+0:20180407T180000",
+                b"DTSTAMP:20180402T054745",
+                b"CREATED:20180306T101000Z",
+                b"LAST-MODIFIED:20180304T225154Z",
+                b"SUMMARY:Fun Day",
+                b"DESCRIPTION:",
+                b"END:VEVENT",
+                b"BEGIN:VEVENT",
+                b"UID:978-1523093400-1523100600@bloorneighbours.ca",
+                b"DTSTART;TZID=UTC+0:20180407T093000",
+                b"DTEND;TZID=UTC+0:20180407T113000",
+                b"DTSTAMP:20180402T054745",
+                b"CREATED:20180304T225154Z",
+                b"LAST-MODIFIED:20180304T225154Z",
+                b"SUMMARY:Mini-Fair & Garage Sale",
+                b"DESCRIPTION:",
+                b"URL:http://bloorneighbours.ca/event/mini-fair-garage-sale/",
+                b"END:VEVENT",
+                b"END:VCALENDAR",])
+        vcal = VCalendar(self.calendar)
+        request = self._getRequest()
+        results = vcal.load(request, data)
+        events = SimpleEventPage.events.child_of(self.calendar)            \
+                                       .filter(date=dt.date(2018,4,7)).all()
+        self.assertEqual(len(events), 1)
+        event = events[0]
+        self.assertEqual(event.title,      "Fun Day")
+        self.assertEqual(event.details,    "")
+        self.assertEqual(event.date,       dt.date(2018,4,7))
+        self.assertEqual(event.time_from,  dt.time(8))
+        self.assertEqual(event.time_to,    dt.time(18))
+        self.assertEqual(results.success, 1)
+        self.assertEqual(results.fail, 1)
+
     def testLoadUnknownTZ(self):
         data  = b"\r\n".join([
                 b"BEGIN:VCALENDAR",

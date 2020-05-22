@@ -462,14 +462,6 @@ class VEventFactory:
             raise CalendarTypeError("DTSTART.timezone != DTEND.timezone")
 
         numDays = (dtend.date(inclusive=True) - dtstart.date()).days + 1
-        rrule = props.get('RRULE')
-        if rrule is not None:
-            if type(rrule) == list:
-                raise CalendarTypeError("Multiple RRULEs")
-            if numDays > 1:
-                return MultidayRecurringVEvent.fromProps(props)
-            else:
-                return RecurringVEvent.fromProps(props)
 
         recurrenceId = props.get('RECURRENCE-ID')
         if recurrenceId is not None:
@@ -477,6 +469,8 @@ class VEventFactory:
                 # Also valid, but still Joyous does not support it
                 raise CalendarTypeError("DTSTART.timezone != RECURRENCE-ID.timezone")
 
+            # Don't worry if parent is not set first time through, orphans
+            # will be collected when the parent turns up later.
             if (parent and recurrenceId == dtstart and
                 parent.numDays == numDays and
                 parent['DTEND'].time() == dtend.time() and
@@ -490,6 +484,18 @@ class VEventFactory:
                     return RescheduleMultidayVEvent.fromProps(props)
                 else:
                     return PostponementVEvent.fromProps(props)
+
+        elif parent:
+            raise CalendarTypeError("Duplicate UID {}".format(props['UID']))
+
+        rrule = props.get('RRULE')
+        if rrule is not None:
+            if type(rrule) == list:
+                raise CalendarTypeError("Multiple RRULEs")
+            if numDays > 1:
+                return MultidayRecurringVEvent.fromProps(props)
+            else:
+                return RecurringVEvent.fromProps(props)
 
         if (dtstart.date() != dtend.date(inclusive=True)):
             return MultidayVEvent.fromProps(props)

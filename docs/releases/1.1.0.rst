@@ -19,12 +19,6 @@ iCal
 ~~~~
  * Import whole zip files containing iCal files
 
-CSS
-~~~
-
-Documentation
-~~~~~~~~~~~~~
-
 Other features
 ~~~~~~~~~~~~~~
  * Provide defaults for otherwise undefined template variables
@@ -33,6 +27,7 @@ Bug fixes
 ~~~~~~~~~
  * Return a 404 for invalid day dates
  * Fix removeContentPanels to work with postponements
+ * Handle duplicate UIDs in a iCal import
 
 
 
