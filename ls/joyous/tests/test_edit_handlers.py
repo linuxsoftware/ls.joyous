@@ -240,50 +240,6 @@ class TestHiddenNumDaysPanel(TestCase):
         request.site = Site.objects.get(is_default_site=True)
         return request
 
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testHidden24(self):
-        panel = HiddenNumDaysPanel()
-        panel = panel.bind_to_model(RecurringEventPage)
-        panel = panel.bind_to_instance(instance=self.event,
-                                       form=self.form,
-                                       request=self._getRequest())
-        content = panel.render_as_object()
-        self.assertEqual(content, "")
-        content = panel.render_as_field()
-        self.assertEqual(content, "")
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testShowWith2Days24(self):
-        self.event.num_days = 2
-        panel = HiddenNumDaysPanel()
-        panel = panel.bind_to_model(RecurringEventPage)
-        panel = panel.bind_to_instance(instance=self.event,
-                                       form=self.form,
-                                       request=self._getRequest())
-        content = panel.render_as_object()
-        self.assertHTMLEqual(content, self.FIELD_CONTENT)
-
-    @skipUnless(WagtailVersion < (2, 5, 0), "Wagtail >=2.5")
-    def testShowMulidayRecurringEvent24(self):
-        event = MultidayRecurringEventPage(slug      = "leaders-retreat",
-                                           title     = "Leaders' Retreet",
-                                           repeat    = Recurrence(dtstart=dt.date(2016,2,16),
-                                                                  freq=YEARLY,
-                                                                  bymonth=3,
-                                                                  byweekday=[FR(1)]),
-                                           time_from = dt.time(19),
-                                           num_days  = 3,
-                                           tz        = "Asia/Tokyo")
-        self.calendar.add_child(instance=event)
-        event.save_revision().publish()
-        panel = HiddenNumDaysPanel()
-        panel = panel.bind_to_model(RecurringEventPage)
-        panel = panel.bind_to_instance(instance=event,
-                                       form=self.form,
-                                       request=self._getRequest())
-        content = panel.render_as_object()
-        self.assertHTMLEqual(content, self.FIELD_CONTENT)
-
     @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
     def testHidden25(self):
         panel = HiddenNumDaysPanel()
