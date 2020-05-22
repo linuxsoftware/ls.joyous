@@ -30,11 +30,10 @@ To do this:
 
 #. Log in to your GoogleCalendar
 #. Choose Settings | Import & export | Export
-#. Unzip the file that is downloaded
 #. Log in to your Joyous calendar
 #. Pick a calendar page, or create a new one.
 #. Select the Settings tab
-#. Choose the calendar (not the address book) file that you unzipped
+#. Choose the file that you downloaded from Google (you do not need to unzip it).
 #. Select “Publish” and events will be imported as published pages.
 
 Joyous will now display your GoogleCalendar events, but you will have to manually repeat the process to re-sync them

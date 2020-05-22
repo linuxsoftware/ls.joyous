@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-23 15:05+0900\n"
+"POT-Creation-Date: 2020-05-23 08:45+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Yuki Kikuchi <info@yukilab.cc>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11,367 +11,367 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models/calendar.py:59
+#: models/calendar.py:61
 msgid "Upload"
 msgstr "アップロード"
 
-#: models/calendar.py:63
+#: models/calendar.py:65
 msgid "Convert UTC to localtime?"
 msgstr "UTCをローカル時刻に変換"
 
-#: models/calendar.py:69
+#: models/calendar.py:71
 msgid "Import"
 msgstr "インポート"
 
-#: models/calendar.py:81
+#: models/calendar.py:83
 msgid "Export"
 msgstr "エクスポート"
 
-#: models/calendar.py:105 templates/joyous/includes/events_view_choices.html:4
+#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:4
 msgid "List View"
 msgstr "リスト表示"
 
-#: models/calendar.py:106 templates/joyous/includes/events_view_choices.html:7
+#: models/calendar.py:108 templates/joyous/includes/events_view_choices.html:7
 msgid "Weekly View"
 msgstr "週表示"
 
-#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:10
+#: models/calendar.py:109 templates/joyous/includes/events_view_choices.html:10
 msgid "Monthly View"
 msgstr "月表示"
 
-#: models/calendar.py:113
+#: models/calendar.py:115
 msgid "calendar page"
 msgstr "カレンダーページ"
 
-#: models/calendar.py:114
+#: models/calendar.py:116
 msgid "calendar pages"
 msgstr "カレンダーページ"
 
-#: models/calendar.py:124
+#: models/calendar.py:126
 msgid "intro"
 msgstr "説明"
 
-#: models/calendar.py:125
+#: models/calendar.py:127
 msgid "Introductory text."
 msgstr "説明文"
 
-#: models/calendar.py:126
+#: models/calendar.py:128
 msgid "view choices"
 msgstr "表示形式"
 
-#: models/calendar.py:129
+#: models/calendar.py:131
 msgid "default view"
 msgstr "ディフォルト表示"
 
-#: models/calendar.py:141
+#: models/calendar.py:143
 msgid "View Options"
 msgstr "表示オプション"
 
-#: models/calendar.py:275
+#: models/calendar.py:281
 #, python-brace-format
 msgid "Week {weekNum}"
 msgstr "{weekNum}週"
 
-#: models/calendar.py:485
+#: models/calendar.py:500
 msgid "specific calendar page"
 msgstr "子イベントのみのカレンダーページ"
 
-#: models/calendar.py:486
+#: models/calendar.py:501
 msgid "specific calendar pages"
 msgstr "子イベントのみのカレンダーページ"
 
-#: models/calendar.py:532
+#: models/calendar.py:547
 msgid "general calendar page"
 msgstr "全イベントカレンダーページ"
 
-#: models/calendar.py:533
+#: models/calendar.py:548
 msgid "general calendar pages"
 msgstr "全イベントカレンダーページ"
 
-#: models/events.py:347
+#: models/events.py:357
 msgid "event category"
 msgstr "イベントカテゴリ"
 
-#: models/events.py:348
+#: models/events.py:358
 msgid "event categories"
 msgstr "イベントカテゴリ"
 
-#: models/events.py:350
+#: models/events.py:360
 msgid "code"
 msgstr "code"
 
-#: models/events.py:351
+#: models/events.py:361
 msgid "name"
 msgstr "名称"
 
-#: models/events.py:476 models/events.py:820 models/events.py:1862
+#: models/events.py:486 models/events.py:847 models/events.py:1895
 msgid "Event cannot end before it starts"
 msgstr "終了時刻を開始時刻以降で設定してください"
 
-#: models/events.py:491
+#: models/events.py:501
 msgid "category"
 msgstr "カテゴリ"
 
-#: models/events.py:497
+#: models/events.py:507
 msgid "image"
 msgstr "画像"
 
-#: models/events.py:500
+#: models/events.py:510
 msgid "start time"
 msgstr "開始時刻"
 
-#: models/events.py:501
+#: models/events.py:511
 msgid "end time"
 msgstr "終了時刻"
 
-#: models/events.py:502
+#: models/events.py:512
 msgid "time zone"
 msgstr "タイムゾーン"
 
-#: models/events.py:507 models/groups.py:49
+#: models/events.py:517 models/groups.py:49
 msgid "group page"
 msgstr "グループページ"
 
-#: models/events.py:509 models/events.py:1721
+#: models/events.py:519 models/events.py:1754
 msgid "details"
 msgstr "詳細"
 
-#: models/events.py:510
+#: models/events.py:520
 msgid "location"
 msgstr "場所"
 
-#: models/events.py:511
+#: models/events.py:521
 msgid "website"
 msgstr "website"
 
-#: models/events.py:591 models/events.py:1638
+#: models/events.py:607 models/events.py:1671
 msgid "This event has finished."
 msgstr "このイベントは終了しています"
 
-#: models/events.py:593 models/events.py:1640
+#: models/events.py:609 models/events.py:1673
 msgid "This event has started."
 msgstr "このイベントは始まっています"
 
-#: models/events.py:640 models/events.py:643 models/events.py:1497
+#: models/events.py:659 models/events.py:662 models/events.py:1530
 #, python-brace-format
 msgid "{date} {atTime}"
 msgstr "{date} {atTime}"
 
-#: models/events.py:641 models/events.py:644 models/events.py:648
-#: models/events.py:1153 models/events.py:1213 models/events.py:1499
-#: templatetags/joyous_tags.py:160
 # start=stop など丁度を示す
+#: models/events.py:660 models/events.py:663 models/events.py:667
+#: models/events.py:1180 models/events.py:1240 models/events.py:1532
+#: templatetags/joyous_tags.py:160
 msgid "at "
 msgstr ""
 
-#: models/events.py:645
+#: models/events.py:664
 #, python-brace-format
 msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
 msgstr "{dateTimeFrom} 〜 {dateTo} {atTimeTo}"
 
-#: models/events.py:716
+#: models/events.py:743
 msgid "event page"
 msgstr "イベントページ"
 
-#: models/events.py:717
+#: models/events.py:744
 msgid "event pages"
 msgstr "イベントページ"
 
-#: models/events.py:727 models/events.py:1898
+#: models/events.py:754 models/events.py:1931
 msgid "date"
 msgstr "日付"
 
-#: models/events.py:828
+#: models/events.py:855
 msgid "multiday event page"
 msgstr "複数日イベントページ"
 
-#: models/events.py:829
+#: models/events.py:856
 msgid "multiday event pages"
 msgstr "複数日イベントページ"
 
-#: models/events.py:839
+#: models/events.py:866
 msgid "start date"
 msgstr "開始日"
 
-#: models/events.py:840
+#: models/events.py:867
 msgid "end date"
 msgstr "終了日"
 
-#: models/events.py:988
+#: models/events.py:1015
 msgid "recurring event page"
 msgstr "繰り返しイベントページ"
 
-#: models/events.py:989
+#: models/events.py:1016
 msgid "recurring event pages"
 msgstr "繰り返しイベントページ"
 
-#: models/events.py:1001
+#: models/events.py:1028
 msgid "repeat"
 msgstr "繰り返し"
 
-#: models/events.py:1002 models/events.py:1873
+#: models/events.py:1029 models/events.py:1906
 msgid "number of days"
 msgstr "日数"
 
-#: models/events.py:1131
+#: models/events.py:1158
 msgid "These events have finished."
 msgstr "これらのイベントは終了しています"
 
-#: models/events.py:1151
+#: models/events.py:1178
 #, python-brace-format
 msgid "{repeat} {atTime}"
 msgstr "{repeat} {atTime}"
 
-#: models/events.py:1156
+#: models/events.py:1183
 #, python-brace-format
 msgid "{repeat} {startFinishTime}"
 msgstr "{repeat} {startFinishTime}"
 
-#: models/events.py:1159 models/events.py:1506
+#: models/events.py:1186 models/events.py:1539
 msgid "starting at "
 msgstr "開始："
 
-#: models/events.py:1160
+#: models/events.py:1187
 msgid "finishing at"
 msgstr "終了："
 
-#: models/events.py:1378
+#: models/events.py:1405
 msgid "multiday recurring event page"
 msgstr "繰り返し複数日イベントページ"
 
-#: models/events.py:1379
+#: models/events.py:1406
 msgid "multiday recurring event pages"
 msgstr "繰り返し複数日イベントページ"
 
-#: models/events.py:1413
+#: models/events.py:1440
 msgid "That date already has"
 msgstr "該当日の既存予定："
 
-#: models/events.py:1426
+#: models/events.py:1453
 msgid "overrides"
 msgstr "上書き"
 
-#: models/events.py:1429
+#: models/events.py:1456
 msgid "The recurring event that we are updating."
 msgstr "上書きする繰り返しイベント"
 
-#: models/events.py:1430
+#: models/events.py:1457
 msgid "For Date"
 msgstr "対象日："
 
-#: models/events.py:1431
+#: models/events.py:1458
 msgid "For this date"
 msgstr "対象日"
 
-#: models/events.py:1458
+#: models/events.py:1491
 #, python-brace-format
 msgid "{exception} for {date}"
 msgstr "{exception} 対象：{date}"
 
-#: models/events.py:1503
+#: models/events.py:1536
 #, python-brace-format
 msgid "{date} for {n} days {startTime}"
 msgstr "{date}から{n}日間：{startTime}"
 
-#: models/events.py:1507
+#: models/events.py:1540
 #, python-brace-format
 msgid "{dateAndStartTime} {finishTime}"
 msgstr "{dateAndStartTime}〜{finishTime}"
 
-#: models/events.py:1509
+#: models/events.py:1542
 msgid "finishing at "
 msgstr "終了："
 
-#: models/events.py:1575
+#: models/events.py:1608
 msgid "Extra Information"
 msgstr "追加情報"
 
-#: models/events.py:1584 models/events.py:1585
+#: models/events.py:1617 models/events.py:1618
 msgid "extra event information"
 msgstr "追加イベント情報"
 
-#: models/events.py:1594
+#: models/events.py:1627
 msgid "Extra-Info"
 msgstr "追加情報"
 
-#: models/events.py:1596 models/events.py:1718 models/events.py:1896
+#: models/events.py:1629 models/events.py:1751 models/events.py:1929
 msgid "title"
 msgstr "タイトル"
 
-#: models/events.py:1597
+#: models/events.py:1630
 msgid "A more specific title for this occurence (optional)"
 msgstr "(任意)このイベントの追加情報"
 
-#: models/events.py:1598
+#: models/events.py:1631
 msgid "extra information"
 msgstr "追加情報"
 
-#: models/events.py:1599
+#: models/events.py:1632
 msgid "Information just for this date"
 msgstr "この日のみの情報"
 
-#: models/events.py:1696
+#: models/events.py:1729
 msgid "a cancellation"
 msgstr "キャンセル"
 
-#: models/events.py:1706
+#: models/events.py:1739
 msgid "cancellation"
 msgstr "キャンセル"
 
-#: models/events.py:1707
+#: models/events.py:1740
 msgid "cancellations"
 msgstr "キャンセル"
 
-#: models/events.py:1716 models/events.py:1735 models/events.py:1907
+#: models/events.py:1749 models/events.py:1768 models/events.py:1940
 msgid "Cancellation"
 msgstr "キャンセル"
 
-#: models/events.py:1719
+#: models/events.py:1752
 msgid "Show in place of cancelled event (Leave empty to show nothing)"
 msgstr "キャンセルしたイベントの代わりに表示(未入力にすると何も表示しません）"
 
-#: models/events.py:1722
+#: models/events.py:1755
 msgid "Why was the event cancelled?"
 msgstr "イベントキャンセルの理由"
 
-#: models/events.py:1751
+#: models/events.py:1784
 msgid "This event has been cancelled."
 msgstr "このイベントはキャンセルされました"
 
-#: models/events.py:1848
+#: models/events.py:1881
 msgid "a postponement"
 msgstr "延期"
 
-#: models/events.py:1885 models/events.py:2053
+#: models/events.py:1918 models/events.py:2086
 msgid "postponement"
 msgstr "延期"
 
-#: models/events.py:1886 models/events.py:2054
+#: models/events.py:1919 models/events.py:2087
 msgid "postponements"
 msgstr "延期"
 
-#: models/events.py:1894
+#: models/events.py:1927
 msgid "Postponement"
 msgstr "延期"
 
-#: models/events.py:1897
+#: models/events.py:1930
 msgid "The title for the postponed event"
 msgstr "延期されたイベント名"
 
-#: models/events.py:1920 models/events.py:2063
+#: models/events.py:1953 models/events.py:2096
 msgid "Postponed to"
 msgstr "延期："
 
-#: models/events.py:1963
+#: models/events.py:1996
 #, python-brace-format
 msgid "{what} from {when}"
 msgstr "{what}：{when}"
 
-#: models/events.py:1982
+#: models/events.py:2015
 msgid "Postponed"
 msgstr "延期"
 
-#: models/events.py:1984
+#: models/events.py:2017
 msgid "Rescheduled"
 msgstr "リスケジュール"
 
