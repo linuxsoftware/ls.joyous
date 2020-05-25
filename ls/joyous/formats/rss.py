@@ -68,7 +68,10 @@ class CalendarFeed(FeedGenerator):
             return EventEntry.fromEvent(thisEvent, request)
         elif isinstance(page, ExtraInfoPage):
             return ExtraInfoEntry.fromEvent(thisEvent, request)
+        elif isinstance(page, CancellationPage):
+            return CancellationEntry.fromEvent(thisEvent, request)
         # No Cancellations are returned from _getUpcomingEvents
+        # FIXME this is no longer true
 
 # ------------------------------------------------------------------------------
 class EventEntry(FeedEntry):
@@ -125,6 +128,20 @@ class ExtraInfoEntry(EventEntry):
                 'title':   thisEvent.title,
                 'extra_information': page.extra_information,
                 'details': page.overrides.details,
+                'request': request}
+        descr = tmpl.render(ctxt, request)
+        self.description(descr)
+
+# ------------------------------------------------------------------------------
+class CancellationEntry(EventEntry):
+    template = "joyous/formats/rss_cancellation_entry.xml"
+
+    def setDescription(self, thisEvent, request):
+        page = thisEvent.page
+        tmpl = loader.get_template(self.template)
+        ctxt = {'event':   page,
+                'title':   thisEvent.title,
+                'cancellation_details': page.cancellation_details,
                 'request': request}
         descr = tmpl.render(ctxt, request)
         self.description(descr)

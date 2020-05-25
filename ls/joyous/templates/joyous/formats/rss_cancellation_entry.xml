@@ -1,0 +1,5 @@
+{% load wagtailcore_tags wagtailimages_tags i18n %}
+{% include "joyous/includes/who_full_url.html" %}
+{% include "joyous/includes/when.html" %}
+{% include "joyous/includes/where.html" %}
+{{ cancellation_details|richtext|truncatewords_html:150 }}

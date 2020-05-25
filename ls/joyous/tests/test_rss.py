@@ -19,7 +19,7 @@ from wagtail.images.models import Image
 from wagtail.images.tests.utils import get_test_image_file
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (EventCategory, SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, PostponementPage, ExtraInfoPage)
+        RecurringEventPage, PostponementPage, ExtraInfoPage, CancellationPage)
 from ls.joyous.models.groups import get_group_model
 from ls.joyous.models.events import ThisEvent
 from ls.joyous.utils.recurrence import Recurrence
@@ -153,10 +153,14 @@ class TestFeed(TestCase):
 
     @freeze_time("2016-03-26")
     def testServePostponement(self):
+        imgFile = get_test_image_file(filename="logo2.png", colour="red")
+        newLogo = Image.objects.create(title="Logo", file=imgFile)
+        imgName = os.path.splitext(os.path.basename(newLogo.file.name))[0]
+        newLogoRender = "{}.width-350.format-png.png".format(imgName)
         postponement = PostponementPage(owner = self.user,
                                         overrides = self.event,
                                         except_date = dt.date(2017,4,4),
-                                        image = self.img,
+                                        image = newLogo,
                                         cancellation_title   = "Workshop Postponed",
                                         cancellation_details = "Workshop will take place next week",
                                         postponement_title   = "Workshop",
@@ -170,14 +174,28 @@ class TestFeed(TestCase):
         soup = BeautifulSoup(response.content, "xml")
         channel = soup.channel
         self.assertEqual(channel.title.string, "Events")
-        self.assertEqual(len(channel("item")), 2)
-        item = channel("item")[1]
-        self.assertEqual(item.title.string, "Workshop")
-        self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
-        self.assertEqual(item.enclosure.decode(),
+        self.assertEqual(len(channel("item")), 3)
+        item1 = channel("item")[1]
+        self.assertEqual(item1.title.string, "Workshop Postponed")
+        self.assertEqual(item1.link.string, "http://joy.test/events/workshop/2017-04-04-postponement/from/")
+        self.assertEqual(item1.enclosure.decode(),
                          '<enclosure length="773" type="image/png" '
                          'url="http://joy.test/media/images/{}"/>'.format(self.rendName))
-        self.assertEqual(item.description.decode(), """<description>\n\n\n
+        self.assertEqual(item1.description.decode(), """<description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 4th of April 2017
+  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;Workshop will take place next week&lt;/div&gt;\n</description>""")
+        self.assertEqual(item1.guid.get("isPermaLink"), "true")
+        self.assertEqual(item1.guid.string, "http://joy.test/events/workshop/2017-04-04-postponement/from/")
+        self.assertEqual(item1.pubDate.string, "Sat, 26 Mar 2016 00:00:00 +0000")
+        item2 = channel("item")[2]
+        self.assertEqual(item2.title.string, "Workshop")
+        self.assertEqual(item2.link.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
+        self.assertEqual(item2.enclosure.decode(),
+                         '<enclosure length="773" type="image/png" '
+                         'url="http://joy.test/media/images/{}"/>'.format(newLogoRender))
+        self.assertEqual(item2.description.decode(), """<description>\n\n\n
   &lt;div class="joy-ev-when joy-field"&gt;
     Tuesday 11th of April 2017
   &lt;/div&gt;\n
@@ -185,9 +203,40 @@ class TestFeed(TestCase):
     Postponed from Tuesday 4th of April 2017
   &lt;/div&gt;\n\n\n\n
 &lt;div class="rich-text"&gt;Interesting stuff&lt;/div&gt;\n</description>""")
+        self.assertEqual(item2.guid.get("isPermaLink"), "true")
+        self.assertEqual(item2.guid.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
+        self.assertEqual(item2.pubDate.string, "Sat, 26 Mar 2016 00:00:00 +0000")
+
+    @freeze_time("2016-03-27")
+    def testServeCancellation(self):
+        cancellation = CancellationPage(owner = self.user,
+                                        overrides = self.event,
+                                        except_date = dt.date(2017,5,2),
+                                        cancellation_title   = "Workshop Cancelled",
+                                        cancellation_details = "No workshop this month")
+        self.event.add_child(instance=cancellation)
+        cancellation.save_revision().publish()
+        response = self.handler.serve(self.calendar,
+                                      self._getRequest("/events/"))
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, "xml")
+        channel = soup.channel
+        self.assertEqual(channel.title.string, "Events")
+        self.assertEqual(len(channel("item")), 2)
+        item = channel("item")[1]
+        self.assertEqual(item.title.string, "Workshop Cancelled")
+        self.assertEqual(item.link.string, "http://joy.test/events/workshop/2017-05-02-cancellation/")
+        self.assertEqual(item.enclosure.decode(),
+                         '<enclosure length="773" type="image/png" '
+                         'url="http://joy.test/media/images/{}"/>'.format(self.rendName))
+        self.assertEqual(item.description.decode(), """<description>\n\n\n
+  &lt;div class="joy-ev-when joy-field"&gt;
+    Tuesday 2nd of May 2017
+  &lt;/div&gt;\n\n\n\n
+&lt;div class="rich-text"&gt;No workshop this month&lt;/div&gt;\n</description>""")
         self.assertEqual(item.guid.get("isPermaLink"), "true")
-        self.assertEqual(item.guid.string, "http://joy.test/events/workshop/2017-04-04-postponement/")
-        self.assertEqual(item.pubDate.string, "Sat, 26 Mar 2016 00:00:00 +0000")
+        self.assertEqual(item.guid.string, "http://joy.test/events/workshop/2017-05-02-cancellation/")
+        self.assertEqual(item.pubDate.string, "Sun, 27 Mar 2016 00:00:00 +0000")
 
 # ------------------------------------------------------------------------------
 class TestEntry(TestCase):
