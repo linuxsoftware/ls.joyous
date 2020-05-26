@@ -70,8 +70,6 @@ class CalendarFeed(FeedGenerator):
             return ExtraInfoEntry.fromEvent(thisEvent, request)
         elif isinstance(page, CancellationPage):
             return CancellationEntry.fromEvent(thisEvent, request)
-        # No Cancellations are returned from _getUpcomingEvents
-        # FIXME this is no longer true
 
 # ------------------------------------------------------------------------------
 class EventEntry(FeedEntry):

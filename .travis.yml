@@ -7,9 +7,9 @@ language: python
 cache: pip
 
 env:
- - WAGTAIL_VERSION=2.6.3
- - WAGTAIL_VERSION=2.7.1
- - WAGTAIL_VERSION=2.8
+ - WAGTAIL_VERSION=2.7.3
+ - WAGTAIL_VERSION=2.8.2
+ - WAGTAIL_VERSION=2.9
 
 python:
   - "3.6"
