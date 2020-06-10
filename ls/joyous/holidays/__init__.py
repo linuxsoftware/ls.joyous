@@ -48,6 +48,41 @@ class Holidays:
         holidays = list(OrderedDict.fromkeys(holidays))   # remove duplicates
         return ", ".join(holidays)
 
+    def names(self):
+        """Get a list of all the holiday names, sorted by month-day."""
+        thisYear = dt.date.today().year
+        popYears = list(range(thisYear + 10, thisYear + 1, -1))
+        popYears.append(thisYear - 1)
+        popYears.append(thisYear + 1)
+        popYears.append(thisYear)
+
+        holidays = {}
+        for src in self.srcs:
+            # populate python-holidays calendar
+            populate = getattr(src, "_populate", None)
+            if populate:
+                for year in popYears:
+                    populate(year)
+
+            # get from python-holidays and other dict type srcs
+            items = getattr(src, "items", None)
+            if items:
+                for date, names in items():
+                    # holidays may have been concatenated together
+                    for name in names.split(", "):
+                        holidays[name] = (date.month, date.day)
+            else:
+                # get from workalendar srcs
+                getHolidays = getattr(src, "get_calendar_holidays", None)
+                if getHolidays:
+                    for year in popYears:
+                        for date, name in getHolidays(year):
+                            holidays[name] = (date.month, date.day)
+        mmddHolidays = [(mmdd, name) for name, mmdd in holidays.items()]
+        mmddHolidays.sort()
+        retval = [name for mmdd, name in mmddHolidays]
+        return retval
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

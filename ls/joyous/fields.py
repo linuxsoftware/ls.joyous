@@ -74,6 +74,7 @@ class MultipleSelectField(Field):
     Default widget is forms.CheckboxSelectMultiple
     Python value: list of values
     """
+    # See also https://github.com/goinnn/django-multiselectfield
     def __init__(self, *args, **kwargs):
         kwargs["max_length"] = 255
         super().__init__(*args, **kwargs)

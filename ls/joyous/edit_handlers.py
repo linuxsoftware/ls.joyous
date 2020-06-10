@@ -4,13 +4,14 @@
 from django.conf import settings
 from django.utils import timezone
 from django.utils.formats import get_format_modules
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import (EditHandler, FieldPanel,
+                                         MultiFieldPanel)
 from wagtail.admin.widgets import AdminTimeInput
 try:
     from wagtail.admin.localization import get_available_admin_languages
 except ImportError:        # pragma: no cover
     from wagtail.admin.utils import get_available_admin_languages
-from .widgets import ExceptionDateInput, Time12hrInput
+from .widgets import ExceptionDateInput, Time12hrInput, FilteredListWidget
 
 # ------------------------------------------------------------------------------
 class ExceptionDatePanel(FieldPanel):
@@ -113,6 +114,85 @@ class ConcealedPanel(MultiFieldPanel):
 
     def _show(self):
         return False
+
+# ------------------------------------------------------------------------------
+class FilteredListPanel(EditHandler):
+    """
+    """
+    widget = FilteredListWidget
+    #object_template = "joyous/edit_handlers/filtered_list_object.html"
+
+    def __init__(self, relationName, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.relationName = relationName
+
+    def clone_kwargs(self):
+        kwargs = super().clone_kwargs()
+        kwargs.update(
+            relationName=self.relationName,
+        )
+        return kwargs
+
+
+    # return list of widget overrides that this EditHandler wants to be in place
+    # on the form it receives
+    def widget_overrides(self):
+        return {}
+
+    # return list of fields that this EditHandler expects to find on the form
+    def required_fields(self):
+        return []
+
+    # return a dict of formsets that this EditHandler requires to be present
+    # as children of the ClusterForm; the dict is a mapping from relation name
+    # to parameters to be passed as part of get_form_for_model's 'formsets' kwarg
+    def required_formsets(self):
+        return {}
+
+    # return any HTML that needs to be output on the edit page once per edit handler definition.
+    # Typically this will be used to define snippets of HTML within <script type="text/x-template"></script> blocks
+    # for Javascript code to work with.
+    def html_declarations(self):
+        return ''
+
+    def on_instance_bound(self):
+        super().on_instance_bound()
+
+    def on_form_bound(self):
+        widget = self.form[self.field_name].field.widget
+        pass
+
+    def get_comparison_class(self):
+        # Hide fields with hidden widget
+        widget_override = self.widget_overrides().get(self.field_name, None)
+        if widget_override and widget_override.is_hidden:
+            return
+
+        try:
+            field = self.db_field
+
+            if field.choices:
+                return compare.ChoiceFieldComparison
+
+            if field.is_relation:
+                if isinstance(field, TaggableManager):
+                    return compare.TagsFieldComparison
+                elif field.many_to_many:
+                    return compare.M2MFieldComparison
+
+                return compare.ForeignObjectComparison
+
+            if isinstance(field, RichTextField):
+                return compare.RichTextFieldComparison
+
+            if isinstance(field, (CharField, TextField)):
+                return compare.TextFieldComparison
+
+        except FieldDoesNotExist:
+            pass
+
+        return compare.FieldComparison
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

@@ -63,6 +63,8 @@ def parseHolidays(holidaysStr, holidayMap=None):
                     subval = _parseSubdivisions(subdivisions, cls)
                     retval += subval
                 else:
+                    # FIXME populate year
+                    # retval += cls(years=dt.today().year)
                     retval += cls()
             break
         cls = holidayMap.get(country)
