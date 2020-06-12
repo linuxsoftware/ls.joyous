@@ -1,0 +1,16 @@
+{% extends "joyous/exception_base.html" %}
+{% load wagtailcore_tags %}
+
+{% block event_title %}
+  <div class="joy-title joy-title--page">
+{% if page.cancellation_title %}
+    <h1>{{ page.cancellation_title }}</h1>
+{% else %}
+    <h1>{{ overrides.title }}</h1>
+{% endif %}
+  </div>
+{% endblock event_title %}
+
+{% block event_details %}<div class="joy-ev-details joy-field">
+  {{ page.cancellation_details|richtext }}
+</div>{% endblock event_details %}

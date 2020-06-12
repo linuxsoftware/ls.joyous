@@ -35,6 +35,7 @@ from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
 from modelcluster.fields import ParentalKey
+from ..utils.manythings import hrJoin
 from ..utils.mixins import ProxyPageMixin
 from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
         getLocalDateAndTime, getLocalDate, getLocalTime, todayUtc)
@@ -682,12 +683,17 @@ class EventBase(models.Model):
         """
         Datetime that the event starts (in the local time zone).
         """
+        # This is used by the default implementations of
+        # _current_datetime_from, _future_datetime_from, _past_datetime_from,
+        # and _first_datetime_from
         raise NotImplementedError()
 
     def _getToDt(self):
         """
         Datetime that the event ends (in the local time zone).
         """
+        # This is used by the default implementation of
+        # _current_datetime_from
         raise NotImplementedError()
 
 def removeContentPanels(*args):
@@ -1053,6 +1059,7 @@ class RecurringEventPage(EventBase, Page):
         Date when this event is next scheduled to occur in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
+        # TODO ditch __localAfter?
         nextDt = self.__localAfter(timezone.localtime(), dt.time.min)
         if nextDt is not None:
             return nextDt.date()
@@ -1098,6 +1105,7 @@ class RecurringEventPage(EventBase, Page):
         Date when this event last occurred in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
+        # TODO ditch __localBefore?
         prevDt = self.__localBefore(timezone.localtime(), dt.time.min)
         if prevDt is not None:
             return prevDt.date()
@@ -1108,6 +1116,7 @@ class RecurringEventPage(EventBase, Page):
         The datetime this event previously started in the local time zone, or
         None if it never did.
         """
+        # TODO ditch __localBefore?
         prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
                                     excludeCancellations=True,
                                     excludeExtraInfo=True)
@@ -1347,6 +1356,8 @@ class RecurringEventPage(EventBase, Page):
         else:
             return (None, None)
 
+    # TODO ditch __localAfter?
+    # more efficient to do TZ conversion in calling code?
     def __localAfter(self, fromDt, timeDefault=dt.time.min, **kwargs):
         myFromDt = self.__after(fromDt.astimezone(self.tz), **kwargs)
         if myFromDt is not None:
@@ -1372,6 +1383,8 @@ class RecurringEventPage(EventBase, Page):
                 return getAwareDatetime(occurence, self.time_from,
                                         self.tz, dt.time.min)
 
+    # TODO ditch __localBefore?
+    # more efficient to do TZ conversion in calling code?
     def __localBefore(self, fromDt, timeDefault=dt.time.min, **kwargs):
         myFromDt = self.__before(fromDt.astimezone(self.tz), **kwargs)
         if myFromDt is not None:
@@ -1413,7 +1426,6 @@ class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
 
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
-                     'joyous.ClosedForHolidaysPage',
                      'joyous.RescheduleMultidayEventPage']
     template = "joyous/recurring_event_page.html"
 
@@ -1446,6 +1458,8 @@ class EventExceptionBase(models.Model):
     image       = property(attrgetter("overrides.image"))
     location    = property(attrgetter("overrides.location"))
     website     = property(attrgetter("overrides.website"))
+
+    # NB: exceptions do not need _first_datetime_from
 
     # Init these variables to prevent template DEBUG messages
     # Yes, this is very ugly.  An alternative solution would be welcome.
@@ -2121,33 +2135,32 @@ class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
     ]
 
 # ------------------------------------------------------------------------------
+class ClosedFor(models.Model):
+    """The holidays we are closed for."""
+    class Meta:
+        unique_together = ['page', 'name']
+
+    page = ParentalKey('joyous.ClosedForHolidaysPage',
+                       on_delete=models.CASCADE,
+                       related_name="closed_for")
+    # FIXME add an ordering field?  So e.g. New Year is before Christmas
+    # might not be needed.  pk increasing with insertion order might be enough 
+    name = models.CharField(_("name"), max_length=100)
+
+    # used by ChoiceWidget.format_value
+    def __str__(self):
+        return self.name
 
 class ClosedForHolidaysPageForm(WagtailAdminPageForm):
     description = _("closed for holidays")
-    holidays = forms.MultipleChoiceField(label=_("Holidays"),
+    closed_for = forms.MultipleChoiceField(label=_("Closed for"),
                                          required=False)
         #                                     widget=)
 
     def __init__(self, *args, **kwargs):
-        # instance = kwargs.get('instance')
-        # if instance is not None:
-        #     initial = kwargs.pop('initial', {})
-        #     closed = instance.holidays
-        #     holidays = list(closed.values_list('name', flat=True))
-        #     if holidays:
-        #         initial['holidays'] = holidays
-        #     if initial:
-        #         kwargs['initial'] = initial
-        #self.base_fields['holidays'].choices = _get_holiday_choices()
         super().__init__(*args, **kwargs)
-        self.fields['holidays'].choices = self._holidayChoices()
-        #holidays = list(closed.values_list('name', flat=True))
-        holidays = list(self.instance.holidays.all())
-        self.initial['holidays'] = holidays
-
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
+        self.fields['closed_for'].choices = self._holidayChoices()
+        self.initial['closed_for'] = list(self.instance.closed_for.all())
 
     def save(self, commit=True):
         self._saveChosenHolidays()
@@ -2155,46 +2168,14 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         return page
 
     def _holidayChoices(self):
-        holidays = ClosedForHolidaysPage.holidays_class()
-        retval = [(name, name) for name in holidays.names()]
+        retval = [(name, name) for name in self.instance.holidays.names()]
         return retval
 
     def _saveChosenHolidays(self):
-        chosen = self.cleaned_data.get('holidays', [])
-        initial = {row.name: row for row in self.initial['holidays']}
-        items = [initial.get(name, ClosedFor(name=name))
-                 for name in chosen]
-        self.instance.holidays.set(items)
-
-
-        #items = [item for item in initial
-        #         if item.name in chosen]
-
-        # for row in closed.all():
-        #     if row.name not in chosen:
-        #         closed.remove(row)
-        # #closed.exclude(name__in=chosen).delete()
-        # # initial = closed.values_list('name', flat=True)
-        # initial = self.initial['holidays']
-        # for name in chosen:
-        #     if name not in initial:
-        #         closed.add(ClosedFor(name=name))
-        #         #closed.create(name=name)
-        #         #a = ClosedFor(name=name, page=self.instance)
-
-class ClosedFor(models.Model):
-    """The holidays we close for."""
-    class Meta:
-        unique_together = ['page', 'name']
-
-    page = ParentalKey('joyous.ClosedForHolidaysPage',
-                       on_delete=models.CASCADE,
-                       related_name="holidays")
-    name = models.CharField(_("name"), max_length=100)
-
-    # used by ChoiceWidget.format_value
-    def __str__(self):
-        return self.name
+        chosen = self.cleaned_data.get('closed_for', [])
+        initial = {day.name: day for day in self.initial['closed_for']}
+        days = [initial.get(name, ClosedFor(name=name)) for name in chosen]
+        self.instance.closed_for.set(days)
 
 class ClosedForHolidaysPage(EventExceptionBase, Page):
     class Meta:
@@ -2202,16 +2183,18 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         verbose_name_plural = _("closed for holidays")
         default_manager_name = "objects"
 
+    max_count = 1
     events = EventManager.from_queryset(EventQuerySet)()
-    parent_page_types = ["joyous.RecurringEventPage",
-                         "joyous.MultidayRecurringEventPage"]
+    parent_page_types = ["joyous.RecurringEventPage"]
+    # TODO add "joyous.MultidayRecurringEventPage" : How would that work?
+    # A. If the first day of the event is a holiday then the event is cancelled, or
+    # B. If a holiday occurs anywhere in the event the event is cancelled, or
+    # C. If every day of the event is a holiday then the event is cancelled?
     subpage_types = []
     base_form_class = ClosedForHolidaysPageForm
     holidays_class = Holidays
-    slugName = "closed-for-holidays"
-    gettext_noop("Closed for holidays")
 
-    # FIXME add a CancellationBase class which does not inherit from DateExceptionBase
+    # FIXME add a CancellationBase class which does not inherit from DateExceptionBase maybe?
     cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
     cancellation_title.help_text = _("Show in place of cancelled event "
                                      "(Leave empty to show nothing)")
@@ -2226,7 +2209,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     content_panels = [
         PageChooserPanel('overrides'),
         #FilteredListPanel('holidays'),
-        FieldPanel('holidays'),
+        FieldPanel('closed_for'),
         MultiFieldPanel([
             FieldPanel('cancellation_title', classname="full title"),
             FieldPanel('cancellation_details', classname="full")],
@@ -2234,14 +2217,27 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         ]
     promote_panels = []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.holidays = self.holidays_class()
+        #self.closed = {day.name for day in self.closed_for.all()}
+        self.closed = [day.name for day in self.closed_for.all()]
+
     def full_clean(self, *args, **kwargs):
         """
         Apply fixups that need to happen before per-field validation occurs.
         Sets the page's title.
         """
-        self.title = self.slugName.title()
-        self.slug  = self.slugName
+        self.title = "Closed for holidays"
+        self.slug  = "closed-for-holidays"
         super().full_clean(*args, **kwargs)
+
+    @property
+    def local_title(self):
+        """
+        Localised version of the human-readable title of the page.
+        """
+        return _("Closed for holidays")
 
     @property
     def status(self):
@@ -2258,12 +2254,33 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         return _("This event has been cancelled.")
 
     @property
+    def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
+        if "ALL" in self.closed:
+            retval = _("Closed for holidays")
+        else:
+            #retval = _("Closed for {}").format(hrJoin(list(self.closed)))
+            retval = _("Closed for {}").format(hrJoin(self.closed))
+        return retval
+
+    @property
+    def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
+        return timeFormat(self._getFromTime())
+
+    @property
     def _current_datetime_from(self):
         """
         The datetime the event that was cancelled would start in the local
         timezone, or None if it would have finished by now.
         """
-        return
+        # TODO this code would need to change if this is going to support
+        # MultidayRecurringEventPage
+        return self._future_datetime_from()
 
     @property
     def _future_datetime_from(self):
@@ -2271,7 +2288,11 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         The datetime the event that was cancelled would start in the local
         timezone, or None if that is in the past.
         """
-        return None
+        myNow = timezone.localtime(timezone=self.tz)
+        nextDt = self.__holidayAfter(myNow)
+        if nextDt is not None:
+            return getLocalDatetime(nextDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
 
     @property
     def _past_datetime_from(self):
@@ -2279,7 +2300,47 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         The datetime of the event that was cancelled in the local timezone, or
         None if it never would have.
         """
-        return None
+        myNow = timezone.localtime(timezone=self.tz)
+        prevDt = self.__holidayBefore(myNow)
+        if prevDt is not None:
+            return getLocalDatetime(prevDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+
+    def _getFromTime(self, atDate=None):
+        """
+        What was the time of this event?  Due to time zones that depends what
+        day we are talking about.  If no day is given, assume today.
+        """
+        if atDate is None:
+            atDate = timezone.localdate(timezone=self.tz)
+        return getLocalTime(atDate, self.time_from, self.tz)
+
+    def __holidayAfter(self, fromDt):
+        fromOrd = fromDt.toordinal()
+        for ord in range(fromOrd, fromOrd + 366):
+            date = dt.date.fromordinal(ord)
+            if self.__isClosedFor(date):
+                return getAwareDatetime(date, self.time_from,
+                                        self.tz, dt.time.min)
+
+    def __holidayBefore(self, fromDt):
+        fromOrd = fromDt.toordinal()
+        for ord in range(fromOrd, fromOrd - 366, -1):
+            date = dt.date.fromordinal(ord)
+            if self.__isClosedFor(date):
+                return getAwareDatetime(date, self.time_from,
+                                        self.tz, dt.time.min)
+
+    def __isClosedFor(self, date):
+        holiday = self.holidays.get(date)
+        if holiday:
+            names = holiday.split(", ")
+            if "ALL" in self.closed:
+                return True
+            for name in names:
+                if name in self.closed:
+                    return True
+        return False
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
