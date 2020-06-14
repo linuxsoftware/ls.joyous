@@ -962,9 +962,9 @@ class RecurringEventQuerySet(EventQuerySet):
                             # even if the user is not authorized
                             if (closedHols.isAuthorized(request) and
                                 closedHols.cancellation_title):
-                                thisEvent = ThisEvent(page.cancellation_title,
-                                                      page,
-                                                      page.get_url(request))
+                                thisEvent = ThisEvent(closedHols.cancellation_title,
+                                                      closedHols,
+                                                      closedHols.get_url(request))
                         else:
                             thisEvent = ThisEvent(page.title, page,
                                                   page.get_url(request))
@@ -2227,8 +2227,6 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         verbose_name_plural = _("closed for holidays")
         default_manager_name = "objects"
 
-    # FIXME allow for multiple ClosedForHolidaysQuerySet as long as only one is published???
-    max_count = 1
     events = EventManager.from_queryset(ClosedForHolidaysQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage"]
     # TODO add "joyous.MultidayRecurringEventPage" : How would that work?
@@ -2261,6 +2259,12 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             heading=_("Cancellation")),
         ]
     promote_panels = []
+
+    @classmethod
+    def can_create_at(cls, parent):
+        retval = (super().can_create_at(parent) and
+                  not cls.objects.descendant_of(parent).exists())
+        return retval
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2296,7 +2300,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         A text description of the current status of the event.
         """
-        return _("This event has been cancelled.")
+        return _("Closed for holidays")
 
     @property
     def when(self):
