@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import (MultipleObjectsReturned, ObjectDoesNotExist,
         PermissionDenied)
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.db import models
 from django.db.models.query import ModelIterable
 from django import forms
@@ -43,8 +44,7 @@ from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 from ..fields import RecurrenceField
-from ..edit_handlers import (ExceptionDatePanel, TimePanel, MapFieldPanel,
-        FilteredListPanel)
+from ..edit_handlers import (ExceptionDatePanel, TimePanel, MapFieldPanel)
 from .groups import get_group_model_string, get_group_model
 from ..holidays import Holidays
 
@@ -2196,10 +2196,14 @@ class ClosedForHolidaysQuerySet(EventQuerySet):
         return qs
 
 class ClosedForHolidaysPageForm(WagtailAdminPageForm):
+    class Media:
+        css = { 'all': ["admin/css/widgets.css", "joyous/css/holidays_admin.css"] }
+        js = ["/django-admin/jsi18n", "joyous/js/holidays_admin.js"]
+
     description = _("closed for holidays")
-    closed_for = forms.MultipleChoiceField(label=_("Closed for"),
-                                         required=False)
-        #                                     widget=)
+    closed_for = forms.MultipleChoiceField(label=_("These holidays"), required=False,
+                                           widget=FilteredSelectMultiple(_("Holidays"),
+                                                                         is_stacked=False))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2237,6 +2241,9 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     base_form_class = ClosedForHolidaysPageForm
     holidays_class = Holidays
 
+    all_holidays = models.BooleanField(default=True)
+    #all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
+
     # TODO add a CancellationBase class which does not inherit from DateExceptionBase maybe?
     cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
     cancellation_title.help_text = _("Show in place of cancelled event "
@@ -2251,8 +2258,10 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
-        #FilteredListPanel('holidays'),
-        FieldPanel('closed_for'),
+        MultiFieldPanel([
+            FieldPanel('all_holidays'),
+            FieldPanel('closed_for')],
+            heading=_("Closed For")),
         MultiFieldPanel([
             FieldPanel('cancellation_title', classname="full title"),
             FieldPanel('cancellation_details', classname="full")],
@@ -2269,7 +2278,6 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.holidays = self.holidays_class()
-        #self.closed = {day.name for day in self.closed_for.all()}
         self.closed = [day.name for day in self.closed_for.all()]
 
     def full_clean(self, *args, **kwargs):
@@ -2307,7 +2315,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         A string describing when the event occurs (in the local time zone).
         """
-        if "ALL" in self.closed:
+        if self.all_holidays:
             retval = _("Closed for holidays")
         else:
             #retval = _("Closed for {}").format(hrJoin(list(self.closed)))
@@ -2367,7 +2375,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     def __contains__(self, myDate):
         holiday = self.holidays.get(myDate)
         if holiday:
-            if "ALL" in self.closed:
+            if self.all_holidays:
                 return True
             names = holiday.split(", ")
             for name in names:

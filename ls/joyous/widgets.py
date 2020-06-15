@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.forms.widgets import MultiWidget, NumberInput, Select, \
         CheckboxSelectMultiple, FileInput
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.template.loader import render_to_string
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 from dateutil.parser import parse as dt_parse
@@ -269,12 +268,9 @@ class ExceptionDateInput(AdminDateInput):
 
     @property
     def media(self):
+        # TODO: think about changing this to a static definition
         return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
                      js=[static("joyous/js/recurrence_admin.js")])
-
-# ------------------------------------------------------------------------------
-class FilteredListWidget(FilteredSelectMultiple):
-    pass
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
