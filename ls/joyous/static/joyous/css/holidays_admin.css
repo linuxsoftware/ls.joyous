@@ -1,0 +1,13 @@
+/*-----------------------------------------------------------------------*/
+/* Holidyays admin style */
+/*-----------------------------------------------------------------------*/
+
+.filtered_select_multiple h2 {
+    margin:        0;
+    padding:       8px;
+    font-weight:   400;
+    font-size:     13px;
+    text-align:    center;
+    background:    #79aec8;
+    color:         #fff;
+}
