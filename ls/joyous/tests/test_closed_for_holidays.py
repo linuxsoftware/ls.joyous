@@ -1,0 +1,133 @@
+# ------------------------------------------------------------------------------
+# Test ClosedForHolidays Page
+# ------------------------------------------------------------------------------
+import sys
+import datetime as dt
+import pytz
+from django.test import RequestFactory, TestCase
+from django.contrib.auth.models import User
+from django.utils import timezone
+from wagtail.core.models import Page
+from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models.events import RecurringEventPage
+from ls.joyous.models.events import ClosedForHolidaysPage, ClosedFor
+from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
+from .testutils import freeze_timetz, datetimetz
+
+# ------------------------------------------------------------------------------
+class Test(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "test-meeting",
+                                        title     = "Test Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(1989,1,1),
+                                                               freq=WEEKLY,
+                                                               byweekday=[MO,WE,FR]),
+                                        time_from = dt.time(13),
+                                        time_to   = dt.time(15,30))
+        self.calendar.add_child(instance=self.event)
+        self.closedHols = ClosedForHolidaysPage(owner = self.user,
+                                                overrides = self.event,
+                                                all_holidays = True,
+                                                holidays = self.calendar.holidays)
+        self.event.add_child(instance=self.closedHols)
+        self.closedHols.save_revision().publish()
+
+    def testCanCreateOnlyOne(self):
+        self.assertFalse(ClosedForHolidaysPage.can_create_at(self.event))
+
+    def testInit(self):
+        self.assertEqual(self.closedHols.all_holidays, True)
+
+    def testFullClean(self):
+        self.assertEqual(self.closedHols.title, "Closed for holidays")
+        self.assertEqual(self.closedHols.slug,  "closed-for-holidays")
+
+    def testGetEventsByDay(self):
+        events = RecurringEventPage.events.byDay(dt.date(1989,1,1),
+                                                 dt.date(1989,1,31),
+                                                 self.calendar.holidays)
+        self.assertEqual(len(events), 31)
+        evod = events[0]
+        self.assertEqual(evod.date, dt.date(1989,1,1))
+        self.assertEqual(evod.holiday, "New Year's Day")
+        self.assertEqual(len(evod.days_events), 0)
+        self.assertEqual(len(evod.continuing_events), 0)
+
+    def testOccursOn(self):
+        self.event.holidays = self.calendar.holidays
+        self.assertIs(self.event._occursOn(dt.date(1989, 1, 1)), False)
+        self.assertIs(self.event._occursOn(dt.date(1989, 1, 2)), False)
+        self.assertIs(self.event._occursOn(dt.date(1989, 1, 6)), True)
+        self.assertIs(self.event._occursOn(dt.date(1989, 1, 16)), False)
+
+    def testStatus(self):
+        self.assertEqual(self.closedHols.status, "cancelled")
+        self.assertEqual(self.closedHols.status_text, "Closed for holidays.")
+
+    def testWhen(self):
+        self.assertEqual(self.closedHols.when, "Closed for holidays")
+
+    def testWhenEver(self):
+        event = RecurringEventPage(slug      = "XYZ",
+                                   title     = "Xylophone yacht zombies",
+                                   repeat    = Recurrence(dtstart=dt.date(1989,1,1),
+                                                          freq=WEEKLY,
+                                                          byweekday=[FR]),
+                                   time_from = dt.time(19),
+                                   holidays = self.calendar.holidays)
+        self.calendar.add_child(instance=event)
+        closedHols = ClosedForHolidaysPage(owner = self.user,
+                                           overrides = event,
+                                           all_holidays = False,
+                                           cancellation_title = "XYZ Cancelled",
+                                           holidays = self.calendar.holidays)
+        closedHols.closed_for = [ ClosedFor(name="Good Friday"),
+                                  ClosedFor(name="Easter Monday") ]
+        event.add_child(instance=closedHols)
+        closedHols.save_revision().publish()
+        self.assertEqual(closedHols.when, "Closed for Good Friday and Easter Monday")
+        self.assertIs(event._occursOn(dt.date(1989, 3, 24)), False)
+
+    def testAt(self):
+        self.assertEqual(self.closedHols.at.strip(), "1pm")
+
+    @freeze_timetz("1989-02-15")
+    def testCurrentDt(self):
+        # Taranaki Anniversary Day
+        self.assertEqual(self.closedHols._current_datetime_from,
+                         datetimetz(1989,3,13,13,0))
+
+    @freeze_timetz("1989-02-15")
+    def testFutureDt(self):
+        # Taranaki Anniversary Day
+        self.assertEqual(self.closedHols._future_datetime_from,
+                         datetimetz(1989,3,13,13,0))
+
+    @freeze_timetz("1989-02-15")
+    def testPastDt(self):
+        # Waitangi Day
+        self.assertEqual(self.closedHols._past_datetime_from,
+                         datetimetz(1989,2,6,13,0))
+
+    def testGroup(self):
+        self.assertIsNone(self.closedHols.group)
+
+    def testOverridesRepeat(self):
+        self.assertEqual(self.closedHols.overrides_repeat, self.event.repeat)
+
+    def testGetContext(self):
+        request = RequestFactory().get("/test")
+        context = self.closedHols.get_context(request)
+        self.assertIn('overrides', context)
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

@@ -50,6 +50,60 @@ class TestHolidays(TestCase):
         self.assertEqual(hols.get(dt.date(1999,1,1)),
                          "Gliffy, Whatnot, New Year's Day")
 
+    @override_settings(JOYOUS_HOLIDAYS = None)
+    def testNoNames(self):
+        hols = Holidays()
+        self.assertEqual(hols.names(), [])
+
+    @freeze_timetz("2017-05-31")
+    def testNZNames(self):
+        hols = Holidays()
+        self.assertEqual(hols.names(), [
+                         "New Year's Day",
+                         "Day after New Year's Day",
+                         "New Year's Day (Observed)",
+                         "Day after New Year's Day (Observed)",
+                         'Wellington Anniversary Day',
+                         'Auckland Anniversary Day',
+                         'Nelson Anniversary Day',
+                         'Waitangi Day',
+                         'Waitangi Day (Observed)',
+                         'Taranaki Anniversary Day',
+                         'Otago Anniversary Day',
+                         'Good Friday',
+                         'Easter Monday',
+                         'Southland Anniversary Day',
+                         'Anzac Day',
+                         'Anzac Day (Observed)',
+                         "Queen's Birthday",
+                         'South Canterbury Anniversary Day',
+                         "Hawke's Bay Anniversary Day",
+                         'Labour Day',
+                         'Marlborough Anniversary Day',
+                         'Canterbury Anniversary Day',
+                         'Chatham Islands Anniversary Day',
+                         'Westland Anniversary Day',
+                         'Christmas Day',
+                         'Boxing Day',
+                         'Christmas Day (Observed)',
+                         'Boxing Day (Observed)'])
+
+    @override_settings(JOYOUS_HOLIDAYS = None)
+    def testSimpleNames(self):
+        hols = Holidays()
+        hols.add(dt.date(2021,4,29), "HAPPY HAPPY")
+        self.assertEqual(hols.names(), ["HAPPY HAPPY"])
+
+    @override_settings(JOYOUS_HOLIDAYS = None)
+    def testWorkalendarNames(self):
+        class Woral:
+            get_calendar_holidays = Mock(return_value=[(dt.date(1999,4,30),
+                                                        "JOY JOY")])
+        woral = Woral()
+        hols = Holidays()
+        hols.register(woral)
+        self.assertEqual(hols.names(), ["JOY JOY"])
+
 # ------------------------------------------------------------------------------
 class TestParser(TestCase):
     def testScotland(self):

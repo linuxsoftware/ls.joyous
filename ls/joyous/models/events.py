@@ -66,7 +66,7 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None, holidays=None):
     """
     qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
             MultidayEventPage.events(request).byDay(fromDate, toDate),
-            RecurringEventPage.events(request).byDay(fromDate, toDate),
+            RecurringEventPage.events(request).byDay(fromDate, toDate, holidays),
             PostponementPage.events(request).byDay(fromDate, toDate)]
     # Cancellations and ExtraInfo pages are returned by RecurringEventPage.byDay
     if home is not None:
@@ -93,7 +93,7 @@ def getAllEventsByWeek(request, year, month, *, home=None, holidays=None):
                             partial(getAllEventsByDay, request,
                                     home=home, holidays=holidays))
 
-def getAllUpcomingEvents(request, *, home=None):
+def getAllUpcomingEvents(request, *, home=None, holidays=None):
     """
     Return all the upcoming events (under home if given).
 
@@ -103,20 +103,20 @@ def getAllUpcomingEvents(request, *, home=None):
     """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
-            RecurringEventPage.events(request).upcoming().this(),
+            RecurringEventPage.events(request).upcoming().this(holidays),
             PostponementPage.events(request).upcoming().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").upcoming()
                             .this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .upcoming().this(),
             ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .upcoming().this()]
+                            .upcoming().this(holidays)]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
-def getGroupUpcomingEvents(request, group):
+def getGroupUpcomingEvents(request, group, holidays=None):
     """
     Return all the upcoming events that are assigned to the specified group.
 
@@ -131,7 +131,7 @@ def getGroupUpcomingEvents(request, group):
     # Get events that are a child of a group page, or a postponement or extra
     # info a child of the recurring event child of the group
     rrEvents = RecurringEventPage.events(request).exclude(group_page=group) \
-                                        .upcoming().child_of(group).this()
+                                        .upcoming().child_of(group).this(holidays)
     qrys = [SimpleEventPage.events(request).exclude(group_page=group)
                                         .upcoming().child_of(group).this(),
             MultidayEventPage.events(request).exclude(group_page=group)
@@ -145,12 +145,12 @@ def getGroupUpcomingEvents(request, group):
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
                  ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this()]
+                                 .child_of(rrEvent.page).upcoming().this(holidays)]
 
     # Get events that are linked to a group page, or a postponement or extra
     # info child of the recurring event linked to a group
     rrEvents = group.recurringeventpage_set(manager='events').auth(request)  \
-                                                        .upcoming().this()
+                                                        .upcoming().this(holidays)
     qrys += [group.simpleeventpage_set(manager='events').auth(request)
                                                         .upcoming().this(),
              group.multidayeventpage_set(manager='events').auth(request)
@@ -164,11 +164,11 @@ def getGroupUpcomingEvents(request, group):
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
                  ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this()]
+                                 .child_of(rrEvent.page).upcoming().this(holidays)]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
-def getAllPastEvents(request, *, home=None):
+def getAllPastEvents(request, *, home=None, holidays=None):
     """
     Return all the past events (under home if given).
 
@@ -178,13 +178,13 @@ def getAllPastEvents(request, *, home=None):
     """
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),
-            RecurringEventPage.events(request).past().this(),
+            RecurringEventPage.events(request).past().this(holidays),
             PostponementPage.events(request).past().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").past().this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .past().this(),
             ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .past().this()]
+                            .past().this(holidays)]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -242,6 +242,8 @@ def getAllEvents(request, *, home=None):
 # Private
 # ------------------------------------------------------------------------------
 def _getEventsByDay(date_from, eventsByDaySrcs, holidays):
+    if holidays is None:
+        holidays = {}
     evods = []
     day = date_from
     for srcs in zip(*eventsByDaySrcs):
@@ -256,7 +258,7 @@ def _getEventsByDay(date_from, eventsByDaySrcs, holidays):
                 fromTime = dt.time.max
             return fromTime
         days_events.sort(key=sortByTime)
-        holiday = holidays.get(day) if holidays else None
+        holiday = holidays.get(day)
         evods.append(EventsOnDay(day, holiday, days_events, continuing_events))
         day += _1day
     return evods
@@ -340,11 +342,14 @@ class EventsOnDay:
         return calendar.day_abbr[self.date.weekday()].lower()
 
 class EventsByDayList(list):
-    def __init__(self, fromDate, toDate):
+    def __init__(self, fromDate, toDate, holidays=None):
+        if holidays is None:
+            holidays = {}
         self.fromOrd = fromDate.toordinal()
         self.toOrd   = toDate.toordinal()
-        super().__init__(EventsOnDay(dt.date.fromordinal(ord))
-                         for ord in range(self.fromOrd, self.toOrd+1))
+        days = [dt.date.fromordinal(ord)
+                for ord in range(self.fromOrd, self.toOrd+1)]
+        super().__init__(EventsOnDay(day, holidays.get(day)) for day in days)
 
     def add(self, thisEvent, pageFromDate, pageToDate):
         pageFromOrd = pageFromDate.toordinal()
@@ -398,6 +403,7 @@ class EventQuerySet(PageQuerySet):
         qs.postFilter = self.postFilter
         return qs
 
+    # TODO: use _iterable_class instead? 
     def _fetch_all(self):
         super()._fetch_all()
         if self.postFilter:
@@ -940,15 +946,29 @@ class MultidayEventPage(EventBase, Page):
 
 # ------------------------------------------------------------------------------
 class RecurringEventQuerySet(EventQuerySet):
-    def byDay(self, fromDate, toDate):
+    def this(self, holidays=None):
         request = self.request
+        class ThisRecurringEventIterable(ModelIterable):
+            def __iter__(self):
+                for page in super().__iter__():
+                    if holidays is not None:
+                        page.holidays = holidays
+                    yield ThisEvent(page.title, page, page.get_url(request))
+        qs = self._clone()
+        qs._iterable_class = ThisRecurringEventIterable
+        return qs
 
+    def byDay(self, fromDate, toDate, holidays=None):
+        request = self.request
         class ByDayIterable(ModelIterable):
             def __iter__(self):
-                evods = EventsByDayList(fromDate, toDate)
+                evods = EventsByDayList(fromDate, toDate, holidays)
                 for page in super().__iter__():
+                    if holidays is not None:
+                        # make sure we all have the same holidays
+                        page.holidays = holidays
                     exceptions = self.__getExceptionsFor(page)
-                    closedHols = ClosedForHolidaysPage.events.child_of(page).first()
+                    closedHols = page._getClosedForHolidays()
                     startDelta = dt.timedelta(days=page.num_days + 1)
                     for occurence in page.repeat.between(fromDate - startDelta,
                                                          toDate + _2days, True):
@@ -1069,6 +1089,10 @@ class RecurringEventPage(EventBase, Page):
         FieldPanel('tz'),
         ] + EventBase.content_panels1
     content_panels = content_panels0 + [HiddenNumDaysPanel()] + content_panels1
+
+    def __init__(self, *args, **kwargs):
+        self.holidays = kwargs.pop("holidays", None)
+        super().__init__(*args, **kwargs)
 
     @property
     def next_date(self):
@@ -1241,20 +1265,22 @@ class RecurringEventPage(EventBase, Page):
         for this recurring event
         """
         retval = []
-        # We know all future exception dates are in the parent time zone
-        myToday = timezone.localdate(timezone=self.tz)
-
         for extraInfo in ExtraInfoPage.events(request).child_of(self)         \
-                                      .filter(except_date__gte=myToday):
+                                      .future():
+#                                      .filter(except_date__gte=myToday):
             retval.append(extraInfo)
         for cancellation in CancellationPage.events(request).child_of(self)   \
-                                            .filter(except_date__gte=myToday):
+                                            .future():
+#                                            .filter(except_date__gte=myToday):
             postponement = getattr(cancellation, "postponementpage", None)
             if postponement:
                 retval.append(postponement)
             else:
                 retval.append(cancellation)
-        retval.sort(key=attrgetter('except_date'))
+        closedHols = self._getClosedForHolidays()
+        if closedHols is not None:
+            retval.append(closedHols)
+        retval.sort(key=attrgetter('_future_datetime_from'))
         # notice these are events not ThisEvents
         return retval
 
@@ -1287,7 +1313,7 @@ class RecurringEventPage(EventBase, Page):
         if CancellationPage.events.child_of(self)                            \
                            .filter(except_date=myDate).exists():
             return False
-        closedHols = ClosedForHolidaysPage.events.child_of(self).first()
+        closedHols = self._getClosedForHolidays()
         if closedHols and myDate in closedHols:
             return False
         return True
@@ -1320,6 +1346,17 @@ class RecurringEventPage(EventBase, Page):
         nextDt = self.__after(myNow)
         if nextDt is not None:
             return nextDt.date()
+
+    def _getClosedForHolidays(self):
+        """
+        If there is a child ClosedForHolidaysPage get it and make sure
+        it is set with the same holidays as this page.
+        """
+        closedHols = ClosedForHolidaysPage.events.child_of(self).first()
+        if closedHols is not None and self.holidays is not None:
+            # make sure we all have the same holidays
+            closedHols.holidays = self.holidays
+        return closedHols
 
     def __getMyFromDt(self):
         """
@@ -1425,7 +1462,7 @@ class RecurringEventPage(EventBase, Page):
             for cancelled in CancellationPage.events.child_of(self)          \
                                      .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
-            closedHols = ClosedForHolidaysPage.events.child_of(self).first()
+            closedHols = self._getClosedForHolidays()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
                                      .filter(except_date__lte=fromDate)      \
@@ -1910,6 +1947,9 @@ class PostponementQuerySet(EventQuerySet):
 
     def this(self):
         request = self.request
+        # FIXME: ThisIterable classes have different names, but all
+        # ByDayIterable classes don't - Whould changing this break backwards
+        # compatibility for anyone?
         class ThisPostponementIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
@@ -2167,6 +2207,7 @@ class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
 class ClosedFor(models.Model):
     """The holidays we are closed for."""
     class Meta:
+        ordering = ['pk']
         unique_together = ['page', 'name']
 
     page = ParentalKey('joyous.ClosedForHolidaysPage',
@@ -2184,11 +2225,13 @@ class ClosedFor(models.Model):
         return self.name
 
 class ClosedForHolidaysQuerySet(EventQuerySet):
-    def this(self):
+    def this(self, holidays=None):
         request = self.request
         class ThisClosedForHolidaysIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
+                    if holidays is not None:
+                        page.holidays = holidays
                     yield ThisEvent(page.cancellation_title, page,
                                     page.get_url(request))
         qs = self._clone()
@@ -2197,13 +2240,18 @@ class ClosedForHolidaysQuerySet(EventQuerySet):
 
 class ClosedForHolidaysPageForm(WagtailAdminPageForm):
     class Media:
-        css = { 'all': ["admin/css/widgets.css", "joyous/css/holidays_admin.css"] }
-        js = ["/django-admin/jsi18n", "joyous/js/holidays_admin.js"]
+        css = { 'all': ["admin/css/widgets.css",
+                        "joyous/css/holidays_admin.css"] }
+        js = ["/django-admin/jsi18n",
+              "joyous/js/holidays_admin.js"]
 
+    holidays_class = Holidays
     description = _("closed for holidays")
-    closed_for = forms.MultipleChoiceField(label=_("These holidays"), required=False,
-                                           widget=FilteredSelectMultiple(_("Holidays"),
-                                                                         is_stacked=False))
+    closed_for = forms.MultipleChoiceField(label=_("These holidays"),
+                                           required=False,
+                                           widget=FilteredSelectMultiple(
+                                                            _("Holidays"),
+                                                            is_stacked=False))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2216,7 +2264,11 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         return page
 
     def _holidayChoices(self):
-        retval = [(name, name) for name in self.instance.holidays.names()]
+        if self.instance.holidays is not None:
+            holidays = self.instance.holidays
+        else:
+            holidays = self.holidays_class()
+        retval = [(name, name) for name in holidays.names()]
         return retval
 
     def _saveChosenHolidays(self):
@@ -2239,7 +2291,6 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     # C. If every day of the event is a holiday then the event is cancelled?
     subpage_types = []
     base_form_class = ClosedForHolidaysPageForm
-    holidays_class = Holidays
 
     all_holidays = models.BooleanField(default=True)
     #all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
@@ -2276,9 +2327,8 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         return retval
 
     def __init__(self, *args, **kwargs):
+        self.holidays = kwargs.pop("holidays", None)
         super().__init__(*args, **kwargs)
-        self.holidays = self.holidays_class()
-        self.closed = [day.name for day in self.closed_for.all()]
 
     def full_clean(self, *args, **kwargs):
         """
@@ -2308,7 +2358,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         A text description of the current status of the event.
         """
-        return _("Closed for holidays")
+        return _("Closed for holidays.")
 
     @property
     def when(self):
@@ -2318,8 +2368,8 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         if self.all_holidays:
             retval = _("Closed for holidays")
         else:
-            #retval = _("Closed for {}").format(hrJoin(list(self.closed)))
-            retval = _("Closed for {}").format(hrJoin(self.closed))
+            closed = [day.name for day in self.closed_for.all()]
+            retval = _("Closed for {}").format(hrJoin(closed))
         return retval
 
     @property
@@ -2337,7 +2387,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         # TODO this code would need to change if this is going to support
         # MultidayRecurringEventPage
-        return self._future_datetime_from()
+        return self._future_datetime_from
 
     @property
     def _future_datetime_from(self):
@@ -2373,17 +2423,22 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         return getLocalTime(atDate, self.time_from, self.tz)
 
     def __contains__(self, myDate):
+        if self.holidays is None:
+            return None
         holiday = self.holidays.get(myDate)
         if holiday:
             if self.all_holidays:
                 return True
+            closed = {day.name for day in self.closed_for.all()}
             names = holiday.split(", ")
             for name in names:
-                if name in self.closed:
+                if name in closed:
                     return True
         return False
 
     def __holidayAfter(self, fromDt):
+        if self.holidays is None:
+            return None
         fromOrd = fromDt.toordinal()
         for ord in range(fromOrd, fromOrd + 366):
             myDate = dt.date.fromordinal(ord)
@@ -2392,6 +2447,8 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
                                         self.tz, dt.time.min)
 
     def __holidayBefore(self, fromDt):
+        if self.holidays is None:
+            return None
         fromOrd = fromDt.toordinal()
         for ord in range(fromOrd, fromOrd - 366, -1):
             myDate = dt.date.fromordinal(ord)

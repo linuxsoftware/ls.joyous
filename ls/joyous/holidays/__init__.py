@@ -8,17 +8,19 @@ from .parser import parseHolidays
 
 class Holidays:
     """Defines what holidays are celebrated on what dates."""
-    def __init__(self):
+    def __init__(self, holidaySetting="JOYOUS_HOLIDAYS"):
+        self.setting = holidaySetting
         self.simple = {}
         self.srcs = [ self.simple ]
         self._parseSettings()
 
     def _parseSettings(self):
-        holidaySettings = getattr(settings, "JOYOUS_HOLIDAYS", "")
-        if holidaySettings:
-            hols = parseHolidays(holidaySettings)
-            if hols is not None:
-                self.register(hols)
+        if self.setting:
+            holidaySettings = getattr(settings, self.setting, "")
+            if holidaySettings:
+                hols = parseHolidays(holidaySettings)
+                if hols is not None:
+                    self.register(hols)
 
     def register(self, src):
         """Register a new source of holiday data."""
