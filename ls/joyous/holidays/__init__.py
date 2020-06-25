@@ -53,11 +53,7 @@ class Holidays:
     def names(self):
         """Get a list of all the holiday names, sorted by month-day."""
         thisYear = dt.date.today().year
-        popYears = list(range(thisYear + 10, thisYear + 1, -1))
-        popYears.append(thisYear - 1)
-        popYears.append(thisYear + 1)
-        popYears.append(thisYear)
-
+        popYears = list(range(thisYear - 1, thisYear + 10))
         holidays = {}
         for src in self.srcs:
             # populate python-holidays calendar
@@ -72,15 +68,26 @@ class Holidays:
                 for date, names in items():
                     # holidays may have been concatenated together
                     for name in names.split(", "):
-                        holidays[name] = (date.month, date.day)
+                        holidays.setdefault(name, []).append(date)
             else:
                 # get from workalendar srcs
                 getHolidays = getattr(src, "get_calendar_holidays", None)
                 if getHolidays:
                     for year in popYears:
                         for date, name in getHolidays(year):
-                            holidays[name] = (date.month, date.day)
-        mmddHolidays = [(mmdd, name) for name, mmdd in holidays.items()]
+                            holidays.setdefault(name, []).append(date)
+
+        # sort holidays by month-day with a preference for a more recent year
+        mmddHolidays = []
+        def moreRecent(date):
+            delta2 = (date.year - thisYear) * 2
+            if delta2 < 0:
+                # slight preference for future years over past years
+                delta2 = -delta2 + 1
+            return delta2
+        for name, dates in holidays.items():
+            mostRecent = min(dates, key=moreRecent)
+            mmddHolidays.append(((mostRecent.month, mostRecent.day), name))
         mmddHolidays.sort()
         retval = [name for mmdd, name in mmddHolidays]
         return retval

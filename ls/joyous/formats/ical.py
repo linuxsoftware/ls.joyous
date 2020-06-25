@@ -24,6 +24,9 @@ from .vtimezone import create_timezone
 from .errors import CalendarTypeError, CalendarNotInitializedError
 
 # ------------------------------------------------------------------------------
+MAX_YEAR = 2038
+
+# ------------------------------------------------------------------------------
 class VComponentMixin:
     """Utilities for working with icalendar components"""
     def set(self, name, value, parameters=None, encode=1):
@@ -241,6 +244,9 @@ class VCalendar(Calendar, VComponentMixin):
             else:
                 if exception.isAuthorized(request):
                     self._updateExceptionPage(request, vchild, exception)
+                else:
+                    pass
+                    # FIXME: add to the num failures
         return numUpdated
 
     def _updateExceptionPage(self, request, vchild, exception):
@@ -385,7 +391,7 @@ class TimeZoneSpan:
                 # pytz.timezones doesn't know any transition dates after 2038
                 # either -- icalendar/src/icalendar/cal.py:526
                 # using replace to keep the tzinfo
-                lastDt = lastDt.replace(year=2038, month=12, day=31)
+                lastDt = lastDt.replace(year=MAX_YEAR, month=12, day=31)
 
         if self.firstDt is None or firstDt < self.firstDt:
             self.firstDt = firstDt
@@ -713,6 +719,12 @@ class RecurringVEvent(VEvent):
             #         vchildren.append(CancellationVEvent.fromPage(cancellation))
             #     if postponement:
             #         vchildren.append(PostponementVEvent.fromPage(postponement))
+
+        # closedHols = page._getClosedForHolidays()
+        # if closedHols is not None:
+        #     # Expand out ClosedForHolidays instances
+        #     lastDate = page.repeat.until or MAX_DATE
+        #     for occurence in page.repeat.between(firstDate, lastDate)
 
         for info in ExtraInfoPage.objects.live().child_of(page):
             vchildren.append(ExtraInfoVEvent.fromPage(info))

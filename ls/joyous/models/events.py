@@ -2423,8 +2423,9 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         return getLocalTime(atDate, self.time_from, self.tz)
 
     def __contains__(self, myDate):
+        # WARNING: myDate must be in eventTZ not localTZ
         if self.holidays is None:
-            return None
+            return False
         holiday = self.holidays.get(myDate)
         if holiday:
             if self.all_holidays:
@@ -2440,6 +2441,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         if self.holidays is None:
             return None
         fromOrd = fromDt.toordinal()
+        # for occurence in self.overrides.repeat.between(fromDate, toDate):
         for ord in range(fromOrd, fromOrd + 366):
             myDate = dt.date.fromordinal(ord)
             if self.__eventRepeatsOn(myDate) and myDate in self:
