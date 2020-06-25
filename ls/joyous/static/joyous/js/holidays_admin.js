@@ -5,9 +5,17 @@
   $ = (ref = (ref1 = this.joyJQ) != null ? ref1 : this.$) != null ? ref : django.jQuery;
 
   allHolidaysChanged = function() {
-    var allHols;
+    var allHols, fromBox, fromFilter, toBox;
     allHols = $("#id_all_holidays").prop("checked");
-    $(".multiple_choice_field").toggle(!allHols);
+    if (allHols) {
+      $("li.multiple_choice_field").hide();
+    } else {
+      $("li.multiple_choice_field").show();
+      fromBox = $("#id_closed_for_from");
+      fromFilter = $("#id_closed_for_filter");
+      toBox = $("#id_closed_for_to");
+      toBox.height(fromFilter.outerHeight() + fromBox.outerHeight());
+    }
   };
 
   $(function() {
