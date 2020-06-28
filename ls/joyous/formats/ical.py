@@ -720,11 +720,19 @@ class RecurringVEvent(VEvent):
             #     if postponement:
             #         vchildren.append(PostponementVEvent.fromPage(postponement))
 
-        # closedHols = page._getClosedForHolidays()
-        # if closedHols is not None:
-        #     # Expand out ClosedForHolidays instances
-        #     lastDate = page.repeat.until or MAX_DATE
-        #     for occurence in page.repeat.between(firstDate, lastDate)
+        closedHols = page._getClosedForHolidays()
+        if closedHols is not None:
+            for closedDate in closedHols._closed_for_dates:
+                if closedDate.year > MAX_YEAR:
+                    break
+                excludeDt = getAwareDatetime(closedDate,
+                                             closedHols.time_from,
+                                             closedHols.tz, dt.time.min)
+                exDates.append(excludeDt)
+                # NB any cancellation title or details are going to be lost
+                # vchildren.append(ClosedForHolidaysVEvent.fromPage(closedHols))
+                # ClosedForHolidaysPage does not round-trip.  All imported EXDATEs
+                # become plain cancellations
 
         for info in ExtraInfoPage.objects.live().child_of(page):
             vchildren.append(ExtraInfoVEvent.fromPage(info))

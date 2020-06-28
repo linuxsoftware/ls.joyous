@@ -4,6 +4,7 @@
 import datetime as dt
 import calendar
 from collections import namedtuple
+from collections.abc import Iterator
 from contextlib import suppress
 from functools import partial
 from itertools import chain, groupby
@@ -38,8 +39,8 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from modelcluster.fields import ParentalKey
 from ..utils.manythings import hrJoin
 from ..utils.mixins import ProxyPageMixin
-from ..utils.telltime import (getAwareDatetime, getLocalDatetime,
-        getLocalDateAndTime, getLocalDate, getLocalTime, todayUtc)
+from ..utils.telltime import (todayUtc, getAwareDatetime, getLocalDatetime,
+        getLocalDateAndTime, getLocalDate, getLocalTime, getLocalTimeAtDate)
 from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
@@ -977,7 +978,7 @@ class RecurringEventQuerySet(EventQuerySet):
                         if exception:
                             if exception.title:
                                 thisEvent = exception
-                        elif closedHols and occurence in closedHols:
+                        elif closedHols and closedHols._closedOn(occurence):
                             # ClosedForHolidaysPage still affects the event,
                             # even if the user is not authorized
                             if (closedHols.isAuthorized(request) and
@@ -1254,10 +1255,13 @@ class RecurringEventPage(EventBase, Page):
         """
         What was the time of this event?  Due to time zones that depends what
         day we are talking about.  If no day is given, assume today.
+
+        :param atDate: day in local timezone for which we want the time_from
+        :rtype: time_from in local timezone
         """
         if atDate is None:
-            atDate = timezone.localdate(timezone=self.tz)
-        return getLocalTime(atDate, self.time_from, self.tz)
+            atDate = timezone.localdate()
+        return getLocalTimeAtDate(atDate, self.time_from, self.tz)
 
     def _futureExceptions(self, request):
         """
@@ -1267,11 +1271,9 @@ class RecurringEventPage(EventBase, Page):
         retval = []
         for extraInfo in ExtraInfoPage.events(request).child_of(self)         \
                                       .future():
-#                                      .filter(except_date__gte=myToday):
             retval.append(extraInfo)
         for cancellation in CancellationPage.events(request).child_of(self)   \
                                             .future():
-#                                            .filter(except_date__gte=myToday):
             postponement = getattr(cancellation, "postponementpage", None)
             if postponement:
                 retval.append(postponement)
@@ -1314,7 +1316,7 @@ class RecurringEventPage(EventBase, Page):
                            .filter(except_date=myDate).exists():
             return False
         closedHols = self._getClosedForHolidays()
-        if closedHols and myDate in closedHols:
+        if closedHols and closedHols._closedOn(myDate):
             return False
         return True
 
@@ -1356,6 +1358,7 @@ class RecurringEventPage(EventBase, Page):
         if closedHols is not None and self.holidays is not None:
             # make sure we all have the same holidays
             closedHols.holidays = self.holidays
+        closedHols._cacheClosedSet()
         return closedHols
 
     def __getMyFromDt(self):
@@ -1440,7 +1443,7 @@ class RecurringEventPage(EventBase, Page):
         for occurence in self.repeat.xafter(fromDate, inc=True):
             if occurence in exceptions:
                 continue
-            if closedHols and occurence in closedHols:
+            if closedHols and closedHols._closedOn(occurence):
                 continue
             return getAwareDatetime(occurence, self.time_from,
                                     self.tz, dt.time.min)
@@ -1474,7 +1477,7 @@ class RecurringEventPage(EventBase, Page):
                 break
             if occurence in exceptions:
                 continue
-            if closedHols and occurence in closedHols:
+            if closedHols and closedHols._closedOn(occurence):
                 continue
             last = occurence
 
@@ -2277,6 +2280,14 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         days = [initial.get(name, ClosedFor(name=name)) for name in chosen]
         self.instance.closed_for.set(days)
 
+class HolidaysIterator(Iterator):
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        #return None
+        raise StopIteration
+
 class ClosedForHolidaysPage(EventExceptionBase, Page):
     class Meta:
         verbose_name = _("closed for holidays")
@@ -2291,6 +2302,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     # C. If every day of the event is a holiday then the event is cancelled?
     subpage_types = []
     base_form_class = ClosedForHolidaysPageForm
+    HOLIDAY_SEARCH_ITERATIONS = 3000
 
     all_holidays = models.BooleanField(default=True)
     #all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
@@ -2329,6 +2341,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     def __init__(self, *args, **kwargs):
         self.holidays = kwargs.pop("holidays", None)
         super().__init__(*args, **kwargs)
+        self.__closedSet = None
 
     def full_clean(self, *args, **kwargs):
         """
@@ -2368,8 +2381,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         if self.all_holidays:
             retval = _("Closed for holidays")
         else:
-            closed = [day.name for day in self.closed_for.all()]
-            retval = _("Closed for {}").format(hrJoin(closed))
+            retval = _("Closed for {}").format(hrJoin(self.closed))
         return retval
 
     @property
@@ -2378,6 +2390,18 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         A string describing what time the event starts (in the local time zone).
         """
         return timeFormat(self._getFromTime())
+
+    @property
+    def closed(self):
+        """
+        The list of holidays we are closed for, or "ALL" if we are closed for
+        all holidays.
+        """
+        if self.all_holidays:
+            retval = "ALL"
+        else:
+            retval = [day.name for day in self.closed_for.all()]
+        return retval
 
     @property
     def _current_datetime_from(self):
@@ -2396,7 +2420,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         timezone, or None if that is in the past.
         """
         myNow = timezone.localtime(timezone=self.tz)
-        nextDt = self.__holidayAfter(myNow)
+        nextDt = self.__after(myNow)
         if nextDt is not None:
             return getLocalDatetime(nextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
@@ -2408,64 +2432,123 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         None if it never would have.
         """
         myNow = timezone.localtime(timezone=self.tz)
-        prevDt = self.__holidayBefore(myNow)
+        prevDt = self.__before(myNow)
         if prevDt is not None:
             return getLocalDatetime(prevDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
+    @property
+    def _closed_for_dates(self):
+        """
+        Return all the dates which we are closed for in the local timezone
+        """
+        for occurence in self._getMyDates():
+            yield getLocalDate(occurence, self.time_from, self.tz)
+
+    def _getMyDates(self):
+        """
+        Return all the dates which we are closed for in the event timezone
+        """
+        if self.holidays is not None:
+            self._cacheClosedSet()
+            if not self.closed:
+                return None
+            for n, occurence in enumerate(self.overrides.repeat):
+                if n > self.HOLIDAY_SEARCH_ITERATIONS:
+                    # that's enough, bailing out
+                    return None
+                if self._closedOn(occurence):
+                    yield occurence
+
     def _getFromTime(self, atDate=None):
         """
-        What was the time of this event?  Due to time zones that depends what
-        day we are talking about.  If no day is given, assume today.
+        Time that the event starts (in the local time zone).
         """
-        if atDate is None:
-            atDate = timezone.localdate(timezone=self.tz)
-        return getLocalTime(atDate, self.time_from, self.tz)
+        return self.overrides_getFromTime(atDate)
 
-    def __contains__(self, myDate):
-        # WARNING: myDate must be in eventTZ not localTZ
+    def _cacheClosedSet(self):
+        """
+        Cache the set of names of the holidays we are closed for.
+        This needs to be re-called if the page's fields change.
+        """
+        # TODO: Automate the invalidation?
+        closed = self.closed
+        if closed == "ALL":
+            self.__closedSet = "ALL"
+        else:
+            self.__closedSet = set(self.closed)
+
+    def _closedOn(self, myDate):
+        """
+        Are we closed for holidays on myDate?
+        """
         if self.holidays is None:
+            return False
+        if self.__closedSet is None:
+            self._cacheClosedSet()
+        if not self.__closedSet:
             return False
         holiday = self.holidays.get(myDate)
         if holiday:
             if self.all_holidays:
                 return True
-            closed = {day.name for day in self.closed_for.all()}
             names = holiday.split(", ")
             for name in names:
-                if name in closed:
+                if name in self.__closedSet:
                     return True
         return False
 
-    def __holidayAfter(self, fromDt):
+    def __after(self, fromDt, excludeCancellations=True):
         if self.holidays is None:
             return None
-        fromOrd = fromDt.toordinal()
-        # for occurence in self.overrides.repeat.between(fromDate, toDate):
-        for ord in range(fromOrd, fromOrd + 366):
-            myDate = dt.date.fromordinal(ord)
-            if self.__eventRepeatsOn(myDate) and myDate in self:
-                return getAwareDatetime(myDate, self.time_from,
-                                        self.tz, dt.time.min)
+        fromDate = fromDt.date()
+        if self.time_from and self.time_from < fromDt.time():
+            fromDate += _1day
+        self._cacheClosedSet()
+        exceptions = set()
+        if excludeCancellations:
+            for cancelled in CancellationPage.events.child_of(self.overrides) \
+                                     .filter(except_date__gte=fromDate):
+                exceptions.add(cancelled.except_date)
+        repeat = self.overrides.repeat
+        for n, occurence in enumerate(repeat.xafter(fromDate, inc=True)):
+            if n > self.HOLIDAY_SEARCH_ITERATIONS:
+                # that's enough, bailing out, return two days before max
+                # (so we can still do TZ conversions on the result)
+                return dt.date.max - _2days
+            if occurence in exceptions:
+                continue
+            if not self._closedOn(occurence):
+                continue
+            return getAwareDatetime(occurence, self.time_from,
+                                    self.tz, dt.time.min)
 
-    def __holidayBefore(self, fromDt):
+    def __before(self, fromDt, excludeCancellations=True):
         if self.holidays is None:
             return None
-        fromOrd = fromDt.toordinal()
-        for ord in range(fromOrd, fromOrd - 366, -1):
-            myDate = dt.date.fromordinal(ord)
-            if self.__eventRepeatsOn(myDate) and myDate in self:
-                return getAwareDatetime(myDate, self.time_from,
-                                        self.tz, dt.time.min)
+        fromDate = fromDt.date()
+        if self.time_from and self.time_from > fromDt.time():
+            fromDate -= _1day
+        self._cacheClosedSet()
+        exceptions = set()
+        if excludeCancellations:
+            for cancelled in CancellationPage.events.child_of(self.overrides) \
+                                     .filter(except_date__lte=fromDate):
+                exceptions.add(cancelled.except_date)
 
-    def __eventRepeatsOn(self, myDate):
-        if myDate not in self.overrides.repeat:
-            return False
-        # possible performance problem?
-        if CancellationPage.events.child_of(self)                            \
-                           .filter(except_date=myDate).exists():
-            return False
-        return True
+        last = None
+        repeat = self.overrides.repeat
+        for occurence in repeat:
+            if occurence > fromDate:
+                break
+            if occurence in exceptions:
+                continue
+            if not self._closedOn(occurence):
+                continue
+            last = occurence
+
+        if last is not None:
+            return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
