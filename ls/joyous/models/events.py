@@ -4,7 +4,6 @@
 import datetime as dt
 import calendar
 from collections import namedtuple
-from collections.abc import Iterator
 from contextlib import suppress
 from functools import partial
 from itertools import chain, groupby
@@ -1355,10 +1354,11 @@ class RecurringEventPage(EventBase, Page):
         it is set with the same holidays as this page.
         """
         closedHols = ClosedForHolidaysPage.events.child_of(self).first()
-        if closedHols is not None and self.holidays is not None:
-            # make sure we all have the same holidays
-            closedHols.holidays = self.holidays
-        closedHols._cacheClosedSet()
+        if closedHols is not None:
+            if self.holidays is not None:
+                # make sure we all have the same holidays
+                closedHols.holidays = self.holidays
+            closedHols._cacheClosedSet()
         return closedHols
 
     def __getMyFromDt(self):
@@ -2280,14 +2280,6 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         days = [initial.get(name, ClosedFor(name=name)) for name in chosen]
         self.instance.closed_for.set(days)
 
-class HolidaysIterator(Iterator):
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        #return None
-        raise StopIteration
-
 class ClosedForHolidaysPage(EventExceptionBase, Page):
     class Meta:
         verbose_name = _("closed for holidays")
@@ -2305,7 +2297,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     HOLIDAY_SEARCH_ITERATIONS = 3000
 
     all_holidays = models.BooleanField(default=True)
-    #all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
+    all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
 
     # TODO add a CancellationBase class which does not inherit from DateExceptionBase maybe?
     cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
@@ -2464,7 +2456,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         Time that the event starts (in the local time zone).
         """
-        return self.overrides_getFromTime(atDate)
+        return self.overrides._getFromTime(atDate)
 
     def _cacheClosedSet(self):
         """

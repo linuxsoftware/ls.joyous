@@ -36,11 +36,10 @@ def getLocalTimeAtDate(atDate, time, *args, **kwargs):
             date = atDate + dt.timedelta(days=offset)
             retval = getLocalDateAndTime(date, time, *args, **kwargs)
             if retval[0] == atDate:
-                break
+                return retval[1]
         else:
             raise ValueError("Cannot convert between timezones "
                              "to get time at {}".format(atDate))
-    return retval[1]
 
 def getLocalDateAndTime(date, time, *args, **kwargs):
     """

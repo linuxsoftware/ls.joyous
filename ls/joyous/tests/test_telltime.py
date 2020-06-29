@@ -7,7 +7,7 @@ import pytz
 from django.test import TestCase, override_settings
 from .testutils import datetimetz
 from ls.joyous.utils.telltime import (getAwareDatetime, getLocalDatetime,
-        getLocalDateAndTime, getLocalDate, getLocalTime,
+        getLocalDateAndTime, getLocalDate, getLocalTime, getLocalTimeAtDate,
         getTimeFrom, getTimeTo, timeFormat, dateFormat, dateShortFormat)
 
 # ------------------------------------------------------------------------------
@@ -59,6 +59,12 @@ class TestLocalTimes(TestCase):
     def testGetLocalTime(self):
         time = getLocalTime(dt.date(2018,5,8), dt.time(22,44),
                             pytz.timezone("Pacific/Auckland"))
+        localTZ = pytz.timezone("Asia/Tokyo")
+        self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
+
+    def testGetLocalTimeAtDate(self):
+        time = getLocalTimeAtDate(dt.date(2018,5,8), dt.time(22,44),
+                                  pytz.timezone("Pacific/Auckland"))
         localTZ = pytz.timezone("Asia/Tokyo")
         self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
 
@@ -114,7 +120,6 @@ class TestFormats(TestCase):
                              "02/16/2017")
         with override_settings(JOYOUS_DATE_SHORT_FORMAT = "M jS"):
             self.assertEqual(dateShortFormat(dt.date(2017,2,16)), "Feb 16th")
-
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
