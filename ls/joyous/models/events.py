@@ -2527,7 +2527,6 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             for cancelled in CancellationPage.events.child_of(self.overrides) \
                                      .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
-
         last = None
         repeat = self.overrides.repeat
         for occurence in repeat:
@@ -2538,7 +2537,6 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             if not self._closedOn(occurence):
                 continue
             last = occurence
-
         if last is not None:
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
 

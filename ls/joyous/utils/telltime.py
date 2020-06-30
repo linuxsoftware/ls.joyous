@@ -37,9 +37,6 @@ def getLocalTimeAtDate(atDate, time, *args, **kwargs):
             retval = getLocalDateAndTime(date, time, *args, **kwargs)
             if retval[0] == atDate:
                 return retval[1]
-        else:
-            raise ValueError("Cannot convert between timezones "
-                             "to get time at {}".format(atDate))
 
 def getLocalDateAndTime(date, time, *args, **kwargs):
     """
