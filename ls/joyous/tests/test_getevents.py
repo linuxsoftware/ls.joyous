@@ -107,7 +107,9 @@ class Test(TestCase):
         self.standup.add_child(instance=cancelTuesday)
 
     def testGetAllEventsByDay(self):
-        events = getAllEventsByDay(self.request, dt.date(2013,1,1), dt.date(2013,1,31))
+        events = getAllEventsByDay(self.request,
+                                   dt.date(2013,1,1), dt.date(2013,1,31),
+                                   holidays=self.calendar.holidays)
         self.assertEqual(len(events), 31)
         evod1 = events[0]
         self.assertEqual(evod1.date, dt.date(2013,1,1))
@@ -151,7 +153,8 @@ class Test(TestCase):
                                         time_from = dt.time(17),
                                         time_to   = dt.time(10,30))
         self.calendar.add_child(instance=futureEvent)
-        events = getAllUpcomingEvents(self.request, home=self.home)
+        events = getAllUpcomingEvents(self.request, home=self.home,
+                                      holidays=self.calendar.holidays)
         self.assertEqual(len(events), 1)
         title, event, url = events[0]
         self.assertEqual(title, "Tomorrow's Event")

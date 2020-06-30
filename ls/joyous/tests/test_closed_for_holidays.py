@@ -31,7 +31,8 @@ class Test(TestCase):
                                                                freq=WEEKLY,
                                                                byweekday=[MO,WE,FR]),
                                         time_from = dt.time(13),
-                                        time_to   = dt.time(15,30))
+                                        time_to   = dt.time(15,30),
+                                        holidays = self.calendar.holidays)
         self.calendar.add_child(instance=self.event)
         self.closedHols = ClosedForHolidaysPage(owner = self.user,
                                                 overrides = self.event,
@@ -104,8 +105,57 @@ class Test(TestCase):
         self.assertEqual(len(events), 1)
         title, page, url  = events[0]
         self.assertEqual(title, "")
-        self.assertEqual(page._past_datetime_from, datetimetz(1990,9,24,20,0))
+        self.assertEqual(page._past_datetime_from, datetimetz(1990,9,24,13,0))
         self.assertEqual(url, "/events/test-meeting/closed-for-holidays/")
+
+    @freeze_timetz("1990-10-11 16:29:00")
+    def testWombatGetEventsByDay(self):
+        event = RecurringEventPage(slug      = "UVW",
+                                   title     = "Underwater viking wombats",
+                                   repeat    = Recurrence(dtstart=dt.date(1989,1,1),
+                                                          freq=MONTHLY,
+                                                          byweekday=[MO(1)]),
+                                   time_from = dt.time(19),
+                                   holidays = self.calendar.holidays)
+        self.calendar.add_child(instance=event)
+        closedHols = ClosedForHolidaysPage(owner = self.user,
+                                           overrides = event,
+                                           all_holidays = False,
+                                           cancellation_title = "UVW Cancelled",
+                                           holidays = self.calendar.holidays)
+        closedHols.closed_for = [ ClosedFor(name="New Year's Day"),
+                                  ClosedFor(name="Day after New Year's Day"),
+                                  ClosedFor(name="Good Friday"),
+                                  ClosedFor(name="Easter Monday"),
+                                  ClosedFor(name="Christmas Day"),
+                                  ClosedFor(name="Boxing Day") ]
+        event.add_child(instance=closedHols)
+        closedHols.save_revision().publish()
+        events = RecurringEventPage.events.byDay(dt.date(1989,1,1),
+                                                 dt.date(1989,1,31),
+                                                 self.calendar.holidays)
+        self.assertEqual(len(events), 31)
+        evod = events[1]
+        self.assertEqual(evod.date, dt.date(1989,1,2))
+        self.assertEqual(evod.holiday, "Day after New Year's Day")
+        self.assertEqual(len(evod.days_events), 1)
+        self.assertEqual(len(evod.continuing_events), 0)
+        title, page, url = evod.all_events[0]
+        self.assertEqual(title, "UVW Cancelled")
+        self.assertEqual(page.title, "Closed for holidays")
+        self.assertEqual(page.at, "7pm")
+        self.assertEqual(url, "/events/UVW/closed-for-holidays/")
+
+    @freeze_timetz("1990-11-11 16:29:00")
+    def testFutureExceptions(self):
+        request = RequestFactory().get("/test")
+        request.user = self.user
+        request.session = {}
+        exceptions = self.event._futureExceptions(request)
+        self.assertEqual(len(exceptions), 1)
+        c4h = exceptions[0]
+        self.assertEqual(c4h.title, "Closed for holidays")
+        self.assertEqual(c4h._future_datetime_from, datetimetz(1990,11,16,13,0))
 
     def testClosedForDates(self):
         dates10 = list(islice(self.closedHols._closed_for_dates, 10))

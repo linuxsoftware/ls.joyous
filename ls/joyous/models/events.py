@@ -2222,6 +2222,7 @@ class ClosedFor(models.Model):
     # Storing holidays by name is a violation of 1NF, but holidays are
     # defined programmatically not in the database and the definitions
     # may change, so there is no holiday_id which can be used instead.
+    # TODO case-insensitive string?
 
     # used by ChoiceWidget.format_value
     def __str__(self):
@@ -2374,6 +2375,10 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             retval = _("Closed for holidays")
         else:
             retval = _("Closed for {}").format(hrJoin(self.closed))
+            # TODO: it'd be quite cool if we could say
+            # "Closed for {current-holiday}"
+            # This would require changes to ThisEvent either add another field
+            # or make the big move and turn it into a proper facade class
         return retval
 
     @property
@@ -2485,9 +2490,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             if self.all_holidays:
                 return True
             names = holiday.split(", ")
-            for name in names:
-                if name in self.__closedSet:
-                    return True
+            return any(name in self.__closedSet for name in names)
         return False
 
     def __after(self, fromDt, excludeCancellations=True):
