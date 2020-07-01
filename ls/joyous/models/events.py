@@ -99,6 +99,7 @@ def getAllUpcomingEvents(request, *, home=None, holidays=None):
 
     :param request: Django request object
     :param home: only include events that are under this page (if given)
+    :param holidays: holidays that may affect these events
     :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
@@ -122,6 +123,7 @@ def getGroupUpcomingEvents(request, group, holidays=None):
 
     :param request: Django request object
     :param group: for this group page
+    :param holidays: holidays that may affect these events
     :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     if not hasattr(group, 'recurringeventpage_set'):
@@ -174,6 +176,7 @@ def getAllPastEvents(request, *, home=None, holidays=None):
 
     :param request: Django request object
     :param home: only include events that are under this page (if given)
+    :param holidays: holidays that may affect these events
     :rtype: list of the namedtuple ThisEvent (title, page, url)
     """
     qrys = [SimpleEventPage.events(request).past().this(),
@@ -1434,7 +1437,7 @@ class RecurringEventPage(EventBase, Page):
             for cancelled in CancellationPage.events.child_of(self)          \
                                      .filter(except_date__gte=fromDate):
                 exceptions.add(cancelled.except_date)
-            closedHols = ClosedForHolidaysPage.events.child_of(self).first()
+            closedHols = self._getClosedForHolidays()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
                                      .filter(except_date__gte=fromDate)      \
@@ -2295,7 +2298,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     # C. If every day of the event is a holiday then the event is cancelled?
     subpage_types = []
     base_form_class = ClosedForHolidaysPageForm
-    HOLIDAY_SEARCH_ITERATIONS = 3000
+    HOLIDAY_SEARCH_ITERATIONS = 500
 
     all_holidays = models.BooleanField(default=True)
     all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
@@ -2510,7 +2513,8 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             if n > self.HOLIDAY_SEARCH_ITERATIONS:
                 # that's enough, bailing out, return two days before max
                 # (so we can still do TZ conversions on the result)
-                return dt.date.max - _2days
+                return getAwareDatetime(dt.date.max - _2days, self.time_from,
+                                        self.tz, dt.time.min)
             if occurence in exceptions:
                 continue
             if not self._closedOn(occurence):
