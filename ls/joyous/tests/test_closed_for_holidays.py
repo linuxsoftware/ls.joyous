@@ -9,11 +9,15 @@ from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page
+from wagtail.tests.utils.form_data import rich_text
+from holidays.holiday_base import HolidayBase
+from ls.joyous.holidays import Holidays
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import RecurringEventPage, CancellationPage
 from ls.joyous.models.events import ClosedForHolidaysPage, ClosedFor
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, WE, FR
 from .testutils import freeze_timetz, datetimetz
+
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -345,6 +349,92 @@ class Test(TestCase):
         self.assertEqual(str(xmas), "☧mas")
 
 # ------------------------------------------------------------------------------
+class WeatherDays(HolidayBase):
+    def _populate(self, year):
+        self[dt.date(year, 2, 2)]   = "Groundhog Day"
+        self[dt.date(year, 7, 15)]  = "St Swithin's Day"
+        self[dt.date(year, 7, 27)]  = "Sleepy Head Day"
+
+class TestPageForm(TestCase):
+    Form = ClosedForHolidaysPage.get_edit_handler().get_form_class()
+
+    def setUp(self):
+        holidays = Holidays(holidaySetting=None)
+        holidays.register(WeatherDays())
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.calendar.holidays = holidays
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = RecurringEventPage(slug      = "committee-meeting",
+                                        title     = "Committee Meeting",
+                                        repeat    = Recurrence(dtstart=dt.date(2017,1,1),
+                                                               freq=MONTHLY,
+                                                               byweekday=[MO(1), MO(3)]),
+                                        time_from = dt.time(13),
+                                        time_to   = dt.time(15,30),
+                                        holidays  = holidays)
+        self.calendar.add_child(instance=self.event)
+
+    def testValid(self):
+        page = ClosedForHolidaysPage(owner = self.user,
+                                     holidays = self.event.holidays)
+        form = self.Form({'overrides':    self.event,
+                          'all_holidays': False,
+                          'closed_for':   ["St Swithin's Day",
+                                           "Sleepy Head Day"],
+                          'cancellation_title':   "Holiday",
+                          'cancellation_details': rich_text("No meeting today!"), },
+                         instance = page, parent_page = self.event)
+        self.assertCountEqual(form.fields['closed_for'].choices,
+                              [("Groundhog Day",    "Groundhog Day"),
+                               ("St Swithin's Day", "St Swithin's Day"),
+                               ("Sleepy Head Day",  "Sleepy Head Day")])
+        self.assertEqual(form.initial['closed_for'], [])
+        self.assertTrue(form.is_valid())         # is_valid() calls full_clean()
+        self.assertDictEqual(form.errors, {})
+        saved = form.save(commit=False)
+        self.assertCountEqual(saved.closed, ["St Swithin's Day",
+                                             "Sleepy Head Day"])
+
+    def testDefaultHolidayChoices(self):
+        page = ClosedForHolidaysPage(owner = self.user)
+        form = self.Form({'overrides':    self.event},
+                         instance = page, parent_page = self.event)
+        self.assertCountEqual(form.fields['closed_for'].choices,
+                              [(name, name) for name in (
+                                  "New Year's Day",
+                                  "Day after New Year's Day",
+                                  "New Year's Day (Observed)",
+                                  "Day after New Year's Day (Observed)",
+                                  'Wellington Anniversary Day',
+                                  'Auckland Anniversary Day',
+                                  'Nelson Anniversary Day',
+                                  'Waitangi Day',
+                                  'Waitangi Day (Observed)',
+                                  'Taranaki Anniversary Day',
+                                  'Otago Anniversary Day',
+                                  'Good Friday',
+                                  'Easter Monday',
+                                  'Southland Anniversary Day',
+                                  'Anzac Day',
+                                  'Anzac Day (Observed)',
+                                  "Queen's Birthday",
+                                  'South Canterbury Anniversary Day',
+                                  "Hawke's Bay Anniversary Day",
+                                  'Labour Day',
+                                  'Marlborough Anniversary Day',
+                                  'Canterbury Anniversary Day',
+                                  'Chatham Islands Anniversary Day',
+                                  'Westland Anniversary Day',
+                                  'Christmas Day',
+                                  'Boxing Day',
+                                  'Christmas Day (Observed)',
+                                  'Boxing Day (Observed)')])
+
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
