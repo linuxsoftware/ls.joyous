@@ -615,6 +615,118 @@ class TestUpdate(TestCase):
         self.assertEqual(results.success, 0)
 
 # ------------------------------------------------------------------------------
+class TestUpdate2(TestCase):
+    @freeze_timetz("2018-02-01 13:00")
+    def setUp(self):
+        site = Site.objects.get(is_default_site=True)
+        site.hostname = "joy.test"
+        site.save()
+        self.home = getPage("/home/")
+        self.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
+        self.requestFactory = RequestFactory()
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "events",
+                                     title = "Events")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        event = RecurringEventPage(owner = self.user,
+                                   slug  = "fierce-tango-fridays",
+                                   title = "Fierce Tango Fridays",
+                                   details = "Weekly fierce tango lessons at the Dance Spot",
+                                   repeat  = Recurrence(dtstart=dt.date(2018,3,30),
+                                                        until=dt.date(2018,8,31),
+                                                        freq=WEEKLY,
+                                                        byweekday=[FR]),
+                                   time_from = dt.time(19,30),
+                                   time_to   = dt.time(22,0),
+                                   tz        = pytz.timezone("US/Eastern"),
+                                   website   = "http://torontodancespot.com/",
+                                   location  = "622 Bloor St. W., Toronto ON, M6G 1K7",
+                                   uid = "735-2743519c9d-e7141231d732@bloorneighbours.ca")
+        self.calendar.add_child(instance=event)
+        event.save_revision().publish()
+        GROUPS = PageViewRestriction.GROUPS
+        self.group = Group.objects.create(name = "Friday Class")
+        info = ExtraInfoPage(owner = self.user,
+                             slug  = "2018-08-31-extra-info",
+                             title = "Extra-Info for Friday 31st of August",
+                             overrides = event,
+                             except_date = dt.date(2018, 8, 31),
+                             extra_title = "Surprise",
+                             extra_information = "Surprise party")
+        event.add_child(instance=info)
+        info.save_revision().publish()
+        restriction = PageViewRestriction.objects.create(restriction_type = GROUPS,
+                                                         page = info)
+        restriction.groups.set([self.group])
+        restriction.save()
+
+    def _getRequest(self, path="/"):
+        request = self.requestFactory.get(path)
+        request.user = self.user
+        request.site = self.home.get_site()
+        request.session = {}
+        request._messages = FallbackStorage(request)
+        request.POST = request.POST.copy()
+        request.POST['action-publish'] = "action-publish"
+        return request
+
+    @freeze_timetz("2018-04-08 10:00")
+    @timezone.override("America/Toronto")
+    def testLoadRecurringRestricted(self):
+        data  = b"\r\n".join([
+                b"BEGIN:VCALENDAR",
+                b"VERSION:2.0",
+                b"PRODID:-//Bloor &amp; Spadina - ECPv4.6.13//NONSGML v1.0//EN",
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Surprise party",
+                b"DESCRIPTION:Fierce Tango Final Friday",
+                b"DTSTART:20180831T193000",
+                b"DTEND:20180831T220000",
+                b"RECURRENCE-ID:20180831T193000",
+                b"DTSTAMP:20180408T094745Z",
+                b"LAST-MODIFIED:20180314T010000Z",
+                b"UID:735-2743519c9d-e7141231d732@bloorneighbours.ca",
+                b"END:VEVENT",
+                b"BEGIN:VEVENT",
+                b"SUMMARY:Fierce Tango Fridays",
+                b"DESCRIPTION:Weekly fierce tango lessons at the Dance Spot",
+                b"DTSTART:20180330T193000",
+                b"DTEND:20180330T220000",
+                b"RRULE:FREQ=WEEKLY;BYDAY=FR;UNTIL:20180831",
+                b"DTSTAMP:20180408T094745Z",
+                b"LAST-MODIFIED:20180131T010000Z",
+                b"LOCATION:622 Bloor St. W., Toronto ON, M6G 1K7",
+                b"SUMMARY:Fierce Tango Fridays",
+                b"UID:735-2743519c9d-e7141231d732@bloorneighbours.ca",
+                b"URL:http://torontodancespot.com/",
+                b"END:VEVENT",
+                b"END:VCALENDAR",])
+        vcal = VCalendar(self.calendar)
+        results = vcal.load(self._getRequest(), data)
+        self.assertEqual(results.success, 0)
+        self.assertEqual(results.fail, 1)
+        self.assertEqual(results.error, 0)
+        events = RecurringEventPage.events.child_of(self.calendar).all()
+        self.assertEqual(len(events), 1)
+        event = events[0]
+        self.assertEqual(event.slug,  "fierce-tango-fridays")
+        self.assertEqual(event.title, "Fierce Tango Fridays")
+        self.assertEqual(repr(event.repeat),
+                        "DTSTART:20180330\n" \
+                        "RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20180831;BYDAY=FR")
+        self.assertEqual(event.time_from,  dt.time(19,30))
+        self.assertEqual(event.time_to,    dt.time(22,0))
+        self.assertEqual(event.revisions.count(), 1)
+        info = ExtraInfoPage.events.child_of(event).get()
+        self.assertEqual(info.slug,  "2018-08-31-extra-info")
+        self.assertEqual(info.title, "Extra-Info for Friday 31st of August")
+        self.assertEqual(info.extra_title, "Surprise")
+        self.assertEqual(info.extra_information, "Surprise party")
+        self.assertEqual(info.except_date, dt.date(2018,8,31))
+        self.assertEqual(info.revisions.count(), 1)
+
+# ------------------------------------------------------------------------------
 class TestNoCalendar(TestCase):
     @freeze_timetz("2012-08-01 13:00")
     def setUp(self):

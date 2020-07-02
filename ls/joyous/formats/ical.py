@@ -220,17 +220,17 @@ class VCalendar(Calendar, VComponentMixin):
                     # No authority
                     results.fail += 1
                 except ObjectDoesNotExist:
-                    results.success += self._createEventPage(request, vevent)
+                    results += self._createEventPage(request, vevent)
                 else:
-                    results.success += self._updateEventPage(request, vevent, event)
+                    results += self._updateEventPage(request, vevent, event)
         return results
 
     def _updateEventPage(self, request, vevent, event):
-        numUpdated = 0
+        results = VResults()
         if vevent.modifiedDt > event.latest_revision_created_at:
             vevent.toPage(event)
             _saveRevision(request, event)
-            numUpdated += 1
+            results.success += 1
 
         vchildren  = vevent.vchildren[:]
         vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
@@ -245,9 +245,8 @@ class VCalendar(Calendar, VComponentMixin):
                 if exception.isAuthorized(request):
                     self._updateExceptionPage(request, vchild, exception)
                 else:
-                    pass
-                    # FIXME: add to the num failures
-        return numUpdated
+                    results.fail += 1
+        return results
 
     def _updateExceptionPage(self, request, vchild, exception):
         if vchild.modifiedDt > exception.latest_revision_created_at:
@@ -258,14 +257,13 @@ class VCalendar(Calendar, VComponentMixin):
         event = vevent.makePage(uid=vevent['UID'])
         _addPage(request, self.page, event)
         _saveRevision(request, event)
-        numCreated = 1
 
         vchildren  = vevent.vchildren[:]
         vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
                       for exDate in vevent.exDates]
         for vchild in vchildren:
             self._createExceptionPage(request, event, vchild)
-        return numCreated
+        return VResults(success=1)
 
     def _createExceptionPage(self, request, event, vchild):
         exception = vchild.makePage(overrides=event)
