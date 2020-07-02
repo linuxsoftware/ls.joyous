@@ -2,6 +2,7 @@
 # Joyous Holidays
 # ------------------------------------------------------------------------------
 import datetime as dt
+from itertools import chain
 from collections import OrderedDict
 from django.conf import settings
 from .parser import parseHolidays
@@ -13,6 +14,14 @@ class Holidays:
         self.simple = {}
         self.srcs = [ self.simple ]
         self._parseSettings()
+
+    def __add__(self, other):
+        retval = Holidays(None)
+        for date, value in chain(self.simple.items(), other.simple.items()):
+            retval.add(date, value)
+        for src in chain(self.srcs[1:], other.srcs[1:]):
+            retval.register(src)
+        return retval
 
     def _parseSettings(self):
         if self.setting:

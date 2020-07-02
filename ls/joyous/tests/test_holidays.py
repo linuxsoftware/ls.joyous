@@ -6,6 +6,7 @@ import datetime as dt
 from unittest.mock import Mock
 from django.conf import settings
 from django.test import TestCase, override_settings
+from holidays import NZ, AU
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models.events import SimpleEventPage
 from ls.joyous.holidays import Holidays
@@ -103,6 +104,42 @@ class TestHolidays(TestCase):
         hols = Holidays()
         hols.register(woral)
         self.assertEqual(hols.names(), ["JOY JOY"])
+
+    def testAdd(self):
+        ausHols = Holidays(None)
+        ausHols.add(dt.date(2020,10,20), "Kangaroo Day")
+        ausHols.register(AU())
+        nzHols  = Holidays(None)
+        nzHols.add(dt.date(2020,10,20), "Kiwi Day")
+        nzHols.register(NZ())
+        tasHols = ausHols + nzHols
+        self.assertEqual(tasHols.get(dt.date(2020,10,20)),
+                         "Kangaroo Day, Kiwi Day")
+        self.assertEqual(len(tasHols.srcs), 3)
+        self.assertIs(type(tasHols.srcs[0]), dict)
+        self.assertIs(type(tasHols.srcs[1]), AU)
+        self.assertIs(type(tasHols.srcs[2]), NZ)
+        self.assertEqual(tasHols.names(), [
+                         "New Year's Day",
+                         "Day after New Year's Day",
+                         "New Year's Day (Observed)",
+                         "Day after New Year's Day (Observed)",
+                         'Australia Day',
+                         'Australia Day (Observed)',
+                         'Waitangi Day',
+                         'Waitangi Day (Observed)',
+                         'Good Friday',
+                         'Easter Monday',
+                         'Anzac Day',
+                         'Anzac Day (Observed)',
+                         "Queen's Birthday",
+                         'Kangaroo Day',
+                         'Kiwi Day',
+                         'Labour Day',
+                         'Christmas Day',
+                         'Boxing Day',
+                         'Christmas Day (Observed)',
+                         'Boxing Day (Observed)'])
 
 # ------------------------------------------------------------------------------
 class TestParser(TestCase):
