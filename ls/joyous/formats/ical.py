@@ -243,6 +243,7 @@ class VCalendar(Calendar, VComponentMixin):
                 self._createExceptionPage(request, event, vchild)
             else:
                 if exception.isAuthorized(request):
+                    # FIXME also record exceptions as successes?!?!
                     self._updateExceptionPage(request, vchild, exception)
                 else:
                     results.fail += 1

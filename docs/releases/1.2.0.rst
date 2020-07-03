@@ -1,0 +1,55 @@
+==========================
+Joyous 1.2.0 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+ClosedForHolidaysPage
+~~~~~~~~~~~~~~~~~~~~~
+A recurring event page can now have a closed for holidays page added to it.
+This indicates that event does not occur on holidays.  All holidays
+or a specific list of holidays can apply.
+Named ClosedForHolidays pages are listed just like named Cancellations.
+
+Holidays
+~~~~~~~~
+ * Joyous holidays can now be added together.
+ * The setting that is parsed for Holidays can be changed from JOYOUS_HOLIDAYS.
+ * Holidays can be passed to API functions and RecurringEvent to ensure
+   everyone is using the same definition of holidays.
+
+iCal
+~~~~
+ * When we are closed on holidays these are exported as EXDATES.
+
+RSS
+~~~
+ * Named ClosedForHolidays pages are listed just like named Cancellations.
+
+Other features
+~~~~~~~~~~~~~~
+ * There is a new DateExceptionBase class that CancellationPage,
+   PostponementPage and ExtraInfoPage inherit from, but ClosedForHolidaysPage
+   does not.
+ * New getLocalTimeAtDate function.
+ * RecurringEventPage._getMyFirstDatetimeTo() now takes an optional myFirstDt
+   argument to save from calculating this again.
+
+Bug fixes
+~~~~~~~~~
+ * When _getFromTime takes an atDate it is in the local time zone.
+
+
+
+
+ x Record no authority to update an exception as an iCal load failure
+   FIXME also record exceptions as successes?!?!
+
+
+
