@@ -1330,11 +1330,12 @@ class RecurringEventPage(EventBase, Page):
                                      self.tz, dt.time.min)
         return self.__after(myStartDt, excludeCancellations=False)
 
-    def _getMyFirstDatetimeTo(self):
+    def _getMyFirstDatetimeTo(self, myFirstDt=False):
         """
         The datetime this event first finished, or None if it never did.
         """
-        myFirstDt = self._getMyFirstDatetimeFrom()
+        if myFirstDt is False:
+            myFirstDt = self._getMyFirstDatetimeFrom()
         if myFirstDt is not None:
             daysDelta = dt.timedelta(days=self.num_days - 1)
             return getAwareDatetime(myFirstDt.date() + daysDelta,
@@ -1361,7 +1362,6 @@ class RecurringEventPage(EventBase, Page):
             if self.holidays is not None:
                 # make sure we all have the same holidays
                 closedHols.holidays = self.holidays
-            closedHols._cacheClosedSet()
         return closedHols
 
     def __getMyFromDt(self):
@@ -2451,13 +2451,16 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         if self.holidays is not None:
             self._cacheClosedSet()
-            if not self.closed:
+            if not self.__closedSet:
                 return None
-            for n, occurence in enumerate(self.overrides.repeat):
+            n = 0
+            for occurence in self.overrides.repeat:
+                n += 1
                 if n > self.HOLIDAY_SEARCH_ITERATIONS:
                     # that's enough, bailing out
                     return None
                 if self._closedOn(occurence):
+                    n = 0
                     yield occurence
 
     def _getFromTime(self, atDate=None):

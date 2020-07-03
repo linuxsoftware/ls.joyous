@@ -13,7 +13,8 @@ from wagtail.core.models import Site, Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
-        CancellationPage, PostponementPage, ExtraInfoPage, GroupPage)
+        CancellationPage, PostponementPage, ExtraInfoPage, GroupPage,
+        ClosedForHolidaysPage)
 from ls.joyous.formats.ical import (CalendarTypeError,
         CalendarNotInitializedError, VCalendar)
 from freezegun import freeze_time
@@ -217,6 +218,53 @@ class Test(TestCase):
                  b"DTSTART;TZID=Asia/Tokyo:20191003T073000",
                  b"DTEND;TZID=Asia/Tokyo:20191003T083000",
                  b"RECURRENCE-ID;TZID=Asia/Tokyo:20191002T120000", ]
+        for prop in props:
+            with self.subTest(prop=prop):
+                self.assertIn(prop, export)
+
+    @freeze_timetz("2020-01-21 13:00")
+    def testFromEventPageClosedHolidays(self):
+        chess = GroupPage(slug="chess-club", title="Chess Club")
+        self.home.add_child(instance=chess)
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "chess",
+                                  title = "Chess",
+                                  repeat = Recurrence(dtstart=dt.date(2020,1,1),
+                                                      freq=WEEKLY,
+                                                      byweekday=[MO,WE,FR]),
+                                  time_from = dt.time(12),
+                                  time_to   = dt.time(13),
+                                  holidays  = self.calendar.holidays)
+        chess.add_child(instance=page)
+        page.save_revision().publish()
+        closedHols = ClosedForHolidaysPage(owner = self.user,
+                                           slug  = "closed-for-holidays",
+                                           title = "Closed for holidays",
+                                           all_holidays = True,
+                                           overrides = page,
+                                           holidays  = self.calendar.holidays)
+        page.add_child(instance=closedHols)
+        closedHols.save_revision().publish()
+        vcal = VCalendar.fromPage(page, self._getRequest("/events/chess/"))
+        export = vcal.to_ical()
+        props = [b"SUMMARY:Chess",
+                 b"DTSTART;TZID=Asia/Tokyo:20200101T12000",
+                 b"DTEND;TZID=Asia/Tokyo:20200101T13000",
+                 b"DTSTAMP:20200121T040000Z",
+                 b"UID:",
+                 b"SEQUENCE:1",
+                 b"RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;WKST=SU",
+                 b"EXDATE;TZID=Asia/Tokyo:20200101T120000,20200120T120000,20200127T120000,",
+                 b",20251024T120000,20251027T120000,20251103T120000,20251114T120000,",
+                 b",20281117T120000,20281127T120000,20281204T120000,20281225T",
+                 b",20341030T120000,20341117T120000,20341127T120000,20341204T120000,",
+                 b",20361226T120000,20370102T120000,20370119T120000,20370126T120000,",
+                 b",20381101T120000,20381112T120000,20381129T120000,20381227T120000",
+                 b"CREATED:20200121T040000Z",
+                 b"DESCRIPTION:",
+                 b"LAST-MODIFIED:20200121T040000Z",
+                 b"LOCATION:",
+                 b"URL:http://joy.test/chess-club/chess/", ]
         for prop in props:
             with self.subTest(prop=prop):
                 self.assertIn(prop, export)
@@ -615,7 +663,7 @@ class TestUpdate(TestCase):
         self.assertEqual(results.success, 0)
 
 # ------------------------------------------------------------------------------
-class TestUpdate2(TestCase):
+class TestAuth(TestCase):
     @freeze_timetz("2018-02-01 13:00")
     def setUp(self):
         site = Site.objects.get(is_default_site=True)
@@ -673,7 +721,7 @@ class TestUpdate2(TestCase):
 
     @freeze_timetz("2018-04-08 10:00")
     @timezone.override("America/Toronto")
-    def testLoadRecurringRestricted(self):
+    def testLoadRestrictedExtraInfo(self):
         data  = b"\r\n".join([
                 b"BEGIN:VCALENDAR",
                 b"VERSION:2.0",

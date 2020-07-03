@@ -674,7 +674,7 @@ class RecurringVEvent(VEvent):
         vevent = super().fromPage(page)
         minDt   = pytz.utc.localize(dt.datetime.min)
         dtstart = page._getMyFirstDatetimeFrom() or minDt
-        dtend   = page._getMyFirstDatetimeTo()   or minDt
+        dtend   = page._getMyFirstDatetimeTo(dtstart) or minDt
         vevent.set('UID',         page.uid)
         vevent.set('DTSTART',     vDatetime(dtstart))
         vevent.set('DTEND',       vDatetime(dtend))
