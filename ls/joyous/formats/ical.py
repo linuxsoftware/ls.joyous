@@ -720,13 +720,16 @@ class RecurringVEvent(VEvent):
 
         closedHols = page._getClosedForHolidays()
         if closedHols is not None:
+            cancellationExDates = set(exDates)
             for closedDate in closedHols._getMyDates():
                 if closedDate.year > MAX_YEAR:
                     break
                 excludeDt = getAwareDatetime(closedDate,
                                              closedHols.time_from,
                                              closedHols.tz, dt.time.min)
-                exDates.append(excludeDt)
+                if excludeDt not in cancellationExDates:
+                    # avoid duplicate exdates
+                    exDates.append(excludeDt)
                 # NB any cancellation title or details are going to be lost
                 # ClosedForHolidaysPage does not round-trip.  All imported
                 # EXDATEs become plain cancellations
