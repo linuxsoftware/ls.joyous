@@ -5,9 +5,10 @@ import sys
 import datetime as dt
 import pytz
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from .testutils import datetimetz
 from ls.joyous.utils.telltime import (getAwareDatetime, getLocalDatetime,
-        getLocalDateAndTime, getLocalDate, getLocalTime,
+        getLocalDateAndTime, getLocalDate, getLocalTime, getLocalTimeAtDate,
         getTimeFrom, getTimeTo, timeFormat, dateFormat, dateShortFormat)
 
 # ------------------------------------------------------------------------------
@@ -62,6 +63,25 @@ class TestLocalTimes(TestCase):
         localTZ = pytz.timezone("Asia/Tokyo")
         self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
 
+    def testGetLocalTimeAtDate(self):
+        localTZ = pytz.timezone("Asia/Tokyo")
+        time = getLocalTimeAtDate(dt.date(2018,5,8), dt.time(22,44),
+                                  pytz.timezone("Pacific/Auckland"))
+        self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
+
+    def testGetLocalTimeAtDateOffset1(self):
+        localTZ = pytz.timezone("Asia/Tokyo")
+        time = getLocalTimeAtDate(dt.date(2019,6,28), dt.time(8,10),
+                                  pytz.timezone("America/Los_Angeles"))
+        self.assertEqual(time, dt.time(0,10).replace(tzinfo=localTZ))
+
+    @timezone.override("Pacific/Kiritimati")
+    def testGetLocalTimeAtDateOffset2(self):
+        localTZ = pytz.timezone("Pacific/Kiritimati")
+        time = getLocalTimeAtDate(dt.date(2019,1,1), dt.time(23,30),
+                                  pytz.timezone("Pacific/Pago_Pago"))
+        self.assertEqual(time, dt.time(0,30).replace(tzinfo=localTZ))
+
 # ------------------------------------------------------------------------------
 class TestNullableTimes(TestCase):
     def testTimeFrom(self):
@@ -114,7 +134,6 @@ class TestFormats(TestCase):
                              "02/16/2017")
         with override_settings(JOYOUS_DATE_SHORT_FORMAT = "M jS"):
             self.assertEqual(dateShortFormat(dt.date(2017,2,16)), "Feb 16th")
-
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

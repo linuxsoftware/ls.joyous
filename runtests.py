@@ -50,7 +50,7 @@ def runDjangoTest():
     TestRunner = get_runner(settings)
     test_runner = TestRunner(top_level="ls/joyous",
                              verbosity=verbosity,
-                             keepdb=False)
+                             keepdb=True)
     labels = ["ls.joyous.tests."+arg for arg in sys.argv[1:]
               if not arg.startswith("-")]
     if not labels:

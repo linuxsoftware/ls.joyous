@@ -10,6 +10,8 @@ from .events import CancellationPage
 from .events import RescheduleEventBase
 from .events import PostponementPage
 from .events import RescheduleMultidayEventPage
+from .events import ClosedForHolidaysPage
+from .events import ClosedFor
 
 from .events import getAllEventsByDay
 from .events import getAllEventsByWeek

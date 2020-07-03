@@ -25,6 +25,19 @@ def getLocalTime(date, time, *args, **kwargs):
     if time is not None:
         return getLocalDateAndTime(date, time, *args, **kwargs)[1]
 
+def getLocalTimeAtDate(atDate, time, *args, **kwargs):
+    """
+    Get the time at a certain date in the local timezone
+    """
+    if time is not None:
+        # I don't know what date to use to get the correct atDate, so
+        # try all the possibilities until we get it.
+        for offset in (0, 1, -1, 2, -2):
+            date = atDate + dt.timedelta(days=offset)
+            retval = getLocalDateAndTime(date, time, *args, **kwargs)
+            if retval[0] == atDate:
+                return retval[1]
+
 def getLocalDateAndTime(date, time, *args, **kwargs):
     """
     Get the date and time in the local timezone from date and optionally time

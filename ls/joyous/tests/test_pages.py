@@ -13,7 +13,8 @@ from wagtail.core.models import Page
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, MultidayRecurringEventPage, ExtraInfoPage,
         CancellationPage, PostponementPage, RescheduleMultidayEventPage,
-        CalendarPage, SpecificCalendarPage, GeneralCalendarPage)
+        CalendarPage, SpecificCalendarPage, GeneralCalendarPage,
+                              ClosedForHolidaysPage)
 from ls.joyous.models.groups import get_group_model
 GroupPage = get_group_model()
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
@@ -109,8 +110,10 @@ class PageClassTests(WagtailPageTests):
                                                                GeneralCalendarPage,
                                                                GroupPage})
         self.assertAllowedSubpageTypes(RecurringEventPage,
-                                       {ExtraInfoPage, CancellationPage,
-                                        PostponementPage})
+                                       {ExtraInfoPage,
+                                        CancellationPage,
+                                        PostponementPage,
+                                        ClosedForHolidaysPage})
 
 
     def testMultidayRecurringEventAllows(self):

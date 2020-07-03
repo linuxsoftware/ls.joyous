@@ -268,6 +268,7 @@ class ExceptionDateInput(AdminDateInput):
 
     @property
     def media(self):
+        # TODO: think about changing this to a static definition
         return Media(css={'all': [static("joyous/css/recurrence_admin.css")]},
                      js=[static("joyous/js/recurrence_admin.js")])
 

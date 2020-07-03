@@ -7,7 +7,8 @@ from django.conf import settings
 from django.template import loader
 from django.templatetags.static import static
 from ..models import (CalendarPage, SimpleEventPage, MultidayEventPage,
-        RecurringEventPage, ExtraInfoPage, CancellationPage, PostponementPage)
+        RecurringEventPage, ExtraInfoPage, CancellationPage, PostponementPage,
+        ClosedForHolidaysPage)
 from feedgen.feed import FeedGenerator
 from feedgen.entry import FeedEntry
 from .errors import CalendarTypeError
@@ -68,7 +69,7 @@ class CalendarFeed(FeedGenerator):
             return EventEntry.fromEvent(thisEvent, request)
         elif isinstance(page, ExtraInfoPage):
             return ExtraInfoEntry.fromEvent(thisEvent, request)
-        elif isinstance(page, CancellationPage):
+        elif isinstance(page, (CancellationPage, ClosedForHolidaysPage)):
             return CancellationEntry.fromEvent(thisEvent, request)
 
 # ------------------------------------------------------------------------------
