@@ -5,6 +5,7 @@
   <div class="joy-ev-status">{% if page.status %}
     {{ page.status_text }}
   {% else %}
+    {# TODO Do this always #}
     {% blocktrans with what=page.what|lower %}This event has been {{ what }}.{% endblocktrans %}
   {% endif %}</div>
 {% endblock event_status %}

@@ -14,7 +14,7 @@ from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, MultidayRecurringEventPage, ExtraInfoPage,
         CancellationPage, PostponementPage, RescheduleMultidayEventPage,
         CalendarPage, SpecificCalendarPage, GeneralCalendarPage,
-                              ClosedForHolidaysPage)
+        ClosedForHolidaysPage, ExtCancellationPage)
 from ls.joyous.models.groups import get_group_model
 GroupPage = get_group_model()
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
@@ -78,17 +78,25 @@ class PageClassTests(WagtailPageTests):
         self.assertCanCreateAt(RecurringEventPage, CancellationPage)
         self.assertCanCreateAt(MultidayRecurringEventPage, CancellationPage)
         self.assertCanNotCreateAt(CalendarPage, CancellationPage)
-        self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
-        self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, CancellationPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, CancellationPage)
         self.assertCanNotCreateAt(GroupPage, CancellationPage)
 
     def testCanCreatePostponement(self):
         self.assertCanCreateAt(RecurringEventPage, PostponementPage)
         self.assertCanCreateAt(MultidayRecurringEventPage, RescheduleMultidayEventPage)
         self.assertCanNotCreateAt(CalendarPage, PostponementPage)
-        self.assertCanNotCreateAt(SpecificCalendarPage, ExtraInfoPage)
-        self.assertCanNotCreateAt(GeneralCalendarPage, ExtraInfoPage)
-        self.assertCanNotCreateAt(MultidayEventPage, PostponementPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, PostponementPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, PostponementPage)
+        self.assertCanNotCreateAt(MultidayEventPage, RescheduleMultidayEventPage)
+
+    def testCanCreateClosedForHolidays(self):
+        self.assertCanCreateAt(RecurringEventPage, ClosedForHolidaysPage)
+        self.assertCanNotCreateAt(MultidayRecurringEventPage, ClosedForHolidaysPage)
+        self.assertCanNotCreateAt(CalendarPage, ClosedForHolidaysPage)
+        self.assertCanNotCreateAt(SpecificCalendarPage, ClosedForHolidaysPage)
+        self.assertCanNotCreateAt(GeneralCalendarPage, ClosedForHolidaysPage)
+        self.assertCanNotCreateAt(Page, ClosedForHolidaysPage)
 
     def testSimpleEventAllows(self):
         self.assertAllowedParentPageTypes(SimpleEventPage, {CalendarPage,
@@ -113,6 +121,7 @@ class PageClassTests(WagtailPageTests):
                                        {ExtraInfoPage,
                                         CancellationPage,
                                         PostponementPage,
+                                        ExtCancellationPage,
                                         ClosedForHolidaysPage})
 
 
@@ -123,8 +132,10 @@ class PageClassTests(WagtailPageTests):
                                            GeneralCalendarPage,
                                            GroupPage})
         self.assertAllowedSubpageTypes(MultidayRecurringEventPage,
-                                       {ExtraInfoPage, CancellationPage,
-                                        RescheduleMultidayEventPage})
+                                       {ExtraInfoPage,
+                                        CancellationPage,
+                                        RescheduleMultidayEventPage,
+                                        ExtCancellationPage})
 
     def testExtraInfoAllows(self):
         self.assertAllowedParentPageTypes(ExtraInfoPage,
@@ -147,6 +158,11 @@ class PageClassTests(WagtailPageTests):
         self.assertAllowedParentPageTypes(RescheduleMultidayEventPage,
                                           {MultidayRecurringEventPage})
         self.assertAllowedSubpageTypes(RescheduleMultidayEventPage, {})
+
+    def testClosedForHolidaysAllows(self):
+        self.assertAllowedParentPageTypes(ClosedForHolidaysPage,
+                                          {RecurringEventPage})
+        self.assertAllowedSubpageTypes(ClosedForHolidaysPage, {})
 
     def testCalendarVerboseName(self):
         self.assertEqual(CalendarPage.get_verbose_name(),
@@ -191,6 +207,14 @@ class PageClassTests(WagtailPageTests):
     def testRescheduleMultidayEventVerboseName(self):
         self.assertEqual(RescheduleMultidayEventPage.get_verbose_name(),
                          "Postponement")
+
+    def testClosedForHolidaysVerboseName(self):
+        self.assertEqual(ClosedForHolidaysPage.get_verbose_name(),
+                         "Closed for holidays")
+
+    def testExtCancellationVerboseName(self):
+        self.assertEqual(ExtCancellationPage.get_verbose_name(),
+                         "Extended cancellation")
 
 # ------------------------------------------------------------------------------
 class PageClassTestsFrançais(WagtailPageTests):
@@ -402,6 +426,24 @@ class PageInstanceTests(WagtailPageTests):
                                                'date':                 dt.date(2009,8,16),
                                                'num_days':             1,
                                                'time_from':            dt.time(10)}))
+
+    @skipUnlessSetup("event")
+    def testCanCreateClosedForHolidays(self):
+        self.assertCanCreate(self.event, ClosedForHolidaysPage,
+                             nested_form_data({'overrides':            self.event.id,
+                                               'all_holidays':         False,
+                                               'closed_for': [
+                                                   "New Year's Day",
+                                                   "Day after New Year's Day",
+                                                   "New Year's Day (Observed)",
+                                                   "Day after New Year's Day (Observed)",
+                                                   'Christmas Day',
+                                                   'Boxing Day',
+                                                   'Christmas Day (Observed)',
+                                                   'Boxing Day (Observed)'],
+                                               'cancellation_title':   "Meeting Cancelled",
+                                               'cancellation_details':
+                                                   rich_text("<p>Happy holiday</p>")}))
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ Other features
 Bug fixes
 ~~~~~~~~~
  * When _getFromTime takes an atDate it is in the local time zone.
+ * Fix _getToDt to add on num_days
 
 
 

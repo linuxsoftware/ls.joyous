@@ -15,6 +15,7 @@ from django.core.exceptions import (MultipleObjectsReturned, ObjectDoesNotExist,
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.db import models
+from django.db.models import Q
 from django.db.models.query import ModelIterable
 from django import forms
 from django.forms import widgets
@@ -110,8 +111,10 @@ def getAllUpcomingEvents(request, *, home=None, holidays=None):
                             .this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .upcoming().this(),
+            ExtCancellationPage.events(request).exclude(cancellation_title="")
+                            .upcoming().this(),
             ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .upcoming().this(holidays)]
+                            .upcoming().this(holidays),]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
@@ -146,8 +149,10 @@ def getGroupUpcomingEvents(request, group, holidays=None):
                                  .child_of(rrEvent.page).upcoming().this(),
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
+                 ExtCancellationPage.events(request).exclude(cancellation_title="")
+                                 .child_of(rrEvent.page).upcoming().this(),
                  ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this(holidays)]
+                                 .child_of(rrEvent.page).upcoming().this(holidays),]
 
     # Get events that are linked to a group page, or a postponement or extra
     # info child of the recurring event linked to a group
@@ -165,8 +170,10 @@ def getGroupUpcomingEvents(request, group, holidays=None):
                                  .child_of(rrEvent.page).upcoming().this(),
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
+                 ExtCancellationPage.events(request).exclude(cancellation_title="")
+                                 .child_of(rrEvent.page).upcoming().this(),
                  ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this(holidays)]
+                                 .child_of(rrEvent.page).upcoming().this(holidays),]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
@@ -186,8 +193,10 @@ def getAllPastEvents(request, *, home=None, holidays=None):
             ExtraInfoPage.events(request).exclude(extra_title="").past().this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .past().this(),
+            ExtCancellationPage.events(request).exclude(cancellation_title="")
+                            .past().this(),
             ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .past().this(holidays)]
+                            .past().this(holidays) ]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -249,6 +258,7 @@ def _getEventsByDay(date_from, eventsByDaySrcs, holidays):
         holidays = {}
     evods = []
     day = date_from
+    # TODO would izip be better?
     for srcs in zip(*eventsByDaySrcs):
         days_events       = []
         continuing_events = []
@@ -453,12 +463,12 @@ class EventQuerySet(PageQuerySet):
 
     def this(self):
         request = self.request
-        class ThisEventIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.title, page, page.get_url(request))
         qs = self._clone()
-        qs._iterable_class = ThisEventIterable
+        qs._iterable_class = ThisIterable
         return qs
 
     def authorized_q(self, request):
@@ -481,7 +491,7 @@ class EventQuerySet(PageQuerySet):
             if membership:
                 restrictions = restrictions.exclude(groups__in=membership,
                                                     restriction_type=GROUPS)
-        q = models.Q()
+        q = Q()
         for restriction in restrictions:
             q &= ~self.descendant_of_q(restriction.page, inclusive=True)
         return q
@@ -619,6 +629,14 @@ class EventBase(models.Model):
         The current status of the event (started, finished or pending).
         """
         raise NotImplementedError()
+        # TODO
+        #fromDt = self._getFromDt()
+        #toDt = self._getToDt()
+        # now = timezone.localtime()
+        #if toDt < now:
+        #    return "finished"
+        #elif fromDt < now:
+        #    return "started"
 
     @property
     def status_text(self):
@@ -795,6 +813,7 @@ class SimpleEventPage(EventBase, Page):
         """
         The current status of the event (started, finished or pending).
         """
+        # TODO use a default implementation
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.date, self.time_to, self.tz) < myNow:
             return "finished"
@@ -813,6 +832,7 @@ class SimpleEventPage(EventBase, Page):
         """
         A string describing what time the event starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
@@ -909,6 +929,7 @@ class MultidayEventPage(EventBase, Page):
         """
         The current status of the event (started, finished or pending).
         """
+        # TODO use a default implementation
         myNow = timezone.localtime(timezone=self.tz)
         if getAwareDatetime(self.date_to, self.time_to, self.tz) < myNow:
             return "finished"
@@ -927,6 +948,7 @@ class MultidayEventPage(EventBase, Page):
         """
         A string describing what time the event starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
@@ -951,14 +973,14 @@ class MultidayEventPage(EventBase, Page):
 class RecurringEventQuerySet(EventQuerySet):
     def this(self, holidays=None):
         request = self.request
-        class ThisRecurringEventIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     if holidays is not None:
                         page.holidays = holidays
                     yield ThisEvent(page.title, page, page.get_url(request))
         qs = self._clone()
-        qs._iterable_class = ThisRecurringEventIterable
+        qs._iterable_class = ThisIterable
         return qs
 
     def byDay(self, fromDate, toDate, holidays=None):
@@ -1021,6 +1043,19 @@ class RecurringEventQuerySet(EventQuerySet):
                         url = None
                     exceptDate = cancellation.except_date
                     exceptions[exceptDate] = ThisEvent(title, cancellation, url)
+                # TODO consider storing extended cancellations in an interval tree?
+                for shutdown in ExtCancellationPage.events.child_of(page)    \
+                           .filter(cancelled_from_date__lte=dateRange[0])    \
+                           .filter(Q(cancelled_to_date__gte=dateRange[1]) |
+                                   Q(cancelled_to_date__isnull = True)):
+                    if shutdown.isAuthorized(request):
+                        title = shutdown.cancellation_title
+                    else:
+                        title = None
+                    thisEvent = ThisEvent(title, shutdown,
+                                          shutdown.get_url(request))
+                    for myDate in shutdown._getMyDates(*dateRange):
+                        exceptions[myDate] = thisEvent
                 return exceptions
 
         qs = self._clone()
@@ -1073,6 +1108,7 @@ class RecurringEventPage(EventBase, Page):
                          get_group_model_string()]
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
+                     'joyous.ExtCancellationPage',
                      'joyous.ClosedForHolidaysPage',
                      'joyous.PostponementPage']
     base_form_class = RecurringEventPageForm
@@ -1251,6 +1287,7 @@ class RecurringEventPage(EventBase, Page):
         """
         A string describing what time the event starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
@@ -1281,6 +1318,9 @@ class RecurringEventPage(EventBase, Page):
                 retval.append(postponement)
             else:
                 retval.append(cancellation)
+        for shutdown in ExtCancellationPage.events(request).child_of(self)\
+                                            .future():
+            retval.append(shutdown)
         closedHols = self._getClosedForHolidays()
         if closedHols is not None:
             retval.append(closedHols)
@@ -1316,6 +1356,16 @@ class RecurringEventPage(EventBase, Page):
             return False
         if CancellationPage.events.child_of(self)                            \
                            .filter(except_date=myDate).exists():
+            return False
+        # TODO consider storing extended cancellations in an interval tree?
+        #for cancellation in ExtCancellationPage.events.child_of(self):
+        #    if cancellation._closedOn(myDate):
+        #        return False
+        if ExtCancellationPage.events.child_of(self)                         \
+                           .filter(cancelled_from_date__lte=myDate)          \
+                           .filter(Q(cancelled_to_date__gte=myDate) |
+                                   Q(cancelled_to_date__isnull = True))      \
+                           .exists():
             return False
         closedHols = self._getClosedForHolidays()
         if closedHols and closedHols._closedOn(myDate):
@@ -1432,11 +1482,15 @@ class RecurringEventPage(EventBase, Page):
         if self.time_from and self.time_from < fromDt.time():
             fromDate += _1day
         exceptions = set()
+        shutdowns  = []
         closedHols = None
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self)          \
-                                     .filter(except_date__gte=fromDate):
+                           .filter(except_date__gte=fromDate):
                 exceptions.add(cancelled.except_date)
+            shutdowns = ExtCancellationPage.events.child_of(self) \
+                           .filter(Q(cancelled_to_date__gte=fromDate) |
+                                   Q(cancelled_to_date__isnull = True))
             closedHols = self._getClosedForHolidays()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
@@ -1445,6 +1499,8 @@ class RecurringEventPage(EventBase, Page):
                 exceptions.add(info.except_date)
         for occurence in self.repeat.xafter(fromDate, inc=True):
             if occurence in exceptions:
+                continue
+            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
                 continue
             if closedHols and closedHols._closedOn(occurence):
                 continue
@@ -1464,10 +1520,13 @@ class RecurringEventPage(EventBase, Page):
         if self.time_from and self.time_from > fromDt.time():
             fromDate -= _1day
         exceptions = set()
+        shutdowns  = []
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self)          \
-                                     .filter(except_date__lte=fromDate):
+                           .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
+            shutdowns = ExtCancellationPage.events.child_of(self)            \
+                           .filter(cancelled_from_date__lte=fromDate)
             closedHols = self._getClosedForHolidays()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
@@ -1479,6 +1538,8 @@ class RecurringEventPage(EventBase, Page):
             if occurence > fromDate:
                 break
             if occurence in exceptions:
+                continue
+            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
                 continue
             if closedHols and closedHols._closedOn(occurence):
                 continue
@@ -1498,6 +1559,7 @@ class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
 
     subpage_types = ['joyous.ExtraInfoPage',
                      'joyous.CancellationPage',
+                     'joyous.ExtCancellationPage',
                      'joyous.RescheduleMultidayEventPage']
     template = "joyous/recurring_event_page.html"
 
@@ -1626,7 +1688,21 @@ class DateExceptionBase(EventExceptionBase):
         """
         A string describing what time the event starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
+
+    def full_clean(self, *args, **kwargs):
+        """
+        Apply fixups that need to happen before per-field validation occurs.
+        Sets the page's title.
+        """
+        name = self.slugName.title()
+        # generate the title and slug in English
+        # the translation of the title will happen in the property local_title
+        with translation.override("en"):
+            self.title = "{} for {}".format(name, dateFormat(self.except_date))
+            self.slug = "{}-{}".format(self.except_date, self.slugName)
+        super().full_clean(*args, **kwargs)
 
     def _getLocalWhen(self, date_from, num_days=1):
         """
@@ -1647,7 +1723,8 @@ class DateExceptionBase(EventExceptionBase):
                     date=dateFormat(dateFrom),
                     atTime=timeFormat(timeFrom, timeTo, gettext("at ")))
         else:
-            # Friday the 10th of April for 3 days at 1pm to 10am
+            # Friday the 10th of April for 3 days starting at 1pm finishing at 10am
+            # TODO Is "Friday the 10th of April at 1pm to Sunday the 12th of April at 10am" better????
             localNumDays = (dateTo - dateFrom).days + 1
             retval = _("{date} for {n} days {startTime}").format(
                     date=dateFormat(dateFrom),
@@ -1674,20 +1751,8 @@ class DateExceptionBase(EventExceptionBase):
         """
         Datetime that the event ends (in the local time zone).
         """
-        return getLocalDatetime(self.except_date, self.time_to, self.tz)
-
-    def full_clean(self, *args, **kwargs):
-        """
-        Apply fixups that need to happen before per-field validation occurs.
-        Sets the page's title.
-        """
-        name = self.slugName.title()
-        # generate the title and slug in English
-        # the translation of the title will happen in the property local_title
-        with translation.override("en"):
-            self.title = "{} for {}".format(name, dateFormat(self.except_date))
-            self.slug = "{}-{}".format(self.except_date, self.slugName)
-        super().full_clean(*args, **kwargs)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        return getAwareDatetime(self.except_date + daysDelta, self.time_to, self.tz)
 
     def _copyFieldsFromParent(self, parent):
         """
@@ -1700,13 +1765,13 @@ class DateExceptionBase(EventExceptionBase):
 class ExtraInfoQuerySet(DateExceptionQuerySet):
     def this(self):
         request = self.request
-        class ThisExtraInfoIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.extra_title, page,
                                     page.get_url(request))
         qs = self._clone()
-        qs._iterable_class = ThisExtraInfoIterable
+        qs._iterable_class = ThisIterable
         return qs
 
 class ExtraInfoPageForm(DateExceptionPageForm):
@@ -1757,6 +1822,7 @@ class ExtraInfoPage(DateExceptionBase, Page):
         """
         The current status of the event (started, finished or pending).
         """
+        # TODO use a default implementation???
         myNow = timezone.localtime(timezone=self.tz)
         fromDt = getAwareDatetime(self.except_date, self.time_from, self.tz)
         daysDelta = dt.timedelta(days=self.num_days - 1)
@@ -1821,13 +1887,13 @@ class ExtraInfoPage(DateExceptionBase, Page):
 class CancellationQuerySet(DateExceptionQuerySet):
     def this(self):
         request = self.request
-        class ThisCancellationIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.cancellation_title, page,
                                     page.getCancellationUrl(request))
         qs = self._clone()
-        qs._iterable_class = ThisCancellationIterable
+        qs._iterable_class = ThisIterable
         return qs
 
 class CancellationPageForm(DateExceptionPageForm):
@@ -1839,7 +1905,27 @@ class CancellationPageForm(DateExceptionPageForm):
         self._checkSlugAvailable(cleaned_data, "postponement")
         return cleaned_data
 
-class CancellationPage(DateExceptionBase, Page):
+class CancellationBase(models.Model):
+    class Meta:
+        abstract = True
+
+    cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
+    cancellation_title.help_text = _("Show in place of cancelled event "
+                                     "(Leave empty to show nothing)")
+    cancellation_details = RichTextField(_("details"), blank=True)
+    cancellation_details.help_text = _("Why was the event cancelled?")
+
+    search_fields = Page.search_fields + [
+        index.SearchField('cancellation_title'),
+        index.SearchField('cancellation_details'),
+    ]
+
+    cancellation_panel = MultiFieldPanel([
+            FieldPanel('cancellation_title', classname="full title"),
+            FieldPanel('cancellation_details', classname="full")],
+            heading=_("Cancellation"))
+
+class CancellationPage(CancellationBase, DateExceptionBase, Page):
     class Meta:
         verbose_name = _("cancellation")
         verbose_name_plural = _("cancellations")
@@ -1853,24 +1939,13 @@ class CancellationPage(DateExceptionBase, Page):
     slugName = "cancellation"
     gettext_noop("Cancellation")
 
-    cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
-    cancellation_title.help_text = _("Show in place of cancelled event "
-                                     "(Leave empty to show nothing)")
-    cancellation_details = RichTextField(_("details"), blank=True)
-    cancellation_details.help_text = _("Why was the event cancelled?")
+    search_fields = Page.search_fields + CancellationBase.search_fields
 
-    search_fields = Page.search_fields + [
-        index.SearchField('cancellation_title'),
-        index.SearchField('cancellation_details'),
-    ]
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
         ExceptionDatePanel('except_date'),
-        MultiFieldPanel([
-            FieldPanel('cancellation_title', classname="full title"),
-            FieldPanel('cancellation_details', classname="full")],
-            heading=_("Cancellation")),
+        CancellationBase.cancellation_panel,
         ]
     promote_panels = []
 
@@ -1953,16 +2028,13 @@ class PostponementQuerySet(EventQuerySet):
 
     def this(self):
         request = self.request
-        # FIXME: ThisIterable classes have different names, but all
-        # ByDayIterable classes don't - Whould changing this break backwards
-        # compatibility for anyone?
-        class ThisPostponementIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     yield ThisEvent(page.postponement_title,
                                     page, page.get_url(request))
         qs = self._clone()
-        qs._iterable_class = ThisPostponementIterable
+        qs._iterable_class = ThisIterable
         return qs
 
     def byDay(self, fromDate, toDate):
@@ -2005,12 +2077,13 @@ class PostponementPageForm(DateExceptionPageForm):
 class RescheduleEventBase(EventBase):
     """
     This class exists just so that the class attributes defined here are
-    picked up before the instance properties from DateExceptionBase,
+    picked up by Django before the properties from EventExceptionBase,
     as well as before EventBase.
     """
     class Meta:
         abstract = True
 
+    # num_days from here to come before overrides.num_days
     num_days = models.IntegerField(_("number of days"), default=1,
                                    validators=[MinValueValidator(1),
                                                MaxValueValidator(99)])
@@ -2042,10 +2115,6 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         index.SearchField('postponement_title'),
     ]
 
-    cancellation_panel = MultiFieldPanel([
-            FieldPanel('cancellation_title', classname="full title"),
-            FieldPanel('cancellation_details', classname="full")],
-            heading=_("Cancellation"))
     postponement_panel0 = [
             FieldPanel('postponement_title', classname="full title"),
             ImageChooserPanel('image'),
@@ -2062,7 +2131,7 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
     content_panels = [
         PageChooserPanel('overrides'),
         ExceptionDatePanel('except_date'),
-        cancellation_panel,
+        CancellationBase.cancellation_panel,
         postponement_panel,
     ]
     promote_panels = []
@@ -2078,6 +2147,7 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         """
         The current status of the postponement (started, finished or pending).
         """
+        # TODO use a default implementation
         myNow = timezone.localtime(timezone=self.tz)
         fromDt = getAwareDatetime(self.date, self.time_from, self.tz)
         daysDelta = dt.timedelta(days=self.num_days - 1)
@@ -2147,6 +2217,7 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         """
         A string describing what time the postponement starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
@@ -2165,7 +2236,8 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         """
         Datetime that the postponement ends (in the local time zone).
         """
-        return getLocalDatetime(self.date, self.time_to, self.tz)
+        daysDelta = dt.timedelta(days=self.num_days - 1)
+        return getLocalDatetime(self.date + daysDelta, self.time_to, self.tz)
 
     def _copyFieldsFromParent(self, parent):
         """
@@ -2219,13 +2291,10 @@ class ClosedFor(models.Model):
     page = ParentalKey('joyous.ClosedForHolidaysPage',
                        on_delete=models.CASCADE,
                        related_name="closed_for")
-    # TODO add an ordering field?  So e.g. New Year is before Christmas
-    # might not be needed.  pk increasing with insertion order might be enough 
     name = models.CharField(_("name"), max_length=100)
     # Storing holidays by name is a violation of 1NF, but holidays are
     # defined programmatically not in the database and the definitions
     # may change, so there is no holiday_id which can be used instead.
-    # TODO case-insensitive string?
 
     # used by ChoiceWidget.format_value
     def __str__(self):
@@ -2234,7 +2303,7 @@ class ClosedFor(models.Model):
 class ClosedForHolidaysQuerySet(EventQuerySet):
     def this(self, holidays=None):
         request = self.request
-        class ThisClosedForHolidaysIterable(ModelIterable):
+        class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
                     if holidays is not None:
@@ -2242,7 +2311,7 @@ class ClosedForHolidaysQuerySet(EventQuerySet):
                     yield ThisEvent(page.cancellation_title, page,
                                     page.get_url(request))
         qs = self._clone()
-        qs._iterable_class = ThisClosedForHolidaysIterable
+        qs._iterable_class = ThisIterable
         return qs
 
 class ClosedForHolidaysPageForm(WagtailAdminPageForm):
@@ -2284,7 +2353,7 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         days = [initial.get(name, ClosedFor(name=name)) for name in chosen]
         self.instance.closed_for.set(days)
 
-class ClosedForHolidaysPage(EventExceptionBase, Page):
+class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
     class Meta:
         verbose_name = _("closed for holidays")
         verbose_name_plural = _("closed for holidays")
@@ -2303,17 +2372,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
     all_holidays = models.BooleanField(default=True)
     all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
 
-    # TODO add a CancellationBase class which does not inherit from DateExceptionBase maybe?
-    cancellation_title = models.CharField(_("title"), max_length=255, blank=True)
-    cancellation_title.help_text = _("Show in place of cancelled event "
-                                     "(Leave empty to show nothing)")
-    cancellation_details = RichTextField(_("details"), blank=True)
-    cancellation_details.help_text = _("Why was the event cancelled?")
-
-    search_fields = Page.search_fields + [
-        index.SearchField('cancellation_title'),
-        index.SearchField('cancellation_details'),
-    ]
+    search_fields = Page.search_fields + CancellationBase.search_fields
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
@@ -2321,10 +2380,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             FieldPanel('all_holidays'),
             FieldPanel('closed_for')],
             heading=_("Closed For")),
-        MultiFieldPanel([
-            FieldPanel('cancellation_title', classname="full title"),
-            FieldPanel('cancellation_details', classname="full")],
-            heading=_("Cancellation")),
+        CancellationBase.cancellation_panel,
         ]
     promote_panels = []
 
@@ -2389,6 +2445,7 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
         """
         A string describing what time the event starts (in the local time zone).
         """
+        # TODO use a default implementation
         return timeFormat(self._getFromTime())
 
     @property
@@ -2507,10 +2564,14 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             fromDate += _1day
         self._cacheClosedSet()
         exceptions = set()
+        shutdowns  = []
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self.overrides) \
                                      .filter(except_date__gte=fromDate):
                 exceptions.add(cancelled.except_date)
+            shutdowns = ExtCancellationPage.events.child_of(self) \
+                           .filter(Q(cancelled_to_date__gte=fromDate) |
+                                   Q(cancelled_to_date__isnull = True))
         repeat = self.overrides.repeat
         for n, occurence in enumerate(repeat.xafter(fromDate, inc=True)):
             if n > self.HOLIDAY_SEARCH_ITERATIONS:
@@ -2519,6 +2580,8 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
                 return getAwareDatetime(dt.date.max - _2days, self.time_from,
                                         self.tz, dt.time.min)
             if occurence in exceptions:
+                continue
+            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
                 continue
             if not self._closedOn(occurence):
                 continue
@@ -2533,10 +2596,13 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
             fromDate -= _1day
         self._cacheClosedSet()
         exceptions = set()
+        shutdowns  = []
         if excludeCancellations:
             for cancelled in CancellationPage.events.child_of(self.overrides) \
                                      .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
+            shutdowns = ExtCancellationPage.events.child_of(self)            \
+                           .filter(cancelled_from_date__lte=fromDate)
         last = None
         repeat = self.overrides.repeat
         for occurence in repeat:
@@ -2544,11 +2610,238 @@ class ClosedForHolidaysPage(EventExceptionBase, Page):
                 break
             if occurence in exceptions:
                 continue
+            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
+                continue
             if not self._closedOn(occurence):
                 continue
             last = occurence
         if last is not None:
             return getAwareDatetime(last, self.time_from, self.tz, dt.time.min)
+
+# ------------------------------------------------------------------------------
+class ExtCancellationQuerySet(EventQuerySet):
+    def current(self):
+        qs = super().current()
+        return qs.filter(Q(cancelled_to_date__gte=todayUtc() - _1day) |
+                         Q(cancelled_to_date__isnull=True))
+
+    def future(self):
+        qs = super().future()
+        return qs.filter(cancelled_from_date__gte=todayUtc() - _1day)
+
+    def past(self):
+        qs = super().past()
+        return qs.filter(cancelled_from_date__lte=todayUtc() + _1day)
+
+    def this(self):
+        request = self.request
+        class ThisIterable(ModelIterable):
+            def __iter__(self):
+                for page in super().__iter__():
+                    yield ThisEvent(page.cancellation_title, page,
+                                    page.get_url(request))
+        qs = self._clone()
+        qs._iterable_class = ThisIterable
+        return qs
+
+# class ExtCancellationPageForm(DateExceptionPageForm):
+#     description = _("an extended cancellation")
+
+class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
+    class Meta:
+        verbose_name = _("extended cancellation")
+        verbose_name_plural = _("extended cancellations")
+        default_manager_name = "objects"
+
+    events = EventManager.from_queryset(ExtCancellationQuerySet)()
+    parent_page_types = ["joyous.RecurringEventPage",
+                         "joyous.MultidayRecurringEventPage"]
+    subpage_types = []
+    #base_form_class = ExtCancellationPageForm
+
+    cancelled_from_date = models.DateField(_("From Date"))
+    cancelled_from_date.help_text = _("Cancelled from this date")
+    cancelled_to_date = models.DateField(_("To Date"), null=True)
+    cancelled_to_date.help_text = _('Cancelled to this date '
+                                    '(Leave empty for "until further notice")')
+
+    search_fields = Page.search_fields + CancellationBase.search_fields
+    # Note title is not displayed
+    content_panels = [
+        PageChooserPanel('overrides'),
+        FieldPanel('cancelled_from_date'),
+        FieldPanel('cancelled_to_date'),
+        CancellationBase.cancellation_panel,
+        ]
+    promote_panels = []
+
+    @property
+    def local_title(self):
+        """
+        Localised version of the human-readable title of the page.
+        """
+        title = _("Cancellation from {fromDate} {untilWhen}").format(
+                            fromDate=dateFormat(self.cancelled_from_date),
+                            untilWhen=self.until_when)
+        return title
+
+    @property
+    def status(self):
+        """
+        The current status of the event (started, finished or pending).
+        """
+        # TODO put this in CancellationBase?
+        return "cancelled"
+
+    @property
+    def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
+        # TODO put this in CancellationBase?
+        return _("This event has been cancelled.")
+
+    @property
+    def until_when(self):
+        """
+        A string describing how long we are cancelled for
+        """
+        if self.cancelled_to_date is not None:
+            retval = _("to {}").format(dateFormat(self.cancelled_to_date))
+        else:
+            retval = _("until further notice")
+        return retval
+
+    @property
+    def when(self):
+        """
+        A string describing when the event occurs (in the local time zone).
+        """
+        retval = _("Cancelled from {fromDate} {untilWhen}").format(
+                            fromDate=dateFormat(self.cancelled_from_date),
+                            untilWhen=self.until_when)
+        return retval
+
+    @property
+    def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
+        # TODO use a default implementation
+        return timeFormat(self._getFromTime())
+
+    @property
+    def _current_datetime_from(self):
+        """
+        The datetime the event that was cancelled would start in the local
+        timezone, or None if it would have finished by now.
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        timeFrom = getTimeFrom(self.time_from)
+        timeTo = getTimeTo(self.time_to)
+        # Yes this ignores DST transitions and milliseconds
+        timeDelta = dt.timedelta(days    = self.num_days - 1,
+                                 hours   = timeTo.hour   - timeFrom.hour,
+                                 minutes = timeTo.minute - timeFrom.minute,
+                                 seconds = timeTo.second - timeFrom.second)
+        nextDt = self.__after(myNow - timeDelta)
+        if nextDt is not None:
+            return getLocalDatetime(nextDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+
+    @property
+    def _future_datetime_from(self):
+        """
+        The datetime the event that was cancelled would start in the local
+        timezone, or None if that is in the past.
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        nextDt = self.__after(myNow)
+        if nextDt is not None:
+            return getLocalDatetime(nextDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+
+    @property
+    def _past_datetime_from(self):
+        """
+        The datetime of the event that was cancelled in the local timezone, or
+        None if it never would have.
+        """
+        myNow = timezone.localtime(timezone=self.tz)
+        prevDt = self.__before(myNow)
+        if prevDt is not None:
+            return getLocalDatetime(prevDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
+
+    def full_clean(self, *args, **kwargs):
+        """
+        Apply fixups that need to happen before per-field validation occurs.
+        Sets the page's title.
+        """
+        # generate the title and slug in English
+        # the translation of the title will happen in the property local_title
+        with translation.override("en"):
+            if self.cancelled_to_date is not None:
+                titleTo = "to " + dateFormat(self.cancelled_to_date)
+                slugTo = str(self.cancelled_to_date)
+            else:
+                titleTo = "until further notice"
+                slugTo = ""
+
+            self.title = "Cancellation from {} {}".format(
+                                dateFormat(self.cancelled_from_date), titleTo)
+            self.slug = "{}-{}-shutdown".format(
+                                self.cancelled_from_date, slugTo)
+        super().full_clean(*args, **kwargs)
+
+    def _getMyDates(self, fromDate=dt.date.min, toDate=dt.date.max):
+        """
+        Return all the dates which we are cancelled for in the event timezone
+        Limited by fromDate and toDate if given
+        """
+        if self.cancelled_from_date > fromDate:
+            fromDate = self.cancelled_from_date
+        if self.cancelled_to_date and self.cancelled_to_date < toDate:
+            toDate = self.cancelled_to_date
+        fromOrd = fromDate.toordinal()
+        toOrd   = toDate.toordinal()
+        for ord in range(fromOrd, toOrd+1):
+            yield dt.date.fromordinal(ord)
+
+    def _getFromTime(self, atDate=None):
+        """
+        Time that the event starts (in the local time zone).
+        """
+        return self.overrides._getFromTime(atDate)
+
+    def _closedOn(self, myDate):
+        """
+        Are we closed on myDate?
+        """
+        retval = self.cancelled_from_date <= myDate <= self.cancelled_to_date
+        return retval
+
+    def __after(self, fromDt):
+        fromDate = fromDt.date()
+        if self.time_from and self.time_from < fromDt.time():
+            fromDate += _1day
+        if fromDate < self.cancelled_from_date:
+            fromDate = self.cancelled_from_date
+        occurence = self.overrides.repeat.after(fromDate, inc=True)
+        if self.cancelled_to_date and occurence <= self.cancelled_to_date:
+            return getAwareDatetime(occurence, self.time_from,
+                                    self.tz, dt.time.min)
+
+    def __before(self, fromDt):
+        fromDate = fromDt.date()
+        if self.time_from and self.time_from > fromDt.time():
+            fromDate -= _1day
+        if self.cancelled_to_date and fromDate > self.cancelled_to_date:
+            fromDate = self.cancelled_to_date
+        occurence = self.overrides.repeat.before(fromDate, inc=True)
+        if occurence >= self.cancelled_from_date:
+            return getAwareDatetime(occurence, self.time_from,
+                                    self.tz, dt.time.min)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
