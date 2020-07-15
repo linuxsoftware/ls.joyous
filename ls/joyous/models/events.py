@@ -996,7 +996,8 @@ class RecurringEventQuerySet(EventQuerySet):
                     closedHols = page._getClosedForHolidays()
                     startDelta = dt.timedelta(days=page.num_days + 1)
                     for occurence in page.repeat.between(fromDate - startDelta,
-                                                         toDate + _2days, True):
+                                                         toDate + _2days,
+                                                         inc=True):
                         thisEvent = None
                         exception = exceptions.get(occurence)
                         if exception:
@@ -1045,8 +1046,8 @@ class RecurringEventQuerySet(EventQuerySet):
                     exceptions[exceptDate] = ThisEvent(title, cancellation, url)
                 # TODO consider storing extended cancellations in an interval tree?
                 for shutdown in ExtCancellationPage.events.child_of(page)    \
-                           .filter(cancelled_from_date__lte=dateRange[0])    \
-                           .filter(Q(cancelled_to_date__gte=dateRange[1]) |
+                           .filter(cancelled_from_date__lte=dateRange[1])    \
+                           .filter(Q(cancelled_to_date__gte=dateRange[0]) |
                                    Q(cancelled_to_date__isnull = True)):
                     if shutdown.isAuthorized(request):
                         title = shutdown.cancellation_title
@@ -1112,6 +1113,7 @@ class RecurringEventPage(EventBase, Page):
                      'joyous.ClosedForHolidaysPage',
                      'joyous.PostponementPage']
     base_form_class = RecurringEventPageForm
+    MAX_REPEAT_COUNT = 500
 
     repeat   = RecurrenceField(_("repeat"))
     num_days = models.IntegerField(_("number of days"), default=1,
@@ -1318,7 +1320,7 @@ class RecurringEventPage(EventBase, Page):
                 retval.append(postponement)
             else:
                 retval.append(cancellation)
-        for shutdown in ExtCancellationPage.events(request).child_of(self)\
+        for shutdown in ExtCancellationPage.events(request).child_of(self)   \
                                             .future():
             retval.append(shutdown)
         closedHols = self._getClosedForHolidays()
@@ -1497,11 +1499,18 @@ class RecurringEventPage(EventBase, Page):
                                      .filter(except_date__gte=fromDate)      \
                                      .exclude(extra_title=""):
                 exceptions.add(info.except_date)
-        for occurence in self.repeat.xafter(fromDate, inc=True):
+        for occurence in self.repeat.xafter(fromDate,
+                                            count=self.MAX_REPEAT_COUNT,
+                                            inc=True):
             if occurence in exceptions:
                 continue
-            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
-                continue
+            shutdown = next((shutdown for shutdown in shutdowns
+                             if shutdown._closedOn(occurence)), None)
+            if shutdown is not None:
+                if shutdown.cancelled_to_date is None:
+                    break
+                else:
+                    continue
             if closedHols and closedHols._closedOn(occurence):
                 continue
             return getAwareDatetime(occurence, self.time_from,
@@ -2367,7 +2376,9 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
     # C. If every day of the event is a holiday then the event is cancelled?
     subpage_types = []
     base_form_class = ClosedForHolidaysPageForm
-    HOLIDAY_SEARCH_ITERATIONS = 500
+    MAX_REPEAT_COUNT = RecurringEventPage.MAX_REPEAT_COUNT
+    MAX_DATETIME = timezone.make_aware(dt.datetime.max - _2days)
+    MIN_DATETIME = timezone.make_aware(dt.datetime.min + _2days)
 
     all_holidays = models.BooleanField(default=True)
     all_holidays.help_text = "Cancel any occurence of this event on a public holiday"
@@ -2476,6 +2487,8 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         The datetime the event that was cancelled would start in the local
         timezone, or None if that is in the past.
         """
+        if self.holidays is None:
+            return self.MAX_DATETIME
         myNow = timezone.localtime(timezone=self.tz)
         nextDt = self.__after(myNow)
         if nextDt is not None:
@@ -2488,6 +2501,8 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         The datetime of the event that was cancelled in the local timezone, or
         None if it never would have.
         """
+        if self.holidays is None:
+            return self.MIN_DATETIME
         myNow = timezone.localtime(timezone=self.tz)
         prevDt = self.__before(myNow)
         if prevDt is not None:
@@ -2513,7 +2528,7 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
             n = 0
             for occurence in self.overrides.repeat:
                 n += 1
-                if n > self.HOLIDAY_SEARCH_ITERATIONS:
+                if n > self.MAX_REPEAT_COUNT:
                     # that's enough, bailing out
                     return None
                 if self._closedOn(occurence):
@@ -2569,20 +2584,24 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
             for cancelled in CancellationPage.events.child_of(self.overrides) \
                                      .filter(except_date__gte=fromDate):
                 exceptions.add(cancelled.except_date)
-            shutdowns = ExtCancellationPage.events.child_of(self) \
+            shutdowns = ExtCancellationPage.events.child_of(self.overrides)  \
                            .filter(Q(cancelled_to_date__gte=fromDate) |
                                    Q(cancelled_to_date__isnull = True))
         repeat = self.overrides.repeat
         for n, occurence in enumerate(repeat.xafter(fromDate, inc=True)):
-            if n > self.HOLIDAY_SEARCH_ITERATIONS:
+            if n > self.MAX_REPEAT_COUNT:
                 # that's enough, bailing out, return two days before max
                 # (so we can still do TZ conversions on the result)
-                return getAwareDatetime(dt.date.max - _2days, self.time_from,
-                                        self.tz, dt.time.min)
+                return self.MAX_DATETIME
             if occurence in exceptions:
                 continue
-            if any(shutdown._closedOn(occurence) for shutdown in shutdowns):
-                continue
+            shutdown = next((shutdown for shutdown in shutdowns
+                             if shutdown._closedOn(occurence)), None)
+            if shutdown is not None:
+                if shutdown.cancelled_to_date is None:
+                    break
+                else:
+                    continue
             if not self._closedOn(occurence):
                 continue
             return getAwareDatetime(occurence, self.time_from,
@@ -2601,7 +2620,7 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
             for cancelled in CancellationPage.events.child_of(self.overrides) \
                                      .filter(except_date__lte=fromDate):
                 exceptions.add(cancelled.except_date)
-            shutdowns = ExtCancellationPage.events.child_of(self)            \
+            shutdowns = ExtCancellationPage.events.child_of(self.overrides)  \
                            .filter(cancelled_from_date__lte=fromDate)
         last = None
         repeat = self.overrides.repeat
@@ -2644,8 +2663,22 @@ class ExtCancellationQuerySet(EventQuerySet):
         qs._iterable_class = ThisIterable
         return qs
 
-# class ExtCancellationPageForm(DateExceptionPageForm):
-#     description = _("an extended cancellation")
+class ExtCancellationPageForm(WagtailAdminPageForm):
+    class Media:
+        css = { 'all': ["joyous/css/recurrence_admin.css"] }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self._checkSlugAvailable(cleaned_data)
+        return cleaned_data
+
+    def _checkSlugAvailable(self, cleaned_data):
+        fromDate = cleaned_data.get('cancelled_from_date', "invalid")
+        siblings = self.parent_page.get_children().not_page(self.instance)
+        pattern = r"{}-.*-cancellation".format(fromDate)
+        if siblings.filter(slug__regex=pattern).exists():
+            self.add_error('cancelled_from_date',
+                           _("There is already an Extended Cancellation for then."))
 
 class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
     class Meta:
@@ -2657,11 +2690,12 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
     parent_page_types = ["joyous.RecurringEventPage",
                          "joyous.MultidayRecurringEventPage"]
     subpage_types = []
-    #base_form_class = ExtCancellationPageForm
+    base_form_class = ExtCancellationPageForm
+    FAR_DATE = dt.date(3000,12,31)
 
     cancelled_from_date = models.DateField(_("From Date"))
     cancelled_from_date.help_text = _("Cancelled from this date")
-    cancelled_to_date = models.DateField(_("To Date"), null=True)
+    cancelled_to_date = models.DateField(_("To Date"), null=True, blank=True)
     cancelled_to_date.help_text = _('Cancelled to this date '
                                     '(Leave empty for "until further notice")')
 
@@ -2790,18 +2824,19 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
 
             self.title = "Cancellation from {} {}".format(
                                 dateFormat(self.cancelled_from_date), titleTo)
-            self.slug = "{}-{}-shutdown".format(
+            self.slug = "{}-{}-cancellation".format(
                                 self.cancelled_from_date, slugTo)
         super().full_clean(*args, **kwargs)
 
-    def _getMyDates(self, fromDate=dt.date.min, toDate=dt.date.max):
+    def _getMyDates(self, fromDate=dt.date.min, toDate=FAR_DATE):
         """
         Return all the dates which we are cancelled for in the event timezone
         Limited by fromDate and toDate if given
         """
         if self.cancelled_from_date > fromDate:
             fromDate = self.cancelled_from_date
-        if self.cancelled_to_date and self.cancelled_to_date < toDate:
+        if (self.cancelled_to_date is not None and
+            self.cancelled_to_date < toDate):
             toDate = self.cancelled_to_date
         fromOrd = fromDate.toordinal()
         toOrd   = toDate.toordinal()
@@ -2818,7 +2853,11 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         """
         Are we closed on myDate?
         """
-        retval = self.cancelled_from_date <= myDate <= self.cancelled_to_date
+        if self.cancelled_to_date is not None:
+            retval = (self.cancelled_from_date <= myDate <=
+                      self.cancelled_to_date)
+        else:
+            retval = self.cancelled_from_date <= myDate
         return retval
 
     def __after(self, fromDt):
@@ -2828,7 +2867,8 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         if fromDate < self.cancelled_from_date:
             fromDate = self.cancelled_from_date
         occurence = self.overrides.repeat.after(fromDate, inc=True)
-        if self.cancelled_to_date and occurence <= self.cancelled_to_date:
+        if (self.cancelled_to_date is None or
+            occurence <= self.cancelled_to_date):
             return getAwareDatetime(occurence, self.time_from,
                                     self.tz, dt.time.min)
 
@@ -2836,7 +2876,8 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         fromDate = fromDt.date()
         if self.time_from and self.time_from > fromDt.time():
             fromDate -= _1day
-        if self.cancelled_to_date and fromDate > self.cancelled_to_date:
+        if (self.cancelled_to_date is not None and
+            fromDate > self.cancelled_to_date):
             fromDate = self.cancelled_to_date
         occurence = self.overrides.repeat.before(fromDate, inc=True)
         if occurence >= self.cancelled_from_date:

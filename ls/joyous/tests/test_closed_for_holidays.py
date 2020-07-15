@@ -282,12 +282,14 @@ class Test(TestCase):
     @freeze_timetz("1989-02-15")
     def testFutureDtNoHolidays(self):
         self.closedHols.holidays = None
-        self.assertIs(self.closedHols._future_datetime_from, None)
+        self.assertEqual(self.closedHols._future_datetime_from,
+                         ClosedForHolidaysPage.MAX_DATETIME)
 
     @freeze_timetz("1989-02-15")
     def testPastDtNoHolidays(self):
         self.closedHols.holidays = None
-        self.assertIs(self.closedHols._past_datetime_from, None)
+        self.assertEqual(self.closedHols._past_datetime_from,
+                         ClosedForHolidaysPage.MIN_DATETIME)
 
     @freeze_timetz("1989-02-15")
     def testFutureDtCancelled(self):

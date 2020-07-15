@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------*/
-/* Holidyays admin style */
+/* Holidays admin style */
 /*-----------------------------------------------------------------------*/
 
 .filtered_select_multiple h2 {
@@ -10,4 +10,7 @@
     text-align:    center;
     background:    #79aec8;
     color:         #fff;
+}
+#id_overrides-chooser ul.actions {
+    display:                 none;
 }

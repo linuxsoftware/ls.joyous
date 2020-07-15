@@ -461,12 +461,12 @@ class CalendarPage(RoutablePageMixin, Page):
     def _getUpcomingEvents(self, request):
         """Return the upcoming events in this site."""
         home = request.site.root_page
-        return getAllUpcomingEvents(request, home=home)
+        return getAllUpcomingEvents(request, home=home, holidays=self.holidays)
 
     def _getPastEvents(self, request):
         """Return the past events in this site."""
         home = request.site.root_page
-        return getAllPastEvents(request, home=home)
+        return getAllPastEvents(request, home=home, holidays=self.holidays)
 
     def _getEventFromUid(self, request, uid):
         """Try and find an event with the given UID in this site."""
@@ -521,11 +521,11 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getUpcomingEvents(self, request):
         """Return my upcoming child events."""
-        return getAllUpcomingEvents(request, home=self)
+        return getAllUpcomingEvents(request, home=self, holidays=self.holidays)
 
     def _getPastEvents(self, request):
         """Return my past child events."""
-        return getAllPastEvents(request, home=self)
+        return getAllPastEvents(request, home=self, holidays=self.holidays)
 
     def _getEventFromUid(self, request, uid):
         """Try and find a child event with the given UID."""
@@ -567,11 +567,11 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getUpcomingEvents(self, request):
         """Return all the upcoming events."""
-        return getAllUpcomingEvents(request)
+        return getAllUpcomingEvents(request, holidays=self.holidays)
 
     def _getPastEvents(self, request):
         """Return all the past events."""
-        return getAllPastEvents(request)
+        return getAllPastEvents(request, holidays=self.holidays)
 
     def _getEventFromUid(self, request, uid):
         """Try and find an event with the given UID."""
