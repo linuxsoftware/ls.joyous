@@ -13,7 +13,8 @@ from wagtail.tests.utils.form_data import rich_text
 from holidays.holiday_base import HolidayBase
 from ls.joyous.holidays import Holidays
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage, CancellationPage
+from ls.joyous.models.events import (RecurringEventPage, CancellationPage,
+                                     ExtCancellationPage)
 from ls.joyous.models.events import ClosedForHolidaysPage, ClosedFor
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, WE, FR
 from .testutils import freeze_timetz, datetimetz
@@ -310,6 +311,37 @@ class Test(TestCase):
         self.event.add_child(instance=cancellation)
         self.assertEqual(self.closedHols._past_datetime_from,
                          datetimetz(1989,1,30,13,0))
+
+    @freeze_timetz("1989-02-15")
+    def testPastDtShut(self):
+        # a shutdown page trumps the holiday
+        shutdown = ExtCancellationPage(owner = self.user,
+                                       overrides = self.event,
+                                       cancelled_from_date = dt.date(1989, 1, 29),
+                                       cancelled_to_date   = dt.date(1989, 2, 10))
+        self.event.add_child(instance=shutdown)
+        self.assertEqual(self.closedHols._past_datetime_from,
+                         datetimetz(1989,1,23,13,0))
+
+    @freeze_timetz("1989-02-15")
+    def testFutureDtShut(self):
+        # a shutdown page trumps the holiday
+        shutdown = ExtCancellationPage(owner = self.user,
+                                       overrides = self.event,
+                                       cancelled_from_date = dt.date(1989, 3, 12),
+                                       cancelled_to_date   = dt.date(1989, 3, 20))
+        self.event.add_child(instance=shutdown)
+        self.assertEqual(self.closedHols._future_datetime_from,
+                         datetimetz(1989,3,24,13,0))
+
+    @freeze_timetz("1989-02-15")
+    def testFutureDtShutUntilFurtherNotice(self):
+        # a shutdown page trumps the holiday
+        shutdown = ExtCancellationPage(owner = self.user,
+                                       overrides = self.event,
+                                       cancelled_from_date = dt.date(1989, 3, 12))
+        self.event.add_child(instance=shutdown)
+        self.assertIsNone(self.closedHols._future_datetime_from)
 
     @freeze_timetz("1989-02-15")
     def testFarFutureDt(self):

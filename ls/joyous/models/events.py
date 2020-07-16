@@ -1055,7 +1055,7 @@ class RecurringEventQuerySet(EventQuerySet):
                         title = None
                     thisEvent = ThisEvent(title, shutdown,
                                           shutdown.get_url(request))
-                    for myDate in shutdown._getMyDates(*dateRange):
+                    for myDate in shutdown._getMyRawDates(*dateRange):
                         exceptions[myDate] = thisEvent
                 return exceptions
 
@@ -1510,7 +1510,8 @@ class RecurringEventPage(EventBase, Page):
                 if shutdown.cancelled_to_date is None:
                     break
                 else:
-                    continue
+                    # the next line is run; coverage is wrong
+                    continue  # pragma: no cover
             if closedHols and closedHols._closedOn(occurence):
                 continue
             return getAwareDatetime(occurence, self.time_from,
@@ -2572,8 +2573,6 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         return False
 
     def __after(self, fromDt, excludeCancellations=True):
-        if self.holidays is None:
-            return None
         fromDate = fromDt.date()
         if self.time_from and self.time_from < fromDt.time():
             fromDate += _1day
@@ -2601,15 +2600,14 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
                 if shutdown.cancelled_to_date is None:
                     break
                 else:
-                    continue
+                    # the next line is run; coverage is wrong
+                    continue  # pragma: no cover
             if not self._closedOn(occurence):
                 continue
             return getAwareDatetime(occurence, self.time_from,
                                     self.tz, dt.time.min)
 
     def __before(self, fromDt, excludeCancellations=True):
-        if self.holidays is None:
-            return None
         fromDate = fromDt.date()
         if self.time_from and self.time_from > fromDt.time():
             fromDate -= _1day
@@ -2678,7 +2676,7 @@ class ExtCancellationPageForm(WagtailAdminPageForm):
         pattern = r"{}-.*-cancellation".format(fromDate)
         if siblings.filter(slug__regex=pattern).exists():
             self.add_error('cancelled_from_date',
-                           _("There is already an Extended Cancellation for then."))
+                           _("There is already an extended cancellation for then"))
 
 class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
     class Meta:
@@ -2830,8 +2828,23 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
 
     def _getMyDates(self, fromDate=dt.date.min, toDate=FAR_DATE):
         """
-        Return all the dates which we are cancelled for in the event timezone
-        Limited by fromDate and toDate if given
+        Return all the dates which we are cancelled for in the event timezone.
+        Only if the event occurs on those dates.
+        Limited by fromDate and toDate if given.
+        """
+        if self.cancelled_from_date > fromDate:
+            fromDate = self.cancelled_from_date
+        if (self.cancelled_to_date is not None and
+            self.cancelled_to_date < toDate):
+            toDate = self.cancelled_to_date
+        repeat = self.overrides.repeat
+        yield from repeat.between(fromDate, toDate, inc=True)
+
+    def _getMyRawDates(self, fromDate=dt.date.min, toDate=FAR_DATE):
+        """
+        Return all the dates which we are cancelled for in the event timezone.
+        Without considering if the event occurs on those dates.
+        Limited by fromDate and toDate if given.
         """
         if self.cancelled_from_date > fromDate:
             fromDate = self.cancelled_from_date
