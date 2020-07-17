@@ -26,9 +26,12 @@ class TZDatePanel(FieldPanel):
         if not self.form:
             # wait for the form to be set, it will eventually be
             return
-        tz = timezone._get_timezone_name(self.instance.tz)
-        if tz != timezone.get_current_timezone_name():
-            self.exceptionTZ = tz
+        localTZ = timezone.get_current_timezone()
+        localTZName = timezone._get_timezone_name(localTZ)
+        myTZ = getattr(self.instance, "tz", localTZ)
+        myTZName = timezone._get_timezone_name(myTZ)
+        if myTZName != localTZName:
+            self.exceptionTZ = myTZName
         else:
             self.exceptionTZ = None
 
