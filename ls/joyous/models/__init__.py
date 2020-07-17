@@ -11,6 +11,7 @@ from .events import RecurringEventPage
 from .events import MultidayRecurringEventPage
 from .events import EventExceptionBase
 from .events import ExtraInfoPage
+from .events import CancellationBase
 from .events import CancellationPage
 from .events import RescheduleEventBase
 from .events import PostponementPage

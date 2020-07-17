@@ -1359,10 +1359,6 @@ class RecurringEventPage(EventBase, Page):
         if CancellationPage.events.child_of(self)                            \
                            .filter(except_date=myDate).exists():
             return False
-        # TODO consider storing extended cancellations in an interval tree?
-        #for cancellation in ExtCancellationPage.events.child_of(self):
-        #    if cancellation._closedOn(myDate):
-        #        return False
         if ExtCancellationPage.events.child_of(self)                         \
                            .filter(cancelled_from_date__lte=myDate)          \
                            .filter(Q(cancelled_to_date__gte=myDate) |
@@ -1490,6 +1486,7 @@ class RecurringEventPage(EventBase, Page):
             for cancelled in CancellationPage.events.child_of(self)          \
                            .filter(except_date__gte=fromDate):
                 exceptions.add(cancelled.except_date)
+            # TODO consider storing extended cancellations in an interval tree?
             shutdowns = ExtCancellationPage.events.child_of(self) \
                            .filter(Q(cancelled_to_date__gte=fromDate) |
                                    Q(cancelled_to_date__isnull = True))

@@ -17,7 +17,7 @@ from ls.joyous import __version__
 from ..models import (SimpleEventPage, MultidayEventPage, RecurringEventPage,
         MultidayRecurringEventPage, EventExceptionBase, ExtraInfoPage,
         CancellationPage, PostponementPage, RescheduleMultidayEventPage,
-        EventBase, CalendarPage)
+        ExtCancellationPage, EventBase, CalendarPage)
 from ..utils.recurrence import Recurrence
 from ..utils.telltime import getAwareDatetime
 from .vtimezone import create_timezone
@@ -694,8 +694,8 @@ class RecurringVEvent(VEvent):
     @classmethod
     def __getExceptions(cls, page):
         vchildren = []
-        exDates   = []
-        for cancellation in CancellationPage.objects.live().child_of(page) \
+        excludes = set()
+        for cancellation in CancellationPage.events.child_of(page)           \
                                             .select_related("postponementpage"):
             postponement = getattr(cancellation, "postponementpage", None)
             if postponement:
@@ -704,7 +704,7 @@ class RecurringVEvent(VEvent):
                 excludeDt = getAwareDatetime(cancellation.except_date,
                                              cancellation.time_from,
                                              cancellation.tz, dt.time.min)
-                exDates.append(excludeDt)
+                excludes.add(excludeDt)
                 # NB any cancellation title or details are going to be lost
                 # vchildren.append(CancellationVEvent.fromPage(cancellation))
 
@@ -712,31 +712,40 @@ class RecurringVEvent(VEvent):
             #     excludeDt = getAwareDatetime(cancellation.except_date,
             #                                  cancellation.time_from,
             #                                  cancellation.tz, dt.time.min)
-            #     exDates.append(excludeDt)
+            #     excludes.add(excludeDt)
             # else:
             #     if cancellation.title != "":
             #         vchildren.append(CancellationVEvent.fromPage(cancellation))
             #     if postponement:
             #         vchildren.append(PostponementVEvent.fromPage(postponement))
 
+        for shutdown in ExtCancellationPage.events.child_of(page):
+            for shutDate in shutdown._getMyDates(toDate=dt.date(MAX_YEAR,1,1)):
+                excludeDt = getAwareDatetime(shutDate,
+                                             shutdown.time_from,
+                                             shutdown.tz, dt.time.min)
+                excludes.add(excludeDt)
+                # NB any cancellation title or details are going to be lost
+                # ExtCancellationPage does not round-trip.  All imported
+                # EXDATEs become plain cancellations
+
         closedHols = page._getClosedForHolidays()
         if closedHols is not None:
-            cancellationExDates = set(exDates)
             for closedDate in closedHols._getMyDates():
                 if closedDate.year > MAX_YEAR:
                     break
                 excludeDt = getAwareDatetime(closedDate,
                                              closedHols.time_from,
                                              closedHols.tz, dt.time.min)
-                if excludeDt not in cancellationExDates:
-                    # avoid duplicate exdates
-                    exDates.append(excludeDt)
+                excludes.add(excludeDt)
                 # NB any cancellation title or details are going to be lost
                 # ClosedForHolidaysPage does not round-trip.  All imported
                 # EXDATEs become plain cancellations
 
-        for info in ExtraInfoPage.objects.live().child_of(page):
+        for info in ExtraInfoPage.events.child_of(page):
             vchildren.append(ExtraInfoVEvent.fromPage(info))
+        exDates = list(excludes)
+        exDates.sort()
         return vchildren, exDates
 
     def toPage(self, page):
