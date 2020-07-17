@@ -10,7 +10,7 @@ from django.utils import timezone
 from wagtail.core.models import Page
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage
+from ls.joyous.models.events import RecurringEventPage, MultidayRecurringEventPage
 from ls.joyous.models.events import ExtraInfoPage, ExtraInfoPageForm
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import datetimetz, freeze_timetz
@@ -106,6 +106,65 @@ class Test(TestCase):
 
     def testOverridesRepeat(self):
         self.assertEqual(self.info.overrides_repeat, self.event.repeat)
+
+# ------------------------------------------------------------------------------
+class TestMultiday(TestCase):
+    def setUp(self):
+        self.home = Page.objects.get(slug='home')
+        self.user = User.objects.create_user('i', 'i@bar.test', 's3(r3t')
+        self.calendar = CalendarPage(owner = self.user,
+                                     slug  = "schedule",
+                                     title = "Schedule")
+        self.home.add_child(instance=self.calendar)
+        self.calendar.save_revision().publish()
+        self.event = MultidayRecurringEventPage(slug = "test-session",
+                                                title = "Test Session",
+                                                repeat = Recurrence(
+                                                        dtstart=dt.date(2018,1,8),
+                                                        freq=WEEKLY,
+                                                        byweekday=[MO],
+                                                        until=dt.date(2018,4,25)),
+                                                num_days  = 3,
+                                                time_from = dt.time(10),
+                                                time_to   = dt.time(12,30))
+        self.calendar.add_child(instance=self.event)
+        self.info = ExtraInfoPage(owner = self.user,
+                                  overrides = self.event,
+                                  except_date = dt.date(2018,2,12),
+                                  extra_title = "System Demo",
+                                  extra_information = "<h3>System Demo</h3>")
+        self.event.add_child(instance=self.info)
+        self.info.save_revision().publish()
+
+    def testStatusFinished(self):
+        self.assertEqual(self.info.status, "finished")
+        self.assertEqual(self.info.status_text, "This event has finished.")
+
+    @freeze_timetz("2018-02-13 14:00:00")
+    def testStatusStarted(self):
+        self.assertEqual(self.info.status, "started")
+        self.assertEqual(self.info.status_text, "This event has started.")
+
+    def testWhen(self):
+        self.assertEqual(self.info.when,
+                         "Monday 12th of February 2018 for 3 days "
+                         "starting at 10am finishing at 12:30pm")
+
+    def testAt(self):
+        self.assertEqual(self.info.at.strip(), "10am")
+
+    @freeze_timetz("2018-02-13 17:00:00")
+    def testCurrentDt(self):
+        self.assertEqual(self.info._current_datetime_from,
+                         datetimetz(2018,2,12,10,0))
+
+    @freeze_timetz("2018-02-13 14:00:00")
+    def testFutureDt(self):
+        self.assertIsNone(self.info._future_datetime_from)
+
+    def testPastDt(self):
+        self.assertEqual(self.info._past_datetime_from,
+                         datetimetz(2018,2,12,10,0))
 
 # ------------------------------------------------------------------------------
 class TestPageForm(TestCase):

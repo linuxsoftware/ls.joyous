@@ -20,6 +20,8 @@ Hierarchy
       "event_base" -> "recurring_event_page";
       "event_base" -> "exception_base" -> "extra_info_page";
       "exception_base" -> "cancellation_page";
+      "cancellation_page" -> "ext_cancellation_page";
+      "cancellation_page" -> "closed_for_holidays_page";
       "exception_base" -> "postponement_page";
       "exception_base" -> "postponement_page_from";
       "joyous_base" -> "group_page";
@@ -297,6 +299,16 @@ Blocks
 * **event_image**
 * **event_details**
 
+
+joyous/ext_cancellation_page.html
+-----------------------------
+
+**Extends** : joyous/cancellation_page.html
+
+joyous/closed_for_holidays_page.html
+-----------------------------
+
+**Extends** : joyous/cancellation_page.html
 
 joyous/group_page.html
 -------------------------

@@ -10,6 +10,14 @@ Joyous 1.2.0 release notes - IN DEVELOPMENT
 What's new
 ==========
 
+ExtCancellationPage
+~~~~~~~~~~~~~~~~~~~
+Extended cancellations apply to all occurrences of a recurring event from
+the ``cancelled_from_date`` until the optional ``cancelled_to_date``.
+If the to date is not given, then the event is cancelled
+"until further notice".
+Named ExtCancellation pages are listed just like named Cancellations.
+
 ClosedForHolidaysPage
 ~~~~~~~~~~~~~~~~~~~~~
 A recurring event page can now have a closed for holidays page added to it.
@@ -26,17 +34,21 @@ Holidays
 
 iCal
 ~~~~
- * When we are closed on holidays these are exported as EXDATES.
+ * When an event is closed for extended cancellations or on holidays these are
+   exported as EXDATES.
 
 RSS
 ~~~
- * Named ClosedForHolidays pages are listed just like named Cancellations.
+ * Named ExtCancellation pages and named ClosedForHolidays pages are listed
+   just like named Cancellations.
 
 Other features
 ~~~~~~~~~~~~~~
  * There is a new DateExceptionBase class that CancellationPage,
-   PostponementPage and ExtraInfoPage inherit from, but ClosedForHolidaysPage
-   does not.
+   PostponementPage and ExtraInfoPage inherit from.
+ * There is a new CancellationBase class that CancellationPage,
+   PostponementPage, ExtCancellationPage, and ClosedForHolidaysPage inherit
+   from.
  * New getLocalTimeAtDate function.
  * RecurringEventPage._getMyFirstDatetimeTo() now takes an optional myFirstDt
    argument to save from calculating this again.
@@ -44,12 +56,9 @@ Other features
 Bug fixes
 ~~~~~~~~~
  * When _getFromTime takes an atDate it is in the local time zone.
-
-
-
-
- x Record no authority to update an exception as an iCal load failure
-   FIXME also record exceptions as successes?!?!
+ * Fix _getToDt to add on num_days
+ * Record no authority to update an exception as an iCal load failure
+ * Fix ExceptionDateInput to take account of JOYOUS_FIRST_DAY_OF_WEEK
 
 
 

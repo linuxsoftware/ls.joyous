@@ -17,6 +17,7 @@ from dateutil.parser import parse as dt_parse
 from .utils.recurrence import Weekday, Recurrence, DAILY, WEEKLY, MONTHLY, YEARLY
 from .utils.manythings import toTheOrdinal
 from .utils.names import WEEKDAY_NAMES, WEEKDAY_ABBRS, MONTH_ABBRS
+from .utils.weeks import getFirstDayOfWeek
 
 # ------------------------------------------------------------------------------
 class Time12hrInput(AdminTimeInput):
@@ -249,7 +250,7 @@ class ExceptionDateInput(AdminDateInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         config = {
-            'dayOfWeekStart': get_format('FIRST_DAY_OF_WEEK'),
+            'dayOfWeekStart': getFirstDayOfWeek(),
             'format':         self.js_format,
         }
         context['widget']['valid_dates'] = json.dumps(self.valid_dates())

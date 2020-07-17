@@ -14,7 +14,7 @@ from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY, MO, TU, WE, TH, FR, SA
 from ls.joyous.models import (CalendarPage, SimpleEventPage, RecurringEventPage,
         CancellationPage, PostponementPage, ExtraInfoPage, GroupPage,
-        ClosedForHolidaysPage)
+        ExtCancellationPage, ClosedForHolidaysPage)
 from ls.joyous.formats.ical import (CalendarTypeError,
         CalendarNotInitializedError, VCalendar)
 from freezegun import freeze_time
@@ -260,6 +260,54 @@ class Test(TestCase):
                  b",20341030T120000,20341117T120000,20341127T120000,20341204T120000,",
                  b",20361226T120000,20370102T120000,20370119T120000,20370126T120000,",
                  b",20381101T120000,20381112T120000,20381129T120000,20381227T120000",
+                 b"CREATED:20200121T040000Z",
+                 b"DESCRIPTION:",
+                 b"LAST-MODIFIED:20200121T040000Z",
+                 b"LOCATION:",
+                 b"URL:http://joy.test/chess-club/chess/", ]
+        for prop in props:
+            with self.subTest(prop=prop):
+                self.assertIn(prop, export)
+
+    @freeze_timetz("2020-01-21 13:00")
+    def testFromEventPageShutdown(self):
+        chess = GroupPage(slug="chess-club", title="Chess Club")
+        self.home.add_child(instance=chess)
+        page = RecurringEventPage(owner = self.user,
+                                  slug  = "chess",
+                                  title = "Chess",
+                                  repeat = Recurrence(dtstart=dt.date(2020,1,1),
+                                                      freq=WEEKLY,
+                                                      byweekday=[MO,WE,FR]),
+                                  time_from = dt.time(12),
+                                  time_to   = dt.time(13),
+                                  holidays  = self.calendar.holidays)
+        chess.add_child(instance=page)
+        page.save_revision().publish()
+        shutdown = ExtCancellationPage(owner = self.user,
+                                       slug  = "2020-03-20--cancellation",
+                                       title = "Cancelled from 20th March until further notice",
+                                       overrides = page,
+                                       cancelled_from_date = dt.date(2020,3,20))
+        page.add_child(instance=shutdown)
+        shutdown.save_revision().publish()
+        vcal = VCalendar.fromPage(page, self._getRequest("/events/chess/"))
+        export = vcal.to_ical()
+        props = [b"SUMMARY:Chess",
+                 b"DTSTART;TZID=Asia/Tokyo:20200101T12000",
+                 b"DTEND;TZID=Asia/Tokyo:20200101T13000",
+                 b"DTSTAMP:20200121T040000Z",
+                 b"UID:",
+                 b"SEQUENCE:1",
+                 b"RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;WKST=SU",
+                 b"EXDATE;TZID=Asia/Tokyo:20200320T120000,20200323T120000,20200325T120000,",
+                 b",20200408T120000,20200410T120000,20200413T120000,20200415T120000,",
+                 b",20200928T120000,20200930T120000,20201002T120000,20201005T120000,",
+                 b",20201120T120000,20201123T120000,20201125T120000,20201127T120000,",
+                 b",20210614T120000,20210616T120000,20210618T120000,20210621T120000,",
+                 b",20240902T120000,20240904T120000,20240906T120000,20240909T120000,",
+                 b",20260213T120000,20260216T120000,20260218T120000,20260220T120000,",
+                 b",20371230T120000,20380101T120000",
                  b"CREATED:20200121T040000Z",
                  b"DESCRIPTION:",
                  b"LAST-MODIFIED:20200121T040000Z",

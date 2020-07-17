@@ -107,8 +107,11 @@ def _ssweek_of_month(date_value):
     return (date_value.day + weekday_of_first - 1) // 7
 
 # ------------------------------------------------------------------------------
-if getattr(settings, "JOYOUS_FIRST_DAY_OF_WEEK",
-           get_format("FIRST_DAY_OF_WEEK")) == 1:
+def getFirstDayOfWeek():
+    return getattr(settings, "JOYOUS_FIRST_DAY_OF_WEEK",
+                   get_format("FIRST_DAY_OF_WEEK"))
+
+if getFirstDayOfWeek() == 1:
     calendar.setfirstweekday(calendar.MONDAY)
 
     #: Give all the info we need from one calculation
