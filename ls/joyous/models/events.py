@@ -45,7 +45,8 @@ from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..utils.weeks import week_of_month
 from ..fields import RecurrenceField
-from ..edit_handlers import (ExceptionDatePanel, TimePanel, MapFieldPanel)
+from ..edit_handlers import (TZDatePanel, ExceptionDatePanel, TimePanel,
+        MapFieldPanel)
 from .groups import get_group_model_string, get_group_model
 from ..holidays import Holidays
 
@@ -1621,6 +1622,15 @@ class EventExceptionBase(models.Model):
         retval['themeCSS'] = getattr(settings, "JOYOUS_THEME_CSS", "")
         return retval
 
+    # TOO CONFUSING.  Stick with English and the event's timezone
+    # def get_admin_display_title(self):
+    #     if self.has_unpublished_changes:
+    #         # WARNING this could be expensive
+    #         page = self.get_latest_revision().as_page_object()
+    #     else:
+    #         page = self
+    #     return page.local_title
+
     def isAuthorized(self, request):
         """
         Is the user authorized for the requested action with this event?
@@ -2698,8 +2708,8 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
     # Note title is not displayed
     content_panels = [
         PageChooserPanel('overrides'),
-        FieldPanel('cancelled_from_date'),
-        FieldPanel('cancelled_to_date'),
+        TZDatePanel('cancelled_from_date'),
+        TZDatePanel('cancelled_to_date'),
         CancellationBase.cancellation_panel,
         ]
     promote_panels = []

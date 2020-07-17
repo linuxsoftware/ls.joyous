@@ -5,20 +5,39 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.formats import get_format_modules
 from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel)
-from wagtail.admin.widgets import AdminTimeInput
+from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 try:
     from wagtail.admin.localization import get_available_admin_languages
 except ImportError:        # pragma: no cover
     from wagtail.admin.utils import get_available_admin_languages
 from .widgets import ExceptionDateInput, Time12hrInput
 
+
 # ------------------------------------------------------------------------------
-class ExceptionDatePanel(FieldPanel):
+class TZDatePanel(FieldPanel):
+    """
+    Will display the timezone of the date if it is not the current TZ
+    """
+    widget = AdminDateInput
+    object_template = "joyous/edit_handlers/tz_date_object.html"
+
+    def on_instance_bound(self):
+        super().on_instance_bound()
+        if not self.form:
+            # wait for the form to be set, it will eventually be
+            return
+        tz = timezone._get_timezone_name(self.instance.tz)
+        if tz != timezone.get_current_timezone_name():
+            self.exceptionTZ = tz
+        else:
+            self.exceptionTZ = None
+
+# ------------------------------------------------------------------------------
+class ExceptionDatePanel(TZDatePanel):
     """
     Used to select from the dates of the recurrence
     """
     widget = ExceptionDateInput
-    object_template = "joyous/edit_handlers/exception_date_object.html"
 
     def on_instance_bound(self):
         super().on_instance_bound()
@@ -29,11 +48,6 @@ class ExceptionDatePanel(FieldPanel):
             return
         widget = self.form[self.field_name].field.widget
         widget.overrides_repeat = self.instance.overrides_repeat
-        tz = timezone._get_timezone_name(self.instance.tz)
-        if tz != timezone.get_current_timezone_name():
-            self.exceptionTZ = tz
-        else:
-            self.exceptionTZ = None
 
 # ------------------------------------------------------------------------------
 def _add12hrFormats():

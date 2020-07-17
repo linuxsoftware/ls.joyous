@@ -120,6 +120,7 @@ EventBase
     .. autoattribute:: status_text
     .. automethod:: _removeContentPanels
     .. automethod:: isAuthorized
+    .. automethod:: get_context
     .. automethod:: _getLocalWhen
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
@@ -197,6 +198,8 @@ RecurringEventPage
     .. automethod:: _occursOn
     .. automethod:: _getMyFirstDatetimeFrom
     .. automethod:: _getMyFirstDatetimeTo
+    .. automethod:: _getMyNextDate
+    .. automethod:: _getClosedForHolidays
 
 MultidayRecurringEventPage
 --------------------------
@@ -218,9 +221,9 @@ EventExceptionBase
 
         The recurring event that we are updating. overrides is also the parent (the published version of parent), but the parent is not set until the child is saved and added.
 
-    .. attribute:: except_date
+    .. attribute:: num_days
 
-        For this date.
+        Shortcut for overrides.num_days.
 
     .. attribute:: time_from
 
@@ -255,19 +258,36 @@ EventExceptionBase
         Shortcut for overrides.website.
 
     .. autoattribute:: overrides_repeat
+    .. automethod:: get_context
+    .. automethod:: isAuthorized
+    .. automethod:: _copyFieldsFromParent
+
+DateExceptionBase
+------------------
+.. inheritance-diagram:: DateExceptionBase
+    :top-classes: ls.joyous.models.events.EventExceptionBase
+    :parts: 1
+.. autoclass:: DateExceptionBase
+    :show-inheritance:
+
+    .. attribute:: except_date
+
+        For this date.
+
     .. autoattribute:: local_title
     .. autoattribute:: when
     .. autoattribute:: at
+    .. automethod:: full_clean
+    .. automethod:: _getLocalWhen
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
     .. automethod:: _getToDt
-    .. automethod:: full_clean
-    .. automethod:: isAuthorized
+    .. automethod:: _copyFieldsFromParent
 
 ExtraInfoPage
 -------------
 .. inheritance-diagram:: ExtraInfoPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.DateExceptionBase
     :parts: 1
 .. autoclass:: ExtraInfoPage
     :show-inheritance:
@@ -290,12 +310,12 @@ ExtraInfoPage
     .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
 
-CancellationPage
+CancellationBase
 ----------------
-.. inheritance-diagram:: CancellationPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase
+.. inheritance-diagram:: CancellationBase
+    :top-classes: django.db.models.base.Model
     :parts: 1
-.. autoclass:: CancellationPage
+.. autoclass:: CancellationBase
     :show-inheritance:
 
     .. attribute:: cancellation_title
@@ -305,6 +325,14 @@ CancellationPage
     .. attribute:: cancellation_details
 
         Why was the event cancelled?
+
+CancellationPage
+----------------
+.. inheritance-diagram:: CancellationPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.DateExceptionBase, ls.joyous.models.events.CancellationBase
+    :parts: 1
+.. autoclass:: CancellationPage
+    :show-inheritance:
 
     .. autoattribute:: status
     .. autoattribute:: status_text
@@ -338,6 +366,8 @@ RescheduleEventBase
 
         Shortcut for overrides.uid.
 
+    .. automethod:: get_context
+
 PostponementPage
 ----------------
 .. inheritance-diagram:: PostponementPage
@@ -361,9 +391,11 @@ PostponementPage
     .. autoattribute:: postponed_from
     .. autoattribute:: postponed_to
     .. autoattribute:: at
+    .. automethod:: serveCancellation
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
     .. automethod:: _getToDt
+    .. automethod:: _copyFieldsFromParent
 
 RescheduleMultidayEventPage
 ---------------------------
@@ -373,3 +405,65 @@ RescheduleMultidayEventPage
 .. autoclass:: RescheduleMultidayEventPage
     :show-inheritance:
 
+ClosedForHolidaysPage
+---------------------
+.. inheritance-diagram:: ClosedForHolidaysPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase, ls.joyous.models.events.CancellationBase
+    :parts: 1
+.. autoclass:: ClosedForHolidaysPage
+    :show-inheritance:
+
+    .. attribute:: all_holidays
+
+        Closed for all holidays?
+
+    .. attribute:: closed_for
+
+        Or, closed for these holidays
+
+    .. autoattribute:: local_title
+    .. autoattribute:: status
+    .. autoattribute:: status_text
+    .. autoattribute:: when
+    .. autoattribute:: at
+    .. autoattribute:: closed
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
+    .. autoattribute:: _past_datetime_from
+    .. autoattribute:: _closed_for_dates
+    .. automethod:: can_create_at
+    .. automethod:: _getMyDates
+    .. automethod:: _getFromTime
+    .. automethod:: _cacheClosedSet
+    .. automethod:: _closedOn
+
+ExtCancellationPage
+-------------------
+.. inheritance-diagram:: ExtCancellationPage
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.events.EventExceptionBase, ls.joyous.models.events.CancellationBase
+    :parts: 1
+.. autoclass:: ExtCancellationPage
+    :show-inheritance:
+
+    .. attribute:: cancelled_from_date
+
+        Cancelled from this date
+
+    .. attribute:: cancelled_to_date
+
+        Cancelled to this date (Leave empty for "until further notice")
+
+    .. autoattribute:: local_title
+    .. autoattribute:: status
+    .. autoattribute:: status_text
+    .. autoattribute:: until_when
+    .. autoattribute:: when
+    .. autoattribute:: at
+    .. autoattribute:: _current_datetime_from
+    .. autoattribute:: _future_datetime_from
+    .. autoattribute:: _past_datetime_from
+    .. automethod:: full_clean
+    .. automethod:: _getMyDates
+    .. automethod:: _getMyRawDates
+    .. automethod:: _getFromTime
+    .. automethod:: _closedOn

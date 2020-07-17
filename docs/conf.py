@@ -61,7 +61,7 @@ master_doc = 'index'
 # -- Project information -----------------------------------------------------
 
 project = 'Joyous'
-copyright = '2019, Linuxsoftware'
+copyright = '2019-2020, Linuxsoftware'
 author = 'Linuxsoftware'
 
 # The version info for the project you're documenting, acts as replacement for

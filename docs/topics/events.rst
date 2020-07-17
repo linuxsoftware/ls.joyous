@@ -104,6 +104,27 @@ RescheduleMultidayEventPage
 The multiday version of the :ref:`PostponementPage`.
 See :class:`RescheduleMultidayEventPage <ls.joyous.models.RescheduleMultidayEventPage>`.
 
+.. _ExtCancellationPage:
+
+ExtCancellationPage
+-------------------
+An :class:`ExtCancellationPage <ls.joyous.models.ExtCancellationPage>`
+removes all occurrences of a recurring event from
+the ``cancelled_from_date`` until the optional ``cancelled_to_date``.
+If the to date is not given, then the event is cancelled
+"until further notice".  If given
+a cancellation_title this will appear in place of the occurrence, but if not
+the occurrence is just quietly removed.
+
+.. _ClosedForHolidays:
+
+ClosedForHolidaysPage
+-------------------
+A :class:`ClosedForHolidaysPage <ls.joyous.models.ClosedForHolidaysPage>`
+removes any occurrences of a recurring event if the are on a holiday.  
+All holidays or a specific list of holidays can apply.
+If given a cancellation_title this will appear in place of the occurrence, but
+if not the occurrence is just quietly removed.
 
 What about
 ~~~~~~~~~~

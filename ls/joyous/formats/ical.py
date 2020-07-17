@@ -38,6 +38,9 @@ class VComponentMixin:
 class VResults:
     """The number of successes, failures and errors"""
     def __init__(self, success=0, fail=0, error=0):
+        if type(success) is bool:
+            success = int(success)
+            fail    = int(not success)
         self.success = success
         self.fail    = fail
         self.error   = error
@@ -226,11 +229,10 @@ class VCalendar(Calendar, VComponentMixin):
         return results
 
     def _updateEventPage(self, request, vevent, event):
-        results = VResults()
+        allOk = True
         if vevent.modifiedDt > event.latest_revision_created_at:
             vevent.toPage(event)
             _saveRevision(request, event)
-            results.success += 1
 
         vchildren  = vevent.vchildren[:]
         vchildren += [CancellationVEvent.fromExDate(vevent, exDate)
@@ -243,11 +245,10 @@ class VCalendar(Calendar, VComponentMixin):
                 self._createExceptionPage(request, event, vchild)
             else:
                 if exception.isAuthorized(request):
-                    # FIXME also record exceptions as successes?!?!
                     self._updateExceptionPage(request, vchild, exception)
                 else:
-                    results.fail += 1
-        return results
+                    allOk = False
+        return VResults(allOk)
 
     def _updateExceptionPage(self, request, vchild, exception):
         if vchild.modifiedDt > exception.latest_revision_created_at:

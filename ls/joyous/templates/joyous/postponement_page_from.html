@@ -2,12 +2,9 @@
 {% load wagtailcore_tags wagtailimages_tags i18n %}
 
 {% block event_status %}
-  <div class="joy-ev-status">{% if page.status %}
-    {{ page.status_text }}
-  {% else %}
-    {# TODO Do this always #}
+  <div class="joy-ev-status">
     {% blocktrans with what=page.what|lower %}This event has been {{ what }}.{% endblocktrans %}
-  {% endif %}</div>
+  </div>
 {% endblock event_status %}
 
 {% block event_title %}
