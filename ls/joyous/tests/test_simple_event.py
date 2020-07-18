@@ -9,9 +9,9 @@ from django_bs_test import TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
-from ls.joyous.models.calendar import SpecificCalendarPage
-from ls.joyous.models.events import SimpleEventPage, ThisEvent, EventsOnDay
-from ls.joyous.models.groups import get_group_model
+from ls.joyous.models import SpecificCalendarPage
+from ls.joyous.models import SimpleEventPage, ThisEvent, EventsOnDay
+from ls.joyous.models import get_group_model
 from .testutils import datetimetz, freeze_timetz
 GroupPage = get_group_model()
 

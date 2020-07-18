@@ -197,7 +197,7 @@ Includes
 
 
 joyous/event_base.html
--------------------------
+----------------------
 
 **Extends** : joyous/joyous_base.html
 
@@ -287,7 +287,7 @@ Blocks
 
 
 joyous/postponement_page_from.html
------------------------------
+----------------------------------
 
 **Extends** : joyous/exception_base.html
 
@@ -301,17 +301,17 @@ Blocks
 
 
 joyous/ext_cancellation_page.html
------------------------------
+---------------------------------
 
 **Extends** : joyous/cancellation_page.html
 
 joyous/closed_for_holidays_page.html
------------------------------
+------------------------------------
 
 **Extends** : joyous/cancellation_page.html
 
 joyous/group_page.html
--------------------------
+----------------------
 
 **Extends** : joyous/joyous_base.html
 

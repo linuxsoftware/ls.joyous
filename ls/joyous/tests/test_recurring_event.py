@@ -12,9 +12,9 @@ from wagtail.core.models import Site, Page
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY
 from ls.joyous.utils.recurrence import TU, TH, SA, SU, EVERYWEEKDAY
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import (RecurringEventPage, CancellationPage,
-                                     PostponementPage)
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import (RecurringEventPage, CancellationPage,
+                              PostponementPage)
 from .testutils import datetimetz, freeze_timetz
 
 # ------------------------------------------------------------------------------

@@ -17,11 +17,11 @@ from django.utils import timezone
 from wagtail.core.models import Site, Page
 from wagtail.images.models import Image
 from wagtail.images.tests.utils import get_test_image_file
-from ls.joyous.models.calendar import CalendarPage
+from ls.joyous.models import CalendarPage
 from ls.joyous.models import (EventCategory, SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, ExtraInfoPage, CancellationPage)
-from ls.joyous.models.groups import get_group_model
-from ls.joyous.models.events import ThisEvent
+from ls.joyous.models import get_group_model
+from ls.joyous.models import ThisEvent
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, TU, SA
 from ls.joyous.formats.rss import RssHandler, EventEntry

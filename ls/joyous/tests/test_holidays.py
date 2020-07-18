@@ -7,8 +7,8 @@ from unittest.mock import Mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from holidays import NZ, AU
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import SimpleEventPage
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import SimpleEventPage
 from ls.joyous.holidays import Holidays
 from ls.joyous.holidays.parser import parseHolidays, _parseSubdivisions
 from .testutils import freeze_timetz, getPage

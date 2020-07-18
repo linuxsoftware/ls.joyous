@@ -3,19 +3,17 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-import pytz
 from itertools import islice
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
-from django.utils import timezone
 from wagtail.core.models import Page
 from wagtail.tests.utils.form_data import rich_text
 from holidays.holiday_base import HolidayBase
 from ls.joyous.holidays import Holidays
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import (RecurringEventPage, CancellationPage,
-                                     ExtCancellationPage)
-from ls.joyous.models.events import ClosedForHolidaysPage, ClosedFor
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import (RecurringEventPage, CancellationPage,
+                              ExtCancellationPage)
+from ls.joyous.models import ClosedForHolidaysPage, ClosedFor
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, WE, FR
 from .testutils import freeze_timetz, datetimetz
 

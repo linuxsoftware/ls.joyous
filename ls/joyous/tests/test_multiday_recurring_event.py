@@ -12,8 +12,8 @@ from wagtail.core.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY
 from ls.joyous.utils.recurrence import SA, MO, TU, TH, FR
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import MultidayRecurringEventPage, ExtraInfoPage
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import MultidayRecurringEventPage, ExtraInfoPage
 from .testutils import datetimetz, freeze_timetz
 
 # ------------------------------------------------------------------------------

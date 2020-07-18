@@ -13,13 +13,13 @@ from django.utils import timezone
 from wagtail.core.models import Site, Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import WEEKLY, MONTHLY, MO, TU, WE, FR, SU
-from ls.joyous.models.calendar import GeneralCalendarPage
-from ls.joyous.models.events import (SimpleEventPage, MultidayEventPage,
+from ls.joyous.models import GeneralCalendarPage
+from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, PostponementPage, CancellationPage, ExtraInfoPage)
-from ls.joyous.models.events import (getAllEventsByDay, getAllEventsByWeek,
+from ls.joyous.models import (getAllEventsByDay, getAllEventsByWeek,
         getAllUpcomingEvents, getAllPastEvents, getGroupUpcomingEvents,
         getEventFromUid)
-from ls.joyous.models.groups import get_group_model
+from ls.joyous.models import get_group_model
 from .testutils import datetimetz
 
 GroupPage = get_group_model()

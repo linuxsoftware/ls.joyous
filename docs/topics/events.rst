@@ -119,7 +119,7 @@ the occurrence is just quietly removed.
 .. _ClosedForHolidays:
 
 ClosedForHolidaysPage
--------------------
+---------------------
 A :class:`ClosedForHolidaysPage <ls.joyous.models.ClosedForHolidaysPage>`
 removes any occurrences of a recurring event if the are on a holiday.  
 All holidays or a specific list of holidays can apply.

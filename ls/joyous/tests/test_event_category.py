@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 from django.test import TestCase
-from ls.joyous.models.events import EventCategory
+from ls.joyous.models import EventCategory
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):

@@ -9,9 +9,9 @@ from django.utils import translation
 from django.utils import timezone
 from wagtail.core.models import Page
 from wagtail.tests.utils.form_data import nested_form_data, rich_text
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage, MultidayRecurringEventPage
-from ls.joyous.models.events import ExtraInfoPage, ExtraInfoPageForm
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import RecurringEventPage, MultidayRecurringEventPage
+from ls.joyous.models import ExtraInfoPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MO, WE, FR
 from .testutils import datetimetz, freeze_timetz
 

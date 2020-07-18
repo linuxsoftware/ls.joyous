@@ -10,9 +10,9 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from wagtail.core.models import Page, PageViewRestriction
 from wagtail.tests.utils.form_data import rich_text
-from ls.joyous.models.calendar import CalendarPage
-from ls.joyous.models.events import RecurringEventPage, CancellationPage
-from ls.joyous.models.events import ExtCancellationPage
+from ls.joyous.models import CalendarPage
+from ls.joyous.models import RecurringEventPage
+from ls.joyous.models import ExtCancellationPage
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, WE, FR
 from .testutils import freeze_timetz, datetimetz
 

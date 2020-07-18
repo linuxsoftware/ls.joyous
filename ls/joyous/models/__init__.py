@@ -1,35 +1,37 @@
 # Event Base
-from .events import EventCategory
-from .events import EventBase
+from .event_base import EventCategory
+from .event_base import EventBase
+from .event_base import ThisEvent
+from .event_base import EventsOnDay
 
 # One Off Events
-from .events import SimpleEventPage
-from .events import MultidayEventPage
+from .one_off_events import SimpleEventPage
+from .one_off_events import MultidayEventPage
 
 # Recurring Events
-from .events import RecurringEventPage
-from .events import MultidayRecurringEventPage
-from .events import EventExceptionBase
-from .events import DateExceptionBase
-from .events import ExtraInfoPage
-from .events import CancellationBase
-from .events import CancellationPage
-from .events import RescheduleEventBase
-from .events import PostponementPage
-from .events import RescheduleMultidayEventPage
-from .events import ExtCancellationPage
-from .events import ClosedForHolidaysPage
-from .events import ClosedFor
+from .recurring_events import RecurringEventPage
+from .recurring_events import MultidayRecurringEventPage
+from .recurring_events import EventExceptionBase
+from .recurring_events import DateExceptionBase
+from .recurring_events import ExtraInfoPage
+from .recurring_events import CancellationBase
+from .recurring_events import CancellationPage
+from .recurring_events import RescheduleEventBase
+from .recurring_events import PostponementPage
+from .recurring_events import RescheduleMultidayEventPage
+from .recurring_events import ExtCancellationPage
+from .recurring_events import ClosedForHolidaysPage
+from .recurring_events import ClosedFor
 
 # Events API
-from .events import getAllEventsByDay
-from .events import getAllEventsByWeek
-from .events import getAllUpcomingEvents
-from .events import getAllPastEvents
-from .events import getGroupUpcomingEvents
-from .events import getEventFromUid
-from .events import getAllEvents
-from .events import removeContentPanels
+from .events_api import getAllEventsByDay
+from .events_api import getAllEventsByWeek
+from .events_api import getAllUpcomingEvents
+from .events_api import getAllPastEvents
+from .events_api import getGroupUpcomingEvents
+from .events_api import getEventFromUid
+from .events_api import getAllEvents
+from .events_api import removeContentPanels
 
 # Calendars
 from .calendar import CalendarPage
@@ -39,3 +41,5 @@ from .calendar import GeneralCalendarPage
 
 # Groups
 from .groups import GroupPage
+from .groups import get_group_model
+from .groups import get_group_model_string

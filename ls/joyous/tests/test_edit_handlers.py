@@ -12,10 +12,10 @@ from django.utils.formats import get_format
 from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
 from wagtail.core.models import Site, Page
-from ls.joyous.models.events import (CancellationPageForm, RecurringEventPageForm,
-                                     HiddenNumDaysPanel)
-from ls.joyous.models import (CalendarPage, CancellationPage, RecurringEventPage,
-                              MultidayRecurringEventPage)
+from ls.joyous.models.recurring_events import (CancellationPageForm,
+        RecurringEventPageForm, HiddenNumDaysPanel)
+from ls.joyous.models import (CalendarPage, CancellationPage,
+        RecurringEventPage, MultidayRecurringEventPage)
 from ls.joyous.utils.recurrence import Recurrence, MONTHLY, YEARLY, TU, FR
 from ls.joyous.edit_handlers import ExceptionDatePanel, ConcealedPanel
 from ls.joyous.widgets import Time12hrInput, ExceptionDateInput

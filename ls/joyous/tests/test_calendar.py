@@ -11,10 +11,10 @@ from django.utils import translation
 from django.urls import reverse
 from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.core.models import Site, Page
-from ls.joyous.models.calendar import (CalendarPage, SpecificCalendarPage,
+from ls.joyous.models import (CalendarPage, SpecificCalendarPage,
         CalendarPageForm, GeneralCalendarPage)
-from ls.joyous.models.events import SimpleEventPage
-from ls.joyous.models.groups import get_group_model
+from ls.joyous.models import SimpleEventPage
+from ls.joyous.models import get_group_model
 from .testutils import freeze_timetz, getPage
 
 GroupPage = get_group_model()

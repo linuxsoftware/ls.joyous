@@ -62,3 +62,11 @@ Bug fixes
 
 
 
+Upgrade considerations
+======================
+
+Source code restructure
+~~~~~~~~~~~~~~~~~~~~~~~
+models/events.py was getting too large so has been broken up.
+Users who access Joyous models via models/__init__.py will not notice
+any difference.
