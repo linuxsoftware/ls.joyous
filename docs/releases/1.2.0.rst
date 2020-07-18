@@ -60,13 +60,7 @@ Bug fixes
  * Record no authority to update an exception as an iCal load failure
  * Fix ExceptionDateInput to take account of JOYOUS_FIRST_DAY_OF_WEEK
 
-
-
-Upgrade considerations
-======================
-
 Source code restructure
 ~~~~~~~~~~~~~~~~~~~~~~~
 models/events.py was getting too large so has been broken up.
-Users who access Joyous models via models/__init__.py will not notice
-any difference.
+Users of Joyous should not notice any difference.

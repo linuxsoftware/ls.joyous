@@ -9,7 +9,7 @@ cache: pip
 env:
  - WAGTAIL_VERSION=2.7.3
  - WAGTAIL_VERSION=2.8.2
- - WAGTAIL_VERSION=2.9
+ - WAGTAIL_VERSION=2.9.2
 
 python:
   - "3.6"
