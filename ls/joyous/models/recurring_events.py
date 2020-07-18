@@ -220,10 +220,10 @@ class RecurringEventPage(EventBase, Page):
         Date when this event is next scheduled to occur in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
-        # TODO ditch __localAfter?
-        nextDt = self.__localAfter(timezone.localtime(), dt.time.min)
-        if nextDt is not None:
-            return nextDt.date()
+        myNextDt = self.__after(timezone.localtime(timezone=self.tz))
+        if myNextDt is not None:
+            return getLocalDate(myNextDt.date(), self.time_from,
+                                self.tz, dt.time.min)
 
     @property
     def _current_datetime_from(self):
@@ -239,11 +239,11 @@ class RecurringEventPage(EventBase, Page):
                                  hours   = timeTo.hour   - timeFrom.hour,
                                  minutes = timeTo.minute - timeFrom.minute,
                                  seconds = timeTo.second - timeFrom.second)
-        nextDt = self.__after(myNow - timeDelta,
+        myNextDt = self.__after(myNow - timeDelta,
                               excludeCancellations=True,
                               excludeExtraInfo=True)
-        if nextDt is not None:
-            return getLocalDatetime(nextDt.date(), self.time_from,
+        if myNextDt is not None:
+            return getLocalDatetime(myNextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -252,12 +252,11 @@ class RecurringEventPage(EventBase, Page):
         The datetime this event next starts in the local timezone, or None if
         in the past.
         """
-        myNow = timezone.localtime(timezone=self.tz)
-        nextDt = self.__after(myNow,
-                              excludeCancellations=True,
-                              excludeExtraInfo=True)
-        if nextDt is not None:
-            return getLocalDatetime(nextDt.date(), self.time_from,
+        myNextDt = self.__after(timezone.localtime(timezone=self.tz),
+                                excludeCancellations=True,
+                                excludeExtraInfo=True)
+        if myNextDt is not None:
+            return getLocalDatetime(myNextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -266,10 +265,10 @@ class RecurringEventPage(EventBase, Page):
         Date when this event last occurred in the local time zone
         (Does not include postponements, but does exclude cancellations)
         """
-        # TODO ditch __localBefore?
-        prevDt = self.__localBefore(timezone.localtime(), dt.time.min)
-        if prevDt is not None:
-            return prevDt.date()
+        myPrevDt = self.__before(timezone.localtime(timezone=self.tz))
+        if myPrevDt is not None:
+            return getLocalDate(myPrevDt.date(), self.time_from,
+                                self.tz, dt.time.min)
 
     @property
     def _past_datetime_from(self):
@@ -277,13 +276,14 @@ class RecurringEventPage(EventBase, Page):
         The datetime this event previously started in the local time zone, or
         None if it never did.
         """
-        # TODO ditch __localBefore?
-        prevDt = self.__localBefore(timezone.localtime(), dt.time.max,
-                                    excludeCancellations=True,
-                                    excludeExtraInfo=True)
+        myPrevDt = self.__before(timezone.localtime(timezone=self.tz),
+                                 excludeCancellations=True,
+                                 excludeExtraInfo=True)
         # Exclude extra info pages as this is used for sorting and the extra
         # info pages sit alongside
-        return prevDt
+        if myPrevDt is not None:
+            return getLocalDatetime(myPrevDt.date(), self.time_from,
+                                    self.tz, dt.time.max)
 
     @property
     def _first_datetime_from(self):
@@ -363,14 +363,6 @@ class RecurringEventPage(EventBase, Page):
                                                infix=gettext("finishing at")))
         return retval.strip()
 
-    @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
-
     def _getFromTime(self, atDate=None):
         """
         What was the time of this event?  Due to time zones that depends what
@@ -415,12 +407,13 @@ class RecurringEventPage(EventBase, Page):
         will next be on
         """
         retval = None
-        nextDt, event = self.__localAfterOrPostponedTo(timezone.localtime(),
-                                                       dt.time.min)
-        if nextDt is not None:
-            timeFrom = nextDt.time() if event.time_from is not None else None
-            retval = "{} {}".format(dateFormat(nextDt.date()),
-                                    timeFormat(timeFrom, prefix=gettext("at ")))
+        myNow = timezone.localtime(timezone=self.tz)
+        myNextDt, event = self.__afterOrPostponedTo(myNow)
+        if myNextDt is not None:
+            nextDate, nextTime = getLocalDateAndTime(myNextDt.date(), event.time_from,
+                                                     self.tz, dt.time.min)
+            retval = "{} {}".format(dateFormat(nextDate),
+                                    timeFormat(nextTime, prefix=gettext("at ")))
             if event is not self and event.isAuthorized(request):
                 retval = format_html('<a class="inline-link" href="{}">{}</a>',
                                      event.url, retval)
@@ -474,10 +467,9 @@ class RecurringEventPage(EventBase, Page):
         Date when this event is next scheduled to occur in my time zone
         (Does not include postponements, but does exclude cancellations)
         """
-        myNow = timezone.localtime(timezone=self.tz)
-        nextDt = self.__after(myNow)
-        if nextDt is not None:
-            return nextDt.date()
+        myNextDt = self.__after(timezone.localtime(timezone=self.tz))
+        if myNextDt is not None:
+            return myNextDt.date()
 
     def _getClosedForHolidays(self):
         """
@@ -497,15 +489,6 @@ class RecurringEventPage(EventBase, Page):
         """
         myNow = timezone.localtime(timezone=self.tz)
         return self.__after(myNow) or self.__before(myNow)
-
-    def __localAfterOrPostponedTo(self, fromDt, timeDefault=dt.time.min):
-        myFromDt, event = self.__afterOrPostponedTo(fromDt.astimezone(self.tz))
-        if myFromDt is not None:
-            localFromDt = getLocalDatetime(myFromDt.date(), event.time_from,
-                                           self.tz, timeDefault)
-            return (localFromDt, event)
-        else:
-            return (None, event)
 
     def __afterOrPostponedTo(self, fromDt):
         after = self.__after(fromDt)
@@ -546,14 +529,6 @@ class RecurringEventPage(EventBase, Page):
         else:
             return (None, None)
 
-    # TODO ditch __localAfter?
-    # more efficient to do TZ conversion in calling code?
-    def __localAfter(self, fromDt, timeDefault=dt.time.min, **kwargs):
-        myFromDt = self.__after(fromDt.astimezone(self.tz), **kwargs)
-        if myFromDt is not None:
-            return getLocalDatetime(myFromDt.date(), self.time_from,
-                                    self.tz, timeDefault)
-
     def __after(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
         if self.time_from and self.time_from < fromDt.time():
@@ -592,14 +567,6 @@ class RecurringEventPage(EventBase, Page):
                 continue
             return getAwareDatetime(occurence, self.time_from,
                                     self.tz, dt.time.min)
-
-    # TODO ditch __localBefore?
-    # more efficient to do TZ conversion in calling code?
-    def __localBefore(self, fromDt, timeDefault=dt.time.min, **kwargs):
-        myFromDt = self.__before(fromDt.astimezone(self.tz), **kwargs)
-        if myFromDt is not None:
-            return getLocalDatetime(myFromDt.date(), self.time_from,
-                                    self.tz, timeDefault)
 
     def __before(self, fromDt, excludeCancellations=True, excludeExtraInfo=False):
         fromDate = fromDt.date()
@@ -688,6 +655,13 @@ class EventExceptionBase(models.Model):
     cancellation_details = None
     extra_information    = None
     postponed_from_when  = None
+
+    @property
+    def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
+        return timeFormat(self._getFromTime())
 
     @property
     def overrides_repeat(self):
@@ -779,14 +753,6 @@ class DateExceptionBase(EventExceptionBase):
         A string describing when the event occurs (in the local time zone).
         """
         return self._getLocalWhen(self.except_date, self.num_days)
-
-    @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
 
     def full_clean(self, *args, **kwargs):
         """
@@ -919,15 +885,11 @@ class ExtraInfoPage(DateExceptionBase, Page):
         """
         The current status of the event (started, finished or pending).
         """
-        # TODO use a default implementation???
-        myNow = timezone.localtime(timezone=self.tz)
-        fromDt = getAwareDatetime(self.except_date, self.time_from, self.tz)
-        daysDelta = dt.timedelta(days=self.num_days - 1)
-        toDt = getAwareDatetime(self.except_date + daysDelta, self.time_to, self.tz)
-        if toDt < myNow:
-            return "finished"
-        elif fromDt < myNow:
-            return "started"
+        now = timezone.localtime()
+        if self._getToDt() < now:
+           return "finished"
+        elif self._getFromDt() < now:
+           return "started"
 
     @property
     def status_text(self):
@@ -1022,6 +984,20 @@ class CancellationBase(models.Model):
             FieldPanel('cancellation_details', classname="full")],
             heading=_("Cancellation"))
 
+    @property
+    def status(self):
+        """
+        The current status of the event
+        """
+        return "cancelled"
+
+    @property
+    def status_text(self):
+        """
+        A text description of the current status of the event.
+        """
+        return _("This event has been cancelled.")
+
 class CancellationPage(CancellationBase, DateExceptionBase, Page):
     class Meta:
         verbose_name = _("cancellation")
@@ -1045,20 +1021,6 @@ class CancellationPage(CancellationBase, DateExceptionBase, Page):
         CancellationBase.cancellation_panel,
         ]
     promote_panels = []
-
-    @property
-    def status(self):
-        """
-        The current status of the event (started, finished or pending).
-        """
-        return "cancelled"
-
-    @property
-    def status_text(self):
-        """
-        A text description of the current status of the event.
-        """
-        return _("This event has been cancelled.")
 
     @property
     def _current_datetime_from(self):
@@ -1240,21 +1202,6 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
                                 self.get_context(request))
 
     @property
-    def status(self):
-        """
-        The current status of the postponement (started, finished or pending).
-        """
-        # TODO use a default implementation
-        myNow = timezone.localtime(timezone=self.tz)
-        fromDt = getAwareDatetime(self.date, self.time_from, self.tz)
-        daysDelta = dt.timedelta(days=self.num_days - 1)
-        toDt = getAwareDatetime(self.date + daysDelta, self.time_to, self.tz)
-        if toDt < myNow:
-            return "finished"
-        elif fromDt < myNow:
-            return "started"
-
-    @property
     def when(self):
         """
         A string describing when the postponement occurs (in the local time zone).
@@ -1308,14 +1255,6 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         """
         toDate = getLocalDate(self.date, self.time_from, self.tz)
         return dateFormat(toDate)
-
-    @property
-    def at(self):
-        """
-        A string describing what time the postponement starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
         """
@@ -1511,13 +1450,6 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         return _("Closed for holidays")
 
     @property
-    def status(self):
-        """
-        The current status of the event (started, finished or pending).
-        """
-        return "cancelled"
-
-    @property
     def status_text(self):
         """
         A text description of the current status of the event.
@@ -1538,14 +1470,6 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
             # This would require changes to ThisEvent either add another field
             # or make the big move and turn it into a proper facade class
         return retval
-
-    @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
 
     @property
     def closed(self):
@@ -1577,10 +1501,9 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         """
         if self.holidays is None:
             return self.MAX_DATETIME
-        myNow = timezone.localtime(timezone=self.tz)
-        nextDt = self.__after(myNow)
-        if nextDt is not None:
-            return getLocalDatetime(nextDt.date(), self.time_from,
+        myNextDt = self.__after(timezone.localtime(timezone=self.tz))
+        if myNextDt is not None:
+            return getLocalDatetime(myNextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -1591,10 +1514,9 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         """
         if self.holidays is None:
             return self.MIN_DATETIME
-        myNow = timezone.localtime(timezone=self.tz)
-        prevDt = self.__before(myNow)
-        if prevDt is not None:
-            return getLocalDatetime(prevDt.date(), self.time_from,
+        myPrevDt = self.__before(timezone.localtime(timezone=self.tz))
+        if myPrevDt is not None:
+            return getLocalDatetime(myPrevDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -1634,7 +1556,6 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         Cache the set of names of the holidays we are closed for.
         This needs to be re-called if the page's fields change.
         """
-        # TODO: Automate the invalidation?
         closed = self.closed
         if closed == "ALL":
             self.__closedSet = "ALL"
@@ -1805,22 +1726,6 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         return title
 
     @property
-    def status(self):
-        """
-        The current status of the event (started, finished or pending).
-        """
-        # TODO put this in CancellationBase?
-        return "cancelled"
-
-    @property
-    def status_text(self):
-        """
-        A text description of the current status of the event.
-        """
-        # TODO put this in CancellationBase?
-        return _("This event has been cancelled.")
-
-    @property
     def until_when(self):
         """
         A string describing how long we are cancelled for
@@ -1842,14 +1747,6 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         return retval
 
     @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
-
-    @property
     def _current_datetime_from(self):
         """
         The datetime the event that was cancelled would start in the local
@@ -1863,9 +1760,9 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
                                  hours   = timeTo.hour   - timeFrom.hour,
                                  minutes = timeTo.minute - timeFrom.minute,
                                  seconds = timeTo.second - timeFrom.second)
-        nextDt = self.__after(myNow - timeDelta)
-        if nextDt is not None:
-            return getLocalDatetime(nextDt.date(), self.time_from,
+        myNextDt = self.__after(myNow - timeDelta)
+        if myNextDt is not None:
+            return getLocalDatetime(myNextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -1874,10 +1771,9 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         The datetime the event that was cancelled would start in the local
         timezone, or None if that is in the past.
         """
-        myNow = timezone.localtime(timezone=self.tz)
-        nextDt = self.__after(myNow)
-        if nextDt is not None:
-            return getLocalDatetime(nextDt.date(), self.time_from,
+        myNextDt = self.__after(timezone.localtime(timezone=self.tz))
+        if myNextDt is not None:
+            return getLocalDatetime(myNextDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     @property
@@ -1886,10 +1782,9 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
         The datetime of the event that was cancelled in the local timezone, or
         None if it never would have.
         """
-        myNow = timezone.localtime(timezone=self.tz)
-        prevDt = self.__before(myNow)
-        if prevDt is not None:
-            return getLocalDatetime(prevDt.date(), self.time_from,
+        myPrevDt = self.__before(timezone.localtime(timezone=self.tz))
+        if myPrevDt is not None:
+            return getLocalDatetime(myPrevDt.date(), self.time_from,
                                     self.tz, dt.time.max)
 
     def full_clean(self, *args, **kwargs):

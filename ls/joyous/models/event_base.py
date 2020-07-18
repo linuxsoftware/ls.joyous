@@ -144,7 +144,6 @@ class EventQuerySet(PageQuerySet):
         qs.postFilter = self.postFilter
         return qs
 
-    # TODO: use _iterable_class instead? 
     def _fetch_all(self):
         super()._fetch_all()
         if self.postFilter:
@@ -356,15 +355,11 @@ class EventBase(models.Model):
         """
         The current status of the event (started, finished or pending).
         """
-        raise NotImplementedError()
-        # TODO
-        #fromDt = self._getFromDt()
-        #toDt = self._getToDt()
-        # now = timezone.localtime()
-        #if toDt < now:
-        #    return "finished"
-        #elif fromDt < now:
-        #    return "started"
+        now = timezone.localtime()
+        if self._getToDt() < now:
+           return "finished"
+        elif self._getFromDt() < now:
+           return "started"
 
     @property
     def status_text(self):
@@ -378,6 +373,13 @@ class EventBase(models.Model):
             return _("This event has started.")
         else:
             return ""
+
+    @property
+    def at(self):
+        """
+        A string describing what time the event starts (in the local time zone).
+        """
+        return timeFormat(self._getFromTime())
 
     @classmethod
     def _removeContentPanels(cls, *args):

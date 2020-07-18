@@ -86,31 +86,11 @@ class SimpleEventPage(EventBase, Page):
         ] + EventBase.content_panels1
 
     @property
-    def status(self):
-        """
-        The current status of the event (started, finished or pending).
-        """
-        # TODO use a default implementation
-        myNow = timezone.localtime(timezone=self.tz)
-        if getAwareDatetime(self.date, self.time_to, self.tz) < myNow:
-            return "finished"
-        elif getAwareDatetime(self.date, self.time_from, self.tz) < myNow:
-            return "started"
-
-    @property
     def when(self):
         """
         A string describing when the event occurs (in the local time zone).
         """
         return self._getLocalWhen(self.date)
-
-    @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
         """
@@ -202,31 +182,11 @@ class MultidayEventPage(EventBase, Page):
         ] + EventBase.content_panels1
 
     @property
-    def status(self):
-        """
-        The current status of the event (started, finished or pending).
-        """
-        # TODO use a default implementation
-        myNow = timezone.localtime(timezone=self.tz)
-        if getAwareDatetime(self.date_to, self.time_to, self.tz) < myNow:
-            return "finished"
-        elif getAwareDatetime(self.date_from, self.time_from, self.tz) < myNow:
-            return "started"
-
-    @property
     def when(self):
         """
         A string describing when the event occurs (in the local time zone).
         """
         return self._getLocalWhen(self.date_from, self.date_to)
-
-    @property
-    def at(self):
-        """
-        A string describing what time the event starts (in the local time zone).
-        """
-        # TODO use a default implementation
-        return timeFormat(self._getFromTime())
 
     def _getFromTime(self, atDate=None):
         """

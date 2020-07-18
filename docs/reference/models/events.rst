@@ -114,6 +114,7 @@ EventBase
     .. autoattribute:: _first_datetime_from
     .. autoattribute:: status
     .. autoattribute:: status_text
+    .. autoattribute:: at
     .. automethod:: _removeContentPanels
     .. automethod:: isAuthorized
     .. automethod:: get_context
@@ -135,7 +136,6 @@ SimpleEventPage
         The date that the event occurs on.
 
     .. autoattribute:: when
-    .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
     .. automethod:: _getToDt
@@ -157,7 +157,6 @@ MultidayEventPage
         The date the event finishes.
 
     .. autoattribute:: when
-    .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _getFromDt
     .. automethod:: _getToDt
@@ -187,7 +186,6 @@ RecurringEventPage
     .. autoattribute:: status
     .. autoattribute:: status_text
     .. autoattribute:: when
-    .. autoattribute:: at
     .. automethod:: _getFromTime
     .. automethod:: _futureExceptions
     .. automethod:: _nextOn
@@ -253,6 +251,7 @@ EventExceptionBase
 
         Shortcut for overrides.website.
 
+    .. autoattribute:: at
     .. autoattribute:: overrides_repeat
     .. automethod:: get_context
     .. automethod:: isAuthorized
@@ -272,7 +271,6 @@ DateExceptionBase
 
     .. autoattribute:: local_title
     .. autoattribute:: when
-    .. autoattribute:: at
     .. automethod:: full_clean
     .. automethod:: _getLocalWhen
     .. automethod:: _getFromTime
@@ -322,6 +320,9 @@ CancellationBase
 
         Why was the event cancelled?
 
+    .. autoattribute:: status
+    .. autoattribute:: status_text
+
 CancellationPage
 ----------------
 .. inheritance-diagram:: CancellationPage
@@ -330,8 +331,6 @@ CancellationPage
 .. autoclass:: CancellationPage
     :show-inheritance:
 
-    .. autoattribute:: status
-    .. autoattribute:: status_text
     .. autoattribute:: _current_datetime_from
     .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
@@ -418,10 +417,7 @@ ClosedForHolidaysPage
         Or, closed for these holidays
 
     .. autoattribute:: local_title
-    .. autoattribute:: status
-    .. autoattribute:: status_text
     .. autoattribute:: when
-    .. autoattribute:: at
     .. autoattribute:: closed
     .. autoattribute:: _current_datetime_from
     .. autoattribute:: _future_datetime_from
@@ -450,11 +446,8 @@ ExtCancellationPage
         Cancelled to this date (Leave empty for "until further notice")
 
     .. autoattribute:: local_title
-    .. autoattribute:: status
-    .. autoattribute:: status_text
     .. autoattribute:: until_when
     .. autoattribute:: when
-    .. autoattribute:: at
     .. autoattribute:: _current_datetime_from
     .. autoattribute:: _future_datetime_from
     .. autoattribute:: _past_datetime_from
