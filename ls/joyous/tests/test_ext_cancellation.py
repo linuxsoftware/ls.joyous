@@ -79,7 +79,7 @@ class Test(TestCase):
         self.assertEqual(title, "No Meeting during Shutdown")
         self.assertIs(type(page), ExtCancellationPage)
 
-    @freeze_timetz("2011-11-11")
+    @freeze_timetz("2020-04-04")
     def testEventFutureExceptions(self):
         request = RequestFactory().get("/test")
         request.user = self.user
@@ -90,7 +90,26 @@ class Test(TestCase):
         self.assertEqual(shutdown.title,
                          "Cancellation from Friday 20th of March to Monday 1st of June")
         self.assertEqual(shutdown.cancellation_title, "No Meeting during Shutdown")
-        self.assertEqual(shutdown._future_datetime_from, datetimetz(2020,3,20,13))
+        self.assertEqual(shutdown._future_datetime_from, datetimetz(2020,4,6,13))
+
+    @freeze_timetz("2020-08-31")
+    def testPast(self):
+        self.assertEqual(list(ExtCancellationPage.events.past()), [self.shutdown])
+        self.assertEqual(ExtCancellationPage.events.past().count(), 1)
+        self.assertEqual(ExtCancellationPage.events.future().count(), 0)
+
+    @freeze_timetz("2020-05-04")
+    def testFuture(self):
+        self.assertEqual(list(ExtCancellationPage.events.future()), [self.shutdown])
+        self.assertEqual(ExtCancellationPage.events.past().count(), 1)
+        self.assertEqual(ExtCancellationPage.events.future().count(), 1)
+
+    @freeze_timetz("2020-06-01 14:00:00")
+    def testCurrent(self):
+        self.assertEqual(list(ExtCancellationPage.events.current()), [self.shutdown])
+        self.assertEqual(ExtCancellationPage.events.past().count(), 1)
+        self.assertEqual(ExtCancellationPage.events.current().count(), 1)
+        self.assertEqual(ExtCancellationPage.events.future().count(), 0)
 
     def testEventOccursOn(self):
         self.assertIs(self.event._occursOn(dt.date(2020, 5, 11)), False)

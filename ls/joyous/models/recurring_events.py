@@ -1652,7 +1652,8 @@ class ExtCancellationQuerySet(EventQuerySet):
 
     def future(self):
         qs = super().future()
-        return qs.filter(cancelled_from_date__gte=todayUtc() - _1day)
+        return qs.filter(Q(cancelled_to_date__gte=todayUtc() - _1day) |
+                         Q(cancelled_to_date__isnull=True))
 
     def past(self):
         qs = super().past()
