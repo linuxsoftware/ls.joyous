@@ -1,5 +1,5 @@
 ==========================
-Joyous 1.2.0 release notes - IN DEVELOPMENT
+Joyous 1.2.0 release notes
 ==========================
 
 .. contents::
