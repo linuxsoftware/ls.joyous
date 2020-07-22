@@ -145,7 +145,13 @@ class EventQuerySet(PageQuerySet):
         return qs
 
     def _fetch_all(self):
+        self._fetchResults()
+        self._filterResults()
+
+    def _fetchResults(self):
         super()._fetch_all()
+
+    def _filterResults(self):
         if self.postFilter:
             self._result_cache[:] = filter(self.postFilter, self._result_cache)
 

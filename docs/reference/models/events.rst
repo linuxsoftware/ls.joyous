@@ -193,7 +193,6 @@ RecurringEventPage
     .. automethod:: _getMyFirstDatetimeFrom
     .. automethod:: _getMyFirstDatetimeTo
     .. automethod:: _getMyNextDate
-    .. automethod:: _getClosedForHolidays
 
 MultidayRecurringEventPage
 --------------------------

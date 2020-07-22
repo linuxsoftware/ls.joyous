@@ -36,6 +36,7 @@ iCal
 ~~~~
  * When an event is closed for extended cancellations or on holidays these are
    exported as EXDATES.
+ * NOTE: Google Calendar will refuse to import an event with more than about 90 EXDATES.  Investigation of this issue is still in progress.
 
 RSS
 ~~~

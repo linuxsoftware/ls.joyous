@@ -54,9 +54,8 @@ class Test(TestCase):
         self.assertEqual(self.closedHols.slug,  "closed-for-holidays")
 
     def testGetEventsByDay(self):
-        events = RecurringEventPage.events.byDay(dt.date(1989,1,1),
-                                                 dt.date(1989,1,31),
-                                                 self.calendar.holidays)
+        events = RecurringEventPage.events.hols(self.calendar.holidays)      \
+                                   .byDay(dt.date(1989,1,1), dt.date(1989,1,31))
         self.assertEqual(len(events), 31)
         evod = events[0]
         self.assertEqual(evod.date, dt.date(1989,1,1))
@@ -96,14 +95,12 @@ class Test(TestCase):
                                    repeat    = Recurrence(dtstart=dt.date(1980,1,1),
                                                           freq=MONTHLY,
                                                           byweekday=[MO(1)]),
-                                   time_from = dt.time(20),
-                                   holidays = self.calendar.holidays)
+                                   time_from = dt.time(20))
         self.calendar.add_child(instance=event)
         closedHols = ClosedForHolidaysPage(owner = self.user,
                                            overrides = event,
                                            all_holidays = False,
-                                           cancellation_title = "Closed for the holiday",
-                                           holidays = self.calendar.holidays)
+                                           cancellation_title = "Closed for the holiday")
         closedHols.closed_for = [ ClosedFor(name="Wellington Anniversary Day"),
                                   ClosedFor(name="Auckland Anniversary Day"),
                                   ClosedFor(name="Nelson Anniversary Day"),
@@ -118,9 +115,9 @@ class Test(TestCase):
                                   ClosedFor(name="Westland Anniversary Day") ]
         event.add_child(instance=closedHols)
         closedHols.save_revision().publish()
-        events = ClosedForHolidaysPage.events.exclude(cancellation_title="")   \
-                                      .upcoming().this(self.calendar.holidays) \
-                                      .descendant_of(event)
+        events = ClosedForHolidaysPage.events.hols(self.calendar.holidays)   \
+                                      .exclude(cancellation_title="")        \
+                                      .upcoming().this().descendant_of(event)
         self.assertEqual(len(events), 1)
         title, page, url  = events[0]
         self.assertEqual(title, "Closed for the holiday")
@@ -129,7 +126,8 @@ class Test(TestCase):
 
     @freeze_timetz("1990-10-11 16:29:00")
     def testGetPastEvents(self):
-        events = ClosedForHolidaysPage.events.past().this(self.calendar.holidays)
+        events = ClosedForHolidaysPage.events.hols(self.calendar.holidays)   \
+                                      .past().this()
         self.assertEqual(len(events), 1)
         title, page, url  = events[0]
         self.assertEqual(title, "")
@@ -138,19 +136,17 @@ class Test(TestCase):
 
     @freeze_timetz("1990-10-11 16:29:00")
     def testWombatGetEventsByDay(self):
-        event = RecurringEventPage(slug      = "UVW",
-                                   title     = "Underwater viking wombats",
-                                   repeat    = Recurrence(dtstart=dt.date(1989,1,1),
-                                                          freq=MONTHLY,
-                                                          byweekday=[MO(1)]),
-                                   time_from = dt.time(19),
-                                   holidays = self.calendar.holidays)
+        event = RecurringEventPage(slug   = "UVW",
+                                   title  = "Underwater viking wombats",
+                                   repeat = Recurrence(dtstart=dt.date(1989,1,1),
+                                                       freq=MONTHLY,
+                                                       byweekday=[MO(1)]),
+                                   time_from = dt.time(19))
         self.calendar.add_child(instance=event)
         closedHols = ClosedForHolidaysPage(owner = self.user,
                                            overrides = event,
                                            all_holidays = False,
-                                           cancellation_title = "UVW Cancelled",
-                                           holidays = self.calendar.holidays)
+                                           cancellation_title = "UVW Cancelled")
         closedHols.closed_for = [ ClosedFor(name="New Year's Day"),
                                   ClosedFor(name="Day after New Year's Day"),
                                   ClosedFor(name="Good Friday"),
@@ -159,9 +155,8 @@ class Test(TestCase):
                                   ClosedFor(name="Boxing Day") ]
         event.add_child(instance=closedHols)
         closedHols.save_revision().publish()
-        events = RecurringEventPage.events.byDay(dt.date(1989,1,1),
-                                                 dt.date(1989,1,31),
-                                                 self.calendar.holidays)
+        events = RecurringEventPage.events.hols(self.calendar.holidays)      \
+                                   .byDay(dt.date(1989,1,1), dt.date(1989,1,31))
         self.assertEqual(len(events), 31)
         evod = events[1]
         self.assertEqual(evod.date, dt.date(1989,1,2))

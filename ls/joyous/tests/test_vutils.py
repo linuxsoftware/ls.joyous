@@ -437,7 +437,7 @@ class TestVEventFactory(TestCase):
     def testUnsupportedPageType(self):
         page = Page(title = "Event", slug = "event")
         with self.assertRaises(CalendarTypeError) as expected:
-            vev = self.factory.makeFromPage(page)
+            vev = self.factory.makeFromPage(page, None)
         self.assertEqual(str(expected.exception), "Unsupported page type")
 
 # ------------------------------------------------------------------------------

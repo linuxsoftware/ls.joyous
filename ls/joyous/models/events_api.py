@@ -35,7 +35,7 @@ def getAllEventsByDay(request, fromDate, toDate, *, home=None, holidays=None):
     """
     qrys = [SimpleEventPage.events(request).byDay(fromDate, toDate),
             MultidayEventPage.events(request).byDay(fromDate, toDate),
-            RecurringEventPage.events(request).byDay(fromDate, toDate, holidays),
+            RecurringEventPage.events(request, holidays).byDay(fromDate, toDate),
             PostponementPage.events(request).byDay(fromDate, toDate)]
     # Cancellations and ExtraInfo pages are returned by RecurringEventPage.byDay
     if home is not None:
@@ -73,16 +73,16 @@ def getAllUpcomingEvents(request, *, home=None, holidays=None):
     """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
-            RecurringEventPage.events(request).upcoming().this(holidays),
+            RecurringEventPage.events(request, holidays).upcoming().this(),
             PostponementPage.events(request).upcoming().this(),
-            ExtraInfoPage.events(request).exclude(extra_title="").upcoming()
-                            .this(),
+            ExtraInfoPage.events(request).exclude(extra_title="")
+                            .upcoming().this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .upcoming().this(),
             ExtCancellationPage.events(request).exclude(cancellation_title="")
                             .upcoming().this(),
-            ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .upcoming().this(holidays),]
+            ClosedForHolidaysPage.events(request, holidays)
+                            .exclude(cancellation_title="").upcoming().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
@@ -103,8 +103,9 @@ def getGroupUpcomingEvents(request, group, holidays=None):
 
     # Get events that are a child of a group page, or a postponement or extra
     # info a child of the recurring event child of the group
-    rrEvents = RecurringEventPage.events(request).exclude(group_page=group) \
-                                        .upcoming().child_of(group).this(holidays)
+    rrEvents = RecurringEventPage.events(request, holidays)                  \
+                                        .exclude(group_page=group)           \
+                                        .upcoming().child_of(group).this()
     qrys = [SimpleEventPage.events(request).exclude(group_page=group)
                                         .upcoming().child_of(group).this(),
             MultidayEventPage.events(request).exclude(group_page=group)
@@ -119,29 +120,31 @@ def getGroupUpcomingEvents(request, group, holidays=None):
                                  .child_of(rrEvent.page).upcoming().this(),
                  ExtCancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
-                 ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this(holidays),]
+                 ClosedForHolidaysPage.events(request, holidays)
+                                 .exclude(cancellation_title="")
+                                 .child_of(rrEvent.page).upcoming().this()]
 
     # Get events that are linked to a group page, or a postponement or extra
     # info child of the recurring event linked to a group
     rrEvents = group.recurringeventpage_set(manager='events').auth(request)  \
-                                                        .upcoming().this(holidays)
+                                 .hols(holidays).upcoming().this()
     qrys += [group.simpleeventpage_set(manager='events').auth(request)
-                                                        .upcoming().this(),
+                                 .upcoming().this(),
              group.multidayeventpage_set(manager='events').auth(request)
-                                                        .upcoming().this(),
+                                 .upcoming().this(),
              rrEvents]
     for rrEvent in rrEvents:
         qrys += [PostponementPage.events(request).child_of(rrEvent.page)
-                                                       .upcoming().this(),
+                                 .upcoming().this(),
                  ExtraInfoPage.events(request).exclude(extra_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
                  CancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
                  ExtCancellationPage.events(request).exclude(cancellation_title="")
                                  .child_of(rrEvent.page).upcoming().this(),
-                 ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                                 .child_of(rrEvent.page).upcoming().this(holidays),]
+                 ClosedForHolidaysPage.events(request, holidays)
+                                 .exclude(cancellation_title="")
+                                 .child_of(rrEvent.page).upcoming().this()]
     events = sorted(chain.from_iterable(qrys), key=_getUpcomingSort())
     return events
 
@@ -156,15 +159,16 @@ def getAllPastEvents(request, *, home=None, holidays=None):
     """
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),
-            RecurringEventPage.events(request).past().this(holidays),
+            RecurringEventPage.events(request, holidays).past().this(),
             PostponementPage.events(request).past().this(),
             ExtraInfoPage.events(request).exclude(extra_title="").past().this(),
             CancellationPage.events(request).exclude(cancellation_title="")
                             .past().this(),
             ExtCancellationPage.events(request).exclude(cancellation_title="")
                             .past().this(),
-            ClosedForHolidaysPage.events(request).exclude(cancellation_title="")
-                            .past().this(holidays) ]
+            ClosedForHolidaysPage.events(request, holidays)
+                            .exclude(cancellation_title="")
+                            .past().this()]
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]
     events = sorted(chain.from_iterable(qrys),
@@ -200,7 +204,7 @@ def getEventFromUid(request, uid):
     else:
         raise MultipleObjectsReturned("Multiple events with uid={}".format(uid))
 
-def getAllEvents(request, *, home=None):
+def getAllEvents(request, *, home=None, holidays=None):
     """
     Return all the events (under home if given).
 
@@ -210,7 +214,7 @@ def getAllEvents(request, *, home=None):
     """
     qrys = [SimpleEventPage.events(request).all(),
             MultidayEventPage.events(request).all(),
-            RecurringEventPage.events(request).all()]
+            RecurringEventPage.events(request, holidays).all()]
     # Does not return exceptions
     if home is not None:
         qrys = [qry.descendant_of(home) for qry in qrys]

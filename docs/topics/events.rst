@@ -151,6 +151,13 @@ If the to date is not given, then the event is cancelled
 a cancellation_title this will appear in place of the occurrence, but if not
 the occurrence is just quietly removed.
 
+.. note::
+    A ExtCancellationPage is exported in iCalendar format as a series of
+    EXDATES.  If the to date is not given or is far in the future there
+    could be hundreds of EXDATES.  However Google Calendar will refuse to
+    import an event with more than about 90 EXDATES.  Investigation of this
+    issue is still in progress.
+
 .. _ClosedForHolidays:
 
 ClosedForHolidaysPage
@@ -160,3 +167,8 @@ removes any occurrences of a recurring event if the are on a holiday.
 All holidays or a specific list of holidays can apply.
 If given a cancellation_title this will appear in place of the occurrence, but
 if not the occurrence is just quietly removed.
+
+.. note::
+    A ClosedForHolidaysPage is also exported in iCalendar format as a series of
+    EXDATES.  The same problem trying to import these into Google Calendar
+    as above applies.

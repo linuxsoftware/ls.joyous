@@ -83,8 +83,8 @@ class Test(TestCase):
         request.user = self.user
         KEY = PageViewRestriction.passed_view_restrictions_session_key
         request.session = {KEY: [restriction.id]}
-        events = RecurringEventPage.events(request).byDay(dt.date(1999,2,1),
-                                                          dt.date(1999,2,28))
+        events = RecurringEventPage.events(request, self.calendar.holidays)  \
+                                   .byDay(dt.date(1999,2,1), dt.date(1999,2,28))
         self.assertEqual(len(events), 28)
         evod = events[7]
         self.assertEqual(evod.date, dt.date(1999,2,8))

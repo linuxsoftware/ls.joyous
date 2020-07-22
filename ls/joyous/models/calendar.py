@@ -479,7 +479,7 @@ class CalendarPage(RoutablePageMixin, Page):
     def _getAllEvents(self, request):
         """Return all the events in this site."""
         home = request.site.root_page
-        return getAllEvents(request, home=home)
+        return getAllEvents(request, home=home, holidays=self.holidays)
 
     def _paginate(self, request, events):
         paginator = Paginator(events, self.EventsPerPage)
@@ -536,7 +536,7 @@ class SpecificCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getAllEvents(self, request):
         """Return all my child events."""
-        return getAllEvents(request, home=self)
+        return getAllEvents(request, home=self, holidays=self.holidays)
 
 # ------------------------------------------------------------------------------
 class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
@@ -579,7 +579,7 @@ class GeneralCalendarPage(ProxyPageMixin, CalendarPage):
 
     def _getAllEvents(self, request):
         """Return all the events."""
-        return getAllEvents(request)
+        return getAllEvents(request, holidays=self.holidays)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

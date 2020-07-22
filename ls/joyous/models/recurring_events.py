@@ -49,30 +49,59 @@ _2days = dt.timedelta(days=2)
 # ------------------------------------------------------------------------------
 # Event models
 # ------------------------------------------------------------------------------
-class RecurringEventQuerySet(EventQuerySet):
-    def this(self, holidays=None):
+class EventWithHolidaysManager(EventManager):
+    def get_queryset(self):
+        return self._queryset_class(self.model).live()
+
+    def __call__(self, request, holidays):
+        # a shortcut
+        return self.get_queryset().auth(request).hols(holidays)
+
+class EventWithHolidaysQuerySet(EventQuerySet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.holidays = None
+
+    def _clone(self):
+        qs = super()._clone()
+        qs.holidays = self.holidays
+        return qs
+
+    def _fetch_all(self):
+        super()._fetchResults()
+        # make sure we all have the same holidays
+        if self.holidays is not None:
+            for item in self._result_cache:
+                for event in getattr(item, 'all_events', [item]):
+                    page = getattr(event, 'page', event)
+                    page.holidays = self.holidays
+        super()._filterResults()
+
+    def hols(self, holidays):
+        qs = self._clone()
+        qs.holidays = holidays
+        return qs
+
+class RecurringEventQuerySet(EventWithHolidaysQuerySet):
+    def this(self):
         request = self.request
         class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    if holidays is not None:
-                        page.holidays = holidays
                     yield ThisEvent(page.title, page, page.get_url(request))
         qs = self._clone()
         qs._iterable_class = ThisIterable
         return qs
 
-    def byDay(self, fromDate, toDate, holidays=None):
-        request = self.request
+    def byDay(self, fromDate, toDate):
+        request  = self.request
+        holidays = self.holidays
         class ByDayIterable(ModelIterable):
             def __iter__(self):
                 evods = EventsByDayList(fromDate, toDate, holidays)
                 for page in super().__iter__():
-                    if holidays is not None:
-                        # make sure we all have the same holidays
-                        page.holidays = holidays
                     exceptions = self.__getExceptionsFor(page)
-                    closedHols = page._getClosedForHolidays()
+                    closedHols = self.__getClosedForHolidays(page, holidays)
                     startDelta = dt.timedelta(days=page.num_days + 1)
                     for occurence in page.repeat.between(fromDate - startDelta,
                                                          toDate + _2days,
@@ -138,6 +167,11 @@ class RecurringEventQuerySet(EventQuerySet):
                         exceptions[myDate] = thisEvent
                 return exceptions
 
+            def __getClosedForHolidays(self, page, holidays):
+                closedHols = ClosedForHolidaysPage.events.hols(holidays)\
+                                                  .child_of(page).first()
+                return closedHols
+
         qs = self._clone()
         qs._iterable_class = ByDayIterable
         return qs
@@ -175,7 +209,7 @@ class RecurringEventPageForm(EventPageForm):
             super()._checkStartBeforeEnd(cleaned_data)
 
 class RecurringEventPage(EventBase, Page):
-    events = EventManager.from_queryset(RecurringEventQuerySet)()
+    events = EventWithHolidaysManager.from_queryset(RecurringEventQuerySet)()
 
     class Meta:
         verbose_name = _("recurring event page")
@@ -392,9 +426,10 @@ class RecurringEventPage(EventBase, Page):
             else:
                 retval.append(cancellation)
         for shutdown in ExtCancellationPage.events(request).child_of(self)   \
-                                            .future():
+                                           .future():
             retval.append(shutdown)
-        closedHols = self._getClosedForHolidays()
+        closedHols = ClosedForHolidaysPage.events(request, self.holidays)    \
+                                          .child_of(self).first()
         if closedHols is not None:
             retval.append(closedHols)
         retval.sort(key=attrgetter('_future_datetime_from'))
@@ -437,7 +472,8 @@ class RecurringEventPage(EventBase, Page):
                                    Q(cancelled_to_date__isnull = True))      \
                            .exists():
             return False
-        closedHols = self._getClosedForHolidays()
+        closedHols = ClosedForHolidaysPage.events.hols(self.holidays)        \
+                                          .child_of(self).first()
         if closedHols and closedHols._closedOn(myDate):
             return False
         return True
@@ -470,18 +506,6 @@ class RecurringEventPage(EventBase, Page):
         myNextDt = self.__after(timezone.localtime(timezone=self.tz))
         if myNextDt is not None:
             return myNextDt.date()
-
-    def _getClosedForHolidays(self):
-        """
-        If there is a child ClosedForHolidaysPage get it and make sure
-        it is set with the same holidays as this page.
-        """
-        closedHols = ClosedForHolidaysPage.events.child_of(self).first()
-        if closedHols is not None:
-            if self.holidays is not None:
-                # make sure we all have the same holidays
-                closedHols.holidays = self.holidays
-        return closedHols
 
     def __getMyFromDt(self):
         """
@@ -544,7 +568,8 @@ class RecurringEventPage(EventBase, Page):
             shutdowns = ExtCancellationPage.events.child_of(self) \
                            .filter(Q(cancelled_to_date__gte=fromDate) |
                                    Q(cancelled_to_date__isnull = True))
-            closedHols = self._getClosedForHolidays()
+            closedHols = ClosedForHolidaysPage.events.hols(self.holidays)    \
+                                              .child_of(self).first()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
                                      .filter(except_date__gte=fromDate)      \
@@ -580,7 +605,8 @@ class RecurringEventPage(EventBase, Page):
                 exceptions.add(cancelled.except_date)
             shutdowns = ExtCancellationPage.events.child_of(self)            \
                            .filter(cancelled_from_date__lte=fromDate)
-            closedHols = self._getClosedForHolidays()
+            closedHols = ClosedForHolidaysPage.events.hols(self.holidays)    \
+                                              .child_of(self).first()
         if excludeExtraInfo:
             for info in ExtraInfoPage.events.child_of(self)                  \
                                      .filter(except_date__lte=fromDate)      \
@@ -1336,14 +1362,12 @@ class ClosedFor(models.Model):
     def __str__(self):
         return self.name
 
-class ClosedForHolidaysQuerySet(EventQuerySet):
-    def this(self, holidays=None):
+class ClosedForHolidaysQuerySet(EventWithHolidaysQuerySet):
+    def this(self):
         request = self.request
         class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    if holidays is not None:
-                        page.holidays = holidays
                     yield ThisEvent(page.cancellation_title, page,
                                     page.get_url(request))
         qs = self._clone()
@@ -1395,7 +1419,7 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
         verbose_name_plural = _("closed for holidays")
         default_manager_name = "objects"
 
-    events = EventManager.from_queryset(ClosedForHolidaysQuerySet)()
+    events = EventWithHolidaysManager.from_queryset(ClosedForHolidaysQuerySet)()
     parent_page_types = ["joyous.RecurringEventPage"]
     # TODO add "joyous.MultidayRecurringEventPage" : How would that work?
     # A. If the first day of the event is a holiday then the event is cancelled, or

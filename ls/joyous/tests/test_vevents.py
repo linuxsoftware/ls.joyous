@@ -50,7 +50,7 @@ class TestSimple(TestCase):
                                tz = pytz.timezone("Australia/Sydney"))
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), SimpleVEvent)
         tz = pytz.timezone("Australia/Sydney")
         self.assertEqual(vev['DTSTART'].dt,
@@ -79,7 +79,7 @@ class TestMultiday(TestCase):
                                  tz = pytz.timezone("Pacific/Niue"))
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), MultidayVEvent)
         tz = pytz.timezone("Pacific/Niue")
         self.assertEqual(vev['DTSTART'].dt,
@@ -116,7 +116,7 @@ class TestRecurring(TestCase):
                                   location  = "4th Floor, 1 Broadway, Cambridge, MA")
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), RecurringVEvent)
         vev.set('UID', "this-is-not-a-unique-identifier")
         codeForBoston = b"\r\n".join([
@@ -166,7 +166,7 @@ class TestRecurring(TestCase):
                                    except_date = dt.date(2018,7,14))
         page.add_child(instance=except2)
         except2.save_revision().publish()
-        vev = VEventFactory().makeFromPage(except1)
+        vev = VEventFactory().makeFromPage(except1, self.calendar)
         self.assertIs(type(vev), RecurringVEvent)
         vev.set('UID', "this-is-not-a-unique-identifier")
         tz = pytz.timezone("Pacific/Auckland")
@@ -215,7 +215,7 @@ class TestRecurring(TestCase):
                              extra_title = "Handling Time Zones with Python")
         page.add_child(instance=info)
         info.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), RecurringVEvent)
         vev.set('UID', "this-is-not-a-unique-identifier")
         codeForBoston = b"\r\n".join([
@@ -282,7 +282,7 @@ class TestRecurring(TestCase):
                                 )
         page.add_child(instance=post)
         post.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), RecurringVEvent)
         self.assertEqual(len(vev.vchildren), 1)
         vchild = vev.vchildren[0]
@@ -366,7 +366,7 @@ class TestMultidayRecurring(TestCase):
                                   tz = pytz.timezone("Pacific/Auckland"))
         self.calendar.add_child(instance=page)
         page.save_revision().publish()
-        vev = VEventFactory().makeFromPage(page)
+        vev = VEventFactory().makeFromPage(page, self.calendar)
         self.assertIs(type(vev), MultidayRecurringVEvent)
         tz = pytz.timezone("Pacific/Auckland")
         self.assertEqual(vev['DTSTART'].dt,
