@@ -4,6 +4,8 @@ Admin User Interface
 Edit Handlers
 -------------
 .. automodule:: ls.joyous.edit_handlers
+.. autoclass:: TZDatePanel
+
 .. autoclass:: ExceptionDatePanel
 
 .. autoclass:: TimePanel
