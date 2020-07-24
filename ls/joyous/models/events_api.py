@@ -183,7 +183,7 @@ def getEventFromUid(request, uid):
 
     :param request: Django request object
     :param uid: iCal unique identifier
-    :rtype: list of event pages
+    :rtype: event page
     """
     events = []
     with suppress(ObjectDoesNotExist):
