@@ -197,7 +197,7 @@ RecurringEventPage
 MultidayRecurringEventPage
 --------------------------
 .. inheritance-diagram:: MultidayRecurringEventPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.event_base.EventBase
+    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.RecurringEventPage
     :parts: 1
 .. autoclass:: MultidayRecurringEventPage
     :show-inheritance:
