@@ -210,6 +210,7 @@ def getAllEvents(request, *, home=None, holidays=None):
 
     :param request: Django request object
     :param home: only include events that are under this page (if given)
+    :param holidays: holidays that may affect these events
     :rtype: list of event pages
     """
     qrys = [SimpleEventPage.events(request).all(),
