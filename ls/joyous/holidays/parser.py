@@ -19,6 +19,12 @@ def _createMap(symbols):
                 holidayMap.setdefault(obj.country, cls)
     return holidayMap
 _PYTHON_HOLIDAYS_MAP = _createMap(list(python_holidays.__dict__.items()))
+# Special treatment for NZ
+_ALT_PROV_NAMES = {'NZ': {"Northland", "Auckland", "Hawke's Bay",
+                          "Taranaki", "New Plymouth", "Wellington",
+                          "Marlborough", "Nelson", "Canterbury",
+                          "South Canterbury", "Westland", "Otago",
+                          "Southland", "Chatham Islands"}}
 
 HolsRe = re.compile(r"(\w[\w\ ]*|\*)(\[.+?\])?")
 SplitRe = re.compile(r",\s*")
@@ -45,6 +51,10 @@ def _parseSubdivisions(holidaysStr, cls):
                 retval += cls(state = subdivision)
             elif subdivision in provinces:
                 retval += cls(prov = subdivision)
+            else:
+                country = getattr(cls(), 'country', None)
+                if subdivision in _ALT_PROV_NAMES.get(country, {}):
+                    retval += cls(prov = subdivision)
     return retval
 
 def parseHolidays(holidaysStr, holidayMap=None):

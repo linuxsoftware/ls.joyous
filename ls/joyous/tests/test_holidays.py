@@ -171,6 +171,11 @@ class TestParser(TestCase):
         self.assertEqual(hols.get(dt.date(2020,10,23)),
                          "Hawke's Bay Anniversary Day")
 
+    def testNelson(self):
+        hols = parseHolidays("NZ[Nelson]")
+        self.assertEqual(hols.get(dt.date(2020,2,3)),
+                         "Nelson Anniversary Day")
+
     def testInvalidCountry(self):
         self.assertIsNone(parseHolidays("Ruritania"))
 
