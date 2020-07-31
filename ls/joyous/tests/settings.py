@@ -1,5 +1,7 @@
 import os
+from wagtail import VERSION as _wt_version
 
+WT210 = _wt_version[:2] >= (2, 10)
 DEBUG = True
 JOYOUS_DEBUG = True
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -66,10 +68,11 @@ MIDDLEWARE = [
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-INSTALLED_APPS = [
+__INSTALLED_APPS = [
     'ls.joyous',
     'wagtailgmaps',
 
+    'wagtail.contrib.legacy.richtext' if WT210 else '',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -92,6 +95,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+INSTALLED_APPS = [app for app in __INSTALLED_APPS if app]
 
 WSGI_APPLICATION = 'demo.wsgi.application'
 
