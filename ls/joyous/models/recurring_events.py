@@ -101,7 +101,7 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
                 evods = EventsByDayList(fromDate, toDate, holidays)
                 for page in super().__iter__():
                     exceptions = self.__getExceptionsFor(page)
-                    closedHols = self.__getClosedForHolidays(page, holidays)
+                    closedHols = self.__getClosedForHolidays(page)
                     startDelta = dt.timedelta(days=page.num_days + 1)
                     for occurence in page.repeat.between(fromDate - startDelta,
                                                          toDate + _2days,
@@ -167,8 +167,8 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
                         exceptions[myDate] = thisEvent
                 return exceptions
 
-            def __getClosedForHolidays(self, page, holidays):
-                closedHols = ClosedForHolidaysPage.events.hols(holidays)\
+            def __getClosedForHolidays(self, page):
+                closedHols = ClosedForHolidaysPage.events.hols(holidays)     \
                                                   .child_of(page).first()
                 return closedHols
 
