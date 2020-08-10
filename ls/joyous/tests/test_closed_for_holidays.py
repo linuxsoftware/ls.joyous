@@ -225,7 +225,7 @@ class Test(TestCase):
         self.assertIs(closedHols._closedOn(dt.date(1989, 3, 24)), False)
 
     def testStatus(self):
-        self.assertEqual(self.closedHols.status, "cancelled")
+        self.assertEqual(self.closedHols.event_status, "cancelled")
         self.assertEqual(self.closedHols.status_text, "Closed for holidays.")
 
     def testWhen(self):

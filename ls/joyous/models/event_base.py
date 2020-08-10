@@ -357,7 +357,7 @@ class EventBase(models.Model):
         return self._getFromDt()
 
     @property
-    def status(self):
+    def event_status(self):
         """
         The current status of the event (started, finished or pending).
         """
@@ -372,7 +372,7 @@ class EventBase(models.Model):
         """
         A text description of the current status of the event.
         """
-        status = self.status
+        status = self.event_status
         if status == "finished":
             return _("This event has finished.")
         elif status == "started":

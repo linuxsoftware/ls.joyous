@@ -109,7 +109,7 @@ class Test(TestCase):
         return restriction
 
     def testStatus(self):
-        self.assertEqual(self.cancellation.status, "cancelled")
+        self.assertEqual(self.cancellation.event_status, "cancelled")
         self.assertEqual(self.cancellation.status_text, "This event has been cancelled.")
         now = dt.datetime.now()
         myday = now.date() + dt.timedelta(1)
@@ -120,7 +120,7 @@ class Test(TestCase):
                                      cancellation_title   = "",
                                      cancellation_details = "")
         self.event.add_child(instance=futureCan)
-        self.assertEqual(futureCan.status, "cancelled")
+        self.assertEqual(futureCan.event_status, "cancelled")
         self.assertEqual(futureCan.status_text, "This event has been cancelled.")
 
     def testWhen(self):

@@ -330,7 +330,7 @@ class RecurringEventPage(EventBase, Page):
         return myFromDt.astimezone(localTZ)
 
     @property
-    def status(self):
+    def event_status(self):
         """
         The current status of the event (started, finished or pending).
         """
@@ -363,7 +363,7 @@ class RecurringEventPage(EventBase, Page):
         """
         A text description of the current status of the event.
         """
-        status = self.status
+        status = self.event_status
         if status == "finished":
             return _("These events have finished.")
         else:
@@ -907,7 +907,7 @@ class ExtraInfoPage(DateExceptionBase, Page):
     details     = property(attrgetter("overrides.details"))
 
     @property
-    def status(self):
+    def event_status(self):
         """
         The current status of the event (started, finished or pending).
         """
@@ -922,7 +922,7 @@ class ExtraInfoPage(DateExceptionBase, Page):
         """
         A text description of the current status of the event.
         """
-        status = self.status
+        status = self.event_status
         if status == "finished":
             return _("This event has finished.")
         elif status == "started":

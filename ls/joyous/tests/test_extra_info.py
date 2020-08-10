@@ -55,7 +55,7 @@ class Test(TestCase):
         self.assertIs(type(page), ExtraInfoPage)
 
     def testStatus(self):
-        self.assertEqual(self.info.status, "finished")
+        self.assertEqual(self.info.event_status, "finished")
         self.assertEqual(self.info.status_text, "This event has finished.")
         now = timezone.localtime()
         myday = now.date() + dt.timedelta(days=1)
@@ -66,12 +66,12 @@ class Test(TestCase):
                                    extra_title = "It's Friday",
                                    extra_information = "Special")
         self.event.add_child(instance=futureInfo)
-        self.assertIsNone(futureInfo.status)
+        self.assertIsNone(futureInfo.event_status)
         self.assertEqual(futureInfo.status_text, "")
 
     @freeze_timetz("1988-11-11 14:00:00")
     def testStatusStarted(self):
-        self.assertEqual(self.info.status, "started")
+        self.assertEqual(self.info.event_status, "started")
         self.assertEqual(self.info.status_text, "This event has started.")
 
     def testWhen(self):
@@ -137,12 +137,12 @@ class TestMultiday(TestCase):
         self.info.save_revision().publish()
 
     def testStatusFinished(self):
-        self.assertEqual(self.info.status, "finished")
+        self.assertEqual(self.info.event_status, "finished")
         self.assertEqual(self.info.status_text, "This event has finished.")
 
     @freeze_timetz("2018-02-13 14:00:00")
     def testStatusStarted(self):
-        self.assertEqual(self.info.status, "started")
+        self.assertEqual(self.info.event_status, "started")
         self.assertEqual(self.info.status_text, "This event has started.")
 
     def testWhen(self):
