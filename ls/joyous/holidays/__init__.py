@@ -63,6 +63,7 @@ class Holidays:
         """Get a list of all the holiday names, sorted by month-day."""
         thisYear = dt.date.today().year
         popYears = list(range(thisYear - 1, thisYear + 10))
+        # FIXME: use defaultdict
         holidays = {}
         for src in self.srcs:
             # populate python-holidays calendar

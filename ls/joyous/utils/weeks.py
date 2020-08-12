@@ -7,6 +7,8 @@
 #     http://www.cjvlang.com/Dow/SunMon.html
 # Keep this the same as the JQueryDatePicker to avoid confusion
 # see  http://xdsoft.net/jqplugins/datetimepicker
+# TODO: support other first day of week options (e.g. Saturday) and other
+#       date within first week options (e.g. sixth_jan)
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar

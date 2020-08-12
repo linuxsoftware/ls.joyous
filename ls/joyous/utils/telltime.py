@@ -38,6 +38,25 @@ def getLocalTimeAtDate(atDate, time, *args, **kwargs):
             if retval[0] == atDate:
                 return retval[1]
 
+# def getLocalTimeAtDate(atDate, time, tz=None, *args, **kwargs):
+#     """
+#     Get the time at a certain date in the local timezone
+#     """
+#     if time is not None:
+#         naiveDt = dt.datetime.combine(atDate, time)
+#         localTZ = timezone.get_current_timezone()
+#         if tz is None or tz == localTZ:
+#             return time
+#         offset = tz.utcoffset(naiveDt) - localTZ.utcoffset(naiveDt)
+#         date = atDate + offset
+#         # FIXME what about when atDate is across a DST boundary from date??
+#         retval = getLocalDateAndTime(date, time, tz, *args, **kwargs)
+#         if retval[0] == atDate:
+#             return retval[1]
+#         else:
+#             raise RuntimeError("{} != {}".format(retval[0], atDate))
+#         #     return getLocalTimeAtDateBFI(atDate, time, tz=None, *args, **kwargs)
+
 def getLocalDateAndTime(date, time, *args, **kwargs):
     """
     Get the date and time in the local timezone from date and optionally time

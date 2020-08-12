@@ -127,6 +127,7 @@ class VCalendar(Calendar, VComponentMixin):
     def _fromCalendarPage(cls, page, request):
         vcal = cls(page)
         vevents = []
+        # FIXME: use defaultdict
         tzs = {}
         for event in page._getAllEvents(request):
             vevent = cls.factory.makeFromPage(event, vcal.page)
@@ -201,6 +202,7 @@ class VCalendar(Calendar, VComponentMixin):
 
     def _loadEvents(self, request, vevents):
         results = VResults()
+        # FIXME: use defaultdict
         vmap = {}
         for props in vevents:
             try:
