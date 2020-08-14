@@ -33,6 +33,7 @@ from ..utils.telltime import (todayUtc, getAwareDatetime, getLocalDatetime,
 from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..fields import RecurrenceField
+from ..forms import FormDefender, BorgPageForm
 from ..edit_handlers import (TZDatePanel, ExceptionDatePanel, TimePanel,
         MapFieldPanel)
 from ..holidays import Holidays
@@ -208,7 +209,7 @@ class RecurringEventPageForm(EventPageForm):
         if numDays == 1:
             super()._checkStartBeforeEnd(cleaned_data)
 
-class RecurringEventPage(EventBase, Page):
+class RecurringEventPage(EventBase, Page, metaclass=FormDefender):
     events = EventWithHolidaysManager.from_queryset(RecurringEventQuerySet)()
 
     class Meta:
@@ -742,7 +743,7 @@ class DateExceptionQuerySet(EventQuerySet):
         qs = super().past()
         return qs.filter(except_date__lte = todayUtc() + _1day)
 
-class DateExceptionPageForm(WagtailAdminPageForm):
+class DateExceptionPageForm(BorgPageForm):
     def _checkSlugAvailable(self, cleaned_data, slugName=None):
         if slugName is None:
             slugName = self.instance.slugName
@@ -871,7 +872,7 @@ class ExtraInfoPageForm(DateExceptionPageForm):
         self._checkSlugAvailable(cleaned_data)
         return cleaned_data
 
-class ExtraInfoPage(DateExceptionBase, Page):
+class ExtraInfoPage(DateExceptionBase, Page, metaclass=FormDefender):
     class Meta:
         verbose_name = _("extra event information")
         verbose_name_plural = _("extra event information")
@@ -1374,7 +1375,7 @@ class ClosedForHolidaysQuerySet(EventWithHolidaysQuerySet):
         qs._iterable_class = ThisIterable
         return qs
 
-class ClosedForHolidaysPageForm(WagtailAdminPageForm):
+class ClosedForHolidaysPageForm(BorgPageForm):
     class Media:
         css = { 'all': ["admin/css/widgets.css",
                         "joyous/css/holidays_admin.css"] }
@@ -1413,7 +1414,8 @@ class ClosedForHolidaysPageForm(WagtailAdminPageForm):
         days = [initial.get(name, ClosedFor(name=name)) for name in chosen]
         self.instance.closed_for.set(days)
 
-class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page):
+class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page,
+                            metaclass=FormDefender):
     class Meta:
         verbose_name = _("closed for holidays")
         verbose_name_plural = _("closed for holidays")
@@ -1694,7 +1696,7 @@ class ExtCancellationQuerySet(EventQuerySet):
         qs._iterable_class = ThisIterable
         return qs
 
-class ExtCancellationPageForm(WagtailAdminPageForm):
+class ExtCancellationPageForm(BorgPageForm):
     class Media:
         css = { 'all': ["joyous/css/recurrence_admin.css"] }
 
@@ -1711,7 +1713,8 @@ class ExtCancellationPageForm(WagtailAdminPageForm):
             self.add_error('cancelled_from_date',
                            _("There is already an extended cancellation for then"))
 
-class ExtCancellationPage(CancellationBase, EventExceptionBase, Page):
+class ExtCancellationPage(CancellationBase, EventExceptionBase, Page,
+                          metaclass=FormDefender):
     class Meta:
         verbose_name = _("extended cancellation")
         verbose_name_plural = _("extended cancellations")

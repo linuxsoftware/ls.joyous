@@ -25,6 +25,7 @@ from ..utils.telltime import getLocalDateAndTime
 from ..utils.telltime import getTimeFrom, getTimeTo
 from ..utils.telltime import timeFormat, dateFormat
 from ..edit_handlers import MapFieldPanel
+from ..forms import BorgPageForm
 from .groups import get_group_model_string, get_group_model
 
 
@@ -239,7 +240,7 @@ class EventQuerySet(PageQuerySet):
     # Possible Future feature redact unauthorized events??
     #def redact(self, request)
 
-class EventPageForm(WagtailAdminPageForm):
+class EventPageForm(BorgPageForm):
     def clean(self):
         cleaned_data = super().clean()
         self._checkStartBeforeEnd(cleaned_data)

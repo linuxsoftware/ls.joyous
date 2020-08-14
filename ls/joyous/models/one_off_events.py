@@ -14,6 +14,7 @@ from ..utils.telltime import (todayUtc, getAwareDatetime, getLocalDatetime,
         getLocalDate, getLocalTime)
 from ..utils.telltime import timeFormat
 from ..edit_handlers import TimePanel
+from ..forms import FormDefender
 from .groups import get_group_model_string
 from .event_base import (ThisEvent, EventsByDayList,
         EventManager, EventQuerySet, EventPageForm, EventBase)
@@ -59,7 +60,7 @@ class SimpleEventQuerySet(EventQuerySet):
         qs._iterable_class = ByDayIterable
         return qs.filter(date__range=(fromDate - _2days, toDate + _2days))
 
-class SimpleEventPage(EventBase, Page):
+class SimpleEventPage(EventBase, Page, metaclass=FormDefender):
     events = EventManager.from_queryset(SimpleEventQuerySet)()
 
     class Meta:
@@ -153,7 +154,7 @@ class MultidayEventPageForm(EventPageForm):
         elif startDate == endDate:
             super()._checkStartBeforeEnd(cleaned_data)
 
-class MultidayEventPage(EventBase, Page):
+class MultidayEventPage(EventBase, Page, metaclass=FormDefender):
     events = EventManager.from_queryset(MultidayEventQuerySet)()
 
     class Meta:

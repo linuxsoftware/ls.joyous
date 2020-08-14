@@ -13,7 +13,6 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
@@ -29,9 +28,10 @@ from ..utils.mixins import ProxyPageMixin
 from ..fields import MultipleSelectField
 from . import (getAllEventsByDay, getAllEventsByWeek, getAllUpcomingEvents,
                getAllPastEvents, getEventFromUid, getAllEvents)
+from ..forms import FormDefender, BorgPageForm
 
 # ------------------------------------------------------------------------------
-class CalendarPageForm(WagtailAdminPageForm):
+class CalendarPageForm(BorgPageForm):
     importHandler = None
     exportHandler = None
 
@@ -109,7 +109,7 @@ EVENTS_VIEW_CHOICES = [('L', _("List View")),
                        ('M', _("Monthly View"))]
 
 # ------------------------------------------------------------------------------
-class CalendarPage(RoutablePageMixin, Page):
+class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
     """CalendarPage displays all the events which are in the same site."""
     class Meta:
         verbose_name = _("calendar page")
