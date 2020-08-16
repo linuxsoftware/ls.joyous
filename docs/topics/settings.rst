@@ -17,7 +17,7 @@ Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_FORMAT = "l 
 .. setting:: JOYOUS_DATE_SHORT_FORMAT
 
 ``JOYOUS_DATE_SHORT_FORMAT``
----------------------------------
+----------------------------
 
 Default: Falls back to Django date formatting.
 (See :doc:`django:topics/i18n/formatting`, :setting:`django:SHORT_DATE_FORMAT`)
@@ -25,6 +25,35 @@ Default: Falls back to Django date formatting.
 Short format of dates, if different from the Django standard.  Uses the same options as :setting:`JOYOUS_DATE_FORMAT`.
 
 Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT = "j F Y"`` for formatting as it was previously.
+
+.. setting:: JOYOUS_DEFEND_FORMS
+
+``JOYOUS_DEFEND_FORMS``
+----------------------
+
+Default: False.
+
+If this is set to ``True`` then the Joyous page models will not allow
+their base_form_class to be replaced.  Instead they will assimilate
+the newly assigned form class.
+The purpose of this setting is to make Joyous compatible with the
+`wagtail-modeltranslations <https://github.com/infoportugal/wagtail-modeltranslation>`_ app.  
+If you do not use wagtail-modeltranslations then you probably do not need
+to enable this option.
+
+Added in :doc:`version 1.3.0 </releases/1.3.0>`.
+
+
+.. setting:: JOYOUS_EVENTS_PER_PAGE
+
+``JOYOUS_EVENTS_PER_PAGE``
+---------------------------------
+
+Default: ``25``
+
+Page limit for a list of events.
+
+Added in :doc:`version 0.8.1 </releases/0.8.1>`.
 
 
 .. setting:: JOYOUS_FIRST_DAY_OF_WEEK
@@ -38,18 +67,6 @@ Default: Falls back to Django date formatting.
 The first day of the week, 0=Sunday or 1=Monday.  
 
 Added in :doc:`version 0.9.5 </releases/0.9.5>`.
-
-.. setting:: JOYOUS_EVENTS_PER_PAGE
-
-``JOYOUS_EVENTS_PER_PAGE``
----------------------------------
-
-Default: ``25``
-
-Page limit for a list of events.
-
-Added in :doc:`version 0.8.1 </releases/0.8.1>`.
-
 
 .. setting:: JOYOUS_GROUP_MODEL
 

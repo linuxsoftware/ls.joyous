@@ -20,3 +20,4 @@ default_app_config = 'ls.joyous.apps.JoyousAppConfig'
 # settings.JOYOUS_THEME_CSS = ""
 # settings.JOYOUS_RSS_FEED_IMAGE = "joyous/img/logo.png"
 # settings.JOYOUS_UPCOMING_INCLUDES_STARTED = False
+# settings.JOYOUS_DEFEND_FORMS = False

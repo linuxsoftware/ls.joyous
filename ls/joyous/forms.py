@@ -3,8 +3,8 @@
 # ------------------------------------------------------------------------------
 import warnings
 from django.conf import settings
-from wagtail.core.models import PageBase, Page
-from wagtail.admin import widgets
+from wagtail.core.models import PageBase
+from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.admin.forms import WagtailAdminPageForm
 
 # ------------------------------------------------------------------------------
@@ -14,33 +14,28 @@ class BorgPageForm(WagtailAdminPageForm):
     """
     @classmethod
     def assimilate(cls, form_class):
-        if issubclass(form_class, WagtailAdminPageForm):
+        if form_class is None or issubclass(form_class, WagtailAdminPageForm):
             cls.assimilated_class = form_class
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        form_class = self.__class__
         assimilated_class = getattr(self, 'assimilated_class', None)
         if assimilated_class:
-            assimilated_class.Meta = form_class.Meta
-            assimilated_class._meta = form_class._meta
-            assimilated_class.formsets = form_class.formsets
-            assimilated_class._has_explicit_formsets = \
-                    form_class._has_explicit_formsets
-            self.assimilated = assimilated_class(*args, **kwargs)
+            borg_form_class = get_form_for_model(self._meta.model,
+                                                assimilated_class,
+                                                fields=self._meta.fields,
+                                                formsets=self._meta.formsets,
+                                                widgets=self._meta.widgets)
+            self.assimilated = borg_form_class(*args, **kwargs)
         else:
             self.assimilated = None
 
     def clean(self):
         if self.assimilated:
-            self.assimilated.fields = self.fields
             self.assimilated.cleaned_data = self.cleaned_data
+            self.assimilated._errors = self._errors
             cleaned_data = self.assimilated.clean()
-            if self.assimilated._errors is not None:
-                if self._errors is not None:
-                    self._errors.update(self.assimilated._errors)
-                else:
-                    self._errors = self.assimilated._errors
+            self._errors.update(self.assimilated._errors)
             return cleaned_data
         else:
             return super().clean()
@@ -52,6 +47,9 @@ class BorgPageForm(WagtailAdminPageForm):
             return super().save(commit)
 
 # ------------------------------------------------------------------------------
+def _getName(thing):
+    return getattr(thing, '__name__', repr(thing))
+
 class FormClassOverwriteWarning(RuntimeWarning):
     pass
 
@@ -71,6 +69,9 @@ class FormDefender(PageBase):
 
     @base_form_class.setter
     def base_form_class(cls, form_class):
+        # Probably need to also call get_edit_handler.cache_clear()
+        # after changing base_form_class for it to affect the
+        # edit_handler.
         my_form_class = cls._base_form_class
         if my_form_class is None:
             cls._base_form_class = form_class
@@ -83,8 +84,8 @@ class FormDefender(PageBase):
                 warning = FormClassOverwriteWarning(
                               "{} has been overwritten with {}, "
                               "consider enabling JOYOUS_DEFEND_FORMS"
-                              .format(my_form_class.__name__,
-                                      form_class.__name__))
+                              .format(_getName(my_form_class),
+                                      _getName(form_class)))
                 warnings.warn(warning, stacklevel=2)
 
 # ------------------------------------------------------------------------------
