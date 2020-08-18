@@ -35,6 +35,9 @@ class NewPageForm(WagtailAdminPageForm):
             page.save()
         return page
 
+class NewMEPForm(MEPForm):
+    pass
+
 class Test(TestCase):
     def setUp(self):
         MEP._base_form_class = MEPForm
@@ -70,6 +73,11 @@ class Test(TestCase):
         MEP._base_form_class = None
         MEP.base_form_class = NewPageForm
         self.assertEqual(MEP.base_form_class, NewPageForm)
+
+    @override_settings(JOYOUS_DEFEND_FORMS=True)
+    def testSetSubclass(self):
+        MEP.base_form_class = NewMEPForm
+        self.assertEqual(MEP.base_form_class, NewMEPForm)
 
     @override_settings(JOYOUS_DEFEND_FORMS=True)
     def testDefend(self):

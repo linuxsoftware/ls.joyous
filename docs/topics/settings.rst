@@ -31,11 +31,12 @@ Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT
 ``JOYOUS_DEFEND_FORMS``
 ----------------------
 
-Default: False.
+Default: ``False``
 
 If this is set to ``True`` then the Joyous page models will not allow
-their base_form_class to be replaced.  Instead they will assimilate
-the newly assigned form class.
+their base_form_class to be replaced (unless the replacement is a
+subclass of the current form class).
+Instead they will assimilate the newly assigned form class.
 The purpose of this setting is to make Joyous compatible with the
 `wagtail-modeltranslations <https://github.com/infoportugal/wagtail-modeltranslation>`_ app.  
 If you do not use wagtail-modeltranslations then you probably do not need

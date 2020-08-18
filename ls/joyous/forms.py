@@ -88,6 +88,10 @@ class FormDefender(PageBase):
         my_form_class = cls._base_form_class
         if my_form_class is None:
             cls._base_form_class = form_class
+        elif (isinstance(form_class, type) and
+              issubclass(form_class, my_form_class)):
+            # trust subclasses to cooperate
+            cls._base_form_class = form_class
         else:
             if getattr(settings, "JOYOUS_DEFEND_FORMS", False):
                 if issubclass(my_form_class, BorgPageForm):
