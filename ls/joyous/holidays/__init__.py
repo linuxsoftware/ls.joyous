@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 from itertools import chain
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from django.conf import settings
 from .parser import parseHolidays
 
@@ -63,8 +63,7 @@ class Holidays:
         """Get a list of all the holiday names, sorted by month-day."""
         thisYear = dt.date.today().year
         popYears = list(range(thisYear - 1, thisYear + 10))
-        # FIXME: use defaultdict
-        holidays = {}
+        holidays = defaultdict(list)
         for src in self.srcs:
             # populate python-holidays calendar
             populate = getattr(src, "_populate", None)
@@ -78,14 +77,14 @@ class Holidays:
                 for date, names in items():
                     # holidays may have been concatenated together
                     for name in names.split(", "):
-                        holidays.setdefault(name, []).append(date)
+                        holidays[name].append(date)
             else:
                 # get from workalendar srcs
                 getHolidays = getattr(src, "get_calendar_holidays", None)
                 if getHolidays:
                     for year in popYears:
                         for date, name in getHolidays(year):
-                            holidays.setdefault(name, []).append(date)
+                            holidays[name].append(date)
 
         # sort holidays by month-day with a preference for a more recent year
         mmddHolidays = []

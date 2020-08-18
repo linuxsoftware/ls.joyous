@@ -6,6 +6,7 @@ import pytz
 import base64
 import quopri
 from contextlib import suppress
+from collections import defaultdict
 from zipfile import is_zipfile, ZipFile
 from icalendar import Calendar, Event
 from icalendar import vDatetime, vRecur, vDDDTypes, vText
@@ -127,15 +128,14 @@ class VCalendar(Calendar, VComponentMixin):
     def _fromCalendarPage(cls, page, request):
         vcal = cls(page)
         vevents = []
-        # FIXME: use defaultdict
-        tzs = {}
+        tzs = defaultdict(TimeZoneSpan)
         for event in page._getAllEvents(request):
             vevent = cls.factory.makeFromPage(event, vcal.page)
             vevents.append(vevent)
             for vchild in vevent.vchildren:
                 vevents.append(vchild)
             if event.tz and event.tz is not pytz.utc:
-                tzs.setdefault(event.tz, TimeZoneSpan()).add(vevent)
+                tzs[event.tz].add(vevent)
         for tz, vspan in tzs.items():
             vtz = vspan.createVTimeZone(tz)
             # Put timezones up top. The RFC doesn't require this, but everyone
@@ -202,11 +202,10 @@ class VCalendar(Calendar, VComponentMixin):
 
     def _loadEvents(self, request, vevents):
         results = VResults()
-        # FIXME: use defaultdict
-        vmap = {}
+        vmap = defaultdict(VMatch)
         for props in vevents:
             try:
-                match = vmap.setdefault(str(props.get('UID')), VMatch())
+                match = vmap[str(props.get('UID'))]
                 vevent = self.factory.makeFromProps(props, match.parent)
                 if self.utc2local:
                     vevent._convertTZ()
