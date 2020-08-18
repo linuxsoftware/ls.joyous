@@ -1,5 +1,5 @@
 ==========================
-Joyous 1.3.0 release notes - IN DEVELOPMENT
+Joyous 1.3.0 release notes
 ==========================
 
 .. contents::
@@ -24,8 +24,7 @@ to enable this option.
 
 Wagtail 2.10
 ~~~~~~~~~~~~~
-TODO
-Support for Wagtail 2.10
+ * Use Django Admin version of JQuery
 
 Other features
 ~~~~~~~~~~~~~~
