@@ -4,10 +4,10 @@
 import warnings
 from django.conf import settings
 from wagtail.core.models import PageBase
-from wagtail.admin.edit_handlers import get_form_for_model
 from wagtail.admin.forms import WagtailAdminPageForm
 
 # ------------------------------------------------------------------------------
+
 class BorgPageForm(WagtailAdminPageForm):
     """
     Your page form will be assimilated.
@@ -19,13 +19,8 @@ class BorgPageForm(WagtailAdminPageForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        assimilated_class = getattr(self, 'assimilated_class', None)
-        if assimilated_class:
-            borg_form_class = get_form_for_model(self._meta.model,
-                                                assimilated_class,
-                                                fields=self._meta.fields,
-                                                formsets=self._meta.formsets,
-                                                widgets=self._meta.widgets)
+        if hasattr(self, 'assimilated_class'):
+            borg_form_class = self._get_assimilated_form()
             self.assimilated = borg_form_class(*args, **kwargs)
         else:
             self.assimilated = None
@@ -45,6 +40,24 @@ class BorgPageForm(WagtailAdminPageForm):
             return self.assimilated.save(commit)
         else:
             return super().save(commit)
+
+    def _get_assimilated_form(self):
+        # based on wagtail.admin.edit_handlers.get_form_for_model
+        self.assimilated_class.declared_fields.update(self.declared_fields)
+        attrs = {'model':    self._meta.model,
+                 'fields':   self._meta.fields,
+                 'formsets': self._meta.formsets,
+                 'widgets':  self._meta.widgets}
+        class_name = "Assimilated" + self.assimilated_class.__name__
+        bases = (object,)
+        if hasattr(self.assimilated_class, 'Meta'):
+            bases = (self.assimilated_class.Meta,) + bases
+        form_class_attrs = {
+            'Meta': type(str('Meta'), bases, attrs)
+        }
+        metaclass = type(self.assimilated_class)
+        return metaclass(class_name, (self.assimilated_class,), form_class_attrs)
+
 
 # ------------------------------------------------------------------------------
 def _getName(thing):
