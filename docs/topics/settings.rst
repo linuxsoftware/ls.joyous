@@ -41,7 +41,7 @@ The purpose of this setting is to make Joyous compatible with the
 If you do not use wagtail-modeltranslations then you probably do not need
 to enable this option.
 
-Added in :doc:`version 1.3.0 </releases/1.3.0>`.
+Added in :doc:`version 1.3.1 </releases/1.3.1>`.
 
 
 .. setting:: JOYOUS_EVENTS_PER_PAGE
