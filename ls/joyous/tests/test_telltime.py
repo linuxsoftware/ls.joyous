@@ -45,8 +45,7 @@ class TestLocalTimes(TestCase):
     def testGetLocalDateAndTime(self):
         date, time = getLocalDateAndTime(dt.date(1987,1,1), dt.time(1))
         self.assertEqual(date, dt.date(1987,1,1))
-        localTZ = pytz.timezone("Asia/Tokyo")
-        self.assertEqual(time, dt.time(1).replace(tzinfo=localTZ))
+        self.assertEqual(time, dt.time(1))
         date, time = getLocalDateAndTime(dt.date(2011,4,28), None,
                                 pytz.timezone("Asia/Yerevan"))
         self.assertEqual(date, dt.date(2011,4,29))
@@ -60,27 +59,23 @@ class TestLocalTimes(TestCase):
     def testGetLocalTime(self):
         time = getLocalTime(dt.date(2018,5,8), dt.time(22,44),
                             pytz.timezone("Pacific/Auckland"))
-        localTZ = pytz.timezone("Asia/Tokyo")
-        self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
+        self.assertEqual(time, dt.time(19,44))
 
     def testGetLocalTimeAtDate(self):
-        localTZ = pytz.timezone("Asia/Tokyo")
         time = getLocalTimeAtDate(dt.date(2018,5,8), dt.time(22,44),
                                   pytz.timezone("Pacific/Auckland"))
-        self.assertEqual(time, dt.time(19,44).replace(tzinfo=localTZ))
+        self.assertEqual(time, dt.time(19,44))
 
     def testGetLocalTimeAtDateOffset1(self):
-        localTZ = pytz.timezone("Asia/Tokyo")
         time = getLocalTimeAtDate(dt.date(2019,6,28), dt.time(8,10),
                                   pytz.timezone("America/Los_Angeles"))
-        self.assertEqual(time, dt.time(0,10).replace(tzinfo=localTZ))
+        self.assertEqual(time, dt.time(0,10))
 
     @timezone.override("Pacific/Kiritimati")
     def testGetLocalTimeAtDateOffset2(self):
-        localTZ = pytz.timezone("Pacific/Kiritimati")
         time = getLocalTimeAtDate(dt.date(2019,1,1), dt.time(23,30),
                                   pytz.timezone("Pacific/Pago_Pago"))
-        self.assertEqual(time, dt.time(0,30).replace(tzinfo=localTZ))
+        self.assertEqual(time, dt.time(0,30))
 
 # ------------------------------------------------------------------------------
 class TestNullableTimes(TestCase):

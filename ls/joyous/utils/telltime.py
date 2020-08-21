@@ -63,7 +63,7 @@ def getLocalDateAndTime(date, time, *args, **kwargs):
     """
     localDt = getLocalDatetime(date, time, *args, **kwargs)
     if time is not None:
-        return (localDt.date(), localDt.timetz())
+        return (localDt.date(), localDt.time())
     else:
         return (localDt.date(), None)
 

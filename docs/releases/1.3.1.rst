@@ -10,27 +10,28 @@ Joyous 1.3.1 release notes
 What's new
 ==========
 
-Option for compatibility with wagtail-modeltranslations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compatibility with wagtail-modeltranslations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This release adds new setting :setting:`JOYOUS_DEFEND_FORMS`.
 If this is set to ``True`` then the Joyous page models will not allow
 their base_form_class to be replaced.  Instead they will assimilate
 the newly assigned form class.
-The purpose of this setting is to make Joyous compatible with the
-`wagtail-modeltranslations <https://github.com/infoportugal/wagtail-modeltranslation>`_ app.  
-If you do not use wagtail-modeltranslations then you probably do not need
-to enable this option.
+This setting was added to work around a bug in the
+`wagtail-modeltranslations <https://github.com/infoportugal/wagtail-modeltranslation>`_ app.  The bug was fixed in wagtail-modeltranslations version 0.10.14.  Upgrading to v0.10.14 or later is the preferred solution, rather than enabling ``JOYOUS_DEFEND_FORMS``.
 
-Wagtail 2.10
-~~~~~~~~~~~~~
- * Use Django Admin version of JQuery
+Init functions have been added to anything inheriting from models.Model to
+avoid modeltranslation patch_constructor breaking initialization of pages
+which have multiple inheritance.
 
-Other features
-~~~~~~~~~~~~~~
+Compatibility with Wagtail 2.10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use the Django Admin version of JQuery
 
 Bug fixes
 ~~~~~~~~~
+ * Times returned from getLocalDateAndTime should be naive so that
+   they are compatible with time.min and time.max.
 
 
 Upgrade considerations
