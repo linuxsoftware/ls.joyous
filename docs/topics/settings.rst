@@ -37,10 +37,6 @@ If this is set to ``True`` then the Joyous page models will not allow
 their base_form_class to be replaced (unless the replacement is a
 subclass of the current form class).
 Instead they will assimilate the newly assigned form class.
-The purpose of this setting is to make Joyous compatible with the
-`wagtail-modeltranslations <https://github.com/infoportugal/wagtail-modeltranslation>`_ app.  
-If you do not use wagtail-modeltranslations then you probably do not need
-to enable this option.
 
 Added in :doc:`version 1.3.1 </releases/1.3.1>`.
 
