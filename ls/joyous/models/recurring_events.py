@@ -245,6 +245,8 @@ class RecurringEventPage(EventBase, Page, metaclass=FormDefender):
         ] + EventBase.content_panels1
     content_panels = content_panels0 + [HiddenNumDaysPanel()] + content_panels1
 
+    # Anything inheriting from models.Model needs its own __init__ or
+    # modeltranslation patch_constructor may break it
     def __init__(self, *args, **kwargs):
         self.holidays = kwargs.pop("holidays", None)
         super().__init__(*args, **kwargs)
@@ -647,6 +649,9 @@ class MultidayRecurringEventPage(ProxyPageMixin, RecurringEventPage):
         FieldPanel('num_days'),
         ] + RecurringEventPage.content_panels1
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 # ------------------------------------------------------------------------------
 # EventException models
 # ------------------------------------------------------------------------------
@@ -682,6 +687,9 @@ class EventExceptionBase(models.Model):
     cancellation_details = None
     extra_information    = None
     postponed_from_when  = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def at(self):
@@ -762,6 +770,9 @@ class DateExceptionBase(EventExceptionBase):
 
     except_date = models.DateField(_("For Date"))
     except_date.help_text = _("For this date")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def local_title(self):
@@ -907,6 +918,9 @@ class ExtraInfoPage(DateExceptionBase, Page, metaclass=FormDefender):
     # Original properties
     details     = property(attrgetter("overrides.details"))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def status(self):
         """
@@ -1011,6 +1025,9 @@ class CancellationBase(models.Model):
             FieldPanel('cancellation_details', classname="full")],
             heading=_("Cancellation"))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def status(self):
         """
@@ -1048,6 +1065,9 @@ class CancellationPage(CancellationBase, DateExceptionBase, Page):
         CancellationBase.cancellation_panel,
         ]
     promote_panels = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def _current_datetime_from(self):
@@ -1180,6 +1200,9 @@ class RescheduleEventBase(EventBase):
     group_page  = None
     get_context = DateExceptionBase.get_context
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage):
     class Meta:
         verbose_name = _("postponement")
@@ -1221,6 +1244,9 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
         postponement_panel,
     ]
     promote_panels = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @route(r"^from/$")
     def serveCancellation(self, request):
@@ -1344,6 +1370,9 @@ class RescheduleMultidayEventPage(ProxyPageMixin, PostponementPage):
         postponement_panel,
     ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 # ------------------------------------------------------------------------------
 class ClosedFor(models.Model):
     """The holidays we are closed for."""
@@ -1358,6 +1387,9 @@ class ClosedFor(models.Model):
     # Storing holidays by name is a violation of 1NF, but holidays are
     # defined programmatically not in the database and the definitions
     # may change, so there is no holiday_id which can be used instead.
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     # used by ChoiceWidget.format_value
     def __str__(self):
@@ -1742,6 +1774,9 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page,
         CancellationBase.cancellation_panel,
         ]
     promote_panels = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def local_title(self):

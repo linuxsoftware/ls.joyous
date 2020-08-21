@@ -86,6 +86,11 @@ class SimpleEventPage(EventBase, Page, metaclass=FormDefender):
         FieldPanel('tz'),
         ] + EventBase.content_panels1
 
+    # Anything inheriting from models.Model needs its own __init__ or
+    # modeltranslation patch_constructor may break it
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @property
     def when(self):
         """
@@ -181,6 +186,9 @@ class MultidayEventPage(EventBase, Page, metaclass=FormDefender):
         TimePanel('time_to'),
         FieldPanel('tz'),
         ] + EventBase.content_panels1
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def when(self):

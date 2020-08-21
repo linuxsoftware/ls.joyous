@@ -77,7 +77,7 @@ class Test(TestCase):
     @override_settings(JOYOUS_DEFEND_FORMS=True)
     def testSetSubclass(self):
         MEP.base_form_class = NewMEPForm
-        self.assertEqual(MEP.base_form_class, NewMEPForm)
+        self.assertEqual(MEP.base_form_class, MEPForm)
 
     @override_settings(JOYOUS_DEFEND_FORMS=True)
     def testDefend(self):

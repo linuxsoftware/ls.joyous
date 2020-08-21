@@ -121,6 +121,11 @@ class EventCategory(models.Model):
     code = models.CharField(_("code"), max_length=4, unique=True)
     name = models.CharField(_("name"), max_length=80)
 
+    # Anything inheriting from models.Model needs its own __init__ or
+    # modeltranslation patch_constructor may break it
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -305,6 +310,11 @@ class EventBase(models.Model):
     ]
     if getattr(settings, "JOYOUS_GROUP_SELECTABLE", False):
         content_panels1.append(PageChooserPanel('group_page'))
+
+    # Anything inheriting from models.Model needs its own __init__ or
+    # modeltranslation patch_constructor may break it
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @property
     def group(self):

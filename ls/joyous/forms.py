@@ -19,7 +19,8 @@ class BorgPageForm(WagtailAdminPageForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if hasattr(self, 'assimilated_class'):
+        if (not getattr(self, 'unimatrix_zero', False) and
+            hasattr(self, 'assimilated_class')):
             borg_form_class = self._get_assimilated_form()
             self.assimilated = borg_form_class(*args, **kwargs)
         else:
@@ -37,9 +38,10 @@ class BorgPageForm(WagtailAdminPageForm):
 
     def save(self, commit=True):
         if self.assimilated:
-            return self.assimilated.save(commit)
+            page = self.assimilated.save(commit)
         else:
-            return super().save(commit)
+            page = super().save(commit)
+        return page
 
     def _get_assimilated_form(self):
         # based on wagtail.admin.edit_handlers.get_form_for_model
@@ -53,11 +55,13 @@ class BorgPageForm(WagtailAdminPageForm):
         if hasattr(self.assimilated_class, 'Meta'):
             bases = (self.assimilated_class.Meta,) + bases
         form_class_attrs = {
-            'Meta': type(str('Meta'), bases, attrs)
+            'Meta': type(str('Meta'), bases, attrs),
+            'unimatrix_zero': True
         }
         metaclass = type(self.assimilated_class)
-        return metaclass(class_name, (self.assimilated_class,), form_class_attrs)
-
+        return metaclass(class_name,
+                         (self.assimilated_class,),
+                         form_class_attrs)
 
 # ------------------------------------------------------------------------------
 def _getName(thing):
@@ -88,16 +92,17 @@ class FormDefender(PageBase):
         my_form_class = cls._base_form_class
         if my_form_class is None:
             cls._base_form_class = form_class
-        elif (isinstance(form_class, type) and
-              issubclass(form_class, my_form_class)):
-            # trust subclasses to cooperate
-            cls._base_form_class = form_class
+            return
+
+        if getattr(settings, "JOYOUS_DEFEND_FORMS", False):
+            if issubclass(my_form_class, BorgPageForm):
+                my_form_class.assimilate(form_class)
         else:
-            if getattr(settings, "JOYOUS_DEFEND_FORMS", False):
-                if issubclass(my_form_class, BorgPageForm):
-                    my_form_class.assimilate(form_class)
-            else:
-                cls._base_form_class = form_class
+            cls._base_form_class = form_class
+
+            # don't generate warning for subclasses
+            if not (isinstance(form_class, type) and
+                    issubclass(form_class, my_form_class)):
                 warning = FormClassOverwriteWarning(
                               "{} has been overwritten with {}, "
                               "consider enabling JOYOUS_DEFEND_FORMS"
