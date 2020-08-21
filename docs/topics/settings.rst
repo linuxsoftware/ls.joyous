@@ -34,8 +34,7 @@ Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT
 Default: ``False``
 
 If this is set to ``True`` then the Joyous page models will not allow
-their base_form_class to be replaced (unless the replacement is a
-subclass of the current form class).
+their base_form_class to be replaced.
 Instead they will assimilate the newly assigned form class.
 
 Added in :doc:`version 1.3.1 </releases/1.3.1>`.
