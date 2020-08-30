@@ -252,6 +252,7 @@ def _getEventsByDay(date_from, eventsByDaySrcs, holidays):
         holidays = {}
     evods = []
     day = date_from
+    # TODO sortByTime could go up here
     # TODO would izip be better?
     for srcs in zip(*eventsByDaySrcs):
         days_events       = []
