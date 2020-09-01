@@ -1526,7 +1526,7 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page,
             # TODO: it'd be quite cool if we could say
             # "Closed for {current-holiday}"
             # This would require changes to ThisEvent either add another field
-            # or make the big move and turn it into a proper facade class
+            # or make the big move and turn it into a proper decorator class
         return retval
 
     @property
