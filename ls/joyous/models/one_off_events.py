@@ -51,8 +51,7 @@ class SimpleEventQuerySet(EventQuerySet):
                                                 page.time_from, page.tz)
                     pageToDate   = getLocalDate(page.date,
                                                 page.time_to, page.tz)
-                    thisEvent = ThisEvent(page.title, page,
-                                          page.get_url(request))
+                    thisEvent = ThisEvent(page, url=page.get_url(request))
                     evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
 
@@ -140,8 +139,7 @@ class MultidayEventQuerySet(EventQuerySet):
                                                 page.time_from, page.tz)
                     pageToDate   = getLocalDate(page.date_to,
                                                 page.time_to, page.tz)
-                    thisEvent = ThisEvent(page.title, page,
-                                          page.get_url(request))
+                    thisEvent = ThisEvent(page, url=page.get_url(request))
                     evods.add(thisEvent, pageFromDate, pageToDate)
                 yield from evods
 

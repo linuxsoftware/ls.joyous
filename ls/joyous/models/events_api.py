@@ -69,7 +69,7 @@ def getAllUpcomingEvents(request, *, home=None, holidays=None):
     :param request: Django request object
     :param home: only include events that are under this page (if given)
     :param holidays: holidays that may affect these events
-    :rtype: list of the namedtuple ThisEvent (title, page, url)
+    :rtype: list of ThisEvents
     """
     qrys = [SimpleEventPage.events(request).upcoming().this(),
             MultidayEventPage.events(request).upcoming().this(),
@@ -95,7 +95,7 @@ def getGroupUpcomingEvents(request, group, holidays=None):
     :param request: Django request object
     :param group: for this group page
     :param holidays: holidays that may affect these events
-    :rtype: list of the namedtuple ThisEvent (title, page, url)
+    :rtype: list of ThisEvents
     """
     if not hasattr(group, 'recurringeventpage_set'):
         # This is not a group page
@@ -155,7 +155,7 @@ def getAllPastEvents(request, *, home=None, holidays=None):
     :param request: Django request object
     :param home: only include events that are under this page (if given)
     :param holidays: holidays that may affect these events
-    :rtype: list of the namedtuple ThisEvent (title, page, url)
+    :rtype: list of the ThisEvents
     """
     qrys = [SimpleEventPage.events(request).past().this(),
             MultidayEventPage.events(request).past().this(),

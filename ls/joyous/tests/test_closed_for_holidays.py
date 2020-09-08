@@ -14,9 +14,9 @@ from ls.joyous.models import CalendarPage
 from ls.joyous.models import (RecurringEventPage, CancellationPage,
                               ExtCancellationPage)
 from ls.joyous.models import ClosedForHolidaysPage, ClosedFor
-from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, WE, FR
+from ls.joyous.utils.recurrence import Recurrence
+from ls.joyous.utils.recurrence import DAILY, WEEKLY, MONTHLY, MO, WE, FR
 from .testutils import freeze_timetz, datetimetz
-
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
@@ -220,16 +220,16 @@ class Test(TestCase):
                                            cancellation_title = "XYZ Cancelled")
         event.add_child(instance=closedHols)
         closedHols.save_revision().publish()
-        self.assertIs(closedHols._closedOn(dt.date(1989, 3, 24)), False)
+        self.assertEqual(closedHols._closedOn(dt.date(1989, 3, 24)), False)
         closedHols.holidays = self.calendar.holidays
-        self.assertIs(closedHols._closedOn(dt.date(1989, 3, 24)), False)
+        self.assertEqual(closedHols._closedOn(dt.date(1989, 3, 24)), False)
 
     def testStatus(self):
         self.assertEqual(self.closedHols.status, "cancelled")
         self.assertEqual(self.closedHols.status_text, "Closed for holidays.")
 
     def testWhen(self):
-        self.assertEqual(self.closedHols.when, "Closed for holidays")
+        self.assertEqual(self.closedHols.when, "Closed on all holidays")
 
     def testWhenEver(self):
         event = RecurringEventPage(slug      = "XYZ",
@@ -249,8 +249,35 @@ class Test(TestCase):
                                   ClosedFor(name="Easter Monday") ]
         event.add_child(instance=closedHols)
         closedHols.save_revision().publish()
-        self.assertEqual(closedHols.when, "Closed for Good Friday and Easter Monday")
+        self.assertEqual(closedHols.when, "Closed on Good Friday and Easter Monday")
         self.assertIs(event._occursOn(dt.date(1989, 3, 24)), False)
+
+    # def testActualHolidaysClosed(self):
+    #     event = RecurringEventPage(slug      = "Z1",
+    #                                title     = "ZetaOne",
+    #                                repeat    = Recurrence(dtstart=dt.date(2020,1,1),
+    #                                                       freq=DAILY),
+    #                                time_from = dt.time(19),
+    #                                holidays = self.calendar.holidays)
+    #     self.calendar.add_child(instance=event)
+    #     closedHols = ClosedForHolidaysPage(owner = self.user,
+    #                                        overrides = event,
+    #                                        all_holidays = False,
+    #                                        cancellation_title = "Z1 Cancelled",
+    #                                        holidays = self.calendar.holidays)
+    #     closedHols.closed_for = [ ClosedFor(name="New Year's Day"),
+    #                               ClosedFor(name="New Year's Day (Observed)"),
+    #                               ClosedFor(name="Labour Day"),
+    #                               ClosedFor(name="Christmas Day"),
+    #                               ClosedFor(name="Christmas Day (Observed)") ]
+    #     event.add_child(instance=closedHols)
+    #     closedHols.save_revision().publish()
+    #     self.assertCountEqual(closedHols._actual_closed_for_names,
+    #                           ["New Year's Day",
+    #                            "New Year's Day (Observed)",
+    #                            "Labour Day",
+    #                            "Christmas Day",
+    #                            "Christmas Day (Observed)"])
 
     def testAt(self):
         self.assertEqual(self.closedHols.at.strip(), "1pm")

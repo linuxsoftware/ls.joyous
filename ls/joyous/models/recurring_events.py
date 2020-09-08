@@ -3,6 +3,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 from operator import attrgetter
+from collections import OrderedDict
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -89,7 +90,7 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
         class ThisIterable(ModelIterable):
             def __iter__(self):
                 for page in super().__iter__():
-                    yield ThisEvent(page.title, page, page.get_url(request))
+                    yield ThisEvent(page, url=page.get_url(request))
         qs = self._clone()
         qs._iterable_class = ThisIterable
         return qs
@@ -121,8 +122,7 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
                                                       closedHols,
                                                       closedHols.get_url(request))
                         else:
-                            thisEvent = ThisEvent(page.title, page,
-                                                  page.get_url(request))
+                            thisEvent = ThisEvent(page, url=page.get_url(request))
                         if thisEvent:
                             pageFromDate = getLocalDate(occurence,
                                                         page.time_from, page.tz)
@@ -143,11 +143,11 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
                                                        extraInfo.get_url(request))
                 for cancellation in CancellationPage.events.child_of(page)   \
                                      .filter(except_date__range=dateRange):
-                    url = cancellation.getCancellationUrl(request)
                     # The cancellation still affects the event, even if the
                     # user is not authorized to view the cancellation.
                     if cancellation.isAuthorized(request):
                         title = cancellation.cancellation_title
+                        url = cancellation.getCancellationUrl(request)
                     else:
                         title = None
                         url = None
@@ -160,10 +160,11 @@ class RecurringEventQuerySet(EventWithHolidaysQuerySet):
                                    Q(cancelled_to_date__isnull = True)):
                     if shutdown.isAuthorized(request):
                         title = shutdown.cancellation_title
+                        url = shutdown.get_url(request)
                     else:
                         title = None
-                    thisEvent = ThisEvent(title, shutdown,
-                                          shutdown.get_url(request))
+                        url = None
+                    thisEvent = ThisEvent(title, shutdown, url)
                     for myDate in shutdown._getMyRawDates(*dateRange):
                         exceptions[myDate] = thisEvent
                 return exceptions
@@ -1520,13 +1521,9 @@ class ClosedForHolidaysPage(CancellationBase, EventExceptionBase, Page,
         A string describing when the event occurs (in the local time zone).
         """
         if self.all_holidays:
-            retval = _("Closed for holidays")
+            retval = _("Closed on all holidays")
         else:
-            retval = _("Closed for {}").format(hrJoin(self.closed))
-            # TODO: it'd be quite cool if we could say
-            # "Closed for {current-holiday}"
-            # This would require changes to ThisEvent either add another field
-            # or make the big move and turn it into a proper decorator class
+            retval = _("Closed on {}").format(hrJoin(self.closed))
         return retval
 
     @property

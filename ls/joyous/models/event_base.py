@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import datetime as dt
 import calendar
-from collections import namedtuple
+from collections import OrderedDict
 from uuid import uuid4
 from django.conf import settings
 from django.db import models
@@ -45,7 +45,40 @@ def _filterContentPanels(panels, remove):
 # ------------------------------------------------------------------------------
 # Helper types and constants
 # ------------------------------------------------------------------------------
-ThisEvent = namedtuple("ThisEvent", "title page url")
+class ThisEvent:
+    _fields = ('title', 'page', 'url')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        argCount = len(args)
+        if argCount == 1:
+            # new ctor
+            self.page = args[0]
+        elif argCount == 3:
+            # old ctor
+            self.title, self.page, self.url = args
+        else:
+            raise TypeError("Expected 1 or 3 args not {}".format(argCount))
+        for kw, arg in kwargs.items():
+            setattr(self, kw, arg)
+
+    def __getattr__(self, attr):
+        return getattr(self.page, attr)
+
+    def _asdict(self):
+        return OrderedDict(zip(self._fields, self))
+
+    def _astuple(self):
+        return (self.title, self.page, self.url)
+
+    def __repr__(self):
+        return "ThisEvent (title=%r, page=%r, url=%r)" % self._astuple()
+
+    def __len__(self):
+        return 3
+
+    def __getitem__(self, key):
+        return self._astuple()[key]
 
 class EventsOnDay:
     """
