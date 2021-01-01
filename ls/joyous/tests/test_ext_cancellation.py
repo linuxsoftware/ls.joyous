@@ -19,6 +19,7 @@ from .testutils import freeze_timetz, datetimetz
 
 # ------------------------------------------------------------------------------
 class Test(TestCase):
+    @freeze_timetz("2020-03-18")
     def setUp(self):
         self.home = Page.objects.get(slug='home')
         self.user = User.objects.create_user('i', 'i@joy.test', 's3(r3t')
@@ -43,12 +44,12 @@ class Test(TestCase):
         self.event.add_child(instance=self.shutdown)
         self.shutdown.save_revision().publish()
 
-    @freeze_timetz("2020-10-11")
+    @freeze_timetz("2021-01-04")
     def testInit(self):
         self.assertEqual(self.shutdown.title,
                          "Cancellation from Friday 20th of March to Monday 1st of June")
         self.assertEqual(self.shutdown.local_title,
-                         "Cancellation from Friday 20th of March to Monday 1st of June")
+                         "Cancellation from Friday 20th of March 2020 to Monday 1st of June 2020")
         self.assertEqual(self.shutdown.slug,  "2020-03-20-2020-06-01-cancellation")
 
     def testGetEventsByDay(self):
@@ -200,10 +201,12 @@ class Test(TestCase):
         self.assertEqual(self.shutdown.status, "cancelled")
         self.assertEqual(self.shutdown.status_text, "This event has been cancelled.")
 
+    @freeze_timetz("2020-03-25 14:00")
     def testWhen(self):
         self.assertEqual(self.shutdown.when,
                          "Cancelled from Friday 20th of March to Monday 1st of June")
 
+    @freeze_timetz("2020-03-25 14:00")
     def testWhenEver(self):
         event = RecurringEventPage(slug      = "OpQ",
                                    title     = "Orangepurple Quagga",

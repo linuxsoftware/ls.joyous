@@ -802,6 +802,7 @@ class DateExceptionBase(EventExceptionBase):
         # generate the title and slug in English
         # the translation of the title will happen in the property local_title
         with translation.override("en"):
+            # FIXME? year may be missing which makes the title ambiguous
             self.title = "{} for {}".format(name, dateFormat(self.except_date))
             self.slug = "{}-{}".format(self.except_date, self.slugName)
         super().full_clean(*args, **kwargs)
@@ -1856,12 +1857,14 @@ class ExtCancellationPage(CancellationBase, EventExceptionBase, Page,
         # the translation of the title will happen in the property local_title
         with translation.override("en"):
             if self.cancelled_to_date is not None:
+                # FIXME? year may be missing which makes the title ambiguous
                 titleTo = "to " + dateFormat(self.cancelled_to_date)
                 slugTo = str(self.cancelled_to_date)
             else:
                 titleTo = "until further notice"
                 slugTo = ""
 
+            # FIXME? year may be missing which makes the title ambiguous
             self.title = "Cancellation from {} {}".format(
                                 dateFormat(self.cancelled_from_date), titleTo)
             self.slug = "{}-{}-cancellation".format(
