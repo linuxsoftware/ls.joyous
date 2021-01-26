@@ -2,7 +2,7 @@
 # Names for i18n
 # ------------------------------------------------------------------------------
 import sys
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext
 from django.utils import dates
 
 # ------------------------------------------------------------------------------
@@ -40,6 +40,16 @@ WEEKDAY_NAMES_PLURAL = _Names((_("Mondays"),
                                _("Fridays"),
                                _("Saturdays"),
                                _("Sundays")))
+
+WEEKDAY_NAMES_DEFINITIVE = _Names((
+    pgettext('definitive form', 'Monday'),
+    pgettext('definitive form', 'Tuesday'),
+    pgettext('definitive form', 'Wednesday'),
+    pgettext('definitive form', 'Thursday'),
+    pgettext('definitive form', 'Friday'),
+    pgettext('definitive form', 'Saturday'),
+    pgettext('definitive form', 'Sunday'),
+))
 
 # ------------------------------------------------------------------------------
 #: Names of the months, with January at index 1

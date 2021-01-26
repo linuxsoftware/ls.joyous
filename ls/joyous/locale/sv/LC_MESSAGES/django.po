@@ -1,0 +1,922 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-26 09:00+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models/calendar.py:61
+msgid "Upload"
+msgstr "Ladda upp"
+
+#: models/calendar.py:65
+msgid "Convert UTC to localtime?"
+msgstr "Omvandla UTC till lokal tid?"
+
+#: models/calendar.py:71
+msgid "Import"
+msgstr "Importera"
+
+#: models/calendar.py:83
+msgid "Export"
+msgstr "Exportera"
+
+#: models/calendar.py:107 templates/joyous/includes/events_view_choices.html:4
+msgid "List View"
+msgstr "Listvy"
+
+#: models/calendar.py:108 templates/joyous/includes/events_view_choices.html:7
+msgid "Weekly View"
+msgstr "Veckovy"
+
+#: models/calendar.py:109 templates/joyous/includes/events_view_choices.html:10
+msgid "Monthly View"
+msgstr "Månadsvy"
+
+#: models/calendar.py:115
+msgid "calendar page"
+msgstr "kalendersida"
+
+#: models/calendar.py:116
+msgid "calendar pages"
+msgstr "kalendersidor"
+
+#: models/calendar.py:126
+msgid "intro"
+msgstr "introduktion"
+
+#: models/calendar.py:127
+msgid "Introductory text."
+msgstr "Introduktionstext"
+
+#: models/calendar.py:128
+msgid "view choices"
+msgstr "vy-alternativ"
+
+#: models/calendar.py:131
+msgid "default view"
+msgstr "default-vy"
+
+#: models/calendar.py:143
+msgid "View Options"
+msgstr "Vy-inställningar"
+
+#: models/calendar.py:281
+#, python-brace-format
+msgid "Week {weekNum}"
+msgstr "Vecka {weekNum}"
+
+#: models/calendar.py:500
+msgid "specific calendar page"
+msgstr "specifik kalendersida"
+
+#: models/calendar.py:501
+msgid "specific calendar pages"
+msgstr "specifika kalendersidor"
+
+#: models/calendar.py:547
+msgid "general calendar page"
+msgstr "allmän kalendersida"
+
+#: models/calendar.py:548
+msgid "general calendar pages"
+msgstr "allmänna kalendersidor"
+
+#: models/event_base.py:151
+msgid "event category"
+msgstr "händele-kategori"
+
+#: models/event_base.py:152
+msgid "event categories"
+msgstr "händelse-kategorier"
+
+#: models/event_base.py:154
+msgid "code"
+msgstr "kod"
+
+#: models/event_base.py:155 models/recurring_events.py:1388
+msgid "name"
+msgstr "namn"
+
+#: models/event_base.py:291 models/one_off_events.py:156
+#: models/recurring_events.py:1183
+msgid "Event cannot end before it starts"
+msgstr "En händelse kan inte sluta tidigare än den börjar"
+
+#: models/event_base.py:306
+msgid "category"
+msgstr "kategori"
+
+#: models/event_base.py:312
+msgid "image"
+msgstr "bild"
+
+#: models/event_base.py:315
+msgid "start time"
+msgstr "start-tid"
+
+#: models/event_base.py:316
+msgid "end time"
+msgstr "slut-tid"
+
+#: models/event_base.py:317
+msgid "time zone"
+msgstr "tidszon"
+
+#: models/event_base.py:322 models/groups.py:49
+msgid "group page"
+msgstr "gruppsida"
+
+#: models/event_base.py:324 models/recurring_events.py:1017
+msgid "details"
+msgstr "detaljer"
+
+#: models/event_base.py:325
+msgid "location"
+msgstr "plats"
+
+#: models/event_base.py:326
+msgid "website"
+msgstr "webbsida"
+
+#: models/event_base.py:421 models/recurring_events.py:944
+msgid "This event has finished."
+msgstr "Den här händelsen är avslutad."
+
+#: models/event_base.py:423 models/recurring_events.py:946
+msgid "This event has started."
+msgstr "Den här händelsen har påbörjats-"
+
+#: models/event_base.py:480 models/event_base.py:483
+#: models/recurring_events.py:825
+#, python-brace-format
+msgid "{date} {atTime}"
+msgstr "{date} {atTime}"
+
+#: models/event_base.py:481 models/event_base.py:484 models/event_base.py:488
+#: models/recurring_events.py:394 models/recurring_events.py:455
+#: models/recurring_events.py:827 templatetags/joyous_tags.py:160
+msgid "at "
+msgstr "kl "
+
+#: models/event_base.py:485
+#, python-brace-format
+msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
+msgstr "{dateTimeFrom} till {dateTo} {atTimeTo}"
+
+#: models/groups.py:50
+msgid "group pages"
+msgstr "gruppsidor"
+
+#: models/groups.py:62
+msgid "content"
+msgstr "innehåll"
+
+#: models/groups.py:63
+msgid "An area of text for whatever you like"
+msgstr "Ett område med valfri text"
+
+#: models/one_off_events.py:66
+msgid "event page"
+msgstr "händelse-sida"
+
+#: models/one_off_events.py:67
+msgid "event pages"
+msgstr "händelse-sidor"
+
+#: models/one_off_events.py:77 models/recurring_events.py:1223
+msgid "date"
+msgstr "datum"
+
+#: models/one_off_events.py:164
+msgid "multiday event page"
+msgstr "sida för flerdagshändelse"
+
+#: models/one_off_events.py:165
+msgid "multiday event pages"
+msgstr "sidor för flerdagshändelser"
+
+#: models/one_off_events.py:175
+msgid "start date"
+msgstr "start-datum"
+
+#: models/one_off_events.py:176
+msgid "end date"
+msgstr "slut-datum"
+
+#: models/recurring_events.py:217
+msgid "recurring event page"
+msgstr "sida för återkommande händelse"
+
+#: models/recurring_events.py:218
+msgid "recurring event pages"
+msgstr "sidor för återkommande händelser"
+
+#: models/recurring_events.py:233
+msgid "repeat"
+msgstr "upprepning"
+
+#: models/recurring_events.py:234 models/recurring_events.py:1195
+msgid "number of days"
+msgstr "antal dagar"
+
+#: models/recurring_events.py:372
+msgid "These events have finished."
+msgstr "Dessa händelser är avslutade."
+
+#: models/recurring_events.py:392
+#, python-brace-format
+msgid "{repeat} {atTime}"
+msgstr "{repeat} {atTime}"
+
+#: models/recurring_events.py:397
+#, python-brace-format
+msgid "{repeat} {startFinishTime}"
+msgstr "{repeat} {startFinishTime}"
+
+#: models/recurring_events.py:400 models/recurring_events.py:835
+msgid "starting at "
+msgstr "börjar "
+
+#: models/recurring_events.py:401
+msgid "finishing at"
+msgstr "slutar "
+
+#: models/recurring_events.py:640
+msgid "multiday recurring event page"
+msgstr "sida för återkommande flerdagshändelse"
+
+#: models/recurring_events.py:641
+msgid "multiday recurring event pages"
+msgstr "sidor för återkommande flerdagshändelser"
+
+#: models/recurring_events.py:668
+msgid "overrides"
+msgstr "ersätter"
+
+#: models/recurring_events.py:671
+msgid "The recurring event that we are updating."
+msgstr "Den återkommande händelse som vi redigerar."
+
+#: models/recurring_events.py:764
+msgid "That date already has"
+msgstr "Det datumet har redan"
+
+#: models/recurring_events.py:772
+msgid "For Date"
+msgstr "För datum"
+
+#: models/recurring_events.py:773
+msgid "For this date"
+msgstr "För detta datum"
+
+#: models/recurring_events.py:785
+#, python-brace-format
+msgid "{exception} for {date}"
+msgstr "{exception} för {date}"
+
+#: models/recurring_events.py:832
+#, python-brace-format
+msgid "{date} for {n} days {startTime}"
+msgstr "{date} i {n} dagar kl {startTime}"
+
+#: models/recurring_events.py:836
+#, python-brace-format
+msgid "{dateAndStartTime} {finishTime}"
+msgstr "{dateAndStartTime} {finishTime}"
+
+#: models/recurring_events.py:838
+msgid "finishing at "
+msgstr "slutar kl "
+
+#: models/recurring_events.py:881
+msgid "Extra Information"
+msgstr "Extra information"
+
+#: models/recurring_events.py:890 models/recurring_events.py:891
+msgid "extra event information"
+msgstr "extra information om händelse"
+
+#: models/recurring_events.py:900
+msgid "Extra-Info"
+msgstr "Extra-info"
+
+#: models/recurring_events.py:902 models/recurring_events.py:1014
+#: models/recurring_events.py:1221
+msgid "title"
+msgstr "titel"
+
+#: models/recurring_events.py:903
+msgid "A more specific title for this occurence (optional)"
+msgstr "En mer specifik titel för detta tillfälle (frivilligt)"
+
+#: models/recurring_events.py:904
+msgid "extra information"
+msgstr "extra information"
+
+#: models/recurring_events.py:905
+msgid "Information just for this date"
+msgstr "Information gällande endast detta datum"
+
+#: models/recurring_events.py:1002
+msgid "a cancellation"
+msgstr "en avbokning"
+
+#: models/recurring_events.py:1015
+msgid "Show in place of cancelled event (Leave empty to show nothing)"
+msgstr ""
+"Visa istället för inställd händelse (lämna tom för att inte visa någonting)"
+
+#: models/recurring_events.py:1018
+msgid "Why was the event cancelled?"
+msgstr "Varföf blev den här händelsen inställd?"
+
+#: models/recurring_events.py:1028 models/recurring_events.py:1059
+msgid "Cancellation"
+msgstr "Avbokning"
+
+#: models/recurring_events.py:1045
+msgid "This event has been cancelled."
+msgstr "Den här händelsen har blivit inställd."
+
+#: models/recurring_events.py:1049
+msgid "cancellation"
+msgstr "avbokning"
+
+#: models/recurring_events.py:1050
+msgid "cancellations"
+msgstr "avbokningar"
+
+#: models/recurring_events.py:1169
+msgid "a postponement"
+msgstr "en senareläggning"
+
+#: models/recurring_events.py:1210 models/recurring_events.py:1357
+msgid "postponement"
+msgstr "senareläggning"
+
+#: models/recurring_events.py:1211 models/recurring_events.py:1358
+msgid "postponements"
+msgstr "senareläggningnar"
+
+#: models/recurring_events.py:1219
+msgid "Postponement"
+msgstr "Senareläggning"
+
+#: models/recurring_events.py:1222
+msgid "The title for the postponed event"
+msgstr "Titeln för den senarelagda händelsen"
+
+#: models/recurring_events.py:1241 models/recurring_events.py:1367
+msgid "Postponed to"
+msgstr "Uppskjuten till"
+
+#: models/recurring_events.py:1273
+#, python-brace-format
+msgid "{what} from {when}"
+msgstr "{what} från {when}"
+
+#: models/recurring_events.py:1292
+msgid "Postponed"
+msgstr "Uppskjuten"
+
+#: models/recurring_events.py:1294
+msgid "Rescheduled"
+msgstr "Ändrad tid"
+
+#: models/recurring_events.py:1420 models/recurring_events.py:1454
+#: models/recurring_events.py:1455
+msgid "closed for holidays"
+msgstr ""
+
+#: models/recurring_events.py:1421
+#, fuzzy
+#| msgid "Tuesdays"
+msgid "These holidays"
+msgstr "tisdagar"
+
+#: models/recurring_events.py:1424
+#, fuzzy
+#| msgid "Fridays"
+msgid "Holidays"
+msgstr "fredagar"
+
+#: models/recurring_events.py:1480
+msgid "Closed For"
+msgstr ""
+
+#: models/recurring_events.py:1510
+msgid "Closed for holidays"
+msgstr ""
+
+#: models/recurring_events.py:1517
+msgid "Closed for holidays."
+msgstr ""
+
+#: models/recurring_events.py:1525
+msgid "Closed on all holidays"
+msgstr ""
+
+#: models/recurring_events.py:1527
+msgid "Closed on {}"
+msgstr ""
+
+#: models/recurring_events.py:1744
+msgid "There is already an extended cancellation for then"
+msgstr ""
+
+#: models/recurring_events.py:1749
+#, fuzzy
+#| msgid "a cancellation"
+msgid "extended cancellation"
+msgstr "en avbokning"
+
+#: models/recurring_events.py:1750
+#, fuzzy
+#| msgid "cancellations"
+msgid "extended cancellations"
+msgstr "avbokningar"
+
+#: models/recurring_events.py:1760
+#: templates/joyous/widgets/recurrence_widget.html:7
+msgid "From Date"
+msgstr "Från och med"
+
+#: models/recurring_events.py:1761
+msgid "Cancelled from this date"
+msgstr ""
+
+#: models/recurring_events.py:1762
+#, fuzzy
+#| msgid "For Date"
+msgid "To Date"
+msgstr "För datum"
+
+#: models/recurring_events.py:1763
+msgid "Cancelled to this date (Leave empty for \"until further notice\")"
+msgstr ""
+
+#: models/recurring_events.py:1784
+#, python-brace-format
+msgid "Cancellation from {fromDate} {untilWhen}"
+msgstr ""
+
+#: models/recurring_events.py:1795
+msgid "to {}"
+msgstr ""
+
+#: models/recurring_events.py:1797
+msgid "until further notice"
+msgstr ""
+
+#: models/recurring_events.py:1805
+#, python-brace-format
+msgid "Cancelled from {fromDate} {untilWhen}"
+msgstr ""
+
+#: templates/joyous/calendar_base.html:21
+#: templates/joyous/calendar_list_upcoming.html:18
+#: templates/joyous/edit_handlers/export_panel.html:17
+#: templates/joyous/event_base.html:27
+#: templates/joyous/includes/calendar_export.html:3
+msgid "Export iCal"
+msgstr "Exportera som iCal"
+
+#: templates/joyous/calendar_list_day.html:12
+#, python-format
+msgid "Events on %(day)s"
+msgstr "Händelser %(day)s"
+
+#: templates/joyous/calendar_list_past.html:5
+#: templates/joyous/calendar_list_upcoming.html:12
+msgid "Upcoming Events"
+msgstr "Kommande händelser"
+
+#: templates/joyous/calendar_list_past.html:12
+#: templates/joyous/calendar_list_upcoming.html:5
+msgid "Past Events"
+msgstr "Tidigare händelser"
+
+#: templates/joyous/calendar_list_upcoming.html:20
+msgid "RSS Feed"
+msgstr "RSS-flöde"
+
+#: templates/joyous/calendar_month.html:5
+msgid "This Month"
+msgstr "Denna månad"
+
+#: templates/joyous/calendar_month.html:14
+#: templates/joyous/includes/minicalendar.html:12
+msgid "Previous month"
+msgstr "Förra månaden"
+
+#: templates/joyous/calendar_month.html:16
+#: templates/joyous/includes/minicalendar.html:13
+msgid "Next month"
+msgstr "Nästa månad"
+
+#: templates/joyous/calendar_month.html:19
+#: templates/joyous/calendar_week.html:19
+msgid "Previous year"
+msgstr "Förra året"
+
+#: templates/joyous/calendar_month.html:21
+#: templates/joyous/calendar_week.html:21
+msgid "Next year"
+msgstr "Nästa år"
+
+#: templates/joyous/calendar_table_base.html:23
+#: templates/joyous/tags/events_this_week.html:19
+msgid "cont."
+msgstr "forts."
+
+#: templates/joyous/calendar_week.html:5
+#: templates/joyous/tags/events_this_week.html:3
+msgid "This Week"
+msgstr "Denna vecka"
+
+#: templates/joyous/calendar_week.html:14
+msgid "Previous week"
+msgstr "Förra veckan"
+
+#: templates/joyous/calendar_week.html:16
+msgid "Next week"
+msgstr "Nästa vecka"
+
+#: templates/joyous/edit_handlers/export_panel.html:14
+msgid "Download"
+msgstr "Ladda ner"
+
+#: templates/joyous/edit_handlers/tz_date_object.html:28
+msgid "Time Zone"
+msgstr "Tidszon"
+
+#: templates/joyous/event_base.html:25
+msgid "Google Calendar"
+msgstr ""
+
+#: templates/joyous/exception_base.html:7
+msgid "See also <strong>other occurrences</strong> of this event."
+msgstr "Se också <strong>andra tillfällen</strong> för denna händelse."
+
+#: templates/joyous/includes/when.html:11
+#, python-format
+msgid "Next on %(event_next_on)s"
+msgstr "Nästa tillfälle %(event_next_on)s"
+
+#: templates/joyous/postponement_page_from.html:6
+#, python-format
+msgid "This event has been %(what)s."
+msgstr "Den här händelsen har blivit %(what)s."
+
+#: templates/joyous/postponement_page_from.html:26
+#, python-format
+msgid ""
+"%(what)s to <a class=\"joy-ev-to-when__link\" href=\"%(postponement_url)s\" >"
+"%(postponed_to)s</a>"
+msgstr ""
+"%(what)s till <a class=\"joy-ev-to-when__link\" href=\"%(postponement_url)s"
+"\" >%(postponed_to)s</a>"
+
+#: templates/joyous/tags/events_this_week.html:7
+msgid "Today"
+msgstr "Idag"
+
+#: templates/joyous/tags/future_exceptions_list.html:9
+#: templates/joyous/tags/future_exceptions_list.html:11
+msgid "on"
+msgstr "på"
+
+#: templates/joyous/tags/group_upcoming_events.html:5
+msgid "Events"
+msgstr "Händelser"
+
+#: templates/joyous/widgets/recurrence_widget.html:17
+msgid "Frequency"
+msgstr "Frekvens"
+
+#: templates/joyous/widgets/recurrence_widget.html:28
+msgid "Until Date"
+msgstr "Till och med"
+
+#: templates/joyous/widgets/recurrence_widget.html:38
+msgid "Use Advanced Options"
+msgstr "Använd avancerade alternativ"
+
+#: templates/joyous/widgets/recurrence_widget.html:43 widgets.py:63
+msgid "Every"
+msgstr "Varje"
+
+#: templates/joyous/widgets/recurrence_widget.html:47
+msgid "Day(s)"
+msgstr "Dag(ar)"
+
+#: templates/joyous/widgets/recurrence_widget.html:48
+msgid "Week(s)"
+msgstr "Vecka/veckor"
+
+#: templates/joyous/widgets/recurrence_widget.html:49
+msgid "Month(s)"
+msgstr "Månad(er)"
+
+#: templates/joyous/widgets/recurrence_widget.html:50
+msgid "Year(s)"
+msgstr "År"
+
+#: templates/joyous/widgets/recurrence_widget.html:57
+msgid "On Days"
+msgstr "På dagar"
+
+#: templates/joyous/widgets/recurrence_widget.html:67
+msgid "On"
+msgstr "På"
+
+#: templates/joyous/widgets/recurrence_widget.html:86
+#: templates/joyous/widgets/recurrence_widget.html:105
+msgid "And"
+msgstr "Och"
+
+#: templates/joyous/widgets/recurrence_widget.html:126
+msgid "Of"
+msgstr "I"
+
+#: templates/joyous/widgets/recurrence_widget.html:142
+msgid "What are the rules for when this event recurs?"
+msgstr "Vilka är reglerna för hur denna händelse återkommer?"
+
+#: utils/manythings.py:15
+msgid "first"
+msgstr "första"
+
+#: utils/manythings.py:16
+msgid "second"
+msgstr "andra"
+
+#: utils/manythings.py:17
+msgid "third"
+msgstr "tredje"
+
+#: utils/manythings.py:18
+msgid "fourth"
+msgstr "fjärde"
+
+#: utils/manythings.py:19
+msgid "fifth"
+msgstr "femte"
+
+#: utils/manythings.py:29
+msgid "last"
+msgstr "sista"
+
+#: utils/manythings.py:31
+msgid "penultimate"
+msgstr "näst sista"
+
+#: utils/manythings.py:46
+msgid "the last"
+msgstr "den sista"
+
+#: utils/manythings.py:48
+msgid "the penultimate"
+msgstr "den näst sista"
+
+#: utils/manythings.py:50
+msgid "the first"
+msgstr "den första"
+
+#: utils/manythings.py:52
+msgid "the second"
+msgstr "den andra"
+
+#: utils/manythings.py:54
+msgid "the third"
+msgstr "den tredje"
+
+#: utils/manythings.py:56
+msgid "the fourth"
+msgstr "den fjärde"
+
+#: utils/manythings.py:58
+msgid "the fifth"
+msgstr "den femte"
+
+#: utils/manythings.py:60
+msgid "the"
+msgstr "den"
+
+#: utils/manythings.py:74
+#, python-brace-format
+msgid "{N} days before"
+msgstr "{N} dagar före"
+
+#: utils/manythings.py:76
+msgid "The day before"
+msgstr "Dagen före"
+
+#: utils/manythings.py:78
+msgid "The day after"
+msgstr "Dagen efter"
+
+#: utils/manythings.py:81
+#, python-brace-format
+msgid "{N} days after"
+msgstr "{N} dagar efter"
+
+#: utils/manythings.py:90
+msgid "and"
+msgstr "och"
+
+#: utils/names.py:36
+msgid "Mondays"
+msgstr "måndagar"
+
+#: utils/names.py:37
+msgid "Tuesdays"
+msgstr "tisdagar"
+
+#: utils/names.py:38
+msgid "Wednesdays"
+msgstr "onsdagar"
+
+#: utils/names.py:39
+msgid "Thursdays"
+msgstr "torsdagar"
+
+#: utils/names.py:40
+msgid "Fridays"
+msgstr "fredagar"
+
+#: utils/names.py:41
+msgid "Saturdays"
+msgstr "lördagar"
+
+#: utils/names.py:42
+msgid "Sundays"
+msgstr "söndagar"
+
+#: utils/names.py:45
+msgctxt "definitive form"
+msgid "Monday"
+msgstr "måndagen"
+
+#: utils/names.py:46
+msgctxt "definitive form"
+msgid "Tuesday"
+msgstr "tisdagen"
+
+#: utils/names.py:47
+msgctxt "definitive form"
+msgid "Wednesday"
+msgstr "onsdagen"
+
+#: utils/names.py:48
+msgctxt "definitive form"
+msgid "Thursday"
+msgstr "torsdagen"
+
+#: utils/names.py:49
+msgctxt "definitive form"
+msgid "Friday"
+msgstr "fredagen"
+
+#: utils/names.py:50
+msgctxt "definitive form"
+msgid "Saturday"
+msgstr "lördagen"
+
+#: utils/names.py:51
+msgctxt "definitive form"
+msgid "Sunday"
+msgstr "söndagen"
+
+#: utils/recurrence.py:48
+#, python-brace-format
+msgid "{ordinal} {weekday}"
+msgstr "{ordinal} {weekday}en"
+
+#: utils/recurrence.py:56
+#, python-brace-format
+msgid "{localWeekday} before {theOrdinal} {weekday}"
+msgstr "{localWeekday} före {theOrdinal} {weekday}en"
+
+#: utils/recurrence.py:59
+#, python-brace-format
+msgid "{localWeekday} after {theOrdinal} {weekday}"
+msgstr "{localWeekday} efter {theOrdinal} {weekday}en"
+
+#: utils/recurrence.py:276
+#, python-brace-format
+msgid "for {n} days"
+msgstr "i {n} dagar"
+
+#: utils/recurrence.py:279
+#, python-brace-format
+msgid "(until {when})"
+msgstr "(t o m {when})"
+
+#: utils/recurrence.py:284
+#, python-brace-format
+msgid "Every {n} days"
+msgstr "Var {n} dag"
+
+#: utils/recurrence.py:286 widgets.py:53
+msgid "Daily"
+msgstr "Dagligen"
+
+#: utils/recurrence.py:292
+#, python-brace-format
+msgid "Fortnightly on {days}"
+msgstr "Varannan vecka på {days}"
+
+#: utils/recurrence.py:294
+#, python-brace-format
+msgid "Every {n} weeks on {days}"
+msgstr "Var {n} vecka på {days}"
+
+#: utils/recurrence.py:299
+msgid "of the month"
+msgstr "i månaden"
+
+#: utils/recurrence.py:302
+#, python-brace-format
+msgid "{when}, every {n} months"
+msgstr "{when}, var {n} månad"
+
+#: utils/recurrence.py:308 utils/recurrence.py:347 utils/recurrence.py:354
+#, python-brace-format
+msgid "of {months}"
+msgstr "i {months}"
+
+#: utils/recurrence.py:311
+#, python-brace-format
+msgid "{when}, every {n} years"
+msgstr "{when}, var {n} år"
+
+#: utils/recurrence.py:329
+msgid "Everyday"
+msgstr "Varje dag"
+
+#: utils/recurrence.py:333
+#, python-brace-format
+msgid "Every {when}"
+msgstr "Varje {when}"
+
+#: utils/recurrence.py:335
+#, python-brace-format
+msgid "The {when}"
+msgstr "Den {when}"
+
+#: utils/recurrence.py:366 utils/recurrence.py:377
+#, python-brace-format
+msgid "{DaysOffset} {theOrdinal} day"
+msgstr "{DaysOffset} {theOrdinal} dag"
+
+#: utils/recurrence.py:370 utils/recurrence.py:382
+#, python-brace-format
+msgid "{TheOrdinal} day"
+msgstr "{TheOrdinal} dagen"
+
+#: utils/telltime.py:136
+msgid "pm"
+msgstr "PM"
+
+#: utils/telltime.py:137
+msgid "am"
+msgstr "AM"
+
+#: utils/telltime.py:171
+msgid "to"
+msgstr "till"
+
+#: widgets.py:54
+msgid "Weekly"
+msgstr "Veckovis"
+
+#: widgets.py:55
+msgid "Monthly"
+msgstr "Månadsvis"
+
+#: widgets.py:56
+msgid "Yearly"
+msgstr "Årligen"
+
+#: widgets.py:64
+msgid "The Same"
+msgstr "Samma datum"
+
+#: widgets.py:75
+msgid "Day of the month"
+msgstr "Dag i månaden"
