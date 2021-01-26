@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from wagtail.core.models import Page
+from wagtail.core.models import Page, Site
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
@@ -446,7 +446,7 @@ class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
         """
         Return the events in this site for the dates given, grouped by day.
         """
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         return getAllEventsByDay(request, firstDay, lastDay,
                                  home=home, holidays=self.holidays)
 
@@ -454,31 +454,31 @@ class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
         """
         Return the events in this site for the given month grouped by week.
         """
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         return getAllEventsByWeek(request, year, month,
                                   home=home, holidays=self.holidays)
 
     def _getUpcomingEvents(self, request):
         """Return the upcoming events in this site."""
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         return getAllUpcomingEvents(request, home=home, holidays=self.holidays)
 
     def _getPastEvents(self, request):
         """Return the past events in this site."""
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         return getAllPastEvents(request, home=home, holidays=self.holidays)
 
     def _getEventFromUid(self, request, uid):
         """Try and find an event with the given UID in this site."""
         event = getEventFromUid(request, uid) # might raise exception
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         if event.get_ancestors().filter(id=home.id).exists():
             # only return event if it is in the same site
             return event
 
     def _getAllEvents(self, request):
         """Return all the events in this site."""
-        home = request.site.root_page
+        home = Site.find_for_request(request).root_page
         return getAllEvents(request, home=home, holidays=self.holidays)
 
     def _paginate(self, request, events):
