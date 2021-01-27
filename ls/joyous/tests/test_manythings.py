@@ -30,13 +30,13 @@ class Test(TestCase):
         self.assertEqual(toOrdinal(6543), "6543rd")
 
     def testToTheOrdinal(self):
-        self.assertEqual(toTheOrdinal(-1), "The Last")
+        self.assertEqual(toTheOrdinal(-1), "The last")
         self.assertEqual(toTheOrdinal(-2, False), "the penultimate")
-        self.assertEqual(toTheOrdinal(1), "The First")
-        self.assertEqual(toTheOrdinal(2), "The Second")
-        self.assertEqual(toTheOrdinal(3), "The Third")
-        self.assertEqual(toTheOrdinal(4), "The Fourth")
-        self.assertEqual(toTheOrdinal(5), "The Fifth")
+        self.assertEqual(toTheOrdinal(1), "The first")
+        self.assertEqual(toTheOrdinal(2), "The second")
+        self.assertEqual(toTheOrdinal(3), "The third")
+        self.assertEqual(toTheOrdinal(4), "The fourth")
+        self.assertEqual(toTheOrdinal(5), "The fifth")
 
     def testToTheOrdinalNum(self):
         self.assertEqual(toTheOrdinal(6), "The 6th")
@@ -93,14 +93,14 @@ class  TestFrançais(TestCase):
         self.assertEqual(toOrdinal(6543), "6543me")
 
     def testToTheOrdinal(self):
-        self.assertEqual(toTheOrdinal(-1), "Le Dernier")
-        self.assertEqual(toTheOrdinal(-2, True), "L'Avant-Dernier")
+        self.assertEqual(toTheOrdinal(-1), "Le dernier")
+        self.assertEqual(toTheOrdinal(-2, True), "L'avant-dernier")
         self.assertEqual(toTheOrdinal(-2, False), "l'avant-dernier")
-        self.assertEqual(toTheOrdinal(1), "La Premier")
+        self.assertEqual(toTheOrdinal(1), "La premier")
         self.assertEqual(toTheOrdinal(2, False), "la deuxième")
-        self.assertEqual(toTheOrdinal(3), "Le Troisième")
-        self.assertEqual(toTheOrdinal(4), "Le Quatrième")
-        self.assertEqual(toTheOrdinal(5), "Le Cinquième")
+        self.assertEqual(toTheOrdinal(3), "Le troisième")
+        self.assertEqual(toTheOrdinal(4), "Le quatrième")
+        self.assertEqual(toTheOrdinal(5), "Le cinquième")
 
     def testToTheOrdinalNum(self):
         self.assertEqual(toTheOrdinal(6), "La 6me")
