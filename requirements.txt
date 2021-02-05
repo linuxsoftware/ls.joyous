@@ -11,7 +11,7 @@ feedgen
 
 django-beautifulsoup-test
 coveralls
-coverage<5.0
+coverage
 freezegun
 wagtailgmaps
 

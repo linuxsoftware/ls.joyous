@@ -327,7 +327,9 @@ class TestFrançais(TestCase):
         select = response.soup.select
         self.assertEqual(response.status_code, 200)
         month = select(".joy-cal__month-name")[0]
-        self.assertEqual(month.string.strip(), "Mars")
+
+        self.assertEqual(month.string.strip().lower(), "mars")
+        # lowercase is correct in French, but accept either Mars or mars
 
     def testWeekView(self):
         response = self.client.get("/calendrier/2012/W11/")
