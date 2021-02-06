@@ -77,7 +77,7 @@ class Test(TestCase):
     @override_settings(JOYOUS_DEFEND_FORMS=True)
     def testSetSubclass(self):
         MEP.base_form_class = NewMEPForm
-        self.assertEqual(MEP.base_form_class, MEPForm)
+        self.assertEqual(MEP.base_form_class, NewMEPForm)
 
     @override_settings(JOYOUS_DEFEND_FORMS=True)
     def testDefend(self):
@@ -142,6 +142,21 @@ class Test(TestCase):
         form = Form(instance=event, parent_page=calendar)
         page = form.save()
         self.assertEqual(page.owner.username, "buck")
+
+    @override_settings(JOYOUS_DEFEND_FORMS=True)
+    def testNoneAssimilated(self):
+        MEP.base_form_class = None
+        self.assertIs(MEP.base_form_class, MEPForm)
+        Form = MEP.get_edit_handler().get_form_class()
+        self.assertTrue(issubclass(Form, MEPForm))
+        form = Form({'slug':      "C2C",
+                     'title':     "Coast to Coast",
+                     'date_from': "2021-02-12",
+                     'date_to':   "2021-02-13",
+                     'tz':        "Pacific/Auckland"})
+        self.assertIsInstance(form.assimilated, type(None))
+        self.assertTrue(form.is_valid())
+        self.assertDictEqual(form.errors, {})
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

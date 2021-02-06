@@ -1,0 +1,28 @@
+==========================
+Joyous 1.4 release notes - IN DEVELOPMENT
+==========================
+
+.. contents::
+    :local:
+    :depth: 3
+
+
+What's new
+==========
+
+Compatibility with Wagtail 2.11
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Deprecated
+~~~~~~~~~~
+The ``JOYOUS_DEFEND_FORMS`` setting is deprecated.  It still works, but
+is no longer documented.
+
+Bug fixes
+~~~~~~~~~
+ * FormDefender should cope with `base_form_class = None`
+
+
+Upgrade considerations
+======================
+

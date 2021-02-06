@@ -26,19 +26,6 @@ Short format of dates, if different from the Django standard.  Uses the same opt
 
 Added in :doc:`version 0.9.1 </releases/0.9.1>`.  Use ``JOYOUS_DATE_SHORT_FORMAT = "j F Y"`` for formatting as it was previously.
 
-.. setting:: JOYOUS_DEFEND_FORMS
-
-``JOYOUS_DEFEND_FORMS``
-----------------------
-
-Default: ``False``
-
-If this is set to ``True`` then the Joyous page models will not allow
-their base_form_class to be replaced.
-Instead they will assimilate the newly assigned form class.
-
-Added in :doc:`version 1.3.1 </releases/1.3.1>`.
-
 
 .. setting:: JOYOUS_EVENTS_PER_PAGE
 

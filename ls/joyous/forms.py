@@ -19,9 +19,9 @@ class BorgPageForm(WagtailAdminPageForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if (not getattr(self, 'unimatrix_zero', False) and
-            hasattr(self, 'assimilated_class')):
-            borg_form_class = self._get_assimilated_form()
+        assimilated_class = getattr(self, 'assimilated_class', None)
+        if (assimilated_class):
+            borg_form_class = self._get_assimilated_form(assimilated_class)
             self.assimilated = borg_form_class(*args, **kwargs)
         else:
             self.assimilated = None
@@ -43,24 +43,24 @@ class BorgPageForm(WagtailAdminPageForm):
             page = super().save(commit)
         return page
 
-    def _get_assimilated_form(self):
+    def _get_assimilated_form(self, assimilated_class):
         # based on wagtail.admin.edit_handlers.get_form_for_model
-        self.assimilated_class.declared_fields.update(self.declared_fields)
+        assimilated_class.declared_fields.update(self.declared_fields)
         attrs = {'model':    self._meta.model,
                  'fields':   self._meta.fields,
                  'formsets': self._meta.formsets,
                  'widgets':  self._meta.widgets}
-        class_name = "Assimilated" + self.assimilated_class.__name__
+        class_name = "Assimilated" + assimilated_class.__name__
         bases = (object,)
-        if hasattr(self.assimilated_class, 'Meta'):
-            bases = (self.assimilated_class.Meta,) + bases
+        if hasattr(assimilated_class, 'Meta'):
+            bases = (assimilated_class.Meta,) + bases
         form_class_attrs = {
-            'Meta': type(str('Meta'), bases, attrs),
+            'Meta': type('Meta', bases, attrs),
             'unimatrix_zero': True
         }
-        metaclass = type(self.assimilated_class)
+        metaclass = type(assimilated_class)
         return metaclass(class_name,
-                         (self.assimilated_class,),
+                         (assimilated_class,),
                          form_class_attrs)
 
 # ------------------------------------------------------------------------------
@@ -68,6 +68,9 @@ def _getName(thing):
     return getattr(thing, '__name__', repr(thing))
 
 class FormClassOverwriteWarning(RuntimeWarning):
+    pass
+
+class FormCannotAssimilateWarning(RuntimeWarning):
     pass
 
 class FormDefender(PageBase):
@@ -94,21 +97,30 @@ class FormDefender(PageBase):
             cls._base_form_class = form_class
             return
 
+        if (isinstance(form_class, type) and
+            issubclass(form_class, my_form_class)):
+            # don't assimilate or generate warning for subclasses
+            cls._base_form_class = form_class
+            return
+
         if getattr(settings, "JOYOUS_DEFEND_FORMS", False):
             if issubclass(my_form_class, BorgPageForm):
                 my_form_class.assimilate(form_class)
+            else:
+                warning = FormCannotAssimilateWarning(
+                          "{} cannot assimilate {}"
+                          .format(_getName(my_form_class),
+                                  _getName(form_class)))
+                warnings.warn(warning, stacklevel=2)
+
         else:
             cls._base_form_class = form_class
-
-            # don't generate warning for subclasses
-            if not (isinstance(form_class, type) and
-                    issubclass(form_class, my_form_class)):
-                warning = FormClassOverwriteWarning(
-                              "{} has been overwritten with {}, "
-                              "consider enabling JOYOUS_DEFEND_FORMS"
-                              .format(_getName(my_form_class),
-                                      _getName(form_class)))
-                warnings.warn(warning, stacklevel=2)
+            warning = FormClassOverwriteWarning(
+                          "{} has been overwritten with {}, "
+                          "consider enabling JOYOUS_DEFEND_FORMS"
+                          .format(_getName(my_form_class),
+                                  _getName(form_class)))
+            warnings.warn(warning, stacklevel=2)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
