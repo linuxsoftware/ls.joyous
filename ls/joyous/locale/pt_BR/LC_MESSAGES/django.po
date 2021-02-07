@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-18 22:09+1200\n"
+"POT-Creation-Date: 2021-02-08 11:32+1300\n"
 "PO-Revision-Date: 2019-10-15 21:56-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -92,84 +92,84 @@ msgstr "página geral do calendário"
 msgid "general calendar pages"
 msgstr "páginas gerais do calendário"
 
-#: models/event_base.py:118
+#: models/event_base.py:151
 msgid "event category"
 msgstr "categoria de evento"
 
-#: models/event_base.py:119
+#: models/event_base.py:152
 msgid "event categories"
 msgstr "categorias de eventos"
 
-#: models/event_base.py:121
+#: models/event_base.py:154
 msgid "code"
 msgstr "código"
 
-#: models/event_base.py:122 models/recurring_events.py:1357
+#: models/event_base.py:155 models/recurring_events.py:1388
 msgid "name"
 msgstr "nome"
 
-#: models/event_base.py:253 models/one_off_events.py:153
-#: models/recurring_events.py:1161
+#: models/event_base.py:291 models/one_off_events.py:156
+#: models/recurring_events.py:1183
 msgid "Event cannot end before it starts"
 msgstr "O evento não pode terminar antes de começar"
 
-#: models/event_base.py:268
+#: models/event_base.py:306
 msgid "category"
 msgstr "categoria"
 
-#: models/event_base.py:274
+#: models/event_base.py:312
 msgid "image"
 msgstr "Imagem"
 
-#: models/event_base.py:277
+#: models/event_base.py:315
 msgid "start time"
 msgstr "hora de início"
 
-#: models/event_base.py:278
+#: models/event_base.py:316
 msgid "end time"
 msgstr "hora final"
 
-#: models/event_base.py:279
+#: models/event_base.py:317
 msgid "time zone"
 msgstr "fuso horário"
 
-#: models/event_base.py:284 models/groups.py:49
+#: models/event_base.py:322 models/groups.py:49
 msgid "group page"
 msgstr "página de grupo"
 
-#: models/event_base.py:286 models/recurring_events.py:1001
+#: models/event_base.py:324 models/recurring_events.py:1017
 msgid "details"
 msgstr "detalhes"
 
-#: models/event_base.py:287
+#: models/event_base.py:325
 msgid "location"
 msgstr "local"
 
-#: models/event_base.py:288
+#: models/event_base.py:326
 msgid "website"
 msgstr "website"
 
-#: models/event_base.py:378 models/recurring_events.py:928
+#: models/event_base.py:421 models/recurring_events.py:944
 msgid "This event has finished."
 msgstr "Este evento terminou."
 
-#: models/event_base.py:380 models/recurring_events.py:930
+#: models/event_base.py:423 models/recurring_events.py:946
 msgid "This event has started."
 msgstr "Este evento foi iniciado."
 
-#: models/event_base.py:437 models/event_base.py:440
-#: models/recurring_events.py:812
+#: models/event_base.py:480 models/event_base.py:483
+#: models/recurring_events.py:825
 #, python-brace-format
 msgid "{date} {atTime}"
 msgstr ""
 
-#: models/event_base.py:438 models/event_base.py:441 models/event_base.py:445
-#: models/recurring_events.py:391 models/recurring_events.py:452
-#: models/recurring_events.py:814 templatetags/joyous_tags.py:160
+#: models/event_base.py:481 models/event_base.py:484 models/event_base.py:488
+#: models/recurring_events.py:394 models/recurring_events.py:455
+#: models/recurring_events.py:827 templatetags/joyous_tags.py:160
 msgid "at "
 msgstr "em "
 
-#: models/event_base.py:442
+#: models/event_base.py:485
 #, python-brace-format
 msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
 msgstr "{dateTimeFrom} até {dateTo} {atTimeTo}"
@@ -186,296 +186,302 @@ msgstr "conteúdo"
 msgid "An area of text for whatever you like"
 msgstr "Uma área de texto para o que você quiser"
 
-#: models/one_off_events.py:67
+#: models/one_off_events.py:66
 msgid "event page"
 msgstr "página de evento"
 
-#: models/one_off_events.py:68
+#: models/one_off_events.py:67
 msgid "event pages"
 msgstr "páginas de eventos"
 
-#: models/one_off_events.py:78 models/recurring_events.py:1198
+#: models/one_off_events.py:77 models/recurring_events.py:1223
 msgid "date"
 msgstr "data"
 
-#: models/one_off_events.py:161
+#: models/one_off_events.py:164
 msgid "multiday event page"
 msgstr "página de evento de vários dias"
 
-#: models/one_off_events.py:162
+#: models/one_off_events.py:165
 msgid "multiday event pages"
 msgstr "páginas de eventos de vários dias"
 
-#: models/one_off_events.py:172
+#: models/one_off_events.py:175
 msgid "start date"
 msgstr "data de início"
 
-#: models/one_off_events.py:173
+#: models/one_off_events.py:176
 msgid "end date"
 msgstr "data final"
 
-#: models/recurring_events.py:216
+#: models/recurring_events.py:217
 msgid "recurring event page"
 msgstr "página de evento recorrente"
 
-#: models/recurring_events.py:217
+#: models/recurring_events.py:218
 msgid "recurring event pages"
 msgstr "páginas de eventos recorrentes"
 
-#: models/recurring_events.py:232
+#: models/recurring_events.py:233
 msgid "repeat"
 msgstr "repetir"
 
-#: models/recurring_events.py:233 models/recurring_events.py:1173
+#: models/recurring_events.py:234 models/recurring_events.py:1195
 msgid "number of days"
 msgstr "número de dias"
 
-#: models/recurring_events.py:369
+#: models/recurring_events.py:372
 msgid "These events have finished."
 msgstr "Esses eventos terminaram."
 
-#: models/recurring_events.py:389
+#: models/recurring_events.py:392
 #, python-brace-format
 msgid "{repeat} {atTime}"
 msgstr ""
 
-#: models/recurring_events.py:394
+#: models/recurring_events.py:397
 #, python-brace-format
 msgid "{repeat} {startFinishTime}"
 msgstr ""
 
-#: models/recurring_events.py:397 models/recurring_events.py:822
+#: models/recurring_events.py:400 models/recurring_events.py:835
 msgid "starting at "
 msgstr "começando em "
 
-#: models/recurring_events.py:398
+#: models/recurring_events.py:401
 msgid "finishing at"
 msgstr "terminando em"
 
-#: models/recurring_events.py:637
+#: models/recurring_events.py:640
 msgid "multiday recurring event page"
 msgstr "página de evento de vários dias recorrente"
 
-#: models/recurring_events.py:638
+#: models/recurring_events.py:641
 msgid "multiday recurring event pages"
 msgstr "páginas de evento de vários dias recorrente"
 
-#: models/recurring_events.py:662
+#: models/recurring_events.py:668
 msgid "overrides"
 msgstr "substitui"
 
-#: models/recurring_events.py:665
+#: models/recurring_events.py:671
 msgid "The recurring event that we are updating."
 msgstr "O evento recorrente que estamos atualizando."
 
-#: models/recurring_events.py:755
+#: models/recurring_events.py:764
 msgid "That date already has"
 msgstr "Essa data já tem"
 
-#: models/recurring_events.py:763
+#: models/recurring_events.py:772
 msgid "For Date"
 msgstr "Para Data"
 
-#: models/recurring_events.py:764
+#: models/recurring_events.py:773
 msgid "For this date"
 msgstr "Para esta data"
 
-#: models/recurring_events.py:773
+#: models/recurring_events.py:785
 #, python-brace-format
 msgid "{exception} for {date}"
 msgstr "{exception} para {date}"
 
-#: models/recurring_events.py:819
+#: models/recurring_events.py:832
 #, python-brace-format
 msgid "{date} for {n} days {startTime}"
 msgstr "{date} para {n} dias {startTime}"
 
-#: models/recurring_events.py:823
+#: models/recurring_events.py:836
 #, python-brace-format
 msgid "{dateAndStartTime} {finishTime}"
 msgstr ""
 
-#: models/recurring_events.py:825
+#: models/recurring_events.py:838
 msgid "finishing at "
 msgstr "terminando em "
 
-#: models/recurring_events.py:868
+#: models/recurring_events.py:881
 msgid "Extra Information"
 msgstr "Informação extra"
 
-#: models/recurring_events.py:877 models/recurring_events.py:878
+#: models/recurring_events.py:890 models/recurring_events.py:891
 msgid "extra event information"
 msgstr "informação extra sobre o evento"
 
-#: models/recurring_events.py:887
+#: models/recurring_events.py:900
 msgid "Extra-Info"
 msgstr "Informação extra"
 
-#: models/recurring_events.py:889 models/recurring_events.py:998
-#: models/recurring_events.py:1196
+#: models/recurring_events.py:902 models/recurring_events.py:1014
+#: models/recurring_events.py:1221
 msgid "title"
 msgstr "Título"
 
-#: models/recurring_events.py:890
+#: models/recurring_events.py:903
 msgid "A more specific title for this occurence (optional)"
 msgstr "Um título mais específico para esta ocorrência (opcional)"
 
-#: models/recurring_events.py:891
+#: models/recurring_events.py:904
 msgid "extra information"
 msgstr "Informação extra"
 
-#: models/recurring_events.py:892
+#: models/recurring_events.py:905
 msgid "Information just for this date"
 msgstr "Informações apenas para esta data"
 
-#: models/recurring_events.py:986
+#: models/recurring_events.py:1002
 msgid "a cancellation"
 msgstr "um cancelamento"
 
-#: models/recurring_events.py:999
+#: models/recurring_events.py:1015
 msgid "Show in place of cancelled event (Leave empty to show nothing)"
 msgstr ""
 "Mostrar no lugar do evento cancelado (deixe em branco para não mostrar nada)"
 
-#: models/recurring_events.py:1002
+#: models/recurring_events.py:1018
 msgid "Why was the event cancelled?"
 msgstr "Por que o evento foi cancelado?"
 
-#: models/recurring_events.py:1012 models/recurring_events.py:1040
+#: models/recurring_events.py:1028 models/recurring_events.py:1059
 msgid "Cancellation"
 msgstr "Cancelamento"
 
-#: models/recurring_events.py:1026
+#: models/recurring_events.py:1045
 msgid "This event has been cancelled."
 msgstr "Este evento foi cancelado."
 
-#: models/recurring_events.py:1030
+#: models/recurring_events.py:1049
 msgid "cancellation"
 msgstr "cancelamento"
 
-#: models/recurring_events.py:1031
+#: models/recurring_events.py:1050
 msgid "cancellations"
 msgstr "cancelamentos"
 
-#: models/recurring_events.py:1147
+#: models/recurring_events.py:1169
 msgid "a postponement"
 msgstr "um adiamento"
 
-#: models/recurring_events.py:1185 models/recurring_events.py:1329
+#: models/recurring_events.py:1210 models/recurring_events.py:1357
 msgid "postponement"
 msgstr "adiamento"
 
-#: models/recurring_events.py:1186 models/recurring_events.py:1330
+#: models/recurring_events.py:1211 models/recurring_events.py:1358
 msgid "postponements"
 msgstr "adiamentos"
 
-#: models/recurring_events.py:1194
+#: models/recurring_events.py:1219
 msgid "Postponement"
 msgstr "Adiamento"
 
-#: models/recurring_events.py:1197
+#: models/recurring_events.py:1222
 msgid "The title for the postponed event"
 msgstr "O título do evento adiado"
 
-#: models/recurring_events.py:1216 models/recurring_events.py:1339
+#: models/recurring_events.py:1241 models/recurring_events.py:1367
 msgid "Postponed to"
 msgstr "Adiado para"
 
-#: models/recurring_events.py:1245
+#: models/recurring_events.py:1273
 #, python-brace-format
 msgid "{what} from {when}"
 msgstr "{what} de {when}"
 
-#: models/recurring_events.py:1264
+#: models/recurring_events.py:1292
 msgid "Postponed"
 msgstr "Adiado"
 
-#: models/recurring_events.py:1266
+#: models/recurring_events.py:1294
 msgid "Rescheduled"
 msgstr "Remarcado"
 
-#: models/recurring_events.py:1386 models/recurring_events.py:1420
-#: models/recurring_events.py:1421
+#: models/recurring_events.py:1420 models/recurring_events.py:1454
+#: models/recurring_events.py:1455
 msgid "closed for holidays"
 msgstr ""
 
-#: models/recurring_events.py:1387
+#: models/recurring_events.py:1421
 #, fuzzy
 #| msgid "Tuesdays"
 msgid "These holidays"
 msgstr "Teresa"
 
-#: models/recurring_events.py:1390
+#: models/recurring_events.py:1424
 #, fuzzy
 #| msgid "Fridays"
 msgid "Holidays"
 msgstr "Sentas"
 
-#: models/recurring_events.py:1446
+#: models/recurring_events.py:1480
 msgid "Closed For"
 msgstr ""
 
-#: models/recurring_events.py:1476 models/recurring_events.py:1491
+#: models/recurring_events.py:1510
 msgid "Closed for holidays"
 msgstr ""
 
-#: models/recurring_events.py:1483
+#: models/recurring_events.py:1517
 msgid "Closed for holidays."
 msgstr ""
 
-#: models/recurring_events.py:1493
-msgid "Closed for {}"
+#: models/recurring_events.py:1525
+#, fuzzy
+#| msgid "Tuesdays"
+msgid "Closed on all holidays"
+msgstr "Teresa"
+
+#: models/recurring_events.py:1527
+msgid "Closed on {}"
 msgstr ""
 
-#: models/recurring_events.py:1714
+#: models/recurring_events.py:1744
 msgid "There is already an extended cancellation for then"
 msgstr ""
 
-#: models/recurring_events.py:1719
+#: models/recurring_events.py:1749
 #, fuzzy
 #| msgid "a cancellation"
 msgid "extended cancellation"
 msgstr "um cancelamento"
 
-#: models/recurring_events.py:1720
+#: models/recurring_events.py:1750
 #, fuzzy
 #| msgid "cancellations"
 msgid "extended cancellations"
 msgstr "cancelamentos"
 
-#: models/recurring_events.py:1730
+#: models/recurring_events.py:1760
 #: templates/joyous/widgets/recurrence_widget.html:7
 msgid "From Date"
 msgstr "Da Data"
 
-#: models/recurring_events.py:1731
+#: models/recurring_events.py:1761
 msgid "Cancelled from this date"
 msgstr ""
 
-#: models/recurring_events.py:1732
+#: models/recurring_events.py:1762
 #, fuzzy
 #| msgid "For Date"
 msgid "To Date"
 msgstr "Para Data"
 
-#: models/recurring_events.py:1733
+#: models/recurring_events.py:1763
 msgid "Cancelled to this date (Leave empty for \"until further notice\")"
 msgstr ""
 
-#: models/recurring_events.py:1751
+#: models/recurring_events.py:1784
 #, python-brace-format
 msgid "Cancellation from {fromDate} {untilWhen}"
 msgstr ""
 
-#: models/recurring_events.py:1762
+#: models/recurring_events.py:1795
 msgid "to {}"
 msgstr ""
 
-#: models/recurring_events.py:1764
+#: models/recurring_events.py:1797
 msgid "until further notice"
 msgstr ""
 
-#: models/recurring_events.py:1772
+#: models/recurring_events.py:1805
 #, python-brace-format
 msgid "Cancelled from {fromDate} {untilWhen}"
 msgstr ""
@@ -758,6 +764,55 @@ msgstr "Sábados"
 
 #: utils/names.py:42
 msgid "Sundays"
+msgstr "Domingos"
+
+#: utils/names.py:45
+#, fuzzy
+#| msgid "Mondays"
+msgctxt "definitive form"
+msgid "Monday"
+msgstr "Segundas"
+
+#: utils/names.py:46
+#, fuzzy
+#| msgid "Tuesdays"
+msgctxt "definitive form"
+msgid "Tuesday"
+msgstr "Teresa"
+
+#: utils/names.py:47
+#, fuzzy
+#| msgid "Wednesdays"
+msgctxt "definitive form"
+msgid "Wednesday"
+msgstr "Quartas"
+
+#: utils/names.py:48
+#, fuzzy
+#| msgid "Thursdays"
+msgctxt "definitive form"
+msgid "Thursday"
+msgstr "Quintas"
+
+#: utils/names.py:49
+#, fuzzy
+#| msgid "Fridays"
+msgctxt "definitive form"
+msgid "Friday"
+msgstr "Sentas"
+
+#: utils/names.py:50
+#, fuzzy
+#| msgid "Saturdays"
+msgctxt "definitive form"
+msgid "Saturday"
+msgstr "Sábados"
+
+#: utils/names.py:51
+#, fuzzy
+#| msgid "Sundays"
+msgctxt "definitive form"
+msgid "Sunday"
 msgstr "Domingos"
 
 #: utils/recurrence.py:48

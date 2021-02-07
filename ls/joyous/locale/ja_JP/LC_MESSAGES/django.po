@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-18 22:09+1200\n"
+"POT-Creation-Date: 2021-02-08 11:32+1300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Yuki Kikuchi <info@yukilab.cc>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,85 +88,85 @@ msgstr "全イベントカレンダーページ"
 msgid "general calendar pages"
 msgstr "全イベントカレンダーページ"
 
-#: models/event_base.py:118
+#: models/event_base.py:151
 msgid "event category"
 msgstr "イベントカテゴリ"
 
-#: models/event_base.py:119
+#: models/event_base.py:152
 msgid "event categories"
 msgstr "イベントカテゴリ"
 
-#: models/event_base.py:121
+#: models/event_base.py:154
 msgid "code"
 msgstr "code"
 
-#: models/event_base.py:122 models/recurring_events.py:1357
+#: models/event_base.py:155 models/recurring_events.py:1388
 msgid "name"
 msgstr "名称"
 
-#: models/event_base.py:253 models/one_off_events.py:153
-#: models/recurring_events.py:1161
+#: models/event_base.py:291 models/one_off_events.py:156
+#: models/recurring_events.py:1183
 msgid "Event cannot end before it starts"
 msgstr "終了時刻を開始時刻以降で設定してください"
 
-#: models/event_base.py:268
+#: models/event_base.py:306
 msgid "category"
 msgstr "カテゴリ"
 
-#: models/event_base.py:274
+#: models/event_base.py:312
 msgid "image"
 msgstr "画像"
 
-#: models/event_base.py:277
+#: models/event_base.py:315
 msgid "start time"
 msgstr "開始時刻"
 
-#: models/event_base.py:278
+#: models/event_base.py:316
 msgid "end time"
 msgstr "終了時刻"
 
-#: models/event_base.py:279
+#: models/event_base.py:317
 msgid "time zone"
 msgstr "タイムゾーン"
 
-#: models/event_base.py:284 models/groups.py:49
+#: models/event_base.py:322 models/groups.py:49
 msgid "group page"
 msgstr "グループページ"
 
-#: models/event_base.py:286 models/recurring_events.py:1001
+#: models/event_base.py:324 models/recurring_events.py:1017
 msgid "details"
 msgstr "詳細"
 
-#: models/event_base.py:287
+#: models/event_base.py:325
 msgid "location"
 msgstr "場所"
 
-#: models/event_base.py:288
+#: models/event_base.py:326
 msgid "website"
 msgstr "website"
 
-#: models/event_base.py:378 models/recurring_events.py:928
+#: models/event_base.py:421 models/recurring_events.py:944
 msgid "This event has finished."
 msgstr "このイベントは終了しています"
 
-#: models/event_base.py:380 models/recurring_events.py:930
+#: models/event_base.py:423 models/recurring_events.py:946
 msgid "This event has started."
 msgstr "このイベントは始まっています"
 
-#: models/event_base.py:437 models/event_base.py:440
-#: models/recurring_events.py:812
+#: models/event_base.py:480 models/event_base.py:483
+#: models/recurring_events.py:825
 #, python-brace-format
 msgid "{date} {atTime}"
 msgstr "{date} {atTime}"
 
 # start=stop など丁度を示す
-#: models/event_base.py:438 models/event_base.py:441 models/event_base.py:445
-#: models/recurring_events.py:391 models/recurring_events.py:452
-#: models/recurring_events.py:814 templatetags/joyous_tags.py:160
+#: models/event_base.py:481 models/event_base.py:484 models/event_base.py:488
+#: models/recurring_events.py:394 models/recurring_events.py:455
+#: models/recurring_events.py:827 templatetags/joyous_tags.py:160
 msgid "at "
 msgstr ""
 
-#: models/event_base.py:442
+#: models/event_base.py:485
 #, python-brace-format
 msgid "{dateTimeFrom} to {dateTo} {atTimeTo}"
 msgstr "{dateTimeFrom} 〜 {dateTo} {atTimeTo}"
@@ -183,295 +183,301 @@ msgstr "コンテンツ"
 msgid "An area of text for whatever you like"
 msgstr "自由に文章を記載する領域"
 
-#: models/one_off_events.py:67
+#: models/one_off_events.py:66
 msgid "event page"
 msgstr "イベントページ"
 
-#: models/one_off_events.py:68
+#: models/one_off_events.py:67
 msgid "event pages"
 msgstr "イベントページ"
 
-#: models/one_off_events.py:78 models/recurring_events.py:1198
+#: models/one_off_events.py:77 models/recurring_events.py:1223
 msgid "date"
 msgstr "日付"
 
-#: models/one_off_events.py:161
+#: models/one_off_events.py:164
 msgid "multiday event page"
 msgstr "複数日イベントページ"
 
-#: models/one_off_events.py:162
+#: models/one_off_events.py:165
 msgid "multiday event pages"
 msgstr "複数日イベントページ"
 
-#: models/one_off_events.py:172
+#: models/one_off_events.py:175
 msgid "start date"
 msgstr "開始日"
 
-#: models/one_off_events.py:173
+#: models/one_off_events.py:176
 msgid "end date"
 msgstr "終了日"
 
-#: models/recurring_events.py:216
+#: models/recurring_events.py:217
 msgid "recurring event page"
 msgstr "繰り返しイベントページ"
 
-#: models/recurring_events.py:217
+#: models/recurring_events.py:218
 msgid "recurring event pages"
 msgstr "繰り返しイベントページ"
 
-#: models/recurring_events.py:232
+#: models/recurring_events.py:233
 msgid "repeat"
 msgstr "繰り返し"
 
-#: models/recurring_events.py:233 models/recurring_events.py:1173
+#: models/recurring_events.py:234 models/recurring_events.py:1195
 msgid "number of days"
 msgstr "日数"
 
-#: models/recurring_events.py:369
+#: models/recurring_events.py:372
 msgid "These events have finished."
 msgstr "これらのイベントは終了しています"
 
-#: models/recurring_events.py:389
+#: models/recurring_events.py:392
 #, python-brace-format
 msgid "{repeat} {atTime}"
 msgstr "{repeat} {atTime}"
 
-#: models/recurring_events.py:394
+#: models/recurring_events.py:397
 #, python-brace-format
 msgid "{repeat} {startFinishTime}"
 msgstr "{repeat} {startFinishTime}"
 
-#: models/recurring_events.py:397 models/recurring_events.py:822
+#: models/recurring_events.py:400 models/recurring_events.py:835
 msgid "starting at "
 msgstr "開始："
 
-#: models/recurring_events.py:398
+#: models/recurring_events.py:401
 msgid "finishing at"
 msgstr "終了："
 
-#: models/recurring_events.py:637
+#: models/recurring_events.py:640
 msgid "multiday recurring event page"
 msgstr "繰り返し複数日イベントページ"
 
-#: models/recurring_events.py:638
+#: models/recurring_events.py:641
 msgid "multiday recurring event pages"
 msgstr "繰り返し複数日イベントページ"
 
-#: models/recurring_events.py:662
+#: models/recurring_events.py:668
 msgid "overrides"
 msgstr "上書き"
 
-#: models/recurring_events.py:665
+#: models/recurring_events.py:671
 msgid "The recurring event that we are updating."
 msgstr "上書きする繰り返しイベント"
 
-#: models/recurring_events.py:755
+#: models/recurring_events.py:764
 msgid "That date already has"
 msgstr "該当日の既存予定："
 
-#: models/recurring_events.py:763
+#: models/recurring_events.py:772
 msgid "For Date"
 msgstr "対象日："
 
-#: models/recurring_events.py:764
+#: models/recurring_events.py:773
 msgid "For this date"
 msgstr "対象日"
 
-#: models/recurring_events.py:773
+#: models/recurring_events.py:785
 #, python-brace-format
 msgid "{exception} for {date}"
 msgstr "{exception} 対象：{date}"
 
-#: models/recurring_events.py:819
+#: models/recurring_events.py:832
 #, python-brace-format
 msgid "{date} for {n} days {startTime}"
 msgstr "{date}から{n}日間：{startTime}"
 
-#: models/recurring_events.py:823
+#: models/recurring_events.py:836
 #, python-brace-format
 msgid "{dateAndStartTime} {finishTime}"
 msgstr "{dateAndStartTime}〜{finishTime}"
 
-#: models/recurring_events.py:825
+#: models/recurring_events.py:838
 msgid "finishing at "
 msgstr "終了："
 
-#: models/recurring_events.py:868
+#: models/recurring_events.py:881
 msgid "Extra Information"
 msgstr "追加情報"
 
-#: models/recurring_events.py:877 models/recurring_events.py:878
+#: models/recurring_events.py:890 models/recurring_events.py:891
 msgid "extra event information"
 msgstr "追加イベント情報"
 
-#: models/recurring_events.py:887
+#: models/recurring_events.py:900
 msgid "Extra-Info"
 msgstr "追加情報"
 
-#: models/recurring_events.py:889 models/recurring_events.py:998
-#: models/recurring_events.py:1196
+#: models/recurring_events.py:902 models/recurring_events.py:1014
+#: models/recurring_events.py:1221
 msgid "title"
 msgstr "タイトル"
 
-#: models/recurring_events.py:890
+#: models/recurring_events.py:903
 msgid "A more specific title for this occurence (optional)"
 msgstr "(任意)このイベントの追加情報"
 
-#: models/recurring_events.py:891
+#: models/recurring_events.py:904
 msgid "extra information"
 msgstr "追加情報"
 
-#: models/recurring_events.py:892
+#: models/recurring_events.py:905
 msgid "Information just for this date"
 msgstr "この日のみの情報"
 
-#: models/recurring_events.py:986
+#: models/recurring_events.py:1002
 msgid "a cancellation"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:999
+#: models/recurring_events.py:1015
 msgid "Show in place of cancelled event (Leave empty to show nothing)"
 msgstr "キャンセルしたイベントの代わりに表示(未入力にすると何も表示しません）"
 
-#: models/recurring_events.py:1002
+#: models/recurring_events.py:1018
 msgid "Why was the event cancelled?"
 msgstr "イベントキャンセルの理由"
 
-#: models/recurring_events.py:1012 models/recurring_events.py:1040
+#: models/recurring_events.py:1028 models/recurring_events.py:1059
 msgid "Cancellation"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:1026
+#: models/recurring_events.py:1045
 msgid "This event has been cancelled."
 msgstr "このイベントはキャンセルされました"
 
-#: models/recurring_events.py:1030
+#: models/recurring_events.py:1049
 msgid "cancellation"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:1031
+#: models/recurring_events.py:1050
 msgid "cancellations"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:1147
+#: models/recurring_events.py:1169
 msgid "a postponement"
 msgstr "延期"
 
-#: models/recurring_events.py:1185 models/recurring_events.py:1329
+#: models/recurring_events.py:1210 models/recurring_events.py:1357
 msgid "postponement"
 msgstr "延期"
 
-#: models/recurring_events.py:1186 models/recurring_events.py:1330
+#: models/recurring_events.py:1211 models/recurring_events.py:1358
 msgid "postponements"
 msgstr "延期"
 
-#: models/recurring_events.py:1194
+#: models/recurring_events.py:1219
 msgid "Postponement"
 msgstr "延期"
 
-#: models/recurring_events.py:1197
+#: models/recurring_events.py:1222
 msgid "The title for the postponed event"
 msgstr "延期されたイベント名"
 
-#: models/recurring_events.py:1216 models/recurring_events.py:1339
+#: models/recurring_events.py:1241 models/recurring_events.py:1367
 msgid "Postponed to"
 msgstr "延期："
 
-#: models/recurring_events.py:1245
+#: models/recurring_events.py:1273
 #, python-brace-format
 msgid "{what} from {when}"
 msgstr "{what}：{when}"
 
-#: models/recurring_events.py:1264
+#: models/recurring_events.py:1292
 msgid "Postponed"
 msgstr "延期"
 
-#: models/recurring_events.py:1266
+#: models/recurring_events.py:1294
 msgid "Rescheduled"
 msgstr "リスケジュール"
 
-#: models/recurring_events.py:1386 models/recurring_events.py:1420
-#: models/recurring_events.py:1421
+#: models/recurring_events.py:1420 models/recurring_events.py:1454
+#: models/recurring_events.py:1455
 msgid "closed for holidays"
 msgstr ""
 
-#: models/recurring_events.py:1387
+#: models/recurring_events.py:1421
 #, fuzzy
 #| msgid "Tuesdays"
 msgid "These holidays"
 msgstr "火"
 
-#: models/recurring_events.py:1390
+#: models/recurring_events.py:1424
 #, fuzzy
 #| msgid "Fridays"
 msgid "Holidays"
 msgstr "金"
 
-#: models/recurring_events.py:1446
+#: models/recurring_events.py:1480
 msgid "Closed For"
 msgstr ""
 
-#: models/recurring_events.py:1476 models/recurring_events.py:1491
+#: models/recurring_events.py:1510
 msgid "Closed for holidays"
 msgstr ""
 
-#: models/recurring_events.py:1483
+#: models/recurring_events.py:1517
 msgid "Closed for holidays."
 msgstr ""
 
-#: models/recurring_events.py:1493
-msgid "Closed for {}"
+#: models/recurring_events.py:1525
+#, fuzzy
+#| msgid "Tuesdays"
+msgid "Closed on all holidays"
+msgstr "火"
+
+#: models/recurring_events.py:1527
+msgid "Closed on {}"
 msgstr ""
 
-#: models/recurring_events.py:1714
+#: models/recurring_events.py:1744
 msgid "There is already an extended cancellation for then"
 msgstr ""
 
-#: models/recurring_events.py:1719
+#: models/recurring_events.py:1749
 #, fuzzy
 #| msgid "a cancellation"
 msgid "extended cancellation"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:1720
+#: models/recurring_events.py:1750
 #, fuzzy
 #| msgid "cancellations"
 msgid "extended cancellations"
 msgstr "キャンセル"
 
-#: models/recurring_events.py:1730
+#: models/recurring_events.py:1760
 #: templates/joyous/widgets/recurrence_widget.html:7
 msgid "From Date"
 msgstr "開始日"
 
-#: models/recurring_events.py:1731
+#: models/recurring_events.py:1761
 msgid "Cancelled from this date"
 msgstr ""
 
-#: models/recurring_events.py:1732
+#: models/recurring_events.py:1762
 #, fuzzy
 #| msgid "For Date"
 msgid "To Date"
 msgstr "対象日："
 
-#: models/recurring_events.py:1733
+#: models/recurring_events.py:1763
 msgid "Cancelled to this date (Leave empty for \"until further notice\")"
 msgstr ""
 
-#: models/recurring_events.py:1751
+#: models/recurring_events.py:1784
 #, python-brace-format
 msgid "Cancellation from {fromDate} {untilWhen}"
 msgstr ""
 
-#: models/recurring_events.py:1762
+#: models/recurring_events.py:1795
 msgid "to {}"
 msgstr ""
 
-#: models/recurring_events.py:1764
+#: models/recurring_events.py:1797
 msgid "until further notice"
 msgstr ""
 
-#: models/recurring_events.py:1772
+#: models/recurring_events.py:1805
 #, python-brace-format
 msgid "Cancelled from {fromDate} {untilWhen}"
 msgstr ""
@@ -754,6 +760,55 @@ msgstr "土"
 
 #: utils/names.py:42
 msgid "Sundays"
+msgstr "日"
+
+#: utils/names.py:45
+#, fuzzy
+#| msgid "Mondays"
+msgctxt "definitive form"
+msgid "Monday"
+msgstr "月"
+
+#: utils/names.py:46
+#, fuzzy
+#| msgid "Tuesdays"
+msgctxt "definitive form"
+msgid "Tuesday"
+msgstr "火"
+
+#: utils/names.py:47
+#, fuzzy
+#| msgid "Wednesdays"
+msgctxt "definitive form"
+msgid "Wednesday"
+msgstr "水"
+
+#: utils/names.py:48
+#, fuzzy
+#| msgid "Thursdays"
+msgctxt "definitive form"
+msgid "Thursday"
+msgstr "木"
+
+#: utils/names.py:49
+#, fuzzy
+#| msgid "Fridays"
+msgctxt "definitive form"
+msgid "Friday"
+msgstr "金"
+
+#: utils/names.py:50
+#, fuzzy
+#| msgid "Saturdays"
+msgctxt "definitive form"
+msgid "Saturday"
+msgstr "土"
+
+#: utils/names.py:51
+#, fuzzy
+#| msgid "Sundays"
+msgctxt "definitive form"
+msgid "Sunday"
 msgstr "日"
 
 #: utils/recurrence.py:48
