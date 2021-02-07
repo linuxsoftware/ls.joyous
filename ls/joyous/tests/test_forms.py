@@ -7,7 +7,8 @@ from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.core.models import Page
-from ls.joyous.forms import FormDefender, FormClassOverwriteWarning
+from ls.joyous.forms import (FormDefender, FormClassOverwriteWarning,
+                             FormCannotAssimilateWarning)
 from ls.joyous.models import CalendarPage
 from ls.joyous.models.one_off_events import MultidayEventPage as MEP
 from ls.joyous.models.one_off_events import MultidayEventPageForm as MEPForm
@@ -38,15 +39,24 @@ class NewPageForm(WagtailAdminPageForm):
 class NewMEPForm(MEPForm):
     pass
 
+class PlainPageForm(WagtailAdminPageForm):
+    pass
+
+class PlainPage(Page, metaclass=FormDefender):
+    class Meta:
+        abstract = True
+    base_form_class = PlainPageForm
+
 class Test(TestCase):
     def setUp(self):
-        MEP._base_form_class = MEPForm
-        MEP.get_edit_handler.cache_clear()
-        if hasattr(MEPForm, 'assimilated_class'):
-            del MEPForm.assimilated_class
+        pass
 
     def tearDown(self):
-        pass
+        for Pg, PgForm in [(MEP, MEPForm), (PlainPage, PlainPageForm)]:
+            Pg._base_form_class = PgForm
+            Pg.get_edit_handler.cache_clear()
+            if hasattr(PgForm, 'assimilated_class'):
+                del PgForm.assimilated_class
 
     def testType(self):
         self.assertIs(type(MEP), FormDefender)
@@ -157,6 +167,12 @@ class Test(TestCase):
         self.assertIsInstance(form.assimilated, type(None))
         self.assertTrue(form.is_valid())
         self.assertDictEqual(form.errors, {})
+
+    @override_settings(JOYOUS_DEFEND_FORMS=True)
+    def testDefendNonBorg(self):
+        with self.assertWarns(FormCannotAssimilateWarning):
+            PlainPage.base_form_class = NewPageForm
+        self.assertEqual(PlainPage.base_form_class, PlainPageForm)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

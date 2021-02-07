@@ -56,7 +56,6 @@ class BorgPageForm(WagtailAdminPageForm):
             bases = (assimilated_class.Meta,) + bases
         form_class_attrs = {
             'Meta': type('Meta', bases, attrs),
-            'unimatrix_zero': True
         }
         metaclass = type(assimilated_class)
         return metaclass(class_name,
