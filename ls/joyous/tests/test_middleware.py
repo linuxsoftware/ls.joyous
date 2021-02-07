@@ -18,7 +18,7 @@ class TestUserTimeZone(TestCase):
         self.assertEqual(get_current_timezone_name(), "Asia/Tokyo")
 
     def _login(self):
-        midware = UserTimeZoneMiddleware()
+        midware = UserTimeZoneMiddleware(lambda:None)
         request = RequestFactory().get("/test")
         request.user = User.objects.create_user('i', 'i@joy.test', 's3cr3t')
         UserProfile.objects.create(user=request.user,
@@ -28,7 +28,7 @@ class TestUserTimeZone(TestCase):
         midware.process_request(request)
 
     def _logout(self):
-        midware = UserTimeZoneMiddleware()
+        midware = UserTimeZoneMiddleware(lambda:None)
         request = RequestFactory().get("/test")
         request.user = AnonymousUser()
         request.session = {}

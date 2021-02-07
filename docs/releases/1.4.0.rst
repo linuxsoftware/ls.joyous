@@ -34,4 +34,5 @@ Bug fixes
  * Do not assimilate subclasses
  * Fix for _gregorian_to_ssweek where date is in last week of prev year
  * Tests should cope with year missing from title of exceptions
+ * Stop using deprecated is_ajax function
 

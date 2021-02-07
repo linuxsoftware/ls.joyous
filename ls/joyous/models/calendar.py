@@ -383,7 +383,7 @@ class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
     @route(r"^mini/{YYYY}/{MM}/$".format(**DatePictures))
     def serveMiniMonth(self, request, year=None, month=None):
         """Serve data for the MiniMonth template tag."""
-        if not request.is_ajax():
+        if request.headers.get('x-requested-with') != 'XMLHttpRequest':
             raise Http404("/mini/ is for ajax requests only")
 
         today = timezone.localdate()
