@@ -28,7 +28,7 @@ Please report bugs or ask questions using the `Issue Tracker <http://github.com/
 
 Languages
 ---------
-Joyous has been translated into French, German, Brazilian-Portuguese, Italian and Japanese.
+Joyous has been translated into French, German, Brazilian-Portuguese, Italian,  Japanese and Swedish.
 Translations into other languages would be welcome.
 
 Thanks To
