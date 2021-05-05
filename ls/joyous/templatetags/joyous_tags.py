@@ -6,6 +6,7 @@ import calendar
 from django import template
 from django.utils import timezone
 from django.utils.translation import gettext
+from wagtail.core.models import Site
 from ..utils.telltime import timeFormat, dateFormat
 from ..models import getAllEventsByDay
 from ..models import getAllUpcomingEvents
@@ -24,7 +25,7 @@ def events_this_week(context):
     Displays a week's worth of events.   Starts week with Monday, unless today is Sunday.
     """
     request = context['request']
-    home = request.site.root_page
+    home = Site.find_for_request(request).root_page
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
     calName = cal.title if cal else None
@@ -54,7 +55,7 @@ def minicalendar(context):
     """
     today = timezone.localdate()
     request = context['request']
-    home = request.site.root_page
+    home = Site.find_for_request(request).root_page
     cal = CalendarPage.objects.live().descendant_of(home).first()
     calUrl = cal.get_url(request) if cal else None
     if cal:
@@ -87,7 +88,7 @@ def subsite_upcoming_events(context):
     Displays a list of all upcoming events in this site.
     """
     request = context['request']
-    home = request.site.root_page
+    home = Site.find_for_request(request).root_page
     return {'request': request,
             'events':  getAllUpcomingEvents(request, home=home)}
 
