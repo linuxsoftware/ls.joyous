@@ -81,6 +81,7 @@ class ThisEvent:
         return self._astuple()[key]
 
 class EventsOnDay:
+    # TODO support __add__
     """
     The events that occur on a certain day.  Both events that start on that day
     and events that are still continuing.

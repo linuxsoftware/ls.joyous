@@ -107,6 +107,7 @@ DatePictures = {"YYYY":  r"((?:19|20)\d\d)",
 EVENTS_VIEW_CHOICES = [('L', _("List View")),
                        ('W', _("Weekly View")),
                        ('M', _("Monthly View"))]
+# TODO ('D', _("Daily View"))
 
 # ------------------------------------------------------------------------------
 class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):

@@ -194,7 +194,7 @@ class TestConcealedPanel(TestCase):
 
 # ------------------------------------------------------------------------------
 class TestHiddenNumDaysPanel(TestCase):
-    FIELD_CONTENT = """
+    FIELDSET_CONTENT = """
 <fieldset>
   <legend>Number of days</legend>
   <ul class="fields">
@@ -211,8 +211,30 @@ class TestHiddenNumDaysPanel(TestCase):
   </ul>
 </fieldset>
 """
+    COMMENT_CONTROL_CONTENT = """
+<div class="field-comment-control field-comment-control--object">
+  <button aria-label="Add comment" class="u-hidden" data-comment-add data-component="add-comment-button" type="button">
+    <svg aria-hidden="true" class="icon icon-comment-add icon-default initial" focusable="false">
+      <use href="#icon-comment-add">
+    </svg>
+    <svg aria-hidden="true" class="icon icon-comment-add icon-reversed initial" focusable="false">
+      <use href="#icon-comment-add-reversed">
+    </svg>
+  </button>
+</div>
+"""
 
     def setUp(self):
+        if WagtailVersion > (2, 13, 0):
+            self.FIELD_CONTENT = """
+<div data-contentpath="num_days">
+    {}
+    {}
+</div>
+""".format(self.FIELDSET_CONTENT, self.COMMENT_CONTROL_CONTENT)
+        else:
+            self.FIELD_CONTENT = self.FIELDSET_CONTENT
+        self.maxDiff = None
         self.home = getPage("/home/")
         self.user = User.objects.create_superuser('i', 'i@joy.test', 's3(r3t')
         self.calendar = CalendarPage(owner = self.user,
@@ -240,8 +262,7 @@ class TestHiddenNumDaysPanel(TestCase):
         request.site = Site.objects.get(is_default_site=True)
         return request
 
-    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
-    def testHidden25(self):
+    def testHidden(self):
         panel = HiddenNumDaysPanel()
         panel = panel.bind_to(instance=self.event,
                               request=self._getRequest(),
@@ -251,8 +272,7 @@ class TestHiddenNumDaysPanel(TestCase):
         content = panel.render_as_field()
         self.assertEqual(content, "")
 
-    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
-    def testShowWith2Days25(self):
+    def testShowWith2Days(self):
         self.event.num_days = 2
         panel = HiddenNumDaysPanel()
         panel = panel.bind_to(instance=self.event,
@@ -261,8 +281,7 @@ class TestHiddenNumDaysPanel(TestCase):
         content = panel.render_as_object()
         self.assertHTMLEqual(content, self.FIELD_CONTENT)
 
-    @skipUnless(WagtailVersion >= (2, 5, 0), "Wagtail <2.5")
-    def testShowMulidayRecurringEvent25(self):
+    def testShowMulidayRecurringEvent(self):
         event = MultidayRecurringEventPage(slug      = "leaders-retreat",
                                            title     = "Leaders' Retreet",
                                            repeat    = Recurrence(dtstart=dt.date(2016,2,16),
