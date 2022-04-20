@@ -285,6 +285,20 @@ class EventPageForm(BorgPageForm):
         self._checkStartBeforeEnd(cleaned_data)
         return cleaned_data
 
+    def full_clean(self, *args, **kwargs):
+        """Override full_clean, to update slug if it already exists.
+
+        See https://stackoverflow.com/a/43803611
+        """
+        super().full_clean(*args, **kwargs)
+        if "slug" in self.errors and self.data["slug"]:
+            # self.data is immutable, we need to create a copy
+            self.data = self.data.copy()
+            # we append the date to make the slug unique for the day
+            self.data["slug"] += f"-{self.data['date']}"
+            # validate again after updating duplicate slug
+            super().full_clean(*args, **kwargs)
+
     def _checkStartBeforeEnd(self, cleaned_data):
         startTime = getTimeFrom(cleaned_data.get('time_from'))
         endTime   = getTimeTo(cleaned_data.get('time_to'))
