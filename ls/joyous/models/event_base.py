@@ -14,7 +14,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
 from timezone_field import TimeZoneField
 from wagtail.core.models import Page, PageManager, PageViewRestriction
-from wagtail.core.query import PageQuerySet
+try:
+    from wagtail.query import PageQuerySet
+except ImportError:
+    from wagtail.core.query import PageQuerySet
 from wagtail.core.fields import RichTextField
 from wagtail.admin.edit_handlers import (FieldPanel,
         PageChooserPanel, BaseCompositeEditHandler)
