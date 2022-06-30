@@ -3,22 +3,28 @@
 # ------------------------------------------------------------------------------
 from __future__ import unicode_literals
 import re
-import holidays as python_holidays
+from holidays.holiday_base import HolidayBase
+from holidays import countries as country_holidays
 
 __all__ = ["parseHolidays"]
 
+
 def _createMap(symbols):
     holidayMap = {}
+
     for (name, cls) in symbols:
         if (type(cls) is type(object) and
-            issubclass(cls, python_holidays.HolidayBase) and
-            cls is not python_holidays.HolidayBase):
+            issubclass(cls, HolidayBase) and
+            cls is not HolidayBase):
             holidayMap[name] = cls
             obj = cls()
             if hasattr(obj, "country"):
                 holidayMap.setdefault(obj.country, cls)
+
     return holidayMap
-_PYTHON_HOLIDAYS_MAP = _createMap(list(python_holidays.__dict__.items()))
+
+
+_PYTHON_HOLIDAYS_MAP = _createMap(list(country_holidays.__dict__.items()))
 # Special treatment for NZ
 _ALT_PROV_NAMES = {'NZ': {"Northland", "Auckland", "Hawke's Bay",
                           "Taranaki", "New Plymouth", "Wellington",
