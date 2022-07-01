@@ -8,6 +8,8 @@ from holidays import countries as country_holidays
 
 __all__ = ["parseHolidays"]
 
+# FIXME use python-holidays new utils.list_supported_countries() and
+# country_holidays() API that makes this module obsolete
 
 def _createMap(symbols):
     holidayMap = {}
@@ -42,6 +44,7 @@ def _parseSubdivisions(holidaysStr, cls):
         return retval
     provinces = getattr(cls, "PROVINCES", [])
     states = getattr(cls, "STATES", [])
+    subdivisions = getattr(cls, "subdivisions", [])
 
     for subdivision in SplitRe.split(holidaysStr[1:-1]):
         subdivision = subdivision.strip()
@@ -51,12 +54,16 @@ def _parseSubdivisions(holidaysStr, cls):
             retval += subval
             subval = sum(cls(prov = subdivision) for subdivision in provinces)
             retval += subval
+            subval = sum(cls(subdiv = subdivision) for subdivision in subdivisions)
+            retval += subval
             break
         else:
             if subdivision in states:
                 retval += cls(state = subdivision)
             elif subdivision in provinces:
                 retval += cls(prov = subdivision)
+            elif subdivision in subdivisions:
+                retval += cls(subdiv = subdivision)
             else:
                 country = getattr(cls(), 'country', None)
                 if subdivision in _ALT_PROV_NAMES.get(country, {}):

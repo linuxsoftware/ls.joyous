@@ -112,7 +112,8 @@ class Test(TestCase):
                                   ClosedFor(name="Marlborough Anniversary Day"),
                                   ClosedFor(name="Canterbury Anniversary Day"),
                                   ClosedFor(name="Chatham Islands Anniversary Day"),
-                                  ClosedFor(name="Westland Anniversary Day") ]
+                                  #ClosedFor(name="Westland Anniversary Day")
+                                ]
         event.add_child(instance=closedHols)
         closedHols.save_revision().publish()
         events = ClosedForHolidaysPage.events.hols(self.calendar.holidays)   \
@@ -477,13 +478,16 @@ class TestPageForm(TestCase):
                                   'Anzac Day',
                                   'Anzac Day (Observed)',
                                   "Queen's Birthday",
+                                  "Matariki",
                                   'South Canterbury Anniversary Day',
                                   "Hawke's Bay Anniversary Day",
                                   'Labour Day',
                                   'Marlborough Anniversary Day',
                                   'Canterbury Anniversary Day',
                                   'Chatham Islands Anniversary Day',
-                                  'Westland Anniversary Day',
+                                   #'Westland Anniversary Day',
+                                   # Westland *is* the correct name for the province
+                                  'West Coast Anniversary Day',
                                   'Christmas Day',
                                   'Boxing Day',
                                   'Christmas Day (Observed)',
