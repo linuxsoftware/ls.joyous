@@ -173,7 +173,7 @@ msgstr "{dateTimeFrom} 〜 {dateTo} {atTimeTo}"
 
 #: models/groups.py:50
 msgid "group pages"
-msgstr "グループペーjい"
+msgstr "グループページ"
 
 #: models/groups.py:62
 msgid "content"
