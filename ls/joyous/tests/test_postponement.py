@@ -76,7 +76,7 @@ class Test(TestCase):
         self.assertIs(type(page), PostponementPage)
 
     def testStatus(self):
-        self.assertEqual(self.postponement.status, "finished")
+        self.assertEqual(self.postponement.event_status, "finished")
         self.assertEqual(self.postponement.status_text, "This event has finished.")
         now = timezone.localtime()
         myday = now.date() + dt.timedelta(1)
@@ -92,12 +92,12 @@ class Test(TestCase):
                                        time_to   = dt.time(16),
                                        details   = "The meeting postponed from last Friday")
         self.event.add_child(instance=futureEvent)
-        self.assertIsNone(futureEvent.status)
+        self.assertIsNone(futureEvent.event_status)
         self.assertEqual(futureEvent.status_text, "")
 
     @freeze_timetz("1990-10-11 16:29:00")
     def testStatusStarted(self):
-        self.assertEqual(self.postponement.status, "started")
+        self.assertEqual(self.postponement.event_status, "started")
         self.assertEqual(self.postponement.status_text, "This event has started.")
 
     def testWhen(self):

@@ -59,7 +59,7 @@ class Test(TestCase):
                                                            freq=WEEKLY,
                                                            byweekday=[SA,SU]))
         self.calendar.add_child(instance=pastEvent)
-        self.assertEqual(pastEvent.status, "finished")
+        self.assertEqual(pastEvent.event_status, "finished")
         self.assertEqual(pastEvent.status_text, "These events have finished.")
         now = timezone.localtime()
         earlier = now - dt.timedelta(hours=1)
@@ -73,7 +73,7 @@ class Test(TestCase):
                                       time_from = earlier.time(),
                                       time_to   = dt.time.max)
         self.calendar.add_child(instance=nowEvent)
-        self.assertEqual(nowEvent.status, "started")
+        self.assertEqual(nowEvent.event_status, "started")
         self.assertEqual(nowEvent.status_text, "This event has started.")
         today = timezone.localdate()
         notToday = [weekday for weekday in EVERYWEEKDAY if weekday.weekday != today.weekday()]
@@ -84,7 +84,7 @@ class Test(TestCase):
                                                                     freq=WEEKLY,
                                                                     byweekday=notToday))
         self.calendar.add_child(instance=pastAndFutureEvent)
-        self.assertIsNone(pastAndFutureEvent.status)
+        self.assertIsNone(pastAndFutureEvent.event_status)
         self.assertEqual(pastAndFutureEvent.status_text, "")
 
     @freeze_timetz("2008-05-04 09:01")
@@ -99,7 +99,7 @@ class Test(TestCase):
                                       time_from = dt.time(8),
                                       time_to   = dt.time(9))
         self.calendar.add_child(instance=event)
-        self.assertEqual(event.status, "finished")
+        self.assertEqual(event.event_status, "finished")
 
     @freeze_timetz("2008-05-04 07:00")
     def testLastOccurenceCancelledStatus(self):
@@ -119,7 +119,7 @@ class Test(TestCase):
                                         cancellation_title   = "Fire in the kitchen",
                                         cancellation_details = "The bacon fat is burning")
         event.add_child(instance=cancellation)
-        self.assertEqual(event.status, "finished")
+        self.assertEqual(event.event_status, "finished")
 
     @freeze_timetz("2008-05-04 12:00")
     def testPostponementOccurenceLast(self):
@@ -144,7 +144,7 @@ class Test(TestCase):
                                         time_from = dt.time(8),
                                         time_to   = dt.time(9))
         event.add_child(instance=postponement)
-        self.assertIsNone(event.status)
+        self.assertIsNone(event.event_status)
         self.assertEqual(event._nextOn(request),
                          '<a class="inline-link" href="/events/breakfast3/2008-05-03-postponement/">Saturday 24th of May at 8am</a>')
 

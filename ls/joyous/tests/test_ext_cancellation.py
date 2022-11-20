@@ -198,7 +198,7 @@ class Test(TestCase):
         self.assertIs(self.shutdown._closedOn(dt.date(2020, 6, 22)), False)
 
     def testStatus(self):
-        self.assertEqual(self.shutdown.status, "cancelled")
+        self.assertEqual(self.shutdown.event_status, "cancelled")
         self.assertEqual(self.shutdown.status_text, "This event has been cancelled.")
 
     @freeze_timetz("2020-03-25 14:00")

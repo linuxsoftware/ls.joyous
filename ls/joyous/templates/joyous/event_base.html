@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="content joy-content">
-  {% block event_status %}{% if page.status %}<div class="joy-ev-status">
+  {% block event_status %}{% if page.event_status %}<div class="joy-ev-status">
     {{ page.status_text }}
   </div>{% endif %}{% endblock event_status %}
   {% block event_title %}

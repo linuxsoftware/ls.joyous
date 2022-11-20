@@ -56,7 +56,7 @@ class Test(TestCase):
 
     @freeze_timetz("1990-02-08 16:00")
     def testEventStatus(self):
-        self.assertEqual(self.event.status, "started")
+        self.assertEqual(self.event.event_status, "started")
         postponement = RescheduleMultidayEventPage(owner = self.user,
                                              overrides = self.event,
                                              except_date = dt.date(1990,2,6),
@@ -67,7 +67,7 @@ class Test(TestCase):
                                              time_to   = dt.time(16,30))
         self.event.add_child(instance=postponement)
         postponement.save_revision().publish()
-        self.assertIsNone(self.event.status)
+        self.assertIsNone(self.event.event_status)
 
     def testRemoveContentPanels(self):
         RescheduleMultidayEventPage._removeContentPanels(["tz", "location"])
@@ -80,7 +80,7 @@ class Test(TestCase):
 
     @freeze_timetz("1990-01-11 18:00")
     def testStatus(self):
-        self.assertEqual(self.postponement.status, "started")
+        self.assertEqual(self.postponement.event_status, "started")
         self.assertEqual(self.postponement.status_text, "This event has started.")
 
     def testAt(self):

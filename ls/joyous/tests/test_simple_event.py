@@ -45,7 +45,7 @@ class Test(TestCase):
         self.assertEqual(len(evod.continuing_events), 0)
 
     def testStatus(self):
-        self.assertEqual(self.event.status, "finished")
+        self.assertEqual(self.event.event_status, "finished")
         self.assertEqual(self.event.status_text, "This event has finished.")
         now = timezone.localtime()
         earlier = now - dt.timedelta(hours=1)
@@ -57,7 +57,7 @@ class Test(TestCase):
                                    date      = now.date(),
                                    time_from = earlier.time(),
                                    time_to   = dt.time.max)
-        self.assertEqual(nowEvent.status, "started")
+        self.assertEqual(nowEvent.event_status, "started")
         self.assertEqual(nowEvent.status_text, "This event has started.")
         tomorrow = timezone.localdate() + dt.timedelta(days=1)
         futureEvent = SimpleEventPage(owner = self.user,
@@ -65,7 +65,7 @@ class Test(TestCase):
                                       title = "Tomorrow's Event",
                                       date  = tomorrow)
         self.calendar.add_child(instance=futureEvent)
-        self.assertIsNone(futureEvent.status)
+        self.assertIsNone(futureEvent.event_status)
         self.assertEqual(futureEvent.status_text, "")
 
     def testWhen(self):
