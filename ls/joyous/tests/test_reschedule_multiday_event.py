@@ -8,8 +8,8 @@ from django.test import RequestFactory
 from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from wagtail.core.models import Page
-from wagtail.tests.utils.form_data import nested_form_data, rich_text
+from wagtail.models import Page
+from wagtail.test.utils.form_data import nested_form_data, rich_text
 from ls.joyous.models import (GeneralCalendarPage,
         MultidayRecurringEventPage, RescheduleMultidayEventPage)
 from ls.joyous.utils.recurrence import Recurrence, WEEKLY, MONTHLY, MO, TU, WE, FR

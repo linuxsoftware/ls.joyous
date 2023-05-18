@@ -4,7 +4,7 @@
 from django.conf import settings
 from django.utils import timezone
 from django.utils.formats import get_format_modules
-from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel)
+from wagtail.admin.panels import (FieldPanel, MultiFieldPanel)
 from wagtail.admin.widgets import AdminDateInput, AdminTimeInput
 try:
     from wagtail.admin.localization import get_available_admin_languages

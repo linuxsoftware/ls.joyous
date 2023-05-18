@@ -8,7 +8,7 @@ import calendar
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.utils import timezone
-from wagtail.core.models import Page, PageViewRestriction
+from wagtail.models import Page, PageViewRestriction
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import DAILY, WEEKLY, YEARLY
 from ls.joyous.utils.recurrence import SA, MO, TU, TH, FR

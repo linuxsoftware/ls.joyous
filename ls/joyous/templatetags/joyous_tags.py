@@ -6,7 +6,7 @@ import calendar
 from django import template
 from django.utils import timezone
 from django.utils.translation import gettext
-from wagtail.core.models import Site
+from wagtail.models import Site
 from ..utils.telltime import timeFormat, dateFormat
 from ..models import getAllEventsByDay
 from ..models import getAllUpcomingEvents

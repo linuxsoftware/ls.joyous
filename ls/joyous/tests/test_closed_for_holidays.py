@@ -6,8 +6,8 @@ import datetime as dt
 from itertools import islice
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
-from wagtail.core.models import Page
-from wagtail.tests.utils.form_data import rich_text
+from wagtail.models import Page
+from wagtail.test.utils.form_data import rich_text
 from holidays.holiday_base import HolidayBase
 from ls.joyous.holidays import Holidays
 from ls.joyous.models import CalendarPage

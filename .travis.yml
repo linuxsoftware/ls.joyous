@@ -1,22 +1,24 @@
 # https://github.com/linuxsoftware/ls.joyous
 
-dist: xenial
+dist: jammy
 
 language: python
 
 cache: pip
 
 env:
- - WAGTAIL_VERSION=2.10.2
- - WAGTAIL_VERSION=2.11.3
- - WAGTAIL_VERSION=2.12
  - WAGTAIL_VERSION=3.0
+ - WAGTAIL_VERSION=4.0
+ - WAGTAIL_VERSION=4.1
+ - WAGTAIL_VERSION=4.2
+ - WAGTAIL_VERSION=5.0
 
 python:
   - "3.7"
   - "3.8"
   - "3.9"
   - "3.10"
+  - "3.11"
 
 install:
   - pip install -r requirements.txt

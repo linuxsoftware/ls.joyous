@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import warnings
 from django.conf import settings
-from wagtail.core.models import PageBase
+from wagtail.models import PageBase
 from wagtail.admin.forms import WagtailAdminPageForm
 
 # ------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class BorgPageForm(WagtailAdminPageForm):
         return page
 
     def _get_assimilated_form(self, assimilated_class):
-        # based on wagtail.admin.edit_handlers.get_form_for_model
+        # based on wagtail.admin.panels.get_form_for_model
         assimilated_class.declared_fields.update(self.declared_fields)
         attrs = {'model':    self._meta.model,
                  'fields':   self._meta.fields,

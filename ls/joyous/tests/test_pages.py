@@ -7,9 +7,9 @@ import pytz
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission
 from django.utils import translation
-from wagtail.tests.utils import WagtailPageTests
-from wagtail.tests.utils.form_data import nested_form_data, rich_text
-from wagtail.core.models import Page
+from wagtail.test.utils import WagtailPageTests
+from wagtail.test.utils.form_data import nested_form_data, rich_text
+from wagtail.models import Page
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, MultidayRecurringEventPage, ExtraInfoPage,
         CancellationPage, PostponementPage, RescheduleMultidayEventPage,

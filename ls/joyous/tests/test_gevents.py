@@ -6,7 +6,7 @@ import datetime as dt
 import pytz
 from django.contrib.auth.models import User
 from django.test import TestCase
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage)
