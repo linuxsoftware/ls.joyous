@@ -7,7 +7,7 @@ from django.db import migrations, models
 import django.db.models.deletion
 import ls.joyous.fields
 import wagtail.contrib.routable_page.models
-import wagtail.core.fields
+import wagtail.fields
 
 
 class Migration(migrations.Migration):
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             name='CalendarPage',
             fields=[
                 ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.Page')),
-                ('intro', wagtail.core.fields.RichTextField(blank=True)),
+                ('intro', wagtail.fields.RichTextField(blank=True)),
             ],
             options={
                 'abstract': False,
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.Page')),
                 ('except_date', models.DateField(help_text='For this date', verbose_name='For Date')),
                 ('cancellation_title', models.CharField(blank=True, help_text='Show in place of cancelled event (Leave empty to show nothing)', max_length=255, verbose_name='Title')),
-                ('cancellation_details', wagtail.core.fields.RichTextField(blank=True, help_text='Why was the event cancelled?', verbose_name='Details')),
+                ('cancellation_details', wagtail.fields.RichTextField(blank=True, help_text='Why was the event cancelled?', verbose_name='Details')),
             ],
             options={
                 'verbose_name': 'Cancellation',
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.Page')),
                 ('except_date', models.DateField(help_text='For this date', verbose_name='For Date')),
-                ('extra_information', wagtail.core.fields.RichTextField(help_text='Information just for this date')),
+                ('extra_information', wagtail.fields.RichTextField(help_text='Information just for this date')),
             ],
             options={
                 'verbose_name': 'Extra Event Information',
@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
             name='GroupPage',
             fields=[
                 ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.Page')),
-                ('content', wagtail.core.fields.RichTextField(blank=True, default='')),
+                ('content', wagtail.fields.RichTextField(blank=True, default='')),
             ],
             options={
                 'abstract': False,
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                 ('time_from', models.TimeField(blank=True, null=True, verbose_name='Start time')),
                 ('time_to', models.TimeField(blank=True, null=True, verbose_name='End time')),
                 ('location', models.CharField(blank=True, max_length=255)),
-                ('details', wagtail.core.fields.RichTextField(blank=True)),
+                ('details', wagtail.fields.RichTextField(blank=True)),
                 ('website', models.URLField(blank=True)),
                 ('date_from', models.DateField(default=datetime.date.today, verbose_name='Start date')),
                 ('date_to', models.DateField(default=datetime.date.today, verbose_name='End date')),
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('time_from', models.TimeField(blank=True, null=True, verbose_name='Start time')),
                 ('time_to', models.TimeField(blank=True, null=True, verbose_name='End time')),
                 ('location', models.CharField(blank=True, max_length=255)),
-                ('details', wagtail.core.fields.RichTextField(blank=True)),
+                ('details', wagtail.fields.RichTextField(blank=True)),
                 ('website', models.URLField(blank=True)),
                 ('repeat', ls.joyous.fields.RecurrenceField()),
                 ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='joyous.EventCategory', verbose_name='Category')),
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('time_from', models.TimeField(blank=True, null=True, verbose_name='Start time')),
                 ('time_to', models.TimeField(blank=True, null=True, verbose_name='End time')),
                 ('location', models.CharField(blank=True, max_length=255)),
-                ('details', wagtail.core.fields.RichTextField(blank=True)),
+                ('details', wagtail.fields.RichTextField(blank=True)),
                 ('website', models.URLField(blank=True)),
                 ('date', models.DateField(default=datetime.date.today, verbose_name='Date')),
                 ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='joyous.EventCategory', verbose_name='Category')),
@@ -145,7 +145,7 @@ class Migration(migrations.Migration):
                 ('time_from', models.TimeField(blank=True, null=True, verbose_name='Start time')),
                 ('time_to', models.TimeField(blank=True, null=True, verbose_name='End time')),
                 ('location', models.CharField(blank=True, max_length=255)),
-                ('details', wagtail.core.fields.RichTextField(blank=True)),
+                ('details', wagtail.fields.RichTextField(blank=True)),
                 ('website', models.URLField(blank=True)),
                 ('postponement_title', models.CharField(help_text='The title for the postponed event', max_length=255, verbose_name='Title')),
                 ('date', models.DateField(verbose_name='Date')),

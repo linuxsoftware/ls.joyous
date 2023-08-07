@@ -18,7 +18,7 @@ Compatibility with Wagtail 2.11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now that 2.11 is the new LTS for Wagtail
 replace request.site with Site.find_for_request(request) removing the need 
-for wagtail.core.middleware.SiteMiddleware.  Thanks to Tomas Walch for this.
+for wagtail.middleware.SiteMiddleware.  Thanks to Tomas Walch for this.
 
 Compatibility with Wagtail 2.12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

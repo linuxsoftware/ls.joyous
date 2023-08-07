@@ -9,9 +9,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.formats import get_format
-from wagtail.admin.edit_handlers import get_form_for_model
+from wagtail.admin.panels import get_form_for_model
 from wagtail.admin.widgets import AdminTimeInput, AdminDateInput
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from ls.joyous.models.recurring_events import (CancellationPageForm,
         RecurringEventPageForm, HiddenNumDaysPanel)
 from ls.joyous.models import (CalendarPage, CancellationPage,

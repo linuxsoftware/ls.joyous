@@ -7,7 +7,7 @@ from django.test import RequestFactory, override_settings
 from django_bs_test import TestCase
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
-from wagtail.core.models import Page
+from wagtail.models import Page
 from ls.joyous.models.groups import GroupPage
 from ls.joyous.models.groups import get_group_model
 

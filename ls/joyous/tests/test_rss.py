@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 from django_bs_test import TestCase
 from django.utils import timezone
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from wagtail.images.models import Image
 from wagtail.images.tests.utils import get_test_image_file
 from ls.joyous.models import CalendarPage

@@ -46,7 +46,7 @@ EventsOnDay
 EventCategory
 -------------
 .. inheritance-diagram:: EventCategory
-    :top-classes: wagtail.core.models.Page
+    :top-classes: wagtail.models.Page
     :parts: 1
 .. autoclass:: EventCategory
     :show-inheritance:
@@ -126,7 +126,7 @@ EventBase
 SimpleEventPage
 ---------------
 .. inheritance-diagram:: SimpleEventPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.event_base.EventBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.event_base.EventBase
     :parts: 1
 .. autoclass:: SimpleEventPage
     :show-inheritance:
@@ -143,7 +143,7 @@ SimpleEventPage
 MultidayEventPage
 -----------------
 .. inheritance-diagram:: MultidayEventPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.event_base.EventBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.event_base.EventBase
     :parts: 1
 .. autoclass:: MultidayEventPage
     :show-inheritance:
@@ -164,7 +164,7 @@ MultidayEventPage
 RecurringEventPage
 ------------------
 .. inheritance-diagram:: RecurringEventPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.event_base.EventBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.event_base.EventBase
     :parts: 1
 .. autoclass:: RecurringEventPage
     :show-inheritance:
@@ -197,7 +197,7 @@ RecurringEventPage
 MultidayRecurringEventPage
 --------------------------
 .. inheritance-diagram:: MultidayRecurringEventPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.RecurringEventPage
+    :top-classes: wagtail.models.Page, ls.joyous.models.recurring_events.RecurringEventPage
     :parts: 1
 .. autoclass:: MultidayRecurringEventPage
     :show-inheritance:
@@ -280,7 +280,7 @@ DateExceptionBase
 ExtraInfoPage
 -------------
 .. inheritance-diagram:: ExtraInfoPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.DateExceptionBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.recurring_events.DateExceptionBase
     :parts: 1
 .. autoclass:: ExtraInfoPage
     :show-inheritance:
@@ -325,7 +325,7 @@ CancellationBase
 CancellationPage
 ----------------
 .. inheritance-diagram:: CancellationPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.DateExceptionBase, ls.joyous.models.recurring_events.CancellationBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.recurring_events.DateExceptionBase, ls.joyous.models.recurring_events.CancellationBase
     :parts: 1
 .. autoclass:: CancellationPage
     :show-inheritance:
@@ -402,7 +402,7 @@ RescheduleMultidayEventPage
 ClosedForHolidaysPage
 ---------------------
 .. inheritance-diagram:: ClosedForHolidaysPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.EventExceptionBase, ls.joyous.models.recurring_events.CancellationBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.recurring_events.EventExceptionBase, ls.joyous.models.recurring_events.CancellationBase
     :parts: 1
 .. autoclass:: ClosedForHolidaysPage
     :show-inheritance:
@@ -431,7 +431,7 @@ ClosedForHolidaysPage
 ExtCancellationPage
 -------------------
 .. inheritance-diagram:: ExtCancellationPage
-    :top-classes: wagtail.core.models.Page, ls.joyous.models.recurring_events.EventExceptionBase, ls.joyous.models.recurring_events.CancellationBase
+    :top-classes: wagtail.models.Page, ls.joyous.models.recurring_events.EventExceptionBase, ls.joyous.models.recurring_events.CancellationBase
     :parts: 1
 .. autoclass:: ExtCancellationPage
     :show-inheritance:

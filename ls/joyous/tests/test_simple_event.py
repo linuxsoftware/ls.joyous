@@ -8,7 +8,7 @@ from django.test import RequestFactory, override_settings
 from django_bs_test import TestCase
 from django.contrib.auth.models import User, AnonymousUser, Group
 from django.utils import timezone
-from wagtail.core.models import Page, PageViewRestriction
+from wagtail.models import Page, PageViewRestriction
 from ls.joyous.models import SpecificCalendarPage
 from ls.joyous.models import SimpleEventPage, ThisEvent, EventsOnDay
 from ls.joyous.models import get_group_model

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 import sys
 import datetime as dt
-from wagtail.core.models import Page
+from wagtail.models import Page
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from ls.joyous.models import RecurringEventPage, PostponementPage, GeneralCalendarPage

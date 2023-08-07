@@ -8,7 +8,7 @@ import calendar
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from wagtail.core.models import Page, PageViewRestriction
+from wagtail.models import Page, PageViewRestriction
 from ls.joyous.models import (EventBase, removeContentPanels, SimpleEventPage,
             MultidayEventPage, RecurringEventPage, MultidayRecurringEventPage,
             PostponementPage, RescheduleMultidayEventPage)

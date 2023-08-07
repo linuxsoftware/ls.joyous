@@ -6,7 +6,7 @@ import datetime as dt
 from functools import wraps
 from django.utils import timezone
 from dateutil import parser
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from freezegun import freeze_time
 
 # ------------------------------------------------------------------------------

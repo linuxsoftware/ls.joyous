@@ -7,7 +7,7 @@ import pytz
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from wagtail.core.models import Page
+from wagtail.models import Page
 from ls.joyous.models import CalendarPage
 from ls.joyous.models import MultidayEventPage
 from freezegun import freeze_time
