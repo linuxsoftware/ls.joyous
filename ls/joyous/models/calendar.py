@@ -156,7 +156,7 @@ class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
         else:
             return self.serveMonth(request, year)
 
-    @route(r"^{YYYY}/{Mon}/$(?i)".format(**DatePictures))
+    @route(r"^{YYYY}/{Mon}/$".format(**DatePictures))
     def routeByMonthAbbr(self, request, year, monthAbbr):
         """Route a request with a month abbreviation to the monthly view."""
         month = (DatePictures['Mon'].index(monthAbbr.lower()) // 4) + 1
