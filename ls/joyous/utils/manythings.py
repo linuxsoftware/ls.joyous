@@ -60,7 +60,7 @@ def toTheOrdinal(n, inTitleCase=True):
         retval = _("the")
         if inTitleCase:
             retval = retval.capitalize()
-        retval += " "+_n2w(n, to="ordinal_num")
+        retval += " " + str(_n2w(n, to="ordinal_num"))
         return retval
     if inTitleCase:
         retval = retval.capitalize()
