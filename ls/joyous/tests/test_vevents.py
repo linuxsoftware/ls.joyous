@@ -7,7 +7,7 @@ import pytz
 from icalendar import vDatetime
 from django.contrib.auth.models import User
 from django.test import TestCase, RequestFactory
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, MultidayRecurringEventPage,

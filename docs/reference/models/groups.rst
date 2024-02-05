@@ -9,7 +9,7 @@ Groups
 GroupPage
 ---------
 .. inheritance-diagram:: GroupPage
-    :top-classes: wagtail.core.models.Page
+    :top-classes: wagtail.models.Page
     :parts: 1
 .. autoclass:: GroupPage
     :show-inheritance:

@@ -3,7 +3,7 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import modelcluster.fields
-import wagtail.core.fields
+import wagtail.fields
 
 
 class Migration(migrations.Migration):
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('page_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='wagtailcore.Page')),
                 ('all_holidays', models.BooleanField(default=True, help_text='Cancel any occurence of this event on a public holiday')),
                 ('cancellation_title', models.CharField(blank=True, help_text='Show in place of cancelled event (Leave empty to show nothing)', max_length=255, verbose_name='title')),
-                ('cancellation_details', wagtail.core.fields.RichTextField(blank=True, help_text='Why was the event cancelled?', verbose_name='details')),
+                ('cancellation_details', wagtail.fields.RichTextField(blank=True, help_text='Why was the event cancelled?', verbose_name='details')),
                 ('overrides', models.ForeignKey(help_text='The recurring event that we are updating.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='joyous.RecurringEventPage', verbose_name='overrides')),
             ],
             options={

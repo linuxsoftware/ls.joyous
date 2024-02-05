@@ -5,7 +5,7 @@ import sys
 from unittest.mock import Mock, patch
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
-from wagtail.core.models import Page
+from wagtail.models import Page
 from ls.joyous.models.calendar import CalendarPage, CalendarPageForm
 from ls.joyous.wagtail_hooks import handlePageExport, stashRequest
 

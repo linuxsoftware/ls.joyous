@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from ls.joyous.models.calendar import CalendarPage
 from ls.joyous.models import (SimpleEventPage, MultidayEventPage,
         RecurringEventPage, CancellationPage, MultidayRecurringEventPage,

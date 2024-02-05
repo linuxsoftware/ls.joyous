@@ -5,7 +5,7 @@ Calendar
 CalendarPage
 ------------
 .. inheritance-diagram:: CalendarPage
-    :top-classes: wagtail.core.models.Page
+    :top-classes: wagtail.models.Page
     :parts: 1
 .. autoclass:: CalendarPage
     :show-inheritance:

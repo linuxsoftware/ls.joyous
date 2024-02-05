@@ -13,14 +13,14 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
 from timezone_field import TimeZoneField
-from wagtail.core.models import Page, PageManager, PageViewRestriction
+from wagtail.models import Page, PageManager, PageViewRestriction
 try:
     from wagtail.query import PageQuerySet
 except ImportError:
-    from wagtail.core.query import PageQuerySet
-from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import (FieldPanel,
-        PageChooserPanel, BaseCompositeEditHandler)
+    from wagtail.query import PageQuerySet
+from wagtail.fields import RichTextField
+from wagtail.admin.panels import (FieldPanel,
+        PageChooserPanel)
 from wagtail.images import get_image_model_string
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -40,7 +40,7 @@ def _filterContentPanels(panels, remove):
     for panel in panels:
         if isinstance(panel, FieldPanel) and panel.field_name in remove:
             continue
-        elif isinstance(panel, BaseCompositeEditHandler):
+        elif isinstance(panel):
             panel.children = _filterContentPanels(panel.children, remove)
         retval.append(panel)
     return retval

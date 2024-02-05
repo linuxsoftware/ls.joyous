@@ -18,11 +18,10 @@ from django.utils import translation
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext, gettext_noop
-from wagtail.core.models import Page
-from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
+from wagtail.models import Page
+from wagtail.fields import RichTextField
+from wagtail.admin.panels import (FieldPanel, MultiFieldPanel,
         PageChooserPanel)
-from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -237,7 +236,7 @@ class RecurringEventPage(EventBase, Page, metaclass=FormDefender):
 
     content_panels0 = Page.content_panels + [
         FieldPanel('category'),
-        ImageChooserPanel('image'),
+        FieldPanel('image'),
         FieldPanel('repeat')]
     content_panels1 = [
         TimePanel('time_from'),
@@ -1228,7 +1227,7 @@ class PostponementPage(RoutablePageMixin, RescheduleEventBase, CancellationPage)
 
     postponement_panel0 = [
             FieldPanel('postponement_title', classname="full title"),
-            ImageChooserPanel('image'),
+            FieldPanel('image'),
             FieldPanel('date')]
     postponement_panel1 = [
             TimePanel('time_from'),

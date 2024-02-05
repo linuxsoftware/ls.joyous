@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import TestCase, RequestFactory
-from wagtail.core.models import Site, Page
+from wagtail.models import Site, Page
 from bs4 import BeautifulSoup
 from ls.joyous.utils.recurrence import Recurrence
 from ls.joyous.utils.recurrence import (DAILY, WEEKLY, MONTHLY, YEARLY,

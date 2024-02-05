@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import wagtail.core.fields
+import wagtail.fields
 
 
 class Migration(migrations.Migration):
@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='grouppage',
             name='content',
-            field=wagtail.core.fields.RichTextField(blank=True, default='', help_text='An area of text for whatever you like'),
+            field=wagtail.fields.RichTextField(blank=True, default='', help_text='An area of text for whatever you like'),
         ),
     ]

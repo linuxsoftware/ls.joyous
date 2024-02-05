@@ -14,6 +14,7 @@
 *.wpu
 *~
 .cache
+.idea
 .coverage
 .tox
 .webassets-cache

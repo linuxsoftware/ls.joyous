@@ -13,9 +13,9 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from wagtail.core.models import Page, Site
-from wagtail.core.fields import RichTextField
-from wagtail.admin.edit_handlers import HelpPanel, FieldPanel, MultiFieldPanel
+from wagtail.models import Page, Site
+from wagtail.fields import RichTextField
+from wagtail.admin.panels import HelpPanel, FieldPanel, MultiFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.search import index
 from .. import __version__
@@ -156,7 +156,7 @@ class CalendarPage(RoutablePageMixin, Page, metaclass=FormDefender):
         else:
             return self.serveMonth(request, year)
 
-    @route(r"^{YYYY}/{Mon}/$(?i)".format(**DatePictures))
+    @route(r"^{YYYY}/{Mon}/$".format(**DatePictures))
     def routeByMonthAbbr(self, request, year, monthAbbr):
         """Route a request with a month abbreviation to the monthly view."""
         month = (DatePictures['Mon'].index(monthAbbr.lower()) // 4) + 1
